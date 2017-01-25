@@ -1,0 +1,8 @@
+﻿@model  WebApplication1.PageModel.TextPage
+@{
+    ViewBag.Title = Model.Title;
+}
+
+<h2>Text  page </h2>
+@Model.Text
+@Html.ActionLink("link do details", "details", new { id = "some-alias", page=2 })

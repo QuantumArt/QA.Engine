@@ -1,0 +1,49 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace WebApplication1.PageModel
+{
+    public abstract class AbstractItem
+    {
+        public AbstractItem()
+        {
+            Children = new List<AbstractItem>();
+        }
+
+        public AbstractItem(int id, string alias, string title, params AbstractItem[] children)
+        {
+            Id = id;
+            Alias = alias;
+            Title = title;
+            Array.ForEach(children, c => c.Parent = this);
+            Children = new List<AbstractItem>(children);
+        }
+
+        public int Id { get; set; }
+        public AbstractItem Parent { get; set; }
+        public IList<AbstractItem> Children { get; private set; }
+        public string Alias { get; set; }
+        public string Title { get; set; }
+
+        public string GetTrail()
+        {
+            var sb = new StringBuilder();
+            var item = this;
+            while(item != null && !(item is IStartPage))
+            {
+                sb.Insert(0, item.Alias + (Parent == null ? "" : "/"));
+                item = item.Parent;
+            }
+
+            return sb.ToString().TrimEnd('/');
+        }
+
+        public AbstractItem Get(string alias)
+        {
+            return Children.FirstOrDefault(x => string.Equals(x.Alias, alias, StringComparison.InvariantCultureIgnoreCase));
+        }
+    }
+}

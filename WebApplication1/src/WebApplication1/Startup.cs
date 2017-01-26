@@ -70,6 +70,15 @@ namespace WebApplication1
                 //        new RouteValueDictionary(null),
                 //    requiredService));
 
+                //routes.MapRoute("static controllers route1", "test/{action=Index}/{id?}", new { controller="somestatic"});
+
+                routes.Routes.Add(new ContentRoute(storage, routes.DefaultHandler, "default1", "{controller}/{action=Details}/{id}/{page}",
+                        new RouteValueDictionary(null),
+                        new RouteValueDictionary(null),
+                        new RouteValueDictionary(null),
+                          requiredService));
+
+
                 routes.Routes.Add(new ContentRoute(storage, routes.DefaultHandler, "default", "{controller}/{action=Index}/{id?}", 
                     new RouteValueDictionary(null), 
                     new RouteValueDictionary(null), 

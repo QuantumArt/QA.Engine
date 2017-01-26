@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using WebApplication1.Helpers
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -26,7 +27,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">WebApplication1</a>
+                <a href="/" class="navbar-brand">Start page</a>
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
@@ -41,6 +42,8 @@
         @RenderBody()
         <hr />
         <footer>
+            <h5>Tree:</h5>
+            @Html.Tree()
             <p>&copy; 2017 - WebApplication1</p>
         </footer>
     </div>
@@ -63,5 +66,6 @@
     </environment>
 
     @RenderSection("scripts", required: false)
+   
 </body>
 </html>

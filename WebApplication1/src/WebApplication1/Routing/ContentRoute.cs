@@ -41,12 +41,6 @@ namespace WebApplication1.Routing
         }
 
 
-
-        protected virtual VirtualPathData OnVirtualPathGenerating(VirtualPathContext context, VirtualPathData virtualPathData)
-        {
-            return virtualPathData;
-        }
-
         public override Task RouteAsync(RouteContext context)
         {
             PathString path = context.HttpContext.Request.Path;
@@ -55,11 +49,12 @@ namespace WebApplication1.Routing
 
             EnsureLoggers(context.HttpContext);
 
-            var data = new PathFinder().Find(path, _storage.Root);
-
+            var data = (context.HttpContext.Items["current-page"] as PathData) ?? new PathFinder().Find(path, _storage.Root);
+            
             if (data != null)
             {
                 path = data.RemainingUrl;
+                context.HttpContext.Items["current-page"] = data;
             }
 
             var controllerName = _mapper.Map(data.AbstractItem);
@@ -91,13 +86,84 @@ namespace WebApplication1.Routing
                 }
             }
 
-            if (!RouteConstraintMatcher.Match(this.Constraints, context.RouteData.Values, context.HttpContext, this, RouteDirection.IncomingRequest, this._constraintLogger))
+            if (!RouteConstraintMatcher.Match(this.Constraints, 
+                context.RouteData.Values,
+                context.HttpContext, this,
+                RouteDirection.IncomingRequest,
+                this._constraintLogger))
             {
                 return Task.FromResult<int>(0);
             }
 
             return this.OnRouteMatched(context);
         }
+
+
+        public override VirtualPathData GetVirtualPath(VirtualPathContext context)
+        {
+            this.EnsureBinder(context.HttpContext);
+            this.EnsureLoggers(context.HttpContext);
+
+            if (!context.HttpContext.GetRouteData().DataTokens.ContainsKey("ui-item"))
+            {
+                return null;
+            }
+            
+            TemplateValuesResult values = this._binder.GetValues(context.AmbientValues, context.Values);
+            if (values == null)
+            {
+                return null;
+            }
+            if (!RouteConstraintMatcher.Match(this.Constraints, 
+                values.CombinedValues, 
+                context.HttpContext, this, 
+                RouteDirection.UrlGeneration, 
+                this._constraintLogger))
+            {
+                return null;
+            }
+            context.Values = values.CombinedValues;
+            VirtualPathData virtualPathData = this.OnVirtualPathGenerated(context);
+            if (virtualPathData != null)
+            {
+                return virtualPathData;
+            }
+
+
+            var page = context.HttpContext.GetRouteData().DataTokens["ui-item"] as AbstractItem;
+
+            var controllerName = _mapper.Map(page);
+
+            if(!string.Equals(controllerName, context.Values["controller"]))
+            {
+                return null;
+            }
+
+            values.AcceptedValues["controller"] = "--replace-with-path--";
+
+            values.AcceptedValues.Remove("ui-item");
+
+            string text = this._binder.BindValues(values.AcceptedValues);
+            if (text == null)
+            {
+                return null;
+            }
+
+            text = text.Replace("--replace-with-path--", page.GetTrail().TrimStart('/'));
+
+            virtualPathData = new VirtualPathData(this, text);
+
+            if (this.DataTokens != null)
+            {
+                foreach (KeyValuePair<string, object> current in this.DataTokens)
+                {
+                    virtualPathData.DataTokens.Add(current.Key, current.Value);
+                }
+            }
+
+            return virtualPathData;
+        }
+
 
         private void EnsureMatcher()
         {
@@ -126,66 +192,6 @@ namespace WebApplication1.Routing
                 this._binder = new TemplateBinder(requiredService, requiredService2, this.ParsedTemplate, this.Defaults);
             }
         }
-
-        public override VirtualPathData GetVirtualPath(VirtualPathContext context)
-        {
-            this.EnsureBinder(context.HttpContext);
-            this.EnsureLoggers(context.HttpContext);
-            TemplateValuesResult values = this._binder.GetValues(context.AmbientValues, context.Values);
-            if (values == null)
-            {
-                return null;
-            }
-            if (!RouteConstraintMatcher.Match(this.Constraints, values.CombinedValues, context.HttpContext, this, RouteDirection.UrlGeneration, this._constraintLogger))
-            {
-                return null;
-            }
-            context.Values = values.CombinedValues;
-            VirtualPathData virtualPathData = this.OnVirtualPathGenerated(context);
-            if (virtualPathData != null)
-            {
-                return virtualPathData;
-            }
-
-            if (!context.HttpContext.GetRouteData().DataTokens.ContainsKey("ui-item"))
-            {
-                return null;
-            }
-
-            var page = context.HttpContext.GetRouteData().DataTokens["ui-item"] as AbstractItem;
-
-            var controllerName = _mapper.Map(page);
-
-            if(!string.Equals(controllerName, context.Values["controller"]))
-            {
-                return null;
-            }
-
-            values.AcceptedValues["controller"] = "--replace-with-path--";
-            values.AcceptedValues.Remove("ui-item");
-
-            string text = this._binder.BindValues(values.AcceptedValues);
-            if (text == null)
-            {
-                return null;
-            }
-
-            text = text.Replace("--replace-with-path--", page.GetTrail());
-
-            virtualPathData = new VirtualPathData(this, text);
-            if (this.DataTokens != null)
-            {
-                foreach (KeyValuePair<string, object> current in this.DataTokens)
-                {
-                    virtualPathData.DataTokens.Add(current.Key, current.Value);
-                }
-            }
-
-            virtualPathData = OnVirtualPathGenerating(context, virtualPathData);
-
-            return virtualPathData;
-        }
-
 
         protected override async Task OnRouteMatched(RouteContext context)
         {

@@ -3,6 +3,6 @@
     ViewBag.Title = Model.Title;
 }
 
-<h2>Text  page </h2>
+<h2>@Model.Title (@Model.Alias - @Model.Id) </h2>
 @Model.Text
-Ссылка - @Html.ActionLink("link do details", "details", new { id = "some-alias", page=2 })
+<div>Ссылка - @Html.ActionLink("link do details", "details", new { id = "some-alias", page = 2, r=4 })</div>

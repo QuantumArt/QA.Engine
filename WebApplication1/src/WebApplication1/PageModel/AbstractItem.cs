@@ -8,6 +8,7 @@ namespace WebApplication1.PageModel
 {
     public abstract class AbstractItem
     {
+        private string _url;
         public AbstractItem()
         {
             Children = new List<AbstractItem>();
@@ -30,15 +31,20 @@ namespace WebApplication1.PageModel
 
         public string GetTrail()
         {
-            var sb = new StringBuilder();
-            var item = this;
-            while(item != null && !(item is IStartPage))
+            if (_url == null)
             {
-                sb.Insert(0, item.Alias + (Parent == null ? "" : "/"));
-                item = item.Parent;
+                var sb = new StringBuilder();
+                var item = this;
+                while (item != null && !(item is IStartPage))
+                {
+                    sb.Insert(0, item.Alias + (Parent == null ? "" : "/"));
+                    item = item.Parent;
+                }
+
+                return (_url = $"/{sb.ToString().TrimEnd('/')}");
             }
 
-            return sb.ToString().TrimEnd('/');
+            return _url;
         }
 
         public AbstractItem Get(string alias)

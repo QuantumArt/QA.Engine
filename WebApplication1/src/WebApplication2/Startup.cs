@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
@@ -11,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using Common.PageModel;
 using Common.Routing;
 
-namespace WebApplication1
+namespace WebApplication2
 {
     public class Startup
     {
@@ -57,7 +53,7 @@ namespace WebApplication1
             var storage = app.ApplicationServices.GetService<AbstractItemStorage>();
             InitializeFakeSiteStructure(storage);
 
-            
+
 
             app.UseMvc(routes =>
             {
@@ -90,10 +86,11 @@ namespace WebApplication1
                                 new TextPage(3, "help", "Help page",
                                     new TextPage(4, "first", "First page") { Text = "Some first page text" },
                                     new TextPage(5, "second", "Second page") { Text = "Some second page text" },
-                                    new TextPage(6, "another", "Another page", 
+                                    new TextPage(6, "another", "Another page",
                                         new TextPage(11, "test", "Test page")
-                                        ) { Text = "Some page text" }
-                                    ),                                
+                                        )
+                                    { Text = "Some page text" }
+                                    ),
                                 new TextPage(7, "help-new", "Help page",
                                     new TextPage(8, "first", "First page") { Text = "Some first page text" },
                                     new TextPage(9, "second", "Second page") { Text = "Some second page text" },

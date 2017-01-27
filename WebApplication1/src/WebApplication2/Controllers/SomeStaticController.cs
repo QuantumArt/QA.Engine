@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Common;
 
-namespace WebApplication1.Controllers
+namespace WebApplication2.Controllers
 {
     public class SomeStaticController : Controller
     {

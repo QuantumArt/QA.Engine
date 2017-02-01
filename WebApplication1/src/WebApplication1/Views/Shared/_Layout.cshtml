@@ -1,4 +1,5 @@
-﻿@using WebApplication1.Helpers
+﻿@using Common.Helpers
+@using Common.Widgets
 <!DOCTYPE html>
 <html>
 <head>
@@ -39,6 +40,7 @@
         </div>
     </div>
     <div class="container body-content">
+        @await Component.WidgetZone(Html, "Above")
         @RenderBody()
         <hr />
         <footer>
@@ -46,6 +48,7 @@
             @Html.Tree()
             <p>&copy; 2017 - WebApplication1</p>
         </footer>
+        @await Component.WidgetZone(Html, "Below")
     </div>
 
     <environment names="Development">

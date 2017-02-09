@@ -21,7 +21,9 @@ namespace Common.Widgets
 
         public Task InvokeAsync(ViewComponentContext context)
         {
-            context.ViewData["CurrentItem"] = context.ViewContext.HttpContext.Items["ui-part"] as AbstractItem;
+            var currentItem= context.ViewContext.HttpContext.Items["ui-part"] as AbstractItem;
+            context.Arguments["currentItem"] = currentItem;
+            context.ViewData["CurrentItem"] = currentItem;
             return _inner.InvokeAsync(context);
         }
     }

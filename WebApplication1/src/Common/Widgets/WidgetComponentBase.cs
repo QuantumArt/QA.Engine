@@ -11,11 +11,11 @@ namespace Common.Widgets
         where T : AbstractWidget
     {
         protected T CurrentItem { get; private set; }
-        public Task<IViewComponentResult> InvokeAsync(T widget)
-        {
-            CurrentItem = widget;
-            return RenderAsync(widget);
+        public Task<IViewComponentResult> InvokeAsync(T currentItem)
+        {            
+            CurrentItem = currentItem;
+            return RenderAsync(currentItem, ViewComponentContext.Arguments);
         }
-        public abstract Task<IViewComponentResult> RenderAsync(T widget);
+        public abstract Task<IViewComponentResult> RenderAsync(T currentItem, IDictionary<string, object> argumets);
     }
 }

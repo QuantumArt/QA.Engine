@@ -9,8 +9,8 @@ namespace WebApplication1
 {
     public class TextPartViewComponent : WidgetComponentBase<TextPart>
     {        
-        public override async Task<IViewComponentResult> RenderAsync(TextPart widget)
-        {
+        public override async Task<IViewComponentResult> RenderAsync(TextPart widget, IDictionary<string, object> argumets)
+        {         
             // call some service:  var data = await _service.GetSomedata(widget.SomeProperty)
 
             await Task.Yield(); // do stub work to satisfy async-await syntax

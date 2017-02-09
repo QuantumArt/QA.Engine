@@ -16,7 +16,7 @@ namespace Common.Widgets
     {
 
 
-        public static async Task<IHtmlContent> WidgetZone(this IViewComponentHelper helper, IHtmlHelper html, string zoneName)
+        public static async Task<IHtmlContent> WidgetZone(this IViewComponentHelper helper, IHtmlHelper html, string zoneName, object arguments = null)
         {
             var builder = new HtmlContentBuilder();
             //var root = ((AbstractItemStorage)html.ViewContext.HttpContext.RequestServices.GetService(typeof(AbstractItemStorage))).Root;
@@ -46,7 +46,7 @@ namespace Common.Widgets
                         {
                             html.ViewContext.HttpContext.Items["start-redendering-widgets"] = true;
                             html.ViewContext.HttpContext.Items["ui-part"] = widget;
-                            var result = await helper.InvokeAsync(name, widget);
+                            var result = await helper.InvokeAsync(name, arguments);
                             builder.AppendHtml(result);
                         }
                         finally
@@ -55,7 +55,6 @@ namespace Common.Widgets
                             html.ViewContext.HttpContext.Items.Remove("start-redendering-widgets");
                             builder.AppendHtml($"<!-- finish render widget {widget.Id} -->");
                         }
-
                     }
 
                     builder.AppendHtml($"<!--start zone {zoneName} -->");

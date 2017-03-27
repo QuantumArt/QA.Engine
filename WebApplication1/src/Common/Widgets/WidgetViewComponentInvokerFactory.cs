@@ -18,6 +18,7 @@ namespace Common.Widgets
         private readonly ILogger _logger;
 
         private readonly DiagnosticSource _diagnosticSource;
+        private readonly WidgetContextScope _scope;
 
         public WidgetViewComponentInvokerFactory(IViewComponentFactory viewComponentFactory, ViewComponentInvokerCache viewComponentInvokerCache, DiagnosticSource diagnosticSource, ILoggerFactory loggerFactory)
         {
@@ -41,6 +42,7 @@ namespace Common.Widgets
             this._diagnosticSource = diagnosticSource;
             this._viewComponentInvokerCache = viewComponentInvokerCache;
             this._logger = loggerFactory.CreateLogger<DefaultViewComponentInvoker>();
+            this._scope = new WidgetContextScope();
         }
 
         public IViewComponentInvoker CreateInstance(ViewComponentContext context)
@@ -49,7 +51,7 @@ namespace Common.Widgets
             {
                 throw new ArgumentNullException("context");
             }
-            return new WidgetViewComponentInvoker(new DefaultViewComponentInvoker(this._viewComponentFactory,
+            return new WidgetViewComponentInvoker(_scope, new DefaultViewComponentInvoker(this._viewComponentFactory,
                 this._viewComponentInvokerCache,
                 this._diagnosticSource,
                 this._logger));

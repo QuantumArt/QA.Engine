@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Common.PageModel
 {
-    public class TextPage : AbstractItem
+    public class TextPage : AbstractItem, IPage
     {
         public TextPage():base()
         {

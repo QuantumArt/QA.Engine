@@ -11,6 +11,10 @@
     "netstandard1.6": {
       "imports": "dnxcore50"
     },
-    "net452": {}
+    "net452": {
+      "dependencies": {
+        "System.Runtime": "4.3.0"
+      }
+    }
   }
 }

@@ -1,4 +1,4 @@
-﻿{
+{
   "dependencies": {
     "Microsoft.AspNetCore.Razor.Tools": {
       "version": "1.0.0-preview2-final",
@@ -6,7 +6,7 @@
     },
     "Microsoft.AspNetCore.Routing": "1.1.0",
     "Common": "1.0.0-*",
-    "BundlerMinifier.Core": "2.2.306",
+    "BundlerMinifier.Core": "2.3.327",
     "Microsoft.AspNetCore.Diagnostics": "1.1.0",
     "Microsoft.AspNetCore.Mvc": "1.1.1",
     "Microsoft.AspNetCore.Server.IISIntegration": "1.1.0",

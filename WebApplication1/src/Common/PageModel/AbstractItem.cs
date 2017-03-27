@@ -23,7 +23,7 @@ namespace Common.PageModel
             {
                 item.Parent = this;
             }
-            
+
         }
 
         public int Id { get; set; }
@@ -34,6 +34,11 @@ namespace Common.PageModel
 
         public string GetTrail()
         {
+            if (this is AbstractWidget)
+            {
+                return string.Empty;
+            }
+
             if (_url == null)
             {
                 var sb = new StringBuilder();

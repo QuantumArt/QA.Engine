@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Common.PageModel
 {
-    public class AbstractWidget : AbstractItem
+    public abstract class AbstractWidget : AbstractItem
     {
         public string ZoneName { get; set; }
 

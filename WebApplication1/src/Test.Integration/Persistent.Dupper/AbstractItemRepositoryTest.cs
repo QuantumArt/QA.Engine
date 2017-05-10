@@ -1,6 +1,7 @@
 ﻿using System.Data.SqlClient;
 using Xunit;
 using Common.Persistent.Dupper;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Test.Integration.Persistent.Dupper
 {
@@ -13,9 +14,11 @@ namespace Test.Integration.Persistent.Dupper
         {
             //qp_database
             using (SqlConnection connection = new SqlConnection(connectionString))
+            using (IMemoryCache memoryCache = new MemoryCache(new MemoryCacheOptions()))
             {
-                var repo = new AbstractItemRepository(connection);
+                var repo = new AbstractItemRepository(connection, memoryCache);
                 var items = repo.GetAll();
+                items = repo.GetAll();
             }
 
             Assert.True(true);

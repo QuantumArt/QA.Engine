@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Caching.Memory;
+using System;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -10,11 +11,12 @@ namespace Common.Persistent.Dupper
 
         private readonly IDbConnection _connection;
 
-        public UnitOfWork(string connectionString)
+
+        public UnitOfWork(string connectionString, IMemoryCache memoryCache)
         {
             _connection = new SqlConnection(connectionString);
             _connection.Open();
-            _abstractItemRepository = new Lazy<IAbstractItemRepository>(() => new AbstractItemRepository(_connection));
+            _abstractItemRepository = new Lazy<IAbstractItemRepository>(() => new AbstractItemRepository(_connection, memoryCache));
         }
 
 

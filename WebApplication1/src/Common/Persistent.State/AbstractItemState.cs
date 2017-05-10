@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Common
+namespace Common.Persistent.State
 {
-    public class Class1
+    public class AbstractItemState
     {
-        public Class1()
-        {
-        }
+        public string Title { get; set; }
     }
 }

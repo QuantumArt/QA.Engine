@@ -14,6 +14,7 @@ namespace Common.PageModel
         public TextPage(int id, string alias, string title, params AbstractItem[] children):base(id, alias, title, children)
         {
         }
+
         public string Text { get; set; }
     }
 }

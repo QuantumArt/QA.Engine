@@ -2,6 +2,7 @@
 using Xunit;
 using Common.Persistent.Dupper;
 using Microsoft.Extensions.Caching.Memory;
+using Common.PageModel;
 
 namespace Test.Integration.Persistent.Dupper
 {
@@ -17,8 +18,11 @@ namespace Test.Integration.Persistent.Dupper
             using (IMemoryCache memoryCache = new MemoryCache(new MemoryCacheOptions()))
             {
                 var repo = new AbstractItemRepository(connection, memoryCache);
-                var items = repo.GetAll();
-                items = repo.GetAll();
+                var root = repo.GetRoot();
+                root = repo.GetRoot();
+
+                var storage = new AbstractItemStorage();
+                storage.InitializeWith(root);
             }
 
             Assert.True(true);

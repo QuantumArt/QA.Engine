@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Linq;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Common.PageModel;
@@ -9,7 +10,7 @@ namespace Common.Helpers
     {
         public static HtmlString Tree(this IHtmlHelper html)
         {
-            var root = ((AbstractItemStorage)html.ViewContext.HttpContext.RequestServices.GetService(typeof(AbstractItemStorage))).Root;
+            var root = ((IAbstractItemStorageProvider)html.ViewContext.HttpContext.RequestServices.GetService(typeof(IAbstractItemStorageProvider))).Get().Root;
 
             var sb = new StringBuilder();
 
@@ -31,7 +32,7 @@ namespace Common.Helpers
         {
             sb.Append($"<li> <a href = {node.GetTrail()}> {node.Title} </a></li>");
 
-            if (node.Children.Count > 0)
+            if (node.Children.Any())
             {
                 sb.Append("<ul>");
                 foreach (var item in node.Children)

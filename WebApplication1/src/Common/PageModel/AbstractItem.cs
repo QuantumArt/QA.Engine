@@ -18,7 +18,8 @@ namespace Common.PageModel
         {
             Id = id;
             Alias = alias;
-            Title = title; Children = new List<AbstractItem>(children);
+            Title = title;
+            Children = new List<AbstractItem>(children);
             foreach (var item in Children)
             {
                 item.Parent = this;
@@ -26,11 +27,11 @@ namespace Common.PageModel
             
         }
 
-        public int Id { get; set; }
-        public AbstractItem Parent { get; set; }
+        public int Id { get; private set; }
+        public AbstractItem Parent { get; private set; }
         public IList<AbstractItem> Children { get; private set; }
-        public string Alias { get; set; }
-        public string Title { get; set; }
+        public string Alias { get; private set; }
+        public string Title { get; private set; }
 
         public string GetTrail()
         {

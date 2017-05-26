@@ -3,7 +3,7 @@ using System;
 using System.Data;
 using System.Data.SqlClient;
 
-namespace Common.Persistent.Dupper
+namespace Common.Persistent.Dapper
 {
     public class UnitOfWork : IUnitOfWork, IDisposable
     {
@@ -12,17 +12,17 @@ namespace Common.Persistent.Dupper
         private readonly IDbConnection _connection;
 
 
-        public UnitOfWork(string connectionString, IMemoryCache memoryCache)
+        public UnitOfWork(string connectionString)
         {
             _connection = new SqlConnection(connectionString);
             _connection.Open();
-            _abstractItemRepository = new Lazy<IAbstractItemRepository>(() => new AbstractItemRepository(_connection, memoryCache));
+            _abstractItemRepository = new Lazy<IAbstractItemRepository>(() => new AbstractItemRepository(_connection));
         }
 
 
         Lazy<IAbstractItemRepository> _abstractItemRepository;
         public IAbstractItemRepository AbstractItemRepository => _abstractItemRepository.Value;
-        
+
         public void Dispose()
         {
             Dispose(true);
@@ -41,9 +41,10 @@ namespace Common.Persistent.Dupper
                 if (disposing)
                 {
                     // Free other state (managed objects).
+                    if (_connection.State != ConnectionState.Closed)
+                        _connection.Close();
                 }
 
-                _connection.Dispose();
                 disposed = true;
             }
         }

@@ -10,7 +10,7 @@ namespace Common.PageModel
         private Dictionary<int, AbstractItem> _items = new Dictionary<int, AbstractItem>();
         public AbstractItem Root { get; private set; }
 
-        public void InitializeWith(AbstractItem root)
+        public AbstractItemStorage(AbstractItem root)
         {
             Root = root;
             AddItemRecursive(root);

@@ -5,8 +5,8 @@
     ViewBag.Title = Model.Title;
 }
 
-<h2>@Model.Title (@Model.Alias - @Model.Id) </h2>
+@*<h2>@Model.Title (@Model.Alias - @Model.Id) </h2>
 @Model.Text
 <div>Ссылка - <text>@Html.ActionLink("link do details", "details", new { id = "some-alias", page = 2, r = 4 })</text> <br>  @Html.ActionLink("link do details", "details", new { id = "some-alias", page = 2, r = 4 })</div>
-@Html.Raw("<i>ialic</i>")
-@await Component.WidgetZone(Html, "Content", new { customParameter = 12 })
+
+@await Component.WidgetZone(Html, "Content", new { customParameter = 12 })*@

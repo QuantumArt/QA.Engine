@@ -13,9 +13,15 @@ namespace Common.Persistent.Data
 
         public string Title { get; set; }
 
+        public string ZoneName { get; set; }
+
         public bool Visible { get; set; }
 
-        public int Discriminator { get; set; }
+        public int? ExtensionId { get; set; }
+
+        public string Discriminator { get; set; }
+
+        public bool IsPage { get; set; }
 
     }
 }

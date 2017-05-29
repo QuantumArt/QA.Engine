@@ -6,15 +6,14 @@ using System.Linq;
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using Common.Persistent.Data;
+using System.Data.SqlClient;
+using Microsoft.SqlServer.Server;
 
 namespace Common.Persistent.Dapper
 {
     internal class AbstractItemRepository : IAbstractItemRepository
     {
-
         private readonly IDbConnection _connection;
-
-        IMemoryCache _memoryCache;
 
         public AbstractItemRepository(IDbConnection connection)
         {
@@ -26,49 +25,98 @@ SELECT CONTENT_ID AS ContentId
 FROM content
 WHERE NET_CONTENT_NAME = 'QPAbstractItem'";
 
+        private const string CmdGetItemDefinitionContentId = @"
+SELECT CONTENT_ID AS ContentId
+FROM content
+WHERE NET_CONTENT_NAME = 'QPDiscriminator'";
+
         private const string CmdGetAbstractItem = @"
 SELECT
-    content_item_id AS Id,
-    Name as Alias,
-    Title,
-    Visible,
-    Discriminator,
-    Parent AS ParentId
-FROM {0}
-WHERE
-    IsPage = 1 AND
-    VISIBLE = 1 AND
-    ARCHIVE = 0";
+    ai.content_item_id AS Id,
+    ai.Name as Alias,
+    ai.Title,
+    ai.Visible,
+    ai.Parent AS ParentId,
+    ai.ZoneName,
+    ai.ExtensionId,
+    def.Name as Discriminator,
+    def.IsPage
+FROM {0} ai
+INNER JOIN {1} def on ai.Discriminator = def.content_item_id
+";
+
+        private const string CmdGetExtension = @"[qa_extend_items]";
 
         string GetAbstractItemTable()
         {
             var result =  _connection.Query(CmdGetAbstractItemContentId).First();
-            return $"content_{result.ContentId}";
+            return $"content_{result.ContentId}_stage_new";
         }
 
-        //AbstractItem ConvertAbstractItem(AbstractItemPersistentData state)
-        //{
-        //    if (!state.Children.Any())
-        //    {
-        //        return new TextPage(state.Id, state.Alias, state.Title);
-        //    }
-
-        //    AbstractItem[] children = new AbstractItem[state.Children.Count()];
-        //    int i = 0;
-        //    foreach (var childState in state.Children)
-        //    {
-        //        children[i] = ConvertAbstractItem(childState);
-        //        i++;
-        //    }
-
-        //    return new TextPage(state.Id, state.Alias, state.Title, children);
-        //}
+        string GetItemDefinitionTable()
+        {
+            var result = _connection.Query(CmdGetItemDefinitionContentId).First();
+            return $"content_{result.ContentId}_stage_new";
+        }
 
         public IEnumerable<AbstractItemPersistentData> GetPlainAllAbstractItems()
         {
-            var itemsTable = GetAbstractItemTable();
-            return _connection.Query<AbstractItemPersistentData>(string.Format(CmdGetAbstractItem, itemsTable));
+            return _connection.Query<AbstractItemPersistentData>(string.Format(CmdGetAbstractItem, GetAbstractItemTable(), GetItemDefinitionTable()));
         }
 
+        public IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionId, int[] ids)
+        {
+            if (!(_connection is SqlConnection))
+                throw new NotImplementedException("GetAbstractItemExtensionData can be executed in MS SQL only");
+
+            var idsParameter = new List<SqlDataRecord>();
+            var metaData = new SqlMetaData[] { new SqlMetaData("Id", SqlDbType.Int) };
+            foreach (var id in ids)
+            {
+                var record = new SqlDataRecord(metaData);
+                record.SetInt32(0, id);
+                idsParameter.Add(record);
+            }
+
+            using (var command = (_connection as SqlConnection).CreateCommand())
+            {
+                command.CommandText = CmdGetExtension;
+                command.CommandType = CommandType.StoredProcedure;
+
+                var tvpParam = command.Parameters.AddWithValue("@Ids", idsParameter);
+                var isLive = command.Parameters.AddWithValue("@isLive", false);
+                var contentId = command.Parameters.AddWithValue("@contentId", extensionId);
+
+                isLive.SqlDbType = SqlDbType.Bit;
+                contentId.SqlDbType = SqlDbType.Int;
+                tvpParam.SqlDbType = SqlDbType.Structured;
+
+                var result = new Dictionary<int, AbstractItemExtensionCollection>();
+                
+                using (var reader = command.ExecuteReader())
+                {
+                    //DataTable not available in .NetStandart v1.6, go with reader
+                    while (reader.Read())
+                    {
+                        int id = 0;
+                        var extensionCollection = new AbstractItemExtensionCollection();
+                        for (var i = 0; i < reader.FieldCount; i++)
+                        {
+                            var column = reader.GetName(i);
+                            if (column == "Id")
+                                id = reader.GetInt32(i);
+                            else
+                                extensionCollection.Add(column, reader.GetValue(i));
+                        }
+
+                        if (id > 0)
+                            result[id] = extensionCollection;
+                    }
+
+                    return result;
+                }
+            }
+
+        }
     }
 }

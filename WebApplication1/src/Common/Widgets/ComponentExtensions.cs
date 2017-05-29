@@ -20,11 +20,11 @@ namespace Common.Widgets
         {
             var builder = new HtmlContentBuilder();
             //var root = ((AbstractItemStorage)html.ViewContext.HttpContext.RequestServices.GetService(typeof(AbstractItemStorage))).Root;
-            var currentPage = html.ViewContext.RouteData.DataTokens["ui-item"] as AbstractItem;
+            var currentPage = html.ViewContext.RouteData.DataTokens["ui-item"] as IAbstractItem;
 
             if (html.ViewContext.HttpContext.Items.ContainsKey("start-redendering-widgets"))
             {
-                currentPage = html.ViewBag.CurrentItem as AbstractItem;
+                currentPage = html.ViewBag.CurrentItem as IAbstractItem;
             }
 
             var sb = new StringBuilder();

@@ -5,8 +5,7 @@ using System.Threading.Tasks;
 
 namespace Common.PageModel
 {
-    public class StartPage : TextPage, IStartPage
+    public interface IRootPage
     {
-
     }
 }

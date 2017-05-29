@@ -37,15 +37,16 @@ namespace WebApplication1
         {
             // Add framework services.
             services.AddMvc();
-            
-            services.Add(new ServiceDescriptor(typeof(IViewComponentInvokerFactory), 
-                typeof(WidgetViewComponentInvokerFactory), 
+
+            services.Add(new ServiceDescriptor(typeof(IViewComponentInvokerFactory),
+                typeof(WidgetViewComponentInvokerFactory),
                 ServiceLifetime.Scoped));
 
             services.Add(new ServiceDescriptor(typeof(AbstractItemActivator), new AbstractItemActivator()));
 
             services.Add(new ServiceDescriptor(typeof(IUnitOfWork),
-                _ => {
+                _ =>
+                {
                     return new UnitOfWork(Configuration.GetConnectionString("QpConnection"));
                 },
                 ServiceLifetime.Scoped));
@@ -53,7 +54,7 @@ namespace WebApplication1
             services.Add(new ServiceDescriptor(typeof(IAbstractItemStorageProvider),
                 typeof(QpAbstractItemStorageProvider),
                 ServiceLifetime.Scoped));
-            
+
             //services.Add(new ServiceDescriptor(typeof(AbstractItemStorage), _ => {
             //    return services.GetService<IUnitOfWork>();
             //}, ServiceLifetime.Scoped));
@@ -78,7 +79,7 @@ namespace WebApplication1
             app.UseStaticFiles();
 
             // initialize structure
-            var storage = app.ApplicationServices.GetService<IAbstractItemStorageProvider>().Get(919619);
+            var storage = app.ApplicationServices.GetService<IAbstractItemStorageProvider>().Get(66643);
 
             app.UseMvc(routes =>
             {
@@ -86,8 +87,8 @@ namespace WebApplication1
 
                 routes.MapRoute("static controllers route1", "test/{action=Index}/{id?}", new { controller = "somestatic" });
 
-                routes.Routes.Add(new ContentRoute(storage, routes.DefaultHandler, "Route with custom params", "{controller}/{action=Details}/{id}/{page}",
-                    new RouteValueDictionary(null),
+                routes.Routes.Add(new ContentRoute(storage, routes.DefaultHandler, "Route with custom params", "{controller}/{id}/{page}",
+                    new RouteValueDictionary(new { action = "details" }),
                     new RouteValueDictionary(null),
                     new RouteValueDictionary(null),
                     requiredService));

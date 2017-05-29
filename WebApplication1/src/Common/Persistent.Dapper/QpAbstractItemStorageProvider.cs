@@ -12,7 +12,7 @@ namespace Common.Persistent.Dapper
         IUnitOfWork _unitOfWork;
         AbstractItemActivator _activator;
 
-        const int RootPageDiscriminator = 231087;
+        const string RootPageDiscriminator = "root_page";
 
         public QpAbstractItemStorageProvider(IUnitOfWork uow, AbstractItemActivator activator)
         {
@@ -31,6 +31,8 @@ namespace Common.Persistent.Dapper
             foreach (var persistentItem in plainList)
             {
                 var activatedItem = _activator.Activate(persistentItem);
+                if (activatedItem == null)
+                    continue;
                 activated.Add(persistentItem.Id, activatedItem);
 
                 var parentId = persistentItem.ParentId ?? 0;
@@ -49,6 +51,26 @@ namespace Common.Persistent.Dapper
 
             if (root != null)
             {
+                //сгруппируем AbsractItem-ы по extensionId
+                var groupsByExtensions = activated
+                    .Where(_ => _.Value.ExtensionId.HasValue)
+                    .GroupBy(_ => _.Value.ExtensionId.Value, _ => _.Value)
+                    .ToList();
+
+                //догрузим доп поля
+                foreach (var group in groupsByExtensions)
+                {
+                    var extensionId = group.Key;
+                    var ids = group.Select(_ => _.Id).ToArray();
+
+                    var extensions = _unitOfWork.AbstractItemRepository.GetAbstractItemExtensionData(extensionId, ids);
+                    foreach (var item in group)
+                    {
+                        if (extensions.ContainsKey(item.Id))
+                            item.Details = extensions[item.Id];
+                    }
+                }
+
                 //рекурсивно, начиная от корня, заполняем Children
                 FillChildrenRecursive(root, activated, parentMapping);
                 return new AbstractItemStorage(root);

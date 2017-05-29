@@ -7,7 +7,7 @@ namespace Common.PageModel
 {
     public class PathFinder
     {
-        public PathData Find(string path, AbstractItem root)
+        public PathData Find(string path, IAbstractItem root)
         {
             var tokens = path.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -16,8 +16,8 @@ namespace Common.PageModel
                 return new PathData(root, path);
             }
 
-            AbstractItem stopItem = root;
-            AbstractItem node = root;
+            IAbstractItem stopItem = root;
+            IAbstractItem node = root;
             string remainingPath = path;
             int index = 0;
             foreach (var token in tokens)

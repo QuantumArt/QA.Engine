@@ -130,7 +130,7 @@ namespace Common.Routing
             }
 
 
-            var page = context.HttpContext.GetRouteData().DataTokens["ui-item"] as AbstractItem;
+            var page = context.HttpContext.GetRouteData().DataTokens["ui-item"] as IAbstractItem;
 
             var controllerName = _mapper.Map(page);
 

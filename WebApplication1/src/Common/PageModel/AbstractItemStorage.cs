@@ -7,16 +7,16 @@ namespace Common.PageModel
 {
     public class AbstractItemStorage
     {
-        private Dictionary<int, AbstractItem> _items = new Dictionary<int, AbstractItem>();
-        public AbstractItem Root { get; private set; }
+        private Dictionary<int, IAbstractItem> _items = new Dictionary<int, IAbstractItem>();
+        public IAbstractItem Root { get; private set; }
 
-        public AbstractItemStorage(AbstractItem root)
+        public AbstractItemStorage(IAbstractItem root)
         {
             Root = root;
             AddItemRecursive(root);
         }
 
-        private void AddItemRecursive(AbstractItem item)
+        private void AddItemRecursive(IAbstractItem item)
         {
             _items[item.Id] = item;
             foreach (var child in item.Children)
@@ -26,7 +26,7 @@ namespace Common.PageModel
         }
 
 
-        public AbstractItem Get(int id)
+        public IAbstractItem Get(int id)
         {
             return _items[id];
         }

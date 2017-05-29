@@ -5,15 +5,13 @@ using System.Threading.Tasks;
 
 namespace Common.PageModel
 {
-    public abstract class AbstractWidget : AbstractItem
+    public abstract class AbstractPage : AbstractItem
     {
-        public string ZoneName { get; set; }
-
         public override bool IsPage
         {
             get
             {
-                return false;
+                return true;
             }
         }
     }

@@ -7,9 +7,9 @@ namespace Common.PageModel
 {
     public class ComponentsMapper
     {
-        public string Map(AbstractItem page)
+        public string Map(IAbstractItem widget)
         {
-            var name = page.GetType().Name;
+            var name = widget.GetType().Name;
             switch (name)
             {
                 case "TextPart": return name;

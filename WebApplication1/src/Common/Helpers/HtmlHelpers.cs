@@ -10,7 +10,7 @@ namespace Common.Helpers
     {
         public static HtmlString Tree(this IHtmlHelper html)
         {
-            var root = ((IAbstractItemStorageProvider)html.ViewContext.HttpContext.RequestServices.GetService(typeof(IAbstractItemStorageProvider))).Get(919619).Root;
+            var root = ((IAbstractItemStorageProvider)html.ViewContext.HttpContext.RequestServices.GetService(typeof(IAbstractItemStorageProvider))).Get(66643).Root;
 
             var sb = new StringBuilder();
 
@@ -28,9 +28,12 @@ namespace Common.Helpers
             return new HtmlString(sb.ToString());
         }
 
-        private static void VisitNodes(StringBuilder sb, AbstractItem node)
+        private static void VisitNodes(StringBuilder sb, IAbstractItem node)
         {
-            sb.Append($"<li> <a href = {node.GetTrail()}> {node.Title} </a></li>");
+            if (node.IsPage)
+                sb.Append($"<li> <a href = {node.GetTrail()}> {node.Title} </a></li>"); 
+            else
+                sb.Append($"<li> {node.Title} </li>");
 
             if (node.Children.Any())
             {

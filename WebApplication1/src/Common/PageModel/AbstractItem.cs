@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Persistent.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,45 +7,39 @@ using System.Threading.Tasks;
 
 namespace Common.PageModel
 {
-    public abstract class AbstractItem
+    public abstract class AbstractItem : IAbstractItem
     {
         private string _url;
+        private IList<IAbstractItem> _children;
+
         public AbstractItem()
         {
-            Children = new List<AbstractItem>();
-        }
-
-        public AbstractItem(int id, string alias, string title, params AbstractItem[] children)
-        {
-            Id = id;
-            Alias = alias;
-            Title = title;
-            Children = new List<AbstractItem>(children);
-            foreach (var item in Children)
-            {
-                item.Parent = this;
-            }
-            
+            _children = new List<IAbstractItem>();
         }
 
         public void AddChild(AbstractItem child)
         {
-            Children.Add(child);
+            _children.Add(child);
             child.Parent = this;
+            child.ParentId = this.Id;
         }
 
-        public int Id { get; private set; }
-        public AbstractItem Parent { get; private set; }
-        public IList<AbstractItem> Children { get; private set; }
-        public string Alias { get; private set; }
-        public string Title { get; private set; }
+        public int Id { get; set; }
+        public IAbstractItem Parent { get; private set; }
+        public int? ParentId { get; private set; }
+        public IEnumerable<IAbstractItem> Children { get { return _children.AsEnumerable(); } }
+        public string Alias { get; set; }
+        public string Title { get; set; }
+        public abstract bool IsPage { get; }
+        public int? ExtensionId { get; set; }
+        public AbstractItemExtensionCollection Details { get; set; }
 
         public string GetTrail()
         {
             if (_url == null)
             {
                 var sb = new StringBuilder();
-                var item = this;
+                var item = (this as IAbstractItem);
                 while (item != null && !(item is IStartPage))
                 {
                     sb.Insert(0, item.Alias + (Parent == null ? "" : "/"));
@@ -57,9 +52,31 @@ namespace Common.PageModel
             return _url;
         }
 
-        public AbstractItem Get(string alias)
+        /// <summary>
+        /// Получение дочернего элемента по алиасу
+        /// </summary>
+        /// <param name="alias"></param>
+        /// <returns></returns>
+        public IAbstractItem Get(string alias)
         {
             return Children.FirstOrDefault(x => string.Equals(x.Alias, alias, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Получение свойств расширения
+        /// </summary>
+        public T GetDetail<T>(string name, T defaultValue)
+        {
+            if (Details == null)
+            {
+                return defaultValue;
+            }
+            var value = Details.Get(name, typeof(T));
+            if (value == null)
+            {
+                return defaultValue;
+            }
+            return (T)value;
         }
     }
 }

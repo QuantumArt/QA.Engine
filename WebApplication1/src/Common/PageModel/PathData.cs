@@ -2,16 +2,16 @@
 {
     public class PathData
     {
-        private AbstractItem abstractItem;
+        private IAbstractItem abstractItem;
         private string remainingUrl;
 
-        public PathData(AbstractItem abstractItem, string remainingUrl)
+        public PathData(IAbstractItem abstractItem, string remainingUrl)
         {
             this.abstractItem = abstractItem;
             this.remainingUrl = remainingUrl;
         }
 
-        public AbstractItem AbstractItem
+        public IAbstractItem AbstractItem
         {
             get
             {

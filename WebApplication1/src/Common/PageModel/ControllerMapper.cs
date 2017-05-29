@@ -7,7 +7,7 @@ namespace Common.PageModel
 {
     public class ControllerMapper
     {
-        public string Map(AbstractItem page)
+        public string Map(IAbstractItem page)
         {
             var name = page.GetType().Name;
             switch (name)

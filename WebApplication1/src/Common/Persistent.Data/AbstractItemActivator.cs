@@ -1,4 +1,5 @@
 ﻿using Common.PageModel;
+using Common.Widgets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,11 +13,27 @@ namespace Common.Persistent.Data
         {
             switch (persistent.Discriminator)
             {
-                case 231086:
-                    return new StartPage(persistent.Id, persistent.Alias, persistent.Title);
+                case "root_page":
+                    return MapDefaultFields(persistent, new RootPage());
+                case "start_page":
+                    return MapDefaultFields(persistent, new StartPage());
+                case "html_page":
+                    return MapDefaultFields(persistent, new TextPage());
+                case "html_part":
+                    return MapDefaultFields(persistent, new TextPart() { ZoneName = persistent.ZoneName, Text = "Виджет " + persistent.Title });
                 default:
-                    return new TextPage(persistent.Id, persistent.Alias, persistent.Title);
+                    return null;
+                        
             }
+        }
+
+        private AbstractItem MapDefaultFields(AbstractItemPersistentData persistent, AbstractItem item)
+        {
+            item.Id = persistent.Id;
+            item.Alias = persistent.Alias;
+            item.Title = persistent.Title;
+            item.ExtensionId = persistent.ExtensionId;
+            return item;
         }
     }
 }

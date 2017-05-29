@@ -10,7 +10,7 @@ namespace Common.Helpers
     {
         public static HtmlString Tree(this IHtmlHelper html)
         {
-            var root = ((IAbstractItemStorageProvider)html.ViewContext.HttpContext.RequestServices.GetService(typeof(IAbstractItemStorageProvider))).Get().Root;
+            var root = ((IAbstractItemStorageProvider)html.ViewContext.HttpContext.RequestServices.GetService(typeof(IAbstractItemStorageProvider))).Get(919619).Root;
 
             var sb = new StringBuilder();
 

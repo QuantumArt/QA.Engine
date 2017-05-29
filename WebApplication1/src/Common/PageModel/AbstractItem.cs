@@ -27,6 +27,12 @@ namespace Common.PageModel
             
         }
 
+        public void AddChild(AbstractItem child)
+        {
+            Children.Add(child);
+            child.Parent = this;
+        }
+
         public int Id { get; private set; }
         public AbstractItem Parent { get; private set; }
         public IList<AbstractItem> Children { get; private set; }

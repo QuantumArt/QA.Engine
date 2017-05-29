@@ -78,7 +78,7 @@ namespace WebApplication1
             app.UseStaticFiles();
 
             // initialize structure
-            var storage = app.ApplicationServices.GetService<IAbstractItemStorageProvider>().Get();
+            var storage = app.ApplicationServices.GetService<IAbstractItemStorageProvider>().Get(919619);
 
             app.UseMvc(routes =>
             {

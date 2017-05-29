@@ -1,8 +1,9 @@
 ﻿using System.Data.SqlClient;
 using Xunit;
-using Common.Persistent.Dupper;
+using Common.Persistent.Dapper;
 using Microsoft.Extensions.Caching.Memory;
 using Common.PageModel;
+using Common.Persistent.Data;
 
 namespace Test.Integration.Persistent.Dupper
 {
@@ -13,17 +14,8 @@ namespace Test.Integration.Persistent.Dupper
         [Fact]
         public void GetAllTest()
         {
-            //qp_database
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (IMemoryCache memoryCache = new MemoryCache(new MemoryCacheOptions()))
-            {
-                var repo = new AbstractItemRepository(connection, memoryCache);
-                var root = repo.GetRoot();
-                root = repo.GetRoot();
-
-                var storage = new AbstractItemStorage();
-                storage.InitializeWith(root);
-            }
+            var storageProvider = new QpAbstractItemStorageProvider(new UnitOfWork(connectionString), new AbstractItemActivator());
+            var storage = storageProvider.Get();
 
             Assert.True(true);
         }

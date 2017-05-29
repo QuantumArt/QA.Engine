@@ -20,7 +20,7 @@ namespace Common.Persistent.Dapper
             _activator = activator;
         }
 
-        public AbstractItemStorage Get()
+        public AbstractItemStorage Get(int? rootPageId = null)
         {
             var plainList = _unitOfWork.AbstractItemRepository.GetPlainAllAbstractItems();//плоский список dto
             var parentMapping = new Dictionary<int, List<int>>();//соответсвие id - parentId
@@ -38,7 +38,12 @@ namespace Common.Persistent.Dapper
                     parentMapping[parentId] = new List<int>();
                 parentMapping[parentId].Add(persistentItem.Id);
 
-                if (persistentItem.Discriminator == RootPageDiscriminator)
+                if (rootPageId.HasValue)
+                {
+                    if (persistentItem.Id == rootPageId.Value)
+                        root = activatedItem;
+                }
+                else if (persistentItem.Discriminator == RootPageDiscriminator)
                     root = activatedItem;
             }
 
@@ -61,7 +66,7 @@ namespace Common.Persistent.Dapper
                 foreach (var childId in parentMapping[root.Id])
                 {
                     var child = activated[childId];
-                    root.Children.Add(child);
+                    root.AddChild(child);
                     FillChildrenRecursive(child, activated, parentMapping);
                 }
             }

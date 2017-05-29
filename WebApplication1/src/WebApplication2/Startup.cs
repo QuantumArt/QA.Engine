@@ -6,6 +6,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Common.PageModel;
 using Common.Routing;
+using Common.Persistent.Data;
+using Common.Persistent;
+using Common.Persistent.Dapper;
+using Common.Widgets;
+using Microsoft.AspNetCore.Mvc.ViewComponents;
 
 namespace WebApplication2
 {
@@ -28,7 +33,23 @@ namespace WebApplication2
         {
             // Add framework services.
             services.AddMvc();
-            services.Add(new ServiceDescriptor(typeof(AbstractItemStorage), new AbstractItemStorage()));
+
+            services.Add(new ServiceDescriptor(typeof(IViewComponentInvokerFactory),
+                typeof(WidgetViewComponentInvokerFactory),
+                ServiceLifetime.Scoped));
+
+            services.Add(new ServiceDescriptor(typeof(AbstractItemActivator), new AbstractItemActivator()));
+
+            services.Add(new ServiceDescriptor(typeof(IUnitOfWork),
+                _ => {
+                    return new UnitOfWork(Configuration.GetConnectionString("QpConnection"));
+                },
+                ServiceLifetime.Scoped));
+
+            services.Add(new ServiceDescriptor(typeof(IAbstractItemStorageProvider),
+                typeof(QpAbstractItemStorageProvider),
+                ServiceLifetime.Scoped));
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -50,8 +71,7 @@ namespace WebApplication2
             app.UseStaticFiles();
 
             // initialize fake structure
-            var storage = app.ApplicationServices.GetService<AbstractItemStorage>();
-            InitializeFakeSiteStructure(storage);
+            var storage = app.ApplicationServices.GetService<IAbstractItemStorageProvider>().Get();
 
 
 
@@ -77,27 +97,6 @@ namespace WebApplication2
                 routes.MapRoute("static controllers route", "{controller}/{action=Index}/{id?}");
 
             });
-        }
-
-        private static void InitializeFakeSiteStructure(AbstractItemStorage storage)
-        {
-            storage.InitializeWith(new StartPage(1, "", "Site main page",
-                                new TextPage(2, "about", "about company") { Text = "Some text" },
-                                new TextPage(3, "help", "Help page",
-                                    new TextPage(4, "first", "First page") { Text = "Some first page text" },
-                                    new TextPage(5, "second", "Second page") { Text = "Some second page text" },
-                                    new TextPage(6, "another", "Another page",
-                                        new TextPage(11, "test", "Test page")
-                                        )
-                                    { Text = "Some page text" }
-                                    ),
-                                new TextPage(7, "help-new", "Help page",
-                                    new TextPage(8, "first", "First page") { Text = "Some first page text" },
-                                    new TextPage(9, "second", "Second page") { Text = "Some second page text" },
-                                    new TextPage(10, "another", "Another page") { Text = "Some page text" }
-                                    )
-                                )
-                            );
         }
     }
 }

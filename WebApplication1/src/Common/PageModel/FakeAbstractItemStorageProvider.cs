@@ -4,7 +4,7 @@ namespace Common.PageModel
 {
     public class FakeAbstractItemStorageProvider : IAbstractItemStorageProvider
     {
-        public AbstractItemStorage Get()
+        public AbstractItemStorage Get(int? rootPageId = null)
         {
             var root = new StartPage(1, "", "Site main page",
                                 new TextPart(101, "t1", "Test Text Part", "Above") { Text = "<b>Content of new text widget!</b>" },

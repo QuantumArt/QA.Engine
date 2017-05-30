@@ -57,7 +57,7 @@ namespace Common.Routing
             context.RouteData.DataTokens["start-page"] = startPage;
 
             var data = (context.HttpContext.Items["current-page"] as PathData) ?? new PathFinder().Find(path, startPage);
-            
+
             if (data != null)
             {
                 path = data.RemainingUrl;
@@ -93,7 +93,7 @@ namespace Common.Routing
                 }
             }
 
-            if (!RouteConstraintMatcher.Match(this.Constraints, 
+            if (!RouteConstraintMatcher.Match(this.Constraints,
                 context.RouteData.Values,
                 context.HttpContext, this,
                 RouteDirection.IncomingRequest,
@@ -111,20 +111,23 @@ namespace Common.Routing
             this.EnsureBinder(context.HttpContext);
             this.EnsureLoggers(context.HttpContext);
 
-            if (!context.HttpContext.GetRouteData().DataTokens.ContainsKey("ui-item"))
+            if (!context.HttpContext.GetRouteData().DataTokens.ContainsKey("ui-item") &&
+                 !context.HttpContext.Items.ContainsKey("ui-part"))
             {
                 return null;
             }
-            
+
+            // TODO: надо бы проверить, что контроллер соответствует запрашиваемому типу
+
             TemplateValuesResult values = this._binder.GetValues(context.AmbientValues, context.Values);
             if (values == null)
             {
                 return null;
             }
-            if (!RouteConstraintMatcher.Match(this.Constraints, 
-                values.CombinedValues, 
-                context.HttpContext, this, 
-                RouteDirection.UrlGeneration, 
+            if (!RouteConstraintMatcher.Match(this.Constraints,
+                values.CombinedValues,
+                context.HttpContext, this,
+                RouteDirection.UrlGeneration,
                 this._constraintLogger))
             {
                 return null;
@@ -137,18 +140,32 @@ namespace Common.Routing
             }
 
 
-            var page = context.HttpContext.GetRouteData().DataTokens["ui-item"] as IAbstractItem;
+            var part = (context.HttpContext.Items["ui-part"] as AbstractItem);
+            var page = (context.HttpContext.GetRouteData().DataTokens["ui-item"] as AbstractItem);
 
-            var controllerName = _mapper.Map(page);
-
-            if(!string.Equals(controllerName, context.Values["controller"]))
+            if (page == null && part == null)
             {
                 return null;
             }
 
-            values.AcceptedValues["controller"] = "--replace-with-path--";
 
-            values.AcceptedValues.Remove("ui-item");
+            var controllerName = _mapper.Map(page);
+
+            if (!string.Equals(controllerName, context.Values["controller"]))
+            {
+                return null;
+            }
+
+            if (page != null && part == null)
+            {
+                values.AcceptedValues["controller"] = "--replace-with-path--";
+
+                values.AcceptedValues.Remove("ui-item");
+            }
+            else if(part != null)
+            {                
+                values.AcceptedValues["ui-part"] = part.Id;
+            }
 
             string text = this._binder.BindValues(values.AcceptedValues);
             if (text == null)
@@ -156,8 +173,10 @@ namespace Common.Routing
                 return null;
             }
 
-            text = text.Replace("--replace-with-path--", page.GetTrail().TrimStart('/'));
-
+            if (page != null)
+            {
+                text = text.Replace("--replace-with-path--", page.GetTrail().TrimStart('/'));
+            }
             virtualPathData = new VirtualPathData(this, text);
 
             if (this.DataTokens != null)
@@ -203,6 +222,6 @@ namespace Common.Routing
         protected override async Task OnRouteMatched(RouteContext context)
         {
             await base.OnRouteMatched(context);
-        }       
+        }
     }
 }

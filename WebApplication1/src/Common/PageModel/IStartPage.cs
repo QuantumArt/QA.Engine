@@ -1,6 +1,7 @@
 ﻿namespace Common.PageModel
 {
-    public  interface IStartPage
+    public interface IStartPage : IAbstractItem
     {
+        string[] GetDNSBindings();
     }
 }

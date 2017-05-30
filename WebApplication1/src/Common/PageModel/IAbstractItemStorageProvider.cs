@@ -7,6 +7,6 @@ namespace Common.PageModel
 {
     public interface IAbstractItemStorageProvider
     {
-        AbstractItemStorage Get(int? rootPageId = null);
+        AbstractItemStorage Get();
     }
 }

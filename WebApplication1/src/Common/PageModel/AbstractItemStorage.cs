@@ -25,10 +25,22 @@ namespace Common.PageModel
             }
         }
 
-
         public IAbstractItem Get(int id)
         {
             return _items[id];
+        }
+
+        public IAbstractItem GetStartPage(string host)
+        {
+            //тривиальная реализация
+            foreach (var startPage in Root.Children.OfType<IStartPage>())
+            {
+                var bindings = startPage.GetDNSBindings();
+                if (bindings.Contains(host) || bindings.Contains("*"))
+                    return startPage;
+            }
+
+            return null;
         }
     }
 }

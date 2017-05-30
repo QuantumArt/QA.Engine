@@ -49,7 +49,14 @@ namespace Common.Routing
 
             EnsureLoggers(context.HttpContext);
 
-            var data = (context.HttpContext.Items["current-page"] as PathData) ?? new PathFinder().Find(path, _storage.Root);
+            var startPage = _storage.GetStartPage(context.HttpContext.Request.Host.Value);
+            if (startPage == null)
+            {
+                return Task.FromResult<int>(0);
+            }
+            context.RouteData.DataTokens["start-page"] = startPage;
+
+            var data = (context.HttpContext.Items["current-page"] as PathData) ?? new PathFinder().Find(path, startPage);
             
             if (data != null)
             {

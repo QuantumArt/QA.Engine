@@ -3,6 +3,19 @@
   "version": 2,
   "targets": {
     ".NETFramework,Version=v4.5.2": {
+      "BundlerMinifier.Core/2.3.327": {
+        "type": "package",
+        "dependencies": {
+          "NUglify": "1.5.4",
+          "Newtonsoft.Json": "9.0.1"
+        },
+        "compile": {
+          "lib/net452/dotnet-bundle.exe": {}
+        },
+        "runtime": {
+          "lib/net452/dotnet-bundle.exe": {}
+        }
+      },
       "Dapper/1.50.2": {
         "type": "package",
         "frameworkAssemblies": [
@@ -1496,6 +1509,21 @@
           "lib/net45/NuGet.Versioning.dll": {}
         }
       },
+      "NUglify/1.5.4": {
+        "type": "package",
+        "frameworkAssemblies": [
+          "System",
+          "System.Core",
+          "System.Xml",
+          "mscorlib"
+        ],
+        "compile": {
+          "lib/net40/NUglify.dll": {}
+        },
+        "runtime": {
+          "lib/net40/NUglify.dll": {}
+        }
+      },
       "System.Buffers/4.3.0": {
         "type": "package",
         "compile": {
@@ -2010,7 +2038,8 @@
           "Microsoft.AspNetCore.Routing": "1.1.2",
           "Microsoft.Extensions.Caching.Abstractions": "1.1.2",
           "NETStandard.Library": "1.6.1",
-          "System.Data.SqlClient": "4.3.1"
+          "System.Data.SqlClient": "4.3.1",
+          "System.Runtime": "4.3.0"
         },
         "compile": {
           "net452/Common.dll": {}
@@ -2022,6 +2051,18 @@
     }
   },
   "libraries": {
+    "BundlerMinifier.Core/2.3.327": {
+      "sha512": "KfPBhOq4M4ud88q+Qcht8kvr0oilgPe5hNML6iLRGzb61mR9MjTpWUDWfNsSSy9GYMJ1Q3qRKgiOybo/KCw+iw==",
+      "type": "package",
+      "path": "BundlerMinifier.Core/2.3.327",
+      "files": [
+        "BundlerMinifier.Core.2.3.327.nupkg.sha512",
+        "BundlerMinifier.Core.nuspec",
+        "lib/net452/dotnet-bundle.exe",
+        "lib/netcoreapp1.0/dotnet-bundle.dll",
+        "lib/netcoreapp1.0/dotnet-bundle.runtimeconfig.json"
+      ]
+    },
     "Dapper/1.50.2": {
       "sha512": "31Ju5VGyNNc66OAsw+SCp1TWPBuyw8ZBdkMG5pSUPChZcy27s2GhVz5B9INP4f25mPqfiJ+mfeHy9JAJyyT+LQ==",
       "type": "package",
@@ -3327,6 +3368,21 @@
         "lib/net45/NuGet.Versioning.xml",
         "lib/netstandard1.0/NuGet.Versioning.dll",
         "lib/netstandard1.0/NuGet.Versioning.xml"
+      ]
+    },
+    "NUglify/1.5.4": {
+      "sha512": "MxYC4UDAjkGf2Zn5hpLqy163DQ36OAhOpoqe8r29KvY/MJ6N8Wdeee+D0XiutGzCF65DcFKjlEhRtmtw8pe2gQ==",
+      "type": "package",
+      "path": "NUglify/1.5.4",
+      "files": [
+        "NUglify.1.5.4.nupkg.sha512",
+        "NUglify.nuspec",
+        "lib/net35/NUglify.dll",
+        "lib/net35/NUglify.xml",
+        "lib/net40/NUglify.dll",
+        "lib/net40/NUglify.xml",
+        "lib/netstandard1.3/NUglify.dll",
+        "lib/netstandard1.3/NUglify.xml"
       ]
     },
     "System.Buffers/4.3.0": {
@@ -5842,6 +5898,7 @@
   },
   "projectFileDependencyGroups": {
     "": [
+      "BundlerMinifier.Core >= 2.3.327",
       "Common >= 1.0.0-*",
       "Microsoft.AspNetCore.Diagnostics >= 1.1.2",
       "Microsoft.AspNetCore.Mvc >= 1.1.3",

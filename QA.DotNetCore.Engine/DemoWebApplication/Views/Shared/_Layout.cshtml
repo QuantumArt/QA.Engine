@@ -1,6 +1,7 @@
 ﻿@using DemoWebSite.PagesAndWidgets.Helpers
 @using QA.DotNetCore.Engine.Widgets
-
+@using Microsoft.Extensions.Options
+@using DemoWebSite.PagesAndWidgets
 <!DOCTYPE html>
 <html>
 <head>
@@ -43,6 +44,7 @@
     <div class="container body-content">
         @await Component.WidgetZone(Html, "Above")
         @RenderBody()
+
         <hr />
         <footer>
             <h5>Tree:</h5>

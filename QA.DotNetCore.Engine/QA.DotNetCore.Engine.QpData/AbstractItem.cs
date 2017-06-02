@@ -20,7 +20,7 @@ namespace QA.DotNetCore.Engine.QpData
             _children = new List<IAbstractItem>();
         }
 
-        public void AddChild(AbstractItem child)
+        internal void AddChild(AbstractItem child)
         {
             _children.Add(child);
             child.Parent = this;
@@ -31,11 +31,11 @@ namespace QA.DotNetCore.Engine.QpData
         public IAbstractItem Parent { get; private set; }
         public int? ParentId { get; private set; }
         public IEnumerable<IAbstractItem> Children { get { return _children.AsEnumerable(); } }
-        public string Alias { get; set; }
-        public string Title { get; set; }
+        public string Alias { get; internal set; }
+        public string Title { get; internal set; }
         public abstract bool IsPage { get; }
-        public int? ExtensionId { get; set; }
-        public AbstractItemExtensionCollection Details { get; set; }
+        internal int? ExtensionId { get; set; }
+        internal AbstractItemExtensionCollection Details { get; set; }
 
         public string GetTrail()
         {
@@ -73,7 +73,7 @@ namespace QA.DotNetCore.Engine.QpData
         /// <summary>
         /// Получение свойств расширения
         /// </summary>
-        public T GetDetail<T>(string name, T defaultValue)
+        public virtual T GetDetail<T>(string name, T defaultValue)
         {
             if (Details == null)
             {

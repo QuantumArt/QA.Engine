@@ -10,7 +10,7 @@ namespace DemoWebSite.PagesAndWidgets.Helpers
     {
         public static HtmlString Tree(this IHtmlHelper html)
         {
-            var root = ((IAbstractItemStorageProvider)html.ViewContext.HttpContext.RequestServices.GetService(typeof(IAbstractItemStorageProvider))).Get().GetStartPage(html.ViewContext.HttpContext.Request.Host.Value);
+            var root = html.ViewContext.HttpContext.Items["start-page"] as IAbstractItem;
 
             var sb = new StringBuilder();
 

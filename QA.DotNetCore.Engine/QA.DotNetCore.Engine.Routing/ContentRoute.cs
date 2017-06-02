@@ -18,23 +18,21 @@ namespace QA.DotNetCore.Engine.Routing
         private ILogger _logger;
         private TemplateMatcher _matcher;
         private TemplateBinder _binder;
-        private readonly AbstractItemStorage _storage;
         private readonly IControllerMapper _mapper;
 
-        public ContentRoute(AbstractItemStorage storage, IControllerMapper controllerMapper, IRouter target, string routeTemplate, IInlineConstraintResolver inlineConstraintResolver)
-            : this(storage, controllerMapper, target, routeTemplate, null, null, null, inlineConstraintResolver)
+        public ContentRoute(IControllerMapper controllerMapper, IRouter target, string routeTemplate, IInlineConstraintResolver inlineConstraintResolver)
+            : this(controllerMapper, target, routeTemplate, null, null, null, inlineConstraintResolver)
         {
         }
 
-        public ContentRoute(AbstractItemStorage storage, IControllerMapper controllerMapper, IRouter target, string routeTemplate, RouteValueDictionary defaults, IDictionary<string, object> constraints, RouteValueDictionary dataTokens, IInlineConstraintResolver inlineConstraintResolver)
-            : this(storage, controllerMapper, target, null, routeTemplate, defaults, constraints, dataTokens, inlineConstraintResolver)
+        public ContentRoute(IControllerMapper controllerMapper, IRouter target, string routeTemplate, RouteValueDictionary defaults, IDictionary<string, object> constraints, RouteValueDictionary dataTokens, IInlineConstraintResolver inlineConstraintResolver)
+            : this(controllerMapper, target, null, routeTemplate, defaults, constraints, dataTokens, inlineConstraintResolver)
         {
         }
 
-        public ContentRoute(AbstractItemStorage storage, IControllerMapper controllerMapper, IRouter target, string routeName, string routeTemplate, RouteValueDictionary defaults, IDictionary<string, object> constraints, RouteValueDictionary dataTokens, IInlineConstraintResolver inlineConstraintResolver)
+        public ContentRoute(IControllerMapper controllerMapper, IRouter target, string routeName, string routeTemplate, RouteValueDictionary defaults, IDictionary<string, object> constraints, RouteValueDictionary dataTokens, IInlineConstraintResolver inlineConstraintResolver)
             : base(target, routeName, routeTemplate, defaults, constraints, dataTokens, inlineConstraintResolver)
         {
-            _storage = storage;
             _mapper = controllerMapper;
         }
 
@@ -47,12 +45,11 @@ namespace QA.DotNetCore.Engine.Routing
 
             EnsureLoggers(context.HttpContext);
 
-            var startPage = _storage.GetStartPage(context.HttpContext.Request.Host.Value);
+            var startPage = context.HttpContext.Items["start-page"] as IAbstractItem;//проставляется в RoutingMiddleware
             if (startPage == null)
             {
                 return Task.FromResult<int>(0);
             }
-            context.RouteData.DataTokens["start-page"] = startPage;
 
             var data = (context.HttpContext.Items["current-page"] as PathData) ?? new PathFinder().Find(path, startPage);
 

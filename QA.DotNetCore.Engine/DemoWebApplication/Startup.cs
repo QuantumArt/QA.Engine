@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using QA.DotNetCore.Caching;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.QpData;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
@@ -32,13 +33,20 @@ namespace DemoWebApplication
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var siteScructureSection = Configuration.GetSection("QpSiteStructureSettings");
+            services.Configure<QpSiteStructureSettings>(siteScructureSection);
+
             // Add framework services.
             services.AddMvc();
 
-            services.Add(new ServiceDescriptor(typeof(IViewComponentInvokerFactory),
-                typeof(WidgetViewComponentInvokerFactory),
-                ServiceLifetime.Scoped));
+            services.AddMemoryCache();
 
+            services.Add(new ServiceDescriptor(typeof(ICacheProvider),
+                typeof(VersionedCacheCoreProvider),
+                ServiceLifetime.Singleton));
+
+            services.Add(new ServiceDescriptor(typeof(IViewComponentInvokerFactory), typeof(WidgetViewComponentInvokerFactory), ServiceLifetime.Scoped));
+            
             services.Add(new ServiceDescriptor(typeof(IComponentMapper), new DemoComponentMapper()));
 
             services.Add(new ServiceDescriptor(typeof(IControllerMapper), new DemoControllerMapper()));
@@ -54,7 +62,7 @@ namespace DemoWebApplication
 
             services.Add(new ServiceDescriptor(typeof(IAbstractItemStorageProvider),
                 typeof(QpAbstractItemStorageProvider),
-                ServiceLifetime.Scoped));
+                ServiceLifetime.Singleton));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -75,22 +83,21 @@ namespace DemoWebApplication
 
             app.UseStaticFiles();
 
-            // initialize structure
-            var storage = app.ApplicationServices.GetService<IAbstractItemStorageProvider>().Get();
+            app.UseMiddleware<RoutingMiddleware>();
 
             app.UseMvc(routes =>
             {
                 IInlineConstraintResolver requiredService = routes.ServiceProvider.GetRequiredService<IInlineConstraintResolver>();
                 IControllerMapper controllerMapper = routes.ServiceProvider.GetRequiredService<IControllerMapper>();
 
-                routes.Routes.Add(new ContentRoute(storage, controllerMapper, routes.DefaultHandler, "Route with custom params", "{controller}/{id}/{page}",
+                routes.Routes.Add(new ContentRoute(controllerMapper, routes.DefaultHandler, "Route with custom params", "{controller}/{id}/{page}",
                     new RouteValueDictionary(new { action = "details" }),
                     new RouteValueDictionary(null),
                     new RouteValueDictionary(null),
                     requiredService));
 
 
-                routes.Routes.Add(new ContentRoute(storage, controllerMapper, routes.DefaultHandler, "default", "{controller}/{action=Index}/{id?}",
+                routes.Routes.Add(new ContentRoute(controllerMapper, routes.DefaultHandler, "default", "{controller}/{action=Index}/{id?}",
                     new RouteValueDictionary(null),
                     new RouteValueDictionary(null),
                     new RouteValueDictionary(null),

@@ -11,8 +11,8 @@ namespace QA.DotNetCore.Engine.Abstractions
         IAbstractItem Parent { get; }
         int? ParentId { get; }
         IEnumerable<IAbstractItem> Children { get; }
-        string Alias { get; set; }
-        string Title { get; set; }
+        string Alias { get; }
+        string Title { get; }
         bool IsPage { get; }
 
         string GetTrail();

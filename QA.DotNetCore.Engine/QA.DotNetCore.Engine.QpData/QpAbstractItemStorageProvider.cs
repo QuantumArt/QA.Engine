@@ -1,8 +1,12 @@
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.QpData.Persistent.Data;
 using QA.DotNetCore.Engine.QpData.Persistent.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using QA.DotNetCore.Caching;
 
 namespace QA.DotNetCore.Engine.QpData
 {
@@ -11,19 +15,40 @@ namespace QA.DotNetCore.Engine.QpData
     /// </summary>
     public class QpAbstractItemStorageProvider : IAbstractItemStorageProvider
     {
-        IUnitOfWork _unitOfWork;
+        IServiceProvider _serviceProvider;
         IAbstractItemFactory _itemFactory;
+        ICacheProvider _cacheProvider;
+        QpSiteStructureSettings _settings;
 
-        const string RootPageDiscriminator = "root_page";
-
-        public QpAbstractItemStorageProvider(IUnitOfWork uow, IAbstractItemFactory itemFactory)
+        public QpAbstractItemStorageProvider(IServiceProvider serviceProvider, IAbstractItemFactory itemFactory, IOptions<QpSiteStructureSettings> settings, ICacheProvider cacheProvider)
         {
-            _unitOfWork = uow;
+            _serviceProvider = serviceProvider;
             _itemFactory = itemFactory;
+            _settings = settings.Value;
+            _cacheProvider = cacheProvider;
         }
 
         public AbstractItemStorage Get()
         {
+            if (!_settings.UseCache)
+                return GetInternal();
+
+            var cacheKey = "QpAbstractItemStorageProvider.Get";
+            var result = _cacheProvider.Get(cacheKey) as AbstractItemStorage;
+            if (result == null)
+            {
+                result = GetInternal();
+                if (result != null)
+                {
+                    _cacheProvider.Set(cacheKey, result, _settings.CachePeriod);
+                }
+            }
+            return result;
+        }
+
+        private AbstractItemStorage GetInternal()
+        {
+            var _unitOfWork = _serviceProvider.GetService<IUnitOfWork>();//lifetime подключения к базе может быть короче, чем lifetime этого класса, поэтому достаём из контейнера, а не делаем DI
             var plainList = _unitOfWork.AbstractItemRepository.GetPlainAllAbstractItems();//плоский список dto
             var parentMapping = new Dictionary<int, List<int>>();//соответсвие id - parentId
             var activated = new Dictionary<int, AbstractItem>();
@@ -44,7 +69,7 @@ namespace QA.DotNetCore.Engine.QpData
                     parentMapping[parentId] = new List<int>();
                 parentMapping[parentId].Add(persistentItem.Id);
 
-                if (persistentItem.Discriminator == RootPageDiscriminator)
+                if (persistentItem.Discriminator == _settings.RootPageDiscriminator)
                     root = activatedItem;
             }
 

@@ -1,6 +1,6 @@
 using System;
 
-namespace QA.DotNetCore.Engine.QpData
+namespace QA.DotNetCore.Engine.QpData.Settings
 {
     public class QpSiteStructureSettings
     {

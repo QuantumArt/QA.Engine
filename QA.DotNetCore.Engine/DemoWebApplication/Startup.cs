@@ -11,6 +11,8 @@ using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.QpData;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 using QA.DotNetCore.Engine.QpData.Persistent.Interfaces;
+using QA.DotNetCore.Engine.QpData.Replacements;
+using QA.DotNetCore.Engine.QpData.Settings;
 using QA.DotNetCore.Engine.Routing;
 using QA.DotNetCore.Engine.Widgets;
 
@@ -33,36 +35,26 @@ namespace DemoWebApplication
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var siteScructureSection = Configuration.GetSection("QpSiteStructureSettings");
-            services.Configure<QpSiteStructureSettings>(siteScructureSection);
+            services.AddSingleton(_ => Configuration);
+            services.Configure<QpSiteStructureSettings>(Configuration.GetSection("QpSiteStructureSettings"));
+            services.Configure<QpSettings>(Configuration.GetSection("QpSettings"));
+            services.Configure<SiteMode>(Configuration.GetSection("SiteMode"));
 
             // Add framework services.
             services.AddMvc();
 
             services.AddMemoryCache();
 
-            services.Add(new ServiceDescriptor(typeof(ICacheProvider),
-                typeof(VersionedCacheCoreProvider),
-                ServiceLifetime.Singleton));
-
+            services.Add(new ServiceDescriptor(typeof(ICacheProvider), typeof(VersionedCacheCoreProvider), ServiceLifetime.Singleton));
             services.Add(new ServiceDescriptor(typeof(IViewComponentInvokerFactory), typeof(WidgetViewComponentInvokerFactory), ServiceLifetime.Scoped));
-            
             services.Add(new ServiceDescriptor(typeof(IComponentMapper), new DemoComponentMapper()));
-
             services.Add(new ServiceDescriptor(typeof(IControllerMapper), new DemoControllerMapper()));
-
             services.Add(new ServiceDescriptor(typeof(IAbstractItemFactory), new DemoAbstractItemFactory()));
-
-            services.Add(new ServiceDescriptor(typeof(IUnitOfWork),
-                _ =>
-                {
-                    return new UnitOfWork(Configuration.GetConnectionString("QpConnection"));
-                },
-                ServiceLifetime.Scoped));
-
-            services.Add(new ServiceDescriptor(typeof(IAbstractItemStorageProvider),
-                typeof(QpAbstractItemStorageProvider),
-                ServiceLifetime.Singleton));
+            services.Add(new ServiceDescriptor(typeof(IUnitOfWork), typeof(UnitOfWork), ServiceLifetime.Scoped));
+            services.Add(new ServiceDescriptor(typeof(IAbstractItemRepository), typeof(AbstractItemRepository), ServiceLifetime.Scoped));
+            services.Add(new ServiceDescriptor(typeof(IMetaInfoRepository), typeof(MetaInfoRepository), ServiceLifetime.Scoped));
+            services.Add(new ServiceDescriptor(typeof(IQpUrlResolver), typeof(QpUrlResolver), ServiceLifetime.Scoped));
+            services.Add(new ServiceDescriptor(typeof(IAbstractItemStorageProvider), typeof(QpAbstractItemStorageProvider), ServiceLifetime.Scoped));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

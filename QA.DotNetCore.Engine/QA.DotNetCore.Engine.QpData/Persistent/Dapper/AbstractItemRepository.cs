@@ -10,24 +10,24 @@ using QA.DotNetCore.Engine.QpData.Persistent.Data;
 
 namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
-    internal class AbstractItemRepository : IAbstractItemRepository
+    public class AbstractItemRepository : IAbstractItemRepository
     {
         private readonly IDbConnection _connection;
 
-        public AbstractItemRepository(IDbConnection connection)
+        public AbstractItemRepository(IUnitOfWork uow)
         {
-            _connection = connection;
+            _connection = uow.Connection;
         }
 
         private const string CmdGetAbstractItemContentId = @"
 SELECT CONTENT_ID AS ContentId
 FROM content
-WHERE NET_CONTENT_NAME = 'QPAbstractItem'";
+WHERE NET_CONTENT_NAME = 'QPAbstractItem' and SITE_ID = {0}";
 
         private const string CmdGetItemDefinitionContentId = @"
 SELECT CONTENT_ID AS ContentId
 FROM content
-WHERE NET_CONTENT_NAME = 'QPDiscriminator'";
+WHERE NET_CONTENT_NAME = 'QPDiscriminator' and SITE_ID = {0}";
 
         private const string CmdGetAbstractItem = @"
 SELECT
@@ -46,24 +46,26 @@ INNER JOIN {1} def on ai.Discriminator = def.content_item_id
 
         private const string CmdGetExtension = @"[qa_extend_items]";
 
-        string GetAbstractItemTable()
+        string GetAbstractItemTable(int siteId, bool isStage)
         {
-            var result =  _connection.Query(CmdGetAbstractItemContentId).First();
-            return $"content_{result.ContentId}_stage_new";
+            var result =  _connection.Query(string.Format(CmdGetAbstractItemContentId, siteId)).First();
+            var stageOrLiveToken = isStage ? "stage" : "live";
+            return $"content_{result.ContentId}_{stageOrLiveToken}_new";
         }
 
-        string GetItemDefinitionTable()
+        string GetItemDefinitionTable(int siteId, bool isStage)
         {
-            var result = _connection.Query(CmdGetItemDefinitionContentId).First();
-            return $"content_{result.ContentId}_stage_new";
+            var result = _connection.Query(string.Format(CmdGetItemDefinitionContentId, siteId)).First();
+            var stageOrLiveToken = isStage ? "stage" : "live";
+            return $"content_{result.ContentId}_{stageOrLiveToken}_new";
         }
 
-        public IEnumerable<AbstractItemPersistentData> GetPlainAllAbstractItems()
+        public IEnumerable<AbstractItemPersistentData> GetPlainAllAbstractItems(int siteId, bool isStage)
         {
-            return _connection.Query<AbstractItemPersistentData>(string.Format(CmdGetAbstractItem, GetAbstractItemTable(), GetItemDefinitionTable()));
+            return _connection.Query<AbstractItemPersistentData>(string.Format(CmdGetAbstractItem, GetAbstractItemTable(siteId, isStage), GetItemDefinitionTable(siteId, isStage)));
         }
 
-        public IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionId, int[] ids)
+        public IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionId, int[] ids, bool isStage)
         {
             if (!(_connection is SqlConnection))
                 throw new NotImplementedException("GetAbstractItemExtensionData can be executed in MS SQL only");
@@ -83,7 +85,7 @@ INNER JOIN {1} def on ai.Discriminator = def.content_item_id
                 command.CommandType = CommandType.StoredProcedure;
 
                 var tvpParam = command.Parameters.AddWithValue("@Ids", idsParameter);
-                var isLive = command.Parameters.AddWithValue("@isLive", false);
+                var isLive = command.Parameters.AddWithValue("@isLive", !isStage);
                 var contentId = command.Parameters.AddWithValue("@contentId", extensionId);
 
                 isLive.SqlDbType = SqlDbType.Bit;
@@ -105,7 +107,11 @@ INNER JOIN {1} def on ai.Discriminator = def.content_item_id
                             if (column == "Id")
                                 id = reader.GetInt32(i);
                             else
-                                extensionCollection.Add(column, reader.GetValue(i));
+                            {
+                                var val = reader.GetValue(i);
+                                extensionCollection.Add(column, val is DBNull ? null : val);
+                            }
+                                
                         }
 
                         if (id > 0)

@@ -5,8 +5,8 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Interfaces
 {
     public interface IAbstractItemRepository
     {
-        IEnumerable<AbstractItemPersistentData> GetPlainAllAbstractItems();
+        IEnumerable<AbstractItemPersistentData> GetPlainAllAbstractItems(int siteId, bool isStage);
 
-        IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionId, int[] ids);
+        IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionId, int[] ids, bool isStage);
     }
 }

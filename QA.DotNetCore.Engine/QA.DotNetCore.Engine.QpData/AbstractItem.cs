@@ -86,5 +86,14 @@ namespace QA.DotNetCore.Engine.QpData
             }
             return (T)value;
         }
+
+        /// <summary>
+        /// Получение типа элемента
+        /// </summary>
+        /// <returns></returns>
+        public Type GetContentType()
+        {
+            return this.GetType();
+        }
     }
 }

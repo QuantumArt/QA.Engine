@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using QA.DotNetCore.Engine.QpData.Persistent.Interfaces;
 using System;
 using System.Data;
@@ -9,19 +11,13 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
     {
         private bool disposed = false;
 
-        private readonly IDbConnection _connection;
+        public IDbConnection Connection { get; private set; }
 
-
-        public UnitOfWork(string connectionString)
+        public UnitOfWork(IConfigurationRoot configuration)
         {
-            _connection = new SqlConnection(connectionString);
-            _connection.Open();
-            _abstractItemRepository = new Lazy<IAbstractItemRepository>(() => new AbstractItemRepository(_connection));
+            Connection = new SqlConnection(configuration.GetConnectionString("QpConnection"));
+            Connection.Open();
         }
-
-
-        Lazy<IAbstractItemRepository> _abstractItemRepository;
-        public IAbstractItemRepository AbstractItemRepository => _abstractItemRepository.Value;
 
         public void Dispose()
         {
@@ -41,8 +37,8 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
                 if (disposing)
                 {
                     // Free other state (managed objects).
-                    if (_connection.State != ConnectionState.Closed)
-                        _connection.Close();
+                    if (Connection.State != ConnectionState.Closed)
+                        Connection.Close();
                 }
 
                 disposed = true;

@@ -8,21 +8,22 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Data
     /// </summary>
     public class AbstractItemExtensionCollection
     {
-        Dictionary<string, InnerItem<int, object>> _innerDictionary;
+        Dictionary<string, InnerItem> _innerDictionary;
 
         public AbstractItemExtensionCollection()
         {
-            _innerDictionary = new Dictionary<string, InnerItem<int, object>>();
+            _innerDictionary = new Dictionary<string, InnerItem>();
         }
 
         public void Add(string key, object value)
         {
-            _innerDictionary.Add(key, new InnerItem<int, object>(value));
+            _innerDictionary.Add(key, new InnerItem(value));
         }
 
-        public bool ContainsKey(string key)
+        public void Set(string key, object value)
         {
-            return _innerDictionary.ContainsKey(key);
+            if (_innerDictionary.ContainsKey(key))
+                _innerDictionary[key].Value = value;
         }
 
         public ICollection<string> Keys
@@ -38,7 +39,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Data
             }
             set
             {
-                _innerDictionary[key] = new InnerItem<int, object>(value);
+                _innerDictionary[key] = new InnerItem(value);
             }
         }
 
@@ -80,71 +81,23 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Data
             return value;
         }
 
+        public bool ContainsKey(string key)
+        {
+            return _innerDictionary.ContainsKey(key);
+        }
+
         public int Count
         {
             get { return _innerDictionary.Count; }
         }
 
-        internal class InnerItem<TId, TValue> : IEquatable<InnerItem<TId, TValue>>
+        internal class InnerItem
         {
-            public TId Id { get; set; }
-            public TValue Value { get; set; }
-            public Type Type { get; set; }
-
-            public InnerItem(TValue value) : this(value, default(TId), null) { }
-
-            public InnerItem(TValue value, TId id) : this(value, id, null) { }
-
-            public InnerItem(TValue item, TId id, Type type)
+            public object Value { get; set; }
+            public InnerItem(object obj)
             {
-                Value = item;
-                Id = id;
-                Type = type;
+                Value = obj;
             }
-
-            public bool Equals(InnerItem<TId, TValue> other)
-            {
-                if (other == null || Value == null || other.Value == null)
-                {
-                    return false;
-                }
-
-                if (object.ReferenceEquals(this, other))
-                {
-                    return true;
-                }
-
-                if (object.ReferenceEquals(Value, other.Value))
-                {
-                    return true;
-                }
-
-                return Value.Equals(other.Value);
-            }
-
-            public override int GetHashCode()
-            {
-                if (Value != null)
-                {
-                    return Value.GetHashCode();
-                }
-                else
-                {
-                    return base.GetHashCode();
-                }
-            }
-
-            public override bool Equals(object obj)
-            {
-                if (obj is InnerItem<TId, TValue>)
-                {
-                    return ((IEquatable<InnerItem<TId, TValue>>)this)
-                        .Equals((InnerItem<TId, TValue>)obj);
-                }
-
-                return base.Equals(obj);
-            }
-
         }
     }
 }

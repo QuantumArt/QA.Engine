@@ -11,6 +11,11 @@
 <div>
     Ссылка - 
     @Html.ActionLink("link do details", "details", new { id = "some-alias", page = 2, r = 4 })
+
+    @if (!String.IsNullOrWhiteSpace(Model.Picture))
+    {
+      <img src="@Model.Picture" alt="picture"/>
+    }
  </div>
 
 @await Component.WidgetZone(Html, "Content", new { customParameter = 12 })

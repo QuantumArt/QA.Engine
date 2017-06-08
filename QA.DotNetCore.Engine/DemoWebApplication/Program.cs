@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,6 +13,7 @@ namespace DemoWebApplication
         {
             var host = new WebHostBuilder()
                 .UseKestrel()
+                .UseUrls("http://*:9092;http://localhost:5000/")
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseIISIntegration()
                 .UseStartup<Startup>()

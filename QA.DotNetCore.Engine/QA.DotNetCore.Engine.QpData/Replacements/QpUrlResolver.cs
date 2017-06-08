@@ -80,32 +80,12 @@ namespace QA.DotNetCore.Engine.QpData.Replacements
 
         private QpSitePersistentData GetSite()
         {
-            var cacheKey = "QpUrlResolver.GetSite";
-            var result = _cacheProvider.Get(cacheKey) as QpSitePersistentData;
-            if (result == null)
-            {
-                result = _metaInfoRepository.GetSite(_qpSettings.SiteId);
-                if (result != null)
-                {
-                    _cacheProvider.Set(cacheKey, result, _qpSettings.CachePeriod);
-                }
-            }
-            return result;
+            return _cacheProvider.GetOrAdd("QpUrlResolver.GetSite", _qpSettings.CachePeriod, () => _metaInfoRepository.GetSite(_qpSettings.SiteId));
         }
 
         private ContentAttributePersistentData GetContentAttribute(int contentId, string fieldName)
         {
-            var cacheKey = $"QpUrlResolver.GetContentAttribute_{contentId}_{fieldName}";
-            var result = _cacheProvider.Get(cacheKey) as ContentAttributePersistentData;
-            if (result == null)
-            {
-                result = _metaInfoRepository.GetContentAttribute(contentId, fieldName);
-                if (result != null)
-                {
-                    _cacheProvider.Set(cacheKey, result, _qpSettings.CachePeriod);
-                }
-            }
-            return result;
+            return _cacheProvider.GetOrAdd($"QpUrlResolver.GetContentAttribute_{contentId}_{fieldName}", _qpSettings.CachePeriod, () => _metaInfoRepository.GetContentAttribute(contentId, fieldName));
         }
 
         private static string ConvertUrlToSchemaInvariant(string prefix)

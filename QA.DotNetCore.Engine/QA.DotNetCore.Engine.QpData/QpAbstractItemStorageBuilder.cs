@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Options;
-using QA.DotNetCore.Caching;
 using QA.DotNetCore.Engine.QpData.Replacements;
 using System.Collections.Concurrent;
 using QA.DotNetCore.Engine.QpData.Settings;
@@ -15,21 +14,19 @@ namespace QA.DotNetCore.Engine.QpData
     /// <summary>
     /// Строитель структуры сайта из базы QP
     /// </summary>
-    public class QpAbstractItemStorageProvider : IAbstractItemStorageProvider
+    public class QpAbstractItemStorageBuilder : IAbstractItemStorageBuilder
     {
         IServiceProvider _serviceProvider;
         IAbstractItemFactory _itemFactory;
-        ICacheProvider _cacheProvider;
         IQpUrlResolver _qpUrlResolver;
         IAbstractItemRepository _abstractItemRepository;
         QpSiteStructureSettings _settings;
         QpSettings _qpSettings;
         SiteMode _siteMode;
 
-        public QpAbstractItemStorageProvider(
+        public QpAbstractItemStorageBuilder(
             IServiceProvider serviceProvider,
             IAbstractItemFactory itemFactory,
-            ICacheProvider cacheProvider,
             IQpUrlResolver qpUrlResolver,
             IAbstractItemRepository abstractItemRepository,
             IOptions<QpSiteStructureSettings> settings,
@@ -38,7 +35,6 @@ namespace QA.DotNetCore.Engine.QpData
         {
             _serviceProvider = serviceProvider;
             _itemFactory = itemFactory;
-            _cacheProvider = cacheProvider;
             _qpUrlResolver = qpUrlResolver;
             _abstractItemRepository = abstractItemRepository;
             _settings = settings.Value;
@@ -46,25 +42,7 @@ namespace QA.DotNetCore.Engine.QpData
             _siteMode = siteMode.Value;
         }
 
-        public AbstractItemStorage Get()
-        {
-            if (!_settings.UseCache)
-                return GetInternal();
-
-            var cacheKey = "QpAbstractItemStorageProvider.Get";
-            var result = _cacheProvider.Get(cacheKey) as AbstractItemStorage;
-            if (result == null)
-            {
-                result = GetInternal();
-                if (result != null)
-                {
-                    _cacheProvider.Set(cacheKey, result, _settings.CachePeriod);
-                }
-            }
-            return result;
-        }
-
-        private AbstractItemStorage GetInternal()
+        public AbstractItemStorage Build()
         {
             var plainList = _abstractItemRepository.GetPlainAllAbstractItems(_qpSettings.SiteId, _siteMode.IsStage);//плоский список dto
             var parentMapping = new Dictionary<int, List<int>>();//соответсвие id - parentId
@@ -167,7 +145,7 @@ namespace QA.DotNetCore.Engine.QpData
                     FillChildrenRecursive(child, activated, parentMapping);
                 }
             }
-            
+
         }
 
         private void MapAbstractItem(AbstractItem item, AbstractItemPersistentData persistentItem)

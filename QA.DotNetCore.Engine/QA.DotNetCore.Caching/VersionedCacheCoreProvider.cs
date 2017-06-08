@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Primitives;
 using System;
+using System.Collections.Concurrent;
 using System.Threading;
 
 namespace QA.DotNetCore.Caching
@@ -11,6 +12,8 @@ namespace QA.DotNetCore.Caching
     public class VersionedCacheCoreProvider : ICacheProvider
     {
         private readonly IMemoryCache _cache;
+        private readonly TimeSpan _defaultMonitorTimeout = TimeSpan.FromSeconds(5);
+        private static ConcurrentDictionary<string, object> _lockers = new ConcurrentDictionary<string, object>();
 
         public VersionedCacheCoreProvider(IMemoryCache cache)
         {
@@ -24,14 +27,7 @@ namespace QA.DotNetCore.Caching
         /// <returns></returns>
         public virtual object Get(string key)
         {
-            return _cache.Get(key);//использую Get, т.к. TryGetValue почему-то всегда отдаёт null
-            //object result = null;
-            //if (string.IsNullOrEmpty(key) && _cache.TryGetValue(key, out result))
-            //{
-            //    return null;
-            //}
-
-            //return result;
+            return _cache.Get(key);
         }
 
         /// <summary>
@@ -83,13 +79,70 @@ namespace QA.DotNetCore.Caching
         /// <returns></returns>
         public virtual bool IsSet(string key)
         {
-            object result;
-            return !string.IsNullOrEmpty(key) && _cache.TryGetValue(key, out result);
+            return !string.IsNullOrEmpty(key) && _cache.TryGetValue(key, out object result);
         }
 
         public virtual bool TryGetValue(string key, out object result)
         {
             return _cache.TryGetValue(key, out result);
+        }
+
+        public virtual T GetOrAdd<T>(string cacheKey, TimeSpan expiration, Func<T> getData, TimeSpan monitorTimeout = default(TimeSpan))
+        {
+            var deprecatedCacheKey = GetDeprecatedCacheKey(cacheKey);
+            var result = Convert<T>(Get(cacheKey));
+            if (result == null)
+            {
+                bool refreshing = false;
+                var _locker = _lockers.GetOrAdd(cacheKey, new object());
+                try
+                {
+                    var deprecatedResult = Convert<T>(Get(deprecatedCacheKey));
+
+                    if (deprecatedResult != null)
+                    {
+                        // если есть старое значение, то обновлять данные будет только 1 поток
+                        Monitor.TryEnter(_locker, ref refreshing);
+                    }
+                    else
+                    {
+                        //если старого значения нет, то надо ждать
+                        if (monitorTimeout == default(TimeSpan))
+                            monitorTimeout = _defaultMonitorTimeout;
+
+                        Monitor.TryEnter(_locker, (int)monitorTimeout.TotalMilliseconds, ref refreshing);
+                    }
+
+                    if (refreshing)
+                    {
+                        //выполняет 1 поток
+                        result = Convert<T>(Get(cacheKey));
+                        if (result == null)
+                        {
+                            result = getData();
+                            if (result != null)
+                            {
+                                Set(cacheKey, result, expiration);
+                                Set(deprecatedCacheKey, result, TimeSpan.FromTicks(expiration.Ticks * 2));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        result = deprecatedResult;
+                        //if (deprecatedResult == null)
+                        //    throw new Exception($"GetOrAdd Exception. deprecatedResult is null and thread did not wait for result. Timeout is {(int)monitorTimeout.TotalMilliseconds} ms.");
+                    }
+                }
+                finally
+                {
+                    if (refreshing)
+                    {
+                        Monitor.Exit(_locker);
+                    }
+                }
+            }
+            return result;
         }
 
         /// <summary>
@@ -98,22 +151,13 @@ namespace QA.DotNetCore.Caching
         /// <param name="key">Ключ</param>
         public virtual void Invalidate(string key)
         {
-
             if (string.IsNullOrEmpty(key))
             {
                 return;
             }
             _cache.Remove(key);
-
+            _cache.Remove(GetDeprecatedCacheKey(key));
         }
-
-        /// <summary>
-        /// Освобождаем ресурсы
-        /// </summary>
-        public virtual void Dispose()
-        {
-        }
-
 
         public void Add(object data, string key, string[] tags, TimeSpan expiration)
         {
@@ -177,6 +221,16 @@ namespace QA.DotNetCore.Caching
                 entry.RegisterPostEvictionCallback(callback: EvictionTagCallback, state: this);
                 return new CancellationTokenSource();
             });
+        }
+
+        private static string GetDeprecatedCacheKey(string originalKey)
+        {
+            return originalKey + "__Deprecated";
+        }
+
+        private static T Convert<T>(object result)
+        {
+            return result == null ? default(T) : (T)result;
         }
     }
 }

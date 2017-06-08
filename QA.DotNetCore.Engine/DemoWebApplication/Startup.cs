@@ -54,7 +54,8 @@ namespace DemoWebApplication
             services.Add(new ServiceDescriptor(typeof(IAbstractItemRepository), typeof(AbstractItemRepository), ServiceLifetime.Scoped));
             services.Add(new ServiceDescriptor(typeof(IMetaInfoRepository), typeof(MetaInfoRepository), ServiceLifetime.Scoped));
             services.Add(new ServiceDescriptor(typeof(IQpUrlResolver), typeof(QpUrlResolver), ServiceLifetime.Scoped));
-            services.Add(new ServiceDescriptor(typeof(IAbstractItemStorageProvider), typeof(QpAbstractItemStorageProvider), ServiceLifetime.Scoped));
+            services.Add(new ServiceDescriptor(typeof(IAbstractItemStorageBuilder), typeof(QpAbstractItemStorageBuilder), ServiceLifetime.Scoped));
+            services.Add(new ServiceDescriptor(typeof(IAbstractItemStorageProvider), typeof(SimpleAbstractItemStorageProvider), ServiceLifetime.Scoped));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

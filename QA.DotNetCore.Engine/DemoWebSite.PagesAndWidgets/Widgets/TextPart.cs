@@ -1,4 +1,5 @@
 using QA.DotNetCore.Engine.QpData;
+using QA.DotNetCore.Engine.QpData.Replacements;
 using System;
 
 namespace DemoWebSite.PagesAndWidgets.Widgets
@@ -7,4 +8,5 @@ namespace DemoWebSite.PagesAndWidgets.Widgets
     {
         public string Text { get { return GetDetail("Text", String.Empty); } }
     }
+
 }

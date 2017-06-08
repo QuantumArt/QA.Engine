@@ -10,6 +10,7 @@ namespace QA.DotNetCore.Caching
         bool IsSet(string key);
         bool TryGetValue(string key, out object result);
         object Get(string key);
+        T GetOrAdd<T>(string cacheKey, TimeSpan expiration, Func<T> getData, TimeSpan monitorTimeout = default(TimeSpan));
         void Invalidate(string key);
         void InvalidateByTag(string tag);
         void InvalidateByTags(params string[] tags);

@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net452;netcoreapp2.0</TargetFrameworks>
     <PackageTargetFallback>$(PackageTargetFallback);portable-net45+win8+wp8+wpa81;</PackageTargetFallback>
+    <TargetFramework>net452</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +25,7 @@
     <ProjectReference Include="..\QA.DotNetCore.Caching\QA.DotNetCore.Caching.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Abstractions\QA.DotNetCore.Engine.Abstractions.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.QpData\QA.DotNetCore.Engine.QpData.csproj" />
+    <ProjectReference Include="..\QA.DotNetCore.Engine.Reflection\QA.DotNetCore.Engine.Reflection.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Routing\QA.DotNetCore.Engine.Routing.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Widgets\QA.DotNetCore.Engine.Widgets.csproj" />
   </ItemGroup>

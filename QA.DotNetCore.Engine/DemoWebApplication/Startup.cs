@@ -1,4 +1,5 @@
 using DemoWebSite.PagesAndWidgets;
+using DemoWebSite.PagesAndWidgets.Pages;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
@@ -13,6 +14,7 @@ using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 using QA.DotNetCore.Engine.QpData.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Replacements;
 using QA.DotNetCore.Engine.QpData.Settings;
+using QA.DotNetCore.Engine.Reflection;
 using QA.DotNetCore.Engine.Routing;
 using QA.DotNetCore.Engine.Widgets;
 
@@ -47,12 +49,19 @@ namespace DemoWebApplication
 
             services.Add(new ServiceDescriptor(typeof(ICacheProvider), typeof(VersionedCacheCoreProvider), ServiceLifetime.Singleton));
             services.Add(new ServiceDescriptor(typeof(IViewComponentInvokerFactory), typeof(WidgetViewComponentInvokerFactory), ServiceLifetime.Scoped));
-            services.Add(new ServiceDescriptor(typeof(IComponentMapper), new DemoComponentMapper()));
-            services.Add(new ServiceDescriptor(typeof(IControllerMapper), new DemoControllerMapper()));
-            services.Add(new ServiceDescriptor(typeof(IAbstractItemFactory), new DemoAbstractItemFactory()));
+
             services.Add(new ServiceDescriptor(typeof(IUnitOfWork), typeof(UnitOfWork), ServiceLifetime.Scoped));
             services.Add(new ServiceDescriptor(typeof(IAbstractItemRepository), typeof(AbstractItemRepository), ServiceLifetime.Scoped));
             services.Add(new ServiceDescriptor(typeof(IMetaInfoRepository), typeof(MetaInfoRepository), ServiceLifetime.Scoped));
+            services.Add(new ServiceDescriptor(typeof(IItemDefinitionRepository), typeof(ItemDefinitionRepository), ServiceLifetime.Scoped));
+
+            services.Add(new ServiceDescriptor(typeof(ITypeFinder), provider => new TypeFinder(new RootPage()), ServiceLifetime.Singleton));
+            services.Add(new ServiceDescriptor(typeof(IItemDefinitionProvider), typeof(NameConventionalItemDefinitionProvider), ServiceLifetime.Scoped));
+            
+            services.Add(new ServiceDescriptor(typeof(IComponentMapper), new DemoComponentMapper()));
+            services.Add(new ServiceDescriptor(typeof(IControllerMapper), new DemoControllerMapper()));
+            services.Add(new ServiceDescriptor(typeof(IAbstractItemFactory), typeof(AbstractItemFactory), ServiceLifetime.Scoped));
+            
             services.Add(new ServiceDescriptor(typeof(IQpUrlResolver), typeof(QpUrlResolver), ServiceLifetime.Scoped));
             services.Add(new ServiceDescriptor(typeof(IAbstractItemStorageBuilder), typeof(QpAbstractItemStorageBuilder), ServiceLifetime.Scoped));
             services.Add(new ServiceDescriptor(typeof(IAbstractItemStorageProvider), typeof(SimpleAbstractItemStorageProvider), ServiceLifetime.Scoped));

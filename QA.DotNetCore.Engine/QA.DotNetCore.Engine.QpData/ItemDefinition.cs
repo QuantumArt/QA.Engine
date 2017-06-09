@@ -1,8 +1,9 @@
+using QA.DotNetCore.Engine.Abstractions;
 using System;
 
 namespace QA.DotNetCore.Engine.QpData
 {
-    public class ItemDefinition
+    public class ItemDefinition : IItemDefinition
     {
         public int Id { get; set; }
 

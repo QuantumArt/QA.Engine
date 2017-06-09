@@ -30,12 +30,12 @@ namespace QA.DotNetCore.Engine.QpData
             _siteMode = siteMode.Value;
         }
 
-        public IEnumerable<ItemDefinition> GetAllDefinitions()
+        public IEnumerable<IItemDefinition> GetAllDefinitions()
         {
-            return GetCached().Values.ToList();
+            return GetCached().Values.Cast<IItemDefinition>().ToList();
         }
 
-        public ItemDefinition GetById(string discriminator)
+        public IItemDefinition GetById(string discriminator)
         {
             var cached = GetCached();
             return cached.ContainsKey(discriminator) ? cached[discriminator] : null;

@@ -1,8 +1,0 @@
-﻿@using Common.Widgets
-@using Common.Helpers
-@model Common.Widgets.TextPart
-
-@Html.Raw(Model.Text)
-@Url.Action("get", "newsapi")
-@await Component.WidgetZone(Html, "Content")
-@Url.Action("get", "newsapi")

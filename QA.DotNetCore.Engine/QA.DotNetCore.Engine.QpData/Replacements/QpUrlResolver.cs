@@ -2,13 +2,15 @@ using QA.DotNetCore.Caching;
 using QA.DotNetCore.Engine.QpData.Persistent.Data;
 using QA.DotNetCore.Engine.QpData.Persistent.Interfaces;
 using System;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System.Text;
 using QA.DotNetCore.Engine.QpData.Settings;
 
 namespace QA.DotNetCore.Engine.QpData.Replacements
 {
+    /// <summary>
+    /// Правила построения урлов до файлов медиа-библиотеки QP
+    /// </summary>
     public class QpUrlResolver : IQpUrlResolver
     {
         ICacheProvider _cacheProvider;

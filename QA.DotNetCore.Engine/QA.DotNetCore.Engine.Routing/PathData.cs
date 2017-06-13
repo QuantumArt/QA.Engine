@@ -2,7 +2,7 @@ using QA.DotNetCore.Engine.Abstractions;
 
 namespace QA.DotNetCore.Engine.Routing
 {
-    public class PathData
+    internal class PathData
     {
         private IAbstractItem abstractItem;
         private string remainingUrl;

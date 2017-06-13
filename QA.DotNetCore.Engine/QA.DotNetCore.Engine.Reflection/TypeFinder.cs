@@ -5,6 +5,9 @@ using QA.DotNetCore.Engine.Abstractions;
 
 namespace QA.DotNetCore.Engine.Reflection
 {
+    /// <summary>
+    /// Тривиальная реализация ITypeFinder. Ищет только в одной библиотеке, определяемой объектом, который передаётся в конструкторе
+    /// </summary>
     public class TypeFinder : ITypeFinder
     {
         public TypeFinder(object sample)

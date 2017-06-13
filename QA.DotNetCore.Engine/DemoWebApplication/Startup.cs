@@ -16,7 +16,9 @@ using QA.DotNetCore.Engine.QpData.Replacements;
 using QA.DotNetCore.Engine.QpData.Settings;
 using QA.DotNetCore.Engine.Reflection;
 using QA.DotNetCore.Engine.Routing;
+using QA.DotNetCore.Engine.Routing.Mappers;
 using QA.DotNetCore.Engine.Widgets;
+using QA.DotNetCore.Engine.Widgets.Mappers;
 
 namespace DemoWebApplication
 {
@@ -58,8 +60,8 @@ namespace DemoWebApplication
             services.Add(new ServiceDescriptor(typeof(ITypeFinder), provider => new TypeFinder(new RootPage()), ServiceLifetime.Singleton));
             services.Add(new ServiceDescriptor(typeof(IItemDefinitionProvider), typeof(NameConventionalItemDefinitionProvider), ServiceLifetime.Scoped));
             
-            services.Add(new ServiceDescriptor(typeof(IComponentMapper), new DemoComponentMapper()));
-            services.Add(new ServiceDescriptor(typeof(IControllerMapper), new DemoControllerMapper()));
+            services.Add(new ServiceDescriptor(typeof(IComponentMapper), typeof(NameConventionalComponentMapper), ServiceLifetime.Singleton));
+            services.Add(new ServiceDescriptor(typeof(IControllerMapper), typeof(NameConventionalControllerMapper), ServiceLifetime.Singleton));
             services.Add(new ServiceDescriptor(typeof(IAbstractItemFactory), typeof(AbstractItemFactory), ServiceLifetime.Scoped));
             
             services.Add(new ServiceDescriptor(typeof(IQpUrlResolver), typeof(QpUrlResolver), ServiceLifetime.Scoped));

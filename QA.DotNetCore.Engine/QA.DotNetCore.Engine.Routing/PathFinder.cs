@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace QA.DotNetCore.Engine.Routing
 {
-    public class PathFinder
+    internal class PathFinder
     {
         public PathData Find(string path, IAbstractItem root)
         {

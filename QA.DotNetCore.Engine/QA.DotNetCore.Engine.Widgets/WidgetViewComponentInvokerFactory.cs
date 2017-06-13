@@ -19,25 +19,13 @@ namespace QA.DotNetCore.Engine.Widgets
 
         public WidgetViewComponentInvokerFactory(IViewComponentFactory viewComponentFactory, ViewComponentInvokerCache viewComponentInvokerCache, DiagnosticSource diagnosticSource, ILoggerFactory loggerFactory)
         {
-            if (viewComponentFactory == null)
-            {
-                throw new ArgumentNullException("viewComponentFactory");
-            }
-            if (viewComponentInvokerCache == null)
-            {
-                throw new ArgumentNullException("viewComponentInvokerCache");
-            }
-            if (diagnosticSource == null)
-            {
-                throw new ArgumentNullException("diagnosticSource");
-            }
             if (loggerFactory == null)
             {
                 throw new ArgumentNullException("loggerFactory");
             }
-            this._viewComponentFactory = viewComponentFactory;
-            this._diagnosticSource = diagnosticSource;
-            this._viewComponentInvokerCache = viewComponentInvokerCache;
+            this._viewComponentFactory = viewComponentFactory ?? throw new ArgumentNullException("viewComponentFactory");
+            this._diagnosticSource = diagnosticSource ?? throw new ArgumentNullException("diagnosticSource");
+            this._viewComponentInvokerCache = viewComponentInvokerCache ?? throw new ArgumentNullException("viewComponentInvokerCache");
             this._logger = loggerFactory.CreateLogger<DefaultViewComponentInvoker>();
             this._scope = new WidgetContextScope();
         }

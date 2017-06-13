@@ -8,6 +8,9 @@ using System.Linq;
 
 namespace QA.DotNetCore.Engine.QpData
 {
+    /// <summary>
+    /// Провайдер доступных типов элементов структуры сайта. Предполагает совпадение имени класса .Net и поля TypeName у ItemDefinition
+    /// </summary>
     public class NameConventionalItemDefinitionProvider : IItemDefinitionProvider
     {
         readonly ITypeFinder _typeFinder;

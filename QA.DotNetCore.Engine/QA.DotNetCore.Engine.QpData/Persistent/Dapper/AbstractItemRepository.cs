@@ -45,6 +45,7 @@ INNER JOIN {1} def on ai.Discriminator = def.content_item_id
 ";
 
         private const string CmdGetExtension = @"[qa_extend_items]";
+        private const string CmdGetManyToMany = @"[qa_extend_items_m2m]";
 
         string GetAbstractItemTable(int siteId, bool isStage)
         {
@@ -65,7 +66,7 @@ INNER JOIN {1} def on ai.Discriminator = def.content_item_id
             return _connection.Query<AbstractItemPersistentData>(string.Format(CmdGetAbstractItem, GetAbstractItemTable(siteId, isStage), GetItemDefinitionTable(siteId, isStage)));
         }
 
-        public IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionId, int[] ids, bool isStage)
+        public IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionId, IEnumerable<int> ids, bool isStage)
         {
             if (!(_connection is SqlConnection))
                 throw new NotImplementedException("GetAbstractItemExtensionData can be executed in MS SQL only");
@@ -122,6 +123,51 @@ INNER JOIN {1} def on ai.Discriminator = def.content_item_id
                 }
             }
 
+        }
+
+        public IDictionary<int, AbstractItemM2mRelations> GetAbstractItemManyToManyData(IEnumerable<int> ids, bool isStage)
+        {
+            if (!(_connection is SqlConnection))
+                throw new NotImplementedException("GetAbstractItemManyToManyData can be executed in MS SQL only");
+
+            var idsParameter = new List<SqlDataRecord>();
+            var metaData = new SqlMetaData[] { new SqlMetaData("Id", SqlDbType.Int) };
+            foreach (var id in ids)
+            {
+                var record = new SqlDataRecord(metaData);
+                record.SetInt32(0, id);
+                idsParameter.Add(record);
+            }
+
+            using (var command = (_connection as SqlConnection).CreateCommand())
+            {
+                command.CommandText = CmdGetManyToMany;
+                command.CommandType = CommandType.StoredProcedure;
+
+                var tvpParam = command.Parameters.AddWithValue("@Ids", idsParameter);
+                var isLive = command.Parameters.AddWithValue("@isLive", !isStage);
+
+                isLive.SqlDbType = SqlDbType.Bit;
+                tvpParam.SqlDbType = SqlDbType.Structured;
+
+                var result = new Dictionary<int, AbstractItemM2mRelations>();
+                
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var itemId = Convert.ToInt32(reader.GetDecimal(reader.GetOrdinal("item_id")));
+                        if (!result.ContainsKey(itemId))
+                            result[itemId] = new AbstractItemM2mRelations();
+
+                        result[itemId].AddRelation(
+                            Convert.ToInt32(reader.GetDecimal(reader.GetOrdinal("link_id"))),
+                            Convert.ToInt32(reader.GetDecimal(reader.GetOrdinal("linked_item_id"))));
+                    }
+
+                    return result;
+                }
+            }
         }
     }
 }

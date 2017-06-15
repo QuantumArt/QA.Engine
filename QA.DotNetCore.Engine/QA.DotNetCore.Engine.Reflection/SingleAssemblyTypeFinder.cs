@@ -8,9 +8,9 @@ namespace QA.DotNetCore.Engine.Reflection
     /// <summary>
     /// Тривиальная реализация ITypeFinder. Ищет только в одной библиотеке, определяемой объектом, который передаётся в конструкторе
     /// </summary>
-    public class TypeFinder : ITypeFinder
+    public class SingleAssemblyTypeFinder : ITypeFinder
     {
-        public TypeFinder(object sample)
+        public SingleAssemblyTypeFinder(object sample)
         {
             _sample = sample;
         }

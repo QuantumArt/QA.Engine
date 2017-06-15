@@ -37,7 +37,7 @@ namespace QA.DotNetCore.Engine.Widgets.Mappers
                 if (_componentMap.ContainsKey(requestedType))
                 {
                     var componentName = _componentMap[requestedType].Name;
-                    return componentName.EndsWith("Component") ? componentName.Substring(0, componentName.Length - "Component".Length) : componentName;
+                    return componentName.EndsWith("ViewComponent") ? componentName.Substring(0, componentName.Length - "ViewComponent".Length) : componentName;
                 }
                 requestedType = requestedType.BaseType;
             }

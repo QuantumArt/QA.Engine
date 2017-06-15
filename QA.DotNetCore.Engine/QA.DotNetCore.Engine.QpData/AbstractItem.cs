@@ -36,6 +36,7 @@ namespace QA.DotNetCore.Engine.QpData
         public abstract bool IsPage { get; }
         internal int? ExtensionId { get; set; }
         internal AbstractItemExtensionCollection Details { get; set; }
+        internal AbstractItemM2mRelations M2mRelations { get; set; }
 
         public string GetTrail()
         {
@@ -85,6 +86,19 @@ namespace QA.DotNetCore.Engine.QpData
                 return defaultValue;
             }
             return (T)value;
+        }
+
+        /// <summary>
+        /// Получение ссылок m2m
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public virtual IEnumerable<int> GetRelationIds(string name)
+        {
+            if (M2mRelations == null)
+                return new int[0];
+            var relationId = GetDetail(name, 0);
+            return M2mRelations.GetRelationValue(relationId);
         }
 
         /// <summary>

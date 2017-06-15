@@ -30,4 +30,8 @@
     <ProjectReference Include="..\QA.DotNetCore.Engine.Widgets\QA.DotNetCore.Engine.Widgets.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Views\Shared\Components\NewsWidget\" />
+  </ItemGroup>
+
 </Project>

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using DemoWebSite.PagesAndWidgets.Widgets;
 using QA.DotNetCore.Engine.Widgets;
 
-namespace WebApplication1
+namespace DemoWebApplication.Components
 {
     public class TextPartViewComponent : WidgetComponentBase<TextPart>
     {        

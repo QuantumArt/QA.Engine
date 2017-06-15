@@ -57,7 +57,7 @@ namespace DemoWebApplication
             services.Add(new ServiceDescriptor(typeof(IMetaInfoRepository), typeof(MetaInfoRepository), ServiceLifetime.Scoped));
             services.Add(new ServiceDescriptor(typeof(IItemDefinitionRepository), typeof(ItemDefinitionRepository), ServiceLifetime.Scoped));
 
-            services.Add(new ServiceDescriptor(typeof(ITypeFinder), provider => new TypeFinder(new RootPage()), ServiceLifetime.Singleton));
+            services.Add(new ServiceDescriptor(typeof(ITypeFinder), provider => new SingleAssemblyTypeFinder(new RootPage()), ServiceLifetime.Singleton));
             services.Add(new ServiceDescriptor(typeof(IItemDefinitionProvider), typeof(NameConventionalItemDefinitionProvider), ServiceLifetime.Scoped));
             
             services.Add(new ServiceDescriptor(typeof(IComponentMapper), typeof(NameConventionalComponentMapper), ServiceLifetime.Singleton));

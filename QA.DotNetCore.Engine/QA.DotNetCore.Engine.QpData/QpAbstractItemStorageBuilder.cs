@@ -76,6 +76,9 @@ namespace QA.DotNetCore.Engine.QpData
                     .GroupBy(_ => _.Value.ExtensionId.Value, _ => _.Value)
                     .ToList();
 
+                //словарь, каким элементам нужна загрузка связи m2m
+                var needLoadM2MDict = new Dictionary<int, AbstractItem>();
+
                 //догрузим доп поля
                 foreach (var group in groupsByExtensions)
                 {
@@ -92,14 +95,20 @@ namespace QA.DotNetCore.Engine.QpData
                         {
                             if (optionsMap == null)
                             {
-                                optionsMap = ProcessType(item.GetContentType(), extensionId)?.ToLookup(x => x.PropertyName);
+                                optionsMap = ProcessLoadOptions(item.GetContentType(), extensionId)?.ToLookup(x => x.PropertyName);
                             }
 
+                            var needLoadM2m = NeedManyToManyLoad(item.GetContentType());
                             var details = extensions[item.Id];
 
                             //проведём замены в некоторых значениях доп полей
                             foreach (var key in details.Keys)
                             {
+                                if (needLoadM2m && key == "CONTENT_ITEM_ID")
+                                {
+                                    needLoadM2MDict[Convert.ToInt32(details[key])] = item;
+                                }
+
                                 if (details[key] is string stringValue)
                                 {
                                     //1) надо заменить плейсхолдер <%=upload_url%> на реальный урл
@@ -121,6 +130,19 @@ namespace QA.DotNetCore.Engine.QpData
                             item.Details = details;
                         }
 
+                    }
+                }
+
+                //догрузим связи m2m
+                if (needLoadM2MDict.Any())
+                {
+                    var m2mData = _abstractItemRepository.GetAbstractItemManyToManyData(needLoadM2MDict.Keys.ToArray(), _siteMode.IsStage);
+                    foreach (var key in m2mData.Keys)
+                    {
+                        if (!needLoadM2MDict.ContainsKey(key))
+                            continue;
+
+                        needLoadM2MDict[key].M2mRelations = m2mData[key];
                     }
                 }
 
@@ -163,10 +185,10 @@ namespace QA.DotNetCore.Engine.QpData
             }
         }
 
-        private readonly ConcurrentDictionary<Type, IReadOnlyList<ILoaderOption>> _needToResolve = new ConcurrentDictionary<Type, IReadOnlyList<ILoaderOption>>();
-        private IReadOnlyList<ILoaderOption> ProcessType(Type t, int contentId)
+        private readonly ConcurrentDictionary<Type, IReadOnlyList<ILoaderOption>> _loadOptions = new ConcurrentDictionary<Type, IReadOnlyList<ILoaderOption>>();
+        private IReadOnlyList<ILoaderOption> ProcessLoadOptions(Type t, int contentId)
         {
-            return _needToResolve.GetOrAdd(t, key =>
+            return _loadOptions.GetOrAdd(t, key =>
             {
                 var lst = new List<ILoaderOption>();
                 var properties = t.GetProperties();
@@ -184,6 +206,17 @@ namespace QA.DotNetCore.Engine.QpData
                 }
 
                 return lst;
+            });
+        }
+
+        private readonly ConcurrentDictionary<Type, bool> _m2mOptions = new ConcurrentDictionary<Type, bool>();
+        private bool NeedManyToManyLoad(Type t)
+        {
+            return _m2mOptions.GetOrAdd(t, key =>
+            {
+                //если атрибутом LoadManyToManyRelations помечен сам класс или какое-то из его полей
+                return t.GetCustomAttributes(typeof(LoadManyToManyRelationsAttribute), false).Any()
+                    || t.GetProperties().Any(prop => prop.GetCustomAttributes(typeof(LoadManyToManyRelationsAttribute), false).Any());
             });
         }
     }

@@ -2,7 +2,7 @@ using DemoWebSite.PagesAndWidgets.Pages;
 using Microsoft.AspNetCore.Mvc;
 using QA.DotNetCore.Engine.QpData;
 
-namespace WebApplication1.Controllers
+namespace DemoWebApplication.Controllers
 {
     public class TextPageController:Controller
     {

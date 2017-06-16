@@ -6,7 +6,7 @@ namespace QA.DotNetCore.Engine.Routing
 {
     internal class PathFinder
     {
-        public PathData Find(string path, IAbstractItem root)
+        public PathData Find(string path, IAbstractItem root, ITargetingFilter targetingFilter)
         {
             var tokens = path.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -22,7 +22,7 @@ namespace QA.DotNetCore.Engine.Routing
             foreach (var token in tokens)
             {
                 index++;
-                node = node.Get(token);
+                node = node.Get(token, targetingFilter);
                 if (node == null) break;
                 stopItem = node;
                 remainingPath = $"/{string.Join("/", tokens.Select((x, i) => i < index ? (string)null : x).Where(x => x != null))}";

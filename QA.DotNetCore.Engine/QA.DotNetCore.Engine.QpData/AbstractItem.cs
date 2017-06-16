@@ -66,9 +66,10 @@ namespace QA.DotNetCore.Engine.QpData
         /// </summary>
         /// <param name="alias"></param>
         /// <returns></returns>
-        public IAbstractItem Get(string alias)
+        public IAbstractItem Get(string alias, ITargetingFilter filter = null)
         {
-            return Children.FirstOrDefault(x => string.Equals(x.Alias, alias, StringComparison.OrdinalIgnoreCase));
+            return Children.FirstOrDefault(x => (filter == null ? true : filter.Match(this))
+                && string.Equals(x.Alias, alias, StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>
@@ -108,6 +109,18 @@ namespace QA.DotNetCore.Engine.QpData
         public Type GetContentType()
         {
             return this.GetType();
+        }
+
+        public virtual object GetTargetingValue(string targetingKey)
+        {
+            //для проверки
+            //if (targetingKey == "culture")
+            //{
+            //    if (Alias == "proxyabove" || Alias == "philosophy")
+            //        return "en-us";
+            //}
+
+            return null;//пока AbstractItem не научили таргетироваться
         }
     }
 }

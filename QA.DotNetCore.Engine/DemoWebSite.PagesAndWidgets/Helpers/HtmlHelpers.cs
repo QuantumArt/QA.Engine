@@ -11,15 +11,16 @@ namespace DemoWebSite.PagesAndWidgets.Helpers
         public static HtmlString Tree(this IHtmlHelper html)
         {
             var root = html.ViewContext.HttpContext.Items["start-page"] as IAbstractItem;
+            var filter = ((ITargetingFilterAccessor)html.ViewContext.HttpContext.RequestServices.GetService(typeof(ITargetingFilterAccessor))).Get();
 
             var sb = new StringBuilder();
 
             var node = root;
             sb.Append("<ul>");
 
-            foreach (var item in root.Children)
+            foreach (var item in root.Children.Pipe(filter))
             {
-                VisitNodes(sb, item);
+                VisitNodes(sb, item, filter);
             }
 
             sb.Append("</ul>");
@@ -28,19 +29,20 @@ namespace DemoWebSite.PagesAndWidgets.Helpers
             return new HtmlString(sb.ToString());
         }
 
-        private static void VisitNodes(StringBuilder sb, IAbstractItem node)
+        private static void VisitNodes(StringBuilder sb, IAbstractItem node, ITargetingFilter filter)
         {
             if (node.IsPage)
                 sb.Append($"<li> <a href = {node.GetTrail()}> {node.Title} </a></li>"); 
             else
                 sb.Append($"<li> {node.Title} </li>");
 
-            if (node.Children.Any())
+            var children = node.Children.Pipe(filter);
+            if (children.Any())
             {
                 sb.Append("<ul>");
-                foreach (var item in node.Children)
+                foreach (var item in children)
                 {
-                    VisitNodes(sb, item);
+                    VisitNodes(sb, item, filter);
                 }
                 sb.Append("</ul>");
             }

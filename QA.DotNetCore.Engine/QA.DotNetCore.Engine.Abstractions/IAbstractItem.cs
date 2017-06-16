@@ -14,8 +14,8 @@ namespace QA.DotNetCore.Engine.Abstractions
         string Alias { get; }
         string Title { get; }
         bool IsPage { get; }
-
         string GetTrail();
-        IAbstractItem Get(string alias);
+        IAbstractItem Get(string alias, ITargetingFilter filter = null);
+        object GetTargetingValue(string targetingKey);
     }
 }

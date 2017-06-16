@@ -2,6 +2,7 @@ using DemoWebSite.PagesAndWidgets;
 using DemoWebSite.PagesAndWidgets.Pages;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
@@ -40,6 +41,8 @@ namespace DemoWebApplication
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton(_ => Configuration);
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
             services.Configure<QpSiteStructureSettings>(Configuration.GetSection("QpSiteStructureSettings"));
             services.Configure<QpSettings>(Configuration.GetSection("QpSettings"));
             services.Configure<SiteMode>(Configuration.GetSection("SiteMode"));
@@ -49,24 +52,25 @@ namespace DemoWebApplication
 
             services.AddMemoryCache();
 
-            services.Add(new ServiceDescriptor(typeof(ICacheProvider), typeof(VersionedCacheCoreProvider), ServiceLifetime.Singleton));
-            services.Add(new ServiceDescriptor(typeof(IViewComponentInvokerFactory), typeof(WidgetViewComponentInvokerFactory), ServiceLifetime.Scoped));
+            services.AddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
+            services.AddScoped<IViewComponentInvokerFactory, WidgetViewComponentInvokerFactory>();
 
-            services.Add(new ServiceDescriptor(typeof(IUnitOfWork), typeof(UnitOfWork), ServiceLifetime.Scoped));
-            services.Add(new ServiceDescriptor(typeof(IAbstractItemRepository), typeof(AbstractItemRepository), ServiceLifetime.Scoped));
-            services.Add(new ServiceDescriptor(typeof(IMetaInfoRepository), typeof(MetaInfoRepository), ServiceLifetime.Scoped));
-            services.Add(new ServiceDescriptor(typeof(IItemDefinitionRepository), typeof(ItemDefinitionRepository), ServiceLifetime.Scoped));
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IAbstractItemRepository, AbstractItemRepository>();
+            services.AddScoped<IMetaInfoRepository, MetaInfoRepository>();
+            services.AddScoped<IItemDefinitionRepository, ItemDefinitionRepository>();
 
+            services.AddSingleton<ITargetingFilterAccessor, DemoTargetingFilterAccessor>();
             services.Add(new ServiceDescriptor(typeof(ITypeFinder), provider => new SingleAssemblyTypeFinder(new RootPage()), ServiceLifetime.Singleton));
-            services.Add(new ServiceDescriptor(typeof(IItemDefinitionProvider), typeof(NameConventionalItemDefinitionProvider), ServiceLifetime.Scoped));
-            
-            services.Add(new ServiceDescriptor(typeof(IComponentMapper), typeof(NameConventionalComponentMapper), ServiceLifetime.Singleton));
-            services.Add(new ServiceDescriptor(typeof(IControllerMapper), typeof(NameConventionalControllerMapper), ServiceLifetime.Singleton));
-            services.Add(new ServiceDescriptor(typeof(IAbstractItemFactory), typeof(AbstractItemFactory), ServiceLifetime.Scoped));
-            
-            services.Add(new ServiceDescriptor(typeof(IQpUrlResolver), typeof(QpUrlResolver), ServiceLifetime.Scoped));
-            services.Add(new ServiceDescriptor(typeof(IAbstractItemStorageBuilder), typeof(QpAbstractItemStorageBuilder), ServiceLifetime.Scoped));
-            services.Add(new ServiceDescriptor(typeof(IAbstractItemStorageProvider), typeof(SimpleAbstractItemStorageProvider), ServiceLifetime.Scoped));
+            services.AddScoped<IItemDefinitionProvider, NameConventionalItemDefinitionProvider>();
+
+            services.AddSingleton<IComponentMapper, NameConventionalComponentMapper>();
+            services.AddSingleton<IControllerMapper, NameConventionalControllerMapper>();
+            services.AddScoped<IAbstractItemFactory, AbstractItemFactory>();
+
+            services.AddScoped<IQpUrlResolver, QpUrlResolver>();
+            services.AddScoped<IAbstractItemStorageBuilder, QpAbstractItemStorageBuilder>();
+            services.AddScoped<IAbstractItemStorageProvider, SimpleAbstractItemStorageProvider>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -93,15 +97,16 @@ namespace DemoWebApplication
             {
                 IInlineConstraintResolver requiredService = routes.ServiceProvider.GetRequiredService<IInlineConstraintResolver>();
                 IControllerMapper controllerMapper = routes.ServiceProvider.GetRequiredService<IControllerMapper>();
+                ITargetingFilterAccessor targetingAccessor = routes.ServiceProvider.GetRequiredService<ITargetingFilterAccessor>();
 
-                routes.Routes.Add(new ContentRoute(controllerMapper, routes.DefaultHandler, "Route with custom params", "{controller}/{id}/{page}",
+                routes.Routes.Add(new ContentRoute(controllerMapper, targetingAccessor, routes.DefaultHandler, "Route with custom params", "{controller}/{id}/{page}",
                     new RouteValueDictionary(new { action = "details" }),
                     new RouteValueDictionary(null),
                     new RouteValueDictionary(null),
                     requiredService));
 
 
-                routes.Routes.Add(new ContentRoute(controllerMapper, routes.DefaultHandler, "default", "{controller}/{action=Index}/{id?}",
+                routes.Routes.Add(new ContentRoute(controllerMapper, targetingAccessor, routes.DefaultHandler, "default", "{controller}/{action=Index}/{id?}",
                     new RouteValueDictionary(null),
                     new RouteValueDictionary(null),
                     new RouteValueDictionary(null),

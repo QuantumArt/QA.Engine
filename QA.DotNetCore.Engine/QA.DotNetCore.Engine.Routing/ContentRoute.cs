@@ -19,21 +19,23 @@ namespace QA.DotNetCore.Engine.Routing
         private TemplateMatcher _matcher;
         private TemplateBinder _binder;
         private readonly IControllerMapper _mapper;
+        private readonly ITargetingFilterAccessor _targetingProvider;
 
-        public ContentRoute(IControllerMapper controllerMapper, IRouter target, string routeTemplate, IInlineConstraintResolver inlineConstraintResolver)
-            : this(controllerMapper, target, routeTemplate, null, null, null, inlineConstraintResolver)
+        public ContentRoute(IControllerMapper controllerMapper, ITargetingFilterAccessor targetingProvider, IRouter target, string routeTemplate, IInlineConstraintResolver inlineConstraintResolver)
+            : this(controllerMapper, targetingProvider, target, routeTemplate, null, null, null, inlineConstraintResolver)
         {
         }
 
-        public ContentRoute(IControllerMapper controllerMapper, IRouter target, string routeTemplate, RouteValueDictionary defaults, IDictionary<string, object> constraints, RouteValueDictionary dataTokens, IInlineConstraintResolver inlineConstraintResolver)
-            : this(controllerMapper, target, null, routeTemplate, defaults, constraints, dataTokens, inlineConstraintResolver)
+        public ContentRoute(IControllerMapper controllerMapper, ITargetingFilterAccessor targetingProvider, IRouter target, string routeTemplate, RouteValueDictionary defaults, IDictionary<string, object> constraints, RouteValueDictionary dataTokens, IInlineConstraintResolver inlineConstraintResolver)
+            : this(controllerMapper, targetingProvider, target, null, routeTemplate, defaults, constraints, dataTokens, inlineConstraintResolver)
         {
         }
 
-        public ContentRoute(IControllerMapper controllerMapper, IRouter target, string routeName, string routeTemplate, RouteValueDictionary defaults, IDictionary<string, object> constraints, RouteValueDictionary dataTokens, IInlineConstraintResolver inlineConstraintResolver)
+        public ContentRoute(IControllerMapper controllerMapper, ITargetingFilterAccessor targetingProvider, IRouter target, string routeName, string routeTemplate, RouteValueDictionary defaults, IDictionary<string, object> constraints, RouteValueDictionary dataTokens, IInlineConstraintResolver inlineConstraintResolver)
             : base(target, routeName, routeTemplate, defaults, constraints, dataTokens, inlineConstraintResolver)
         {
             _mapper = controllerMapper;
+            _targetingProvider = targetingProvider;
         }
 
 
@@ -51,7 +53,8 @@ namespace QA.DotNetCore.Engine.Routing
                 return Task.FromResult<int>(0);
             }
 
-            var data = (context.HttpContext.Items["current-page"] as PathData) ?? new PathFinder().Find(path, startPage);
+            var targetingFilter = _targetingProvider.Get();
+            var data = (context.HttpContext.Items["current-page"] as PathData) ?? new PathFinder().Find(path, startPage, targetingFilter);
 
             if (data != null)
             {

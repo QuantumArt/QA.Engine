@@ -28,9 +28,9 @@ namespace QA.DotNetCore.Engine.Widgets
                 var mapper = ((IComponentMapper)html.ViewContext.HttpContext.RequestServices.GetService(typeof(IComponentMapper)));
                 var filter = ((ITargetingFilterAccessor)html.ViewContext.HttpContext.RequestServices.GetService(typeof(ITargetingFilterAccessor))).Get();
 
-                var children = currentPage.Children.OfType<IAbstractWidget>()
-                    .Where(x => string.Equals(x.ZoneName, zoneName))
-                    .Pipe(filter);
+                var children = currentPage.GetChildren(filter)
+                    .OfType<IAbstractWidget>()
+                    .Where(x => string.Equals(x.ZoneName, zoneName));
 
                 using (var writer = new StringWriter(sb))
                 {

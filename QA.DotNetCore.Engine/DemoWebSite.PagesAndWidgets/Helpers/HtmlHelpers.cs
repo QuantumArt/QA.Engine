@@ -19,7 +19,7 @@ namespace DemoWebSite.PagesAndWidgets.Helpers
             var node = root;
             sb.Append("<ul>");
 
-            foreach (var item in root.Children.Pipe(filter))
+            foreach (var item in root.GetChildren(filter))
             {
                 VisitNodes(sb, item, filter);
             }
@@ -37,7 +37,7 @@ namespace DemoWebSite.PagesAndWidgets.Helpers
             else
                 sb.Append($"<li> {node.Title} </li>");
 
-            var children = node.Children.Pipe(filter);
+            var children = node.GetChildren(filter);
             if (children.Any())
             {
                 sb.Append("<ul>");

@@ -1,3 +1,4 @@
+using QA.DotNetCore.Engine.Abstractions.Targeting;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,7 +18,7 @@ namespace QA.DotNetCore.Engine.Abstractions
         private void AddItemRecursive(IAbstractItem item)
         {
             _items[item.Id] = item;
-            foreach (var child in item.Children)
+            foreach (var child in item.GetChildren())
             {
                 AddItemRecursive(child);
             }
@@ -28,10 +29,10 @@ namespace QA.DotNetCore.Engine.Abstractions
             return _items[id];
         }
 
-        public IAbstractItem GetStartPage(string host)
+        public IAbstractItem GetStartPage(string host, ITargetingFilter filter = null)
         {
             //тривиальная реализация
-            foreach (var startPage in Root.Children.OfType<IStartPage>())
+            foreach (var startPage in Root.GetChildren(filter).OfType<IStartPage>())
             {
                 var bindings = startPage.GetDNSBindings();
                 if (bindings.Contains(host) || bindings.Contains("*"))

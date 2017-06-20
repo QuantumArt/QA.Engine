@@ -31,7 +31,6 @@ namespace QA.DotNetCore.Engine.QpData
         public int Id { get; set; }
         public IAbstractItem Parent { get; private set; }
         public int? ParentId { get; private set; }
-        public IEnumerable<IAbstractItem> Children { get { return _children.AsEnumerable(); } }
         public string Alias { get; internal set; }
         public string Title { get; internal set; }
         public abstract bool IsPage { get; }
@@ -68,14 +67,24 @@ namespace QA.DotNetCore.Engine.QpData
         }
 
         /// <summary>
+        /// Получение дочерних элементов
+        /// </summary>
+        /// <param name="filter">Опционально. Фильтр таргетирования</param>
+        /// <returns></returns>
+        public IEnumerable<IAbstractItem> GetChildren(ITargetingFilter filter = null)
+        {
+            return filter == null ? _children : _children.Pipe(filter);
+        }
+
+        /// <summary>
         /// Получение дочернего элемента по алиасу
         /// </summary>
-        /// <param name="alias"></param>
+        /// <param name="alias">Алиас искомого элемента</param>
+        /// <param name="filter">Опционально. Фильтр таргетирования</param>
         /// <returns></returns>
         public IAbstractItem Get(string alias, ITargetingFilter filter = null)
         {
-            return Children.FirstOrDefault(x => (filter == null ? true : filter.Match(x))
-                && string.Equals(x.Alias, alias, StringComparison.OrdinalIgnoreCase));
+            return GetChildren(filter).FirstOrDefault(x => string.Equals(x.Alias, alias, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>

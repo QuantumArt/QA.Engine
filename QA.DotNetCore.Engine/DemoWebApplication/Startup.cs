@@ -103,8 +103,6 @@ namespace DemoWebApplication
 
             app.UseStaticFiles();
 
-            app.UseMiddleware<RoutingMiddleware>();
-
             app.UseTargeting(targeting =>
             {
                 targeting.Add<DemoCultureTargetingProvider>();
@@ -116,6 +114,8 @@ namespace DemoWebApplication
                 cfg.Add<DemoRegionFilter>();
                 cfg.Add<DemoCultureFilter>();
             });
+
+            app.UseMiddleware<RoutingMiddleware>();
 
             app.UseMvc(routes =>
             {

@@ -11,12 +11,12 @@ namespace QA.DotNetCore.Engine.Abstractions
         int Id { get; }
         IAbstractItem Parent { get; }
         int? ParentId { get; }
-        IEnumerable<IAbstractItem> Children { get; }
         string Alias { get; }
         string Title { get; }
         bool IsPage { get; }
         string GetUrl();
         string GetTrail();
+        IEnumerable<IAbstractItem> GetChildren(ITargetingFilter filter = null);
         IAbstractItem Get(string alias, ITargetingFilter filter = null);
         object GetTargetingValue(string targetingKey);
     }

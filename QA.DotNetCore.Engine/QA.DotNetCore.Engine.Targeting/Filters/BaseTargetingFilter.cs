@@ -1,9 +1,10 @@
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.Abstractions.Targeting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace QA.DotNetCore.Engine.QpData.Targeting
+namespace QA.DotNetCore.Engine.Targeting.Filters
 {
     public abstract class BaseTargetingFilter : ITargetingFilter
     {
@@ -35,7 +36,7 @@ namespace QA.DotNetCore.Engine.QpData.Targeting
 
         public static BaseTargetingFilter operator &(BaseTargetingFilter f1, BaseTargetingFilter f2)
         {
-            return new AllFilter(f1, f2);
+            return new UnitedFilter(f1, f2);
         }
 
         public static BaseTargetingFilter operator |(BaseTargetingFilter f1, BaseTargetingFilter f2)
@@ -45,7 +46,7 @@ namespace QA.DotNetCore.Engine.QpData.Targeting
 
         public static BaseTargetingFilter operator +(BaseTargetingFilter f1, BaseTargetingFilter f2)
         {
-            return new AllFilter(f1, f2);
+            return new UnitedFilter(f1, f2);
         }
     }
 
@@ -64,18 +65,18 @@ namespace QA.DotNetCore.Engine.QpData.Targeting
         }
     }
 
-    public class AllFilter : BaseTargetingFilter
+    public class UnitedFilter : BaseTargetingFilter
     {
-        private BaseTargetingFilter[] filters;
+        private ITargetingFilter[] filters;
 
-        public AllFilter(params BaseTargetingFilter[] filters)
+        public UnitedFilter(params ITargetingFilter[] filters)
         {
-            this.filters = filters ?? new BaseTargetingFilter[0];
+            this.filters = filters ?? new ITargetingFilter[0];
         }
 
-        public AllFilter(IEnumerable<BaseTargetingFilter> filters)
+        public UnitedFilter(IEnumerable<ITargetingFilter> filters)
         {
-            this.filters = new List<BaseTargetingFilter>(filters).ToArray();
+            this.filters = new List<ITargetingFilter>(filters).ToArray();
         }
 
         public override bool Match(IAbstractItem item)
@@ -108,23 +109,6 @@ namespace QA.DotNetCore.Engine.QpData.Targeting
         public override bool Match(IAbstractItem item)
         {
             return true;
-        }
-    }
-
-    public abstract class StringValueTargetingFilter : BaseTargetingFilter
-    {
-        protected abstract string FilterValue { get; }
-
-        protected abstract string TargetingKey { get; }
-
-        public override bool Match(IAbstractItem item)
-        {
-            var val = item.GetTargetingValue(TargetingKey);
-            if (val == null || !(val is string))
-                return true;
-
-            var stringVal = val as string;
-            return String.IsNullOrWhiteSpace(stringVal) ? true : stringVal.Equals(FilterValue, StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }

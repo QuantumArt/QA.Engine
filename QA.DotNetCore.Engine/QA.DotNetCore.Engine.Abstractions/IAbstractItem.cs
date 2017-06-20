@@ -1,3 +1,4 @@
+using QA.DotNetCore.Engine.Abstractions.Targeting;
 using System.Collections.Generic;
 
 namespace QA.DotNetCore.Engine.Abstractions
@@ -14,6 +15,7 @@ namespace QA.DotNetCore.Engine.Abstractions
         string Alias { get; }
         string Title { get; }
         bool IsPage { get; }
+        string GetUrl();
         string GetTrail();
         IAbstractItem Get(string alias, ITargetingFilter filter = null);
         object GetTargetingValue(string targetingKey);

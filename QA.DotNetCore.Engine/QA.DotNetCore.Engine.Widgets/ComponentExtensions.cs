@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.Abstractions.Targeting;
 
 namespace QA.DotNetCore.Engine.Widgets
 {

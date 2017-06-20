@@ -20,6 +20,9 @@ using QA.DotNetCore.Engine.Routing;
 using QA.DotNetCore.Engine.Routing.Mappers;
 using QA.DotNetCore.Engine.Widgets;
 using QA.DotNetCore.Engine.Widgets.Mappers;
+using QA.DotNetCore.Engine.Targeting;
+using QA.DotNetCore.Engine.Targeting.Filters;
+using QA.DotNetCore.Engine.Abstractions.Targeting;
 
 namespace DemoWebApplication
 {
@@ -60,7 +63,16 @@ namespace DemoWebApplication
             services.AddScoped<IMetaInfoRepository, MetaInfoRepository>();
             services.AddScoped<IItemDefinitionRepository, ItemDefinitionRepository>();
 
-            services.AddSingleton<ITargetingFilterAccessor, DemoTargetingFilterAccessor>();
+            services.AddSingleton<ITargetingContext, HttpTargetingContext>();
+            services.AddSingleton<ITargetingProvidersConfigurator, TargetingProvidersConfigurator>();
+            services.AddSingleton(typeof(DemoRegionTargetingProvider));
+            services.AddSingleton(typeof(DemoCultureTargetingProvider));
+
+            services.AddSingleton<ITargetingFilterAccessor, TargetingFilterAccessor>();
+            services.AddSingleton<ITargetingFiltersConfigurator, TargetingFiltersConfigurator>();
+            services.AddSingleton(typeof(DemoRegionFilter));
+            services.AddSingleton(typeof(DemoCultureFilter));
+
             services.Add(new ServiceDescriptor(typeof(ITypeFinder), provider => new SingleAssemblyTypeFinder(new RootPage()), ServiceLifetime.Singleton));
             services.AddScoped<IItemDefinitionProvider, NameConventionalItemDefinitionProvider>();
 
@@ -92,6 +104,18 @@ namespace DemoWebApplication
             app.UseStaticFiles();
 
             app.UseMiddleware<RoutingMiddleware>();
+
+            app.UseTargeting(targeting =>
+            {
+                targeting.Add<DemoCultureTargetingProvider>();
+                targeting.Add<DemoRegionTargetingProvider>();
+            });
+
+            app.UseSiteSctructureFilters(cfg =>
+            {
+                cfg.Add<DemoRegionFilter>();
+                cfg.Add<DemoCultureFilter>();
+            });
 
             app.UseMvc(routes =>
             {

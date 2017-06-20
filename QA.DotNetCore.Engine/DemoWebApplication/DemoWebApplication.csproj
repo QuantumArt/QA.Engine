@@ -27,6 +27,7 @@
     <ProjectReference Include="..\QA.DotNetCore.Engine.QpData\QA.DotNetCore.Engine.QpData.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Reflection\QA.DotNetCore.Engine.Reflection.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Routing\QA.DotNetCore.Engine.Routing.csproj" />
+    <ProjectReference Include="..\QA.DotNetCore.Engine.Targeting\QA.DotNetCore.Engine.Targeting.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Widgets\QA.DotNetCore.Engine.Widgets.csproj" />
   </ItemGroup>
 

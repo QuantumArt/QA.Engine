@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.Abstractions.Targeting;
 
 namespace QA.DotNetCore.Engine.Routing
 {

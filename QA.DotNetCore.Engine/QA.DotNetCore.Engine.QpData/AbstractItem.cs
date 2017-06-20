@@ -1,4 +1,5 @@
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.QpData.Persistent.Data;
 using System;
 using System.Collections.Generic;
@@ -38,6 +39,11 @@ namespace QA.DotNetCore.Engine.QpData
         internal AbstractItemExtensionCollection Details { get; set; }
         internal AbstractItemM2mRelations M2mRelations { get; set; }
 
+        public string GetUrl()
+        {
+            return GetTrail();
+        }
+
         public string GetTrail()
         {
             if (!IsPage)
@@ -68,7 +74,7 @@ namespace QA.DotNetCore.Engine.QpData
         /// <returns></returns>
         public IAbstractItem Get(string alias, ITargetingFilter filter = null)
         {
-            return Children.FirstOrDefault(x => (filter == null ? true : filter.Match(this))
+            return Children.FirstOrDefault(x => (filter == null ? true : filter.Match(x))
                 && string.Equals(x.Alias, alias, StringComparison.OrdinalIgnoreCase));
         }
 
@@ -114,11 +120,11 @@ namespace QA.DotNetCore.Engine.QpData
         public virtual object GetTargetingValue(string targetingKey)
         {
             //для проверки
-            //if (targetingKey == "culture")
-            //{
-            //    if (Alias == "proxyabove" || Alias == "philosophy")
-            //        return "en-us";
-            //}
+            if (targetingKey == "culture")
+            {
+                if (Alias == "proxyabove" || Alias == "philosophy")
+                    return "en-us";
+            }
 
             return null;//пока AbstractItem не научили таргетироваться
         }

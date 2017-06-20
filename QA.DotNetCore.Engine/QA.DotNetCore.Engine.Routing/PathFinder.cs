@@ -1,4 +1,5 @@
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.Abstractions.Targeting;
 using System;
 using System.Linq;
 

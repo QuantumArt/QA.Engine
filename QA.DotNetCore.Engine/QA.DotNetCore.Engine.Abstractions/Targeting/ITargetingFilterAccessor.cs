@@ -1,4 +1,4 @@
-namespace QA.DotNetCore.Engine.Abstractions
+namespace QA.DotNetCore.Engine.Abstractions.Targeting
 {
     public interface ITargetingFilterAccessor
     {

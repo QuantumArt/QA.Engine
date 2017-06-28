@@ -29,7 +29,7 @@ namespace QA.DotNetCore.Engine.Abstractions
             return _items[id];
         }
 
-        public IAbstractItem GetStartPage(string host, ITargetingFilter filter = null)
+        public virtual IAbstractItem GetStartPage(string host, ITargetingFilter filter = null)
         {
             //тривиальная реализация
             foreach (var startPage in Root.GetChildren(filter).OfType<IStartPage>())

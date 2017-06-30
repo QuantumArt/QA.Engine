@@ -12,7 +12,7 @@ namespace DemoWebSite.PagesAndWidgets.Helpers
         public static HtmlString Tree(this IHtmlHelper html)
         {
             var root = html.ViewContext.HttpContext.Items["start-page"] as IAbstractItem;
-            var filter = ((ITargetingFilterAccessor)html.ViewContext.HttpContext.RequestServices.GetService(typeof(ITargetingFilterAccessor))).Get();
+            var filter = ((ITargetingFilterAccessor)html.ViewContext.HttpContext.RequestServices.GetService(typeof(ITargetingFilterAccessor)))?.Get();
 
             var sb = new StringBuilder();
 

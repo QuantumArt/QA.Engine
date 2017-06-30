@@ -26,7 +26,7 @@ namespace QA.DotNetCore.Engine.Widgets
             if (currentPage != null)
             {
                 var mapper = ((IComponentMapper)html.ViewContext.HttpContext.RequestServices.GetService(typeof(IComponentMapper)));
-                var filter = ((ITargetingFilterAccessor)html.ViewContext.HttpContext.RequestServices.GetService(typeof(ITargetingFilterAccessor))).Get();
+                var filter = ((ITargetingFilterAccessor)html.ViewContext.HttpContext.RequestServices.GetService(typeof(ITargetingFilterAccessor)))?.Get();
 
                 var children = currentPage.GetChildren(filter)
                     .OfType<IAbstractWidget>()

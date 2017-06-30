@@ -11,7 +11,7 @@ namespace QA.DotNetCore.Engine.Routing
         private readonly IAbstractItemStorageProvider _provider;
         private readonly ITargetingFilterAccessor _filterAccessor;
 
-        public RoutingMiddleware(RequestDelegate next, IAbstractItemStorageProvider p, ITargetingFilterAccessor filterAccessor)
+        public RoutingMiddleware(RequestDelegate next, IAbstractItemStorageProvider p, ITargetingFilterAccessor filterAccessor = null)
         {
             _next = next;
             _provider = p;
@@ -22,7 +22,7 @@ namespace QA.DotNetCore.Engine.Routing
         {
             var startPage = _provider
                 .Get()
-                .GetStartPage(context.Request.Host.Value, _filterAccessor.Get());
+                .GetStartPage(context.Request.Host.Value, _filterAccessor?.Get());
 
             context.Items["start-page"] = startPage;
 

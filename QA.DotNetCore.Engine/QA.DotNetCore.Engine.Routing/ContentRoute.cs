@@ -54,7 +54,7 @@ namespace QA.DotNetCore.Engine.Routing
                 return Task.FromResult<int>(0);
             }
 
-            var targetingFilter = _targetingProvider.Get();
+            var targetingFilter = _targetingProvider?.Get();
             var data = (context.HttpContext.Items["current-page"] as PathData) ?? new PathFinder().Find(path, startPage, targetingFilter);
 
             if (data != null)

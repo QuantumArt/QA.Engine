@@ -128,13 +128,6 @@ namespace QA.DotNetCore.Engine.QpData
 
         public virtual object GetTargetingValue(string targetingKey)
         {
-            //для проверки
-            if (targetingKey == "culture")
-            {
-                if (Alias == "proxyabove" || Alias == "philosophy")
-                    return "en-us";
-            }
-
             return null;//пока AbstractItem не научили таргетироваться
         }
     }

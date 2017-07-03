@@ -14,8 +14,6 @@ using QA.DotNetCore.Engine.Reflection.Configuration;
 using QA.DotNetCore.Engine.Routing.Configuration;
 using QA.DotNetCore.Engine.Targeting.Configuration;
 using QA.DotNetCore.Engine.Widgets.Configuration;
-using static QA.DotNetCore.Engine.Routing.Configuration.SiteStructureEngineConfiguratorExtensions;
-using static QA.DotNetCore.Engine.Widgets.Configuration.SiteStructureEngineConfiguratorExtensions;
 
 namespace DemoWebApplication
 {
@@ -43,10 +41,11 @@ namespace DemoWebApplication
 
             services.AddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
 
-            services.AddSiteStructureEngine(options => {
-                    options.QpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
-                })
-                .AddWidgetInvokerFactory()
+            var siteStructure = services.AddSiteStructureEngine(options => {
+                options.QpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
+            });
+
+            siteStructure.AddWidgetInvokerFactory()
                 .AddSingleAssemblyTypeFinder(new RootPage())
                 .AddComponentMapper(ComponentMapperConvention.Name)
                 .AddControllerMapper(ControllerMapperConvention.Name);

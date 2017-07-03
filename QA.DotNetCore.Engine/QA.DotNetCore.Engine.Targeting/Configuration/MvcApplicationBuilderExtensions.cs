@@ -7,6 +7,12 @@ namespace QA.DotNetCore.Engine.Targeting.Configuration
 {
     public static class MvcApplicationBuilderExtensions
     {
+        /// <summary>
+        /// Регистрируем поставщиков значений таргетирования
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="configureTargeting"></param>
+        /// <returns></returns>
         public static IApplicationBuilder UseTargeting(this IApplicationBuilder app, Action<ITargetingProvidersConfigurator> configureTargeting)
         {
             app.UseMiddleware<TargetingMiddleware>();
@@ -15,6 +21,12 @@ namespace QA.DotNetCore.Engine.Targeting.Configuration
             return app;
         }
 
+        /// <summary>
+        /// Регистрируем фильтры для таргетирования структуры сайта
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="configureFilters"></param>
+        /// <returns></returns>
         public static IApplicationBuilder UseSiteSctructureFilters(this IApplicationBuilder app, Action<ITargetingFiltersConfigurator> configureFilters)
         {
             var builder = app.ApplicationServices.GetRequiredService<ITargetingFiltersConfigurator>();

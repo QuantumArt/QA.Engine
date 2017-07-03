@@ -1,4 +1,4 @@
-﻿using QA.DotNetCore.Engine.QpData.Settings;
+using QA.DotNetCore.Engine.QpData.Settings;
 using System;
 
 namespace QA.DotNetCore.Engine.QpData.Configuration
@@ -24,7 +24,7 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
     }
 
     /// <summary>
-    /// Вид конвенции об использовании ItemDefinition
+    /// Конвенция об использовании ItemDefinition
     /// </summary>
     public enum ItemDefinitionConvention
     {

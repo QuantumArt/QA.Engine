@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using QA.DotNetCore.Caching;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.QpData.Persistent.Interfaces;
@@ -17,20 +17,20 @@ namespace QA.DotNetCore.Engine.QpData
         readonly IItemDefinitionRepository _repository;
         readonly ICacheProvider _cacheProvider;
         readonly QpSettings _qpSettings;
-        readonly SiteMode _siteMode;
+        readonly ItemDefinitionCacheSettings _itemDefinitionCacheSettings;
 
         public NameConventionalItemDefinitionProvider(
             ITypeFinder typeFinder,
             IItemDefinitionRepository repository,
             ICacheProvider cacheProvider,
-            IOptions<QpSettings> qpSettings,
-            IOptions<SiteMode> siteMode)
+            QpSettings qpSettings,
+            ItemDefinitionCacheSettings itemDefinitionCacheSettings)
         {
             _typeFinder = typeFinder;
             _repository = repository;
             _cacheProvider = cacheProvider;
-            _qpSettings = qpSettings.Value;
-            _siteMode = siteMode.Value;
+            _qpSettings = qpSettings;
+            _itemDefinitionCacheSettings = itemDefinitionCacheSettings;
         }
 
         public IEnumerable<IItemDefinition> GetAllDefinitions()
@@ -46,12 +46,12 @@ namespace QA.DotNetCore.Engine.QpData
 
         private Dictionary<string, ItemDefinition> GetCached()
         {
-            return _cacheProvider.GetOrAdd("NameConventionalItemDefinitionProvider.BuildItemDefinitions", _qpSettings.CachePeriod, BuildItemDefinitions);
+            return _cacheProvider.GetOrAdd("NameConventionalItemDefinitionProvider.BuildItemDefinitions", _itemDefinitionCacheSettings.CachePeriod, BuildItemDefinitions);
         }
 
         private Dictionary<string, ItemDefinition> BuildItemDefinitions()
         {
-            var persistentData = _repository.GetAllItemDefinitions(_qpSettings.SiteId, _siteMode.IsStage);
+            var persistentData = _repository.GetAllItemDefinitions(_qpSettings.SiteId, _qpSettings.IsStage);
             var typesDictionary = _typeFinder.GetTypesOf<AbstractItem>();
 
             return persistentData

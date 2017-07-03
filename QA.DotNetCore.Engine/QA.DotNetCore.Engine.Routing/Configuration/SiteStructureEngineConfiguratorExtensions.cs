@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Routing.Mappers;
 
-namespace QA.DotNetCore.Engine.Routing
+namespace QA.DotNetCore.Engine.Routing.Configuration
 {
     public static class SiteStructureEngineConfiguratorExtensions
     {

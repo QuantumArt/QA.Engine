@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using QA.DotNetCore.Engine.Abstractions;
 
-namespace QA.DotNetCore.Engine.Reflection
+namespace QA.DotNetCore.Engine.Reflection.Configuration
 {
     public static class SiteStructureEngineConfiguratorExtensions
     {

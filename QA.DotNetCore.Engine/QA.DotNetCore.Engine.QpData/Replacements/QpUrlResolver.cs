@@ -16,15 +16,18 @@ namespace QA.DotNetCore.Engine.QpData.Replacements
         ICacheProvider _cacheProvider;
         IMetaInfoRepository _metaInfoRepository;
         QpSettings _qpSettings;
+        QpSchemeCacheSettings _qpSchemeSettings;
 
         public QpUrlResolver(
             ICacheProvider cacheProvider,
             IMetaInfoRepository metaInfoRepository,
-            IOptions<QpSettings> qpSettings)
+            QpSettings qpSettings,
+            QpSchemeCacheSettings qpSchemeSettings)
         {
             _cacheProvider = cacheProvider;
             _metaInfoRepository = metaInfoRepository;
-            _qpSettings = qpSettings.Value;
+            _qpSettings = qpSettings;
+            _qpSchemeSettings = qpSchemeSettings;
         }
 
         public string UploadUrl(bool removeScheme = false)
@@ -82,12 +85,12 @@ namespace QA.DotNetCore.Engine.QpData.Replacements
 
         private QpSitePersistentData GetSite()
         {
-            return _cacheProvider.GetOrAdd("QpUrlResolver.GetSite", _qpSettings.CachePeriod, () => _metaInfoRepository.GetSite(_qpSettings.SiteId));
+            return _cacheProvider.GetOrAdd("QpUrlResolver.GetSite", _qpSchemeSettings.CachePeriod, () => _metaInfoRepository.GetSite(_qpSettings.SiteId));
         }
 
         private ContentAttributePersistentData GetContentAttribute(int contentId, string fieldName)
         {
-            return _cacheProvider.GetOrAdd($"QpUrlResolver.GetContentAttribute_{contentId}_{fieldName}", _qpSettings.CachePeriod, () => _metaInfoRepository.GetContentAttribute(contentId, fieldName));
+            return _cacheProvider.GetOrAdd($"QpUrlResolver.GetContentAttribute_{contentId}_{fieldName}", _qpSchemeSettings.CachePeriod, () => _metaInfoRepository.GetContentAttribute(contentId, fieldName));
         }
 
         private static string ConvertUrlToSchemaInvariant(string prefix)

@@ -1,14 +1,10 @@
-using QA.DotNetCore.Engine.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
+using QA.DotNetCore.Engine.Abstractions.Targeting;
+using QA.DotNetCore.Engine.Targeting.Filters;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Builder;
-using QA.DotNetCore.Engine.Abstractions.Targeting;
 
-namespace QA.DotNetCore.Engine.Targeting.Filters
+namespace QA.DotNetCore.Engine.Targeting.Configuration
 {
     public class TargetingFiltersConfigurator : ITargetingFiltersConfigurator
     {
@@ -37,16 +33,6 @@ namespace QA.DotNetCore.Engine.Targeting.Filters
         {
             _filters.Add(filter);
             ResultFilter = new UnitedFilter(_filters);
-        }
-    }
-
-    public static class MvcApplicationBuilderExtensions
-    {
-        public static IApplicationBuilder UseSiteSctructureFilters(this IApplicationBuilder app, Action<ITargetingFiltersConfigurator> configureFilters)
-        {
-            var builder = app.ApplicationServices.GetRequiredService<ITargetingFiltersConfigurator>();
-            configureFilters(builder);
-            return app;
         }
     }
 }

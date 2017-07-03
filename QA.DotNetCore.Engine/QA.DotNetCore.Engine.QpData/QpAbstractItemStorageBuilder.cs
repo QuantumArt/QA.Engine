@@ -1,13 +1,12 @@
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.QpData.Persistent.Data;
 using QA.DotNetCore.Engine.QpData.Persistent.Interfaces;
+using QA.DotNetCore.Engine.QpData.Replacements;
+using QA.DotNetCore.Engine.QpData.Settings;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Extensions.Options;
-using QA.DotNetCore.Engine.QpData.Replacements;
-using System.Collections.Concurrent;
-using QA.DotNetCore.Engine.QpData.Settings;
 
 namespace QA.DotNetCore.Engine.QpData
 {
@@ -22,29 +21,26 @@ namespace QA.DotNetCore.Engine.QpData
         IAbstractItemRepository _abstractItemRepository;
         QpSiteStructureSettings _settings;
         QpSettings _qpSettings;
-        SiteMode _siteMode;
 
         public QpAbstractItemStorageBuilder(
             IServiceProvider serviceProvider,
             IAbstractItemFactory itemFactory,
             IQpUrlResolver qpUrlResolver,
             IAbstractItemRepository abstractItemRepository,
-            IOptions<QpSiteStructureSettings> settings,
-            IOptions<QpSettings> qpSettings,
-            IOptions<SiteMode> siteMode)
+            QpSiteStructureSettings settings,
+            QpSettings qpSettings)
         {
             _serviceProvider = serviceProvider;
             _itemFactory = itemFactory;
             _qpUrlResolver = qpUrlResolver;
             _abstractItemRepository = abstractItemRepository;
-            _settings = settings.Value;
-            _qpSettings = qpSettings.Value;
-            _siteMode = siteMode.Value;
+            _settings = settings;
+            _qpSettings = qpSettings;
         }
 
         public AbstractItemStorage Build()
         {
-            var plainList = _abstractItemRepository.GetPlainAllAbstractItems(_qpSettings.SiteId, _siteMode.IsStage);//плоский список dto
+            var plainList = _abstractItemRepository.GetPlainAllAbstractItems(_qpSettings.SiteId, _qpSettings.IsStage);//плоский список dto
             var parentMapping = new Dictionary<int, List<int>>();//соответсвие id - parentId
             var activated = new Dictionary<int, AbstractItem>();
             AbstractItem root = null;
@@ -85,7 +81,7 @@ namespace QA.DotNetCore.Engine.QpData
                     var extensionId = group.Key;
                     var ids = group.Select(_ => _.Id).ToArray();
 
-                    var extensions = _abstractItemRepository.GetAbstractItemExtensionData(extensionId, ids, _siteMode.IsStage);
+                    var extensions = _abstractItemRepository.GetAbstractItemExtensionData(extensionId, ids, _qpSettings.IsStage);
 
                     //словарь соответствий полей и атрибутов ILoaderOption
                     ILookup<string, ILoaderOption> optionsMap = null;
@@ -136,7 +132,7 @@ namespace QA.DotNetCore.Engine.QpData
                 //догрузим связи m2m
                 if (needLoadM2MDict.Any())
                 {
-                    var m2mData = _abstractItemRepository.GetAbstractItemManyToManyData(needLoadM2MDict.Keys.ToArray(), _siteMode.IsStage);
+                    var m2mData = _abstractItemRepository.GetAbstractItemManyToManyData(needLoadM2MDict.Keys.ToArray(), _qpSettings.IsStage);
                     foreach (var key in m2mData.Keys)
                     {
                         if (!needLoadM2MDict.ContainsKey(key))

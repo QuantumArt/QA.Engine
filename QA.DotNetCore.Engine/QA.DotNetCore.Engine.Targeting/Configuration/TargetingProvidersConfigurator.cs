@@ -1,10 +1,9 @@
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
 using System;
 using System.Collections.Generic;
 
-namespace QA.DotNetCore.Engine.Targeting
+namespace QA.DotNetCore.Engine.Targeting.Configuration
 {
     public class TargetingProvidersConfigurator : ITargetingProvidersConfigurator
     {
@@ -34,17 +33,6 @@ namespace QA.DotNetCore.Engine.Targeting
         public IEnumerable<ITargetingProvider> GetProviders()
         {
             return _providers;
-        }
-    }
-
-    public static class MvcApplicationBuilderExtensions
-    {
-        public static IApplicationBuilder UseTargeting(this IApplicationBuilder app, Action<ITargetingProvidersConfigurator> configureTargeting)
-        {
-            app.UseMiddleware<TargetingMiddleware>();
-            var builder = app.ApplicationServices.GetRequiredService<ITargetingProvidersConfigurator>();
-            configureTargeting(builder);
-            return app;
         }
     }
 }

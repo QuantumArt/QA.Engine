@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.Targeting.Filters;
 
-namespace QA.DotNetCore.Engine.Targeting
+namespace QA.DotNetCore.Engine.Targeting.Configuration
 {
     public static class MvcServiceCollectionExtensions
     {

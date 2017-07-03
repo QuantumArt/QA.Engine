@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.QpData.Settings;
 using System;
@@ -19,10 +19,10 @@ namespace QA.DotNetCore.Engine.QpData
 
         public TrackableAbstractItemStorageProvider(
             Func<IAbstractItemStorageBuilder> builder,
-            IOptions<QpSiteStructureSettings> settings)
+            QpSiteStructureSettings settings)
         {
             _builder = builder;
-            _settings = settings.Value;
+            _settings = settings;
             //_job = new Timer(OnUpdate, null, TimeSpan.FromTicks(0), _settings.PollPeriod);
         }
 

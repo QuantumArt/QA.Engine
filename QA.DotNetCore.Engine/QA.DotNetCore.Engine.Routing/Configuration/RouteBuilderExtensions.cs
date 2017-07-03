@@ -1,14 +1,10 @@
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace QA.DotNetCore.Engine.Routing
+namespace QA.DotNetCore.Engine.Routing.Configuration
 {
     public static class RouteBuilderExtensions
     {

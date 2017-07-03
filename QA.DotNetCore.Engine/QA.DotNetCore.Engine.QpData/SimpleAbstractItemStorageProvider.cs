@@ -1,4 +1,4 @@
-using QA.DotNetCore.Engine.Abstractions;
+﻿using QA.DotNetCore.Engine.Abstractions;
 using Microsoft.Extensions.Options;
 using QA.DotNetCore.Caching;
 using QA.DotNetCore.Engine.QpData.Settings;
@@ -17,11 +17,11 @@ namespace QA.DotNetCore.Engine.QpData
         public SimpleAbstractItemStorageProvider(
             ICacheProvider cacheProvider,
             IAbstractItemStorageBuilder builder,
-            IOptions<QpSiteStructureSettings> settings)
+            QpSiteStructureSettings settings)
         {
             _builder = builder;
             _cacheProvider = cacheProvider;
-            _settings = settings.Value;
+            _settings = settings;
         }
 
         public AbstractItemStorage Get()

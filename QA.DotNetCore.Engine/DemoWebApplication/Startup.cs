@@ -8,15 +8,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Caching;
-using QA.DotNetCore.Engine.QpData;
-using QA.DotNetCore.Engine.Reflection;
-using QA.DotNetCore.Engine.Routing;
-using QA.DotNetCore.Engine.Targeting;
-using QA.DotNetCore.Engine.Targeting.Filters;
-using QA.DotNetCore.Engine.Widgets;
-using static QA.DotNetCore.Engine.QpData.SiteStructureEngineConfiguratorExtensions;
-using static QA.DotNetCore.Engine.Routing.SiteStructureEngineConfiguratorExtensions;
-using static QA.DotNetCore.Engine.Widgets.SiteStructureEngineConfiguratorExtensions;
+using QA.DotNetCore.Engine.QpData.Configuration;
+using QA.DotNetCore.Engine.QpData.Settings;
+using QA.DotNetCore.Engine.Reflection.Configuration;
+using QA.DotNetCore.Engine.Routing.Configuration;
+using QA.DotNetCore.Engine.Targeting.Configuration;
+using QA.DotNetCore.Engine.Widgets.Configuration;
+using static QA.DotNetCore.Engine.Routing.Configuration.SiteStructureEngineConfiguratorExtensions;
+using static QA.DotNetCore.Engine.Widgets.Configuration.SiteStructureEngineConfiguratorExtensions;
 
 namespace DemoWebApplication
 {
@@ -39,18 +38,16 @@ namespace DemoWebApplication
         {
             services.AddSingleton(_ => Configuration);
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
-            // Add framework services.
             services.AddMvc();
-            
             services.AddMemoryCache();
 
             services.AddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
 
-            services.AddSiteStructureEngine(Configuration)
+            services.AddSiteStructureEngine(options => {
+                    options.QpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
+                })
                 .AddWidgetInvokerFactory()
                 .AddSingleAssemblyTypeFinder(new RootPage())
-                .AddItemDefinitionProvider(ItemDefinitionConvention.Name)
                 .AddComponentMapper(ComponentMapperConvention.Name)
                 .AddControllerMapper(ControllerMapperConvention.Name);
 
@@ -80,12 +77,7 @@ namespace DemoWebApplication
 
             app.UseStaticFiles();
 
-            app.UseSiteSctructure(routes =>
-            {
-                routes.MapContentRoute("Route with custom params", "{controller}/{id}/{page}", new RouteValueDictionary(new { action = "details" }));
-                routes.MapContentRoute("default", "{controller}/{action=Index}/{id?}");
-                routes.MapRoute("static controllers route", "{controller}/{action=Index}/{id?}");
-            });
+            app.UseSiteSctructure();
 
             app.UseTargeting(targeting =>
             {
@@ -97,6 +89,13 @@ namespace DemoWebApplication
             {
                 cfg.Add<DemoRegionFilter>();
                 cfg.Add<DemoCultureFilter>();
+            });
+
+            app.UseMvc(routes =>
+            {
+                routes.MapContentRoute("Route with custom params", "{controller}/{id}/{page}", new RouteValueDictionary(new { action = "details" }));
+                routes.MapContentRoute("default", "{controller}/{action=Index}/{id?}");
+                routes.MapRoute("static controllers route", "{controller}/{action=Index}/{id?}");
             });
         }
     }

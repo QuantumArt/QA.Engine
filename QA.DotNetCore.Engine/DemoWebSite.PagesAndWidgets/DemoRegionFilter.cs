@@ -1,8 +1,9 @@
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
+using QA.DotNetCore.Engine.Targeting.Filters;
 using System.Linq;
 
-namespace QA.DotNetCore.Engine.Targeting.Filters
+namespace DemoWebSite.PagesAndWidgets
 {
     public class DemoRegionFilter : BaseTargetingFilter
     {

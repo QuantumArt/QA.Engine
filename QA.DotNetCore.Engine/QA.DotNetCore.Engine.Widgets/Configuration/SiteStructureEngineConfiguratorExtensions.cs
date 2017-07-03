@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Widgets.Mappers;
 
-namespace QA.DotNetCore.Engine.Widgets
+namespace QA.DotNetCore.Engine.Widgets.Configuration
 {
     public static class SiteStructureEngineConfiguratorExtensions
     {

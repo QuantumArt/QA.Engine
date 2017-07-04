@@ -45,7 +45,8 @@ namespace DemoWebApplication
                 options.QpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
             });
 
-            siteStructure.AddWidgetInvokerFactory()
+            siteStructure
+                .AddWidgetInvokerFactory()
                 .AddSingleAssemblyTypeFinder(new RootPage())
                 .AddComponentMapper(ComponentMapperConvention.Name)
                 .AddControllerMapper(ControllerMapperConvention.Name);

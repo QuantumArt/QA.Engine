@@ -1,6 +1,7 @@
 using DemoWebSite.PagesAndWidgets.Pages;
 using DemoWebSite.PagesAndWidgets.Widgets;
 using QA.DotNetCore.Engine.QpData;
+using QA.DotNetCore.Engine.QpData.Interfaces;
 
 namespace DemoWebSite.PagesAndWidgets
 {

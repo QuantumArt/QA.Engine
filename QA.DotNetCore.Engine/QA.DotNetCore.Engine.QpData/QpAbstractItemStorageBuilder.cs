@@ -1,4 +1,5 @@
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Data;
 using QA.DotNetCore.Engine.QpData.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Replacements;

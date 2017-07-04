@@ -1,6 +1,6 @@
 using System;
 
-namespace QA.DotNetCore.Engine.Abstractions
+namespace QA.DotNetCore.Engine.QpData.Interfaces
 {
     public interface IItemDefinition
     {

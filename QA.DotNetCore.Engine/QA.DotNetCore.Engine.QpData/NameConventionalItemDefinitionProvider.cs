@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Options;
 using QA.DotNetCore.Caching;
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Settings;
 using System.Collections.Generic;

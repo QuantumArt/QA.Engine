@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 using QA.DotNetCore.Engine.QpData.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Replacements;

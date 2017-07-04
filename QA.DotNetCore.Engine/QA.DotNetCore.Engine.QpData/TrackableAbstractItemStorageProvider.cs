@@ -1,9 +1,7 @@
-﻿using Microsoft.Extensions.Options;
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Settings;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 
 namespace QA.DotNetCore.Engine.QpData

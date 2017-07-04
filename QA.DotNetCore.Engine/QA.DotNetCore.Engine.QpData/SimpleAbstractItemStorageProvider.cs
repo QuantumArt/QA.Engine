@@ -1,6 +1,6 @@
-﻿using QA.DotNetCore.Engine.Abstractions;
-using Microsoft.Extensions.Options;
 using QA.DotNetCore.Caching;
+using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Settings;
 
 namespace QA.DotNetCore.Engine.QpData

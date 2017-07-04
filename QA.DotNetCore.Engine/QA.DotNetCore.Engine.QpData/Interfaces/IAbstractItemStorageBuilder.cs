@@ -1,6 +1,6 @@
 using QA.DotNetCore.Engine.Abstractions;
 
-namespace QA.DotNetCore.Engine.QpData
+namespace QA.DotNetCore.Engine.QpData.Interfaces
 {
     /// <summary>
     /// Интерфейс строителя структуры сайта

@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
-using System.Collections.Generic;
 
 namespace QA.DotNetCore.Engine.Routing.Configuration
 {
@@ -10,29 +9,29 @@ namespace QA.DotNetCore.Engine.Routing.Configuration
     {
         public static IRouteBuilder MapContentRoute(this IRouteBuilder routes, string name, string template)
         {
-            return MapContentRoute(routes, name, template, new RouteValueDictionary(null), new RouteValueDictionary(null), new RouteValueDictionary(null));
+            return MapContentRoute(routes, name, template, null, null, null);
         }
 
-        public static IRouteBuilder MapContentRoute(this IRouteBuilder routes, string name, string template, RouteValueDictionary defaults)
+        public static IRouteBuilder MapContentRoute(this IRouteBuilder routes, string name, string template, object defaults)
         {
-            return MapContentRoute(routes, name, template, defaults, new RouteValueDictionary(null), new RouteValueDictionary(null));
+            return MapContentRoute(routes, name, template, defaults, null, null);
         }
 
-        public static IRouteBuilder MapContentRoute(this IRouteBuilder routes, string name, string template, RouteValueDictionary defaults, IDictionary<string, object> constraints)
+        public static IRouteBuilder MapContentRoute(this IRouteBuilder routes, string name, string template, object defaults, object constraints)
         {
-            return MapContentRoute(routes, name, template, defaults, constraints, new RouteValueDictionary(null));
+            return MapContentRoute(routes, name, template, defaults, constraints, null);
         }
 
-        public static IRouteBuilder MapContentRoute(this IRouteBuilder routes, string name, string template, RouteValueDictionary defaults, IDictionary<string, object> constraints, RouteValueDictionary dataTokens)
+        public static IRouteBuilder MapContentRoute(this IRouteBuilder routes, string name, string template, object defaults, object constraints, object dataTokens)
         {
             IInlineConstraintResolver requiredService = routes.ServiceProvider.GetRequiredService<IInlineConstraintResolver>();
             IControllerMapper controllerMapper = routes.ServiceProvider.GetRequiredService<IControllerMapper>();
             ITargetingFilterAccessor targetingAccessor = routes.ServiceProvider.GetService<ITargetingFilterAccessor>();
 
             routes.Routes.Add(new ContentRoute(controllerMapper, targetingAccessor, routes.DefaultHandler, name, template,
-                    defaults,
-                    constraints,
-                    dataTokens,
+                    new RouteValueDictionary(defaults),
+                    new RouteValueDictionary(constraints),
+                    new RouteValueDictionary(dataTokens),
                     requiredService));
 
             return routes;

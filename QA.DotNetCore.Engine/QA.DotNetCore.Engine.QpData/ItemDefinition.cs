@@ -1,4 +1,4 @@
-using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.QpData.Interfaces;
 using System;
 
 namespace QA.DotNetCore.Engine.QpData

@@ -34,7 +34,6 @@ namespace DemoWebApplication
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton(_ => Configuration);
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddMvc();
             services.AddMemoryCache();
@@ -42,7 +41,9 @@ namespace DemoWebApplication
             services.AddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
 
             var siteStructure = services.AddSiteStructureEngine(options => {
+                options.QpConnectionString = Configuration.GetConnectionString("QpConnection");
                 options.QpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
+                //options.QpSiteStructureSettings.UseCache = false;
             });
 
             siteStructure

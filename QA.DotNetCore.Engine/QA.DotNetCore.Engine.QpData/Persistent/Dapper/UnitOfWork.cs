@@ -13,9 +13,9 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 
         public IDbConnection Connection { get; private set; }
 
-        public UnitOfWork(IConfigurationRoot configuration)
+        public UnitOfWork(string connectionString)
         {
-            Connection = new SqlConnection(configuration.GetConnectionString("QpConnection"));
+            Connection = new SqlConnection(connectionString);
             Connection.Open();
         }
 

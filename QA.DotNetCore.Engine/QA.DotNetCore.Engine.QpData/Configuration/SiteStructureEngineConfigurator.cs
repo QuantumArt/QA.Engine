@@ -21,13 +21,16 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             if (options.QpSettings == null)
                 throw new Exception("QpSettings is not configured.");
 
+            if (options.QpConnectionString == null)
+                throw new Exception("QpConnectionString is not configured.");
+
             services.AddSingleton(options.QpSettings);
             services.AddSingleton(options.QpSiteStructureSettings);
             services.AddSingleton(options.QpSchemeCacheSettings);
             services.AddSingleton(options.ItemDefinitionCacheSettings);
 
             //DAL
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>(sp => new UnitOfWork(options.QpConnectionString));
             services.AddScoped<IAbstractItemRepository, AbstractItemRepository>();
             services.AddScoped<IMetaInfoRepository, MetaInfoRepository>();
             services.AddScoped<IItemDefinitionRepository, ItemDefinitionRepository>();

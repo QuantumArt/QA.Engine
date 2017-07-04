@@ -8,19 +8,17 @@ namespace QA.DotNetCore.Engine.Routing
     public class RoutingMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly IAbstractItemStorageProvider _provider;
         private readonly ITargetingFilterAccessor _filterAccessor;
 
-        public RoutingMiddleware(RequestDelegate next, IAbstractItemStorageProvider p, ITargetingFilterAccessor filterAccessor = null)
+        public RoutingMiddleware(RequestDelegate next, ITargetingFilterAccessor filterAccessor = null)
         {
             _next = next;
-            _provider = p;
             _filterAccessor = filterAccessor;
         }
 
-        public Task Invoke(HttpContext context)
+        public Task Invoke(HttpContext context, IAbstractItemStorageProvider provider)
         {
-            var startPage = _provider
+            var startPage = provider
                 .Get()
                 .GetStartPage(context.Request.Host.Value, _filterAccessor?.Get());
 

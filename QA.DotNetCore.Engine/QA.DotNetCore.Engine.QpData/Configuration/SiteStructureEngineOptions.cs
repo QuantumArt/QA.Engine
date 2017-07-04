@@ -5,6 +5,8 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
 {
     public class SiteStructureEngineOptions
     {
+        public string QpConnectionString { get; set; }
+
         /// <summary>
         /// Конвенция для IItemDefinitionProvider
         /// </summary>

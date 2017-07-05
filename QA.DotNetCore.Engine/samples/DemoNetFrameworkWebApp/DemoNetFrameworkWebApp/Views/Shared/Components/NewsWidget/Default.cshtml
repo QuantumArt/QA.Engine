@@ -1,0 +1,23 @@
+﻿@using QA.DotNetCore.Engine.Widgets
+
+@model DemoNetFrameworkWebApp.Widgets.NewsWidget
+ 
+@Html.Raw(Model.Title)
+
+<p>Count:</p>
+<p>@(Model.Count)</p>
+<p>NewsPageId:</p>
+<p>@(Model.NewsPageId)</p>
+
+@if (Model.CategoryIds.Any())
+{
+  <p>CategoryIds:</p>
+  <ul>
+    @foreach (var id in Model.CategoryIds)
+    {
+      <li>@id</li>
+    }
+  </ul>
+}
+
+@await Component.WidgetZone(Html, "Content")

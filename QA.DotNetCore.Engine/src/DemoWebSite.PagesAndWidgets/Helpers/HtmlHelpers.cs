@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
+using QA.DotNetCore.Engine.Routing;
 
 namespace DemoWebSite.PagesAndWidgets.Helpers
 {
@@ -11,7 +12,7 @@ namespace DemoWebSite.PagesAndWidgets.Helpers
     {
         public static HtmlString Tree(this IHtmlHelper html)
         {
-            var root = html.ViewContext.HttpContext.Items["start-page"] as IAbstractItem;
+            var root = html.ViewContext.HttpContext.GetStartPage();
             var filter = ((ITargetingFilterAccessor)html.ViewContext.HttpContext.RequestServices.GetService(typeof(ITargetingFilterAccessor)))?.Get();
 
             var sb = new StringBuilder();

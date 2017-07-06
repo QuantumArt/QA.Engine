@@ -78,7 +78,7 @@ namespace DemoWebApplication
 
             app.UseStaticFiles();
 
-            app.UseSiteSctructure();
+            app.UseSiteStructure();
 
             app.UseTargeting(targeting =>
             {

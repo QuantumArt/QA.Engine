@@ -1,20 +1,17 @@
+using DemoWebSite.PagesAndWidgets.Pages;
 using Microsoft.AspNetCore.Mvc;
 using QA.DotNetCore.Engine.QpData;
+using QA.DotNetCore.Engine.Routing;
 
 namespace DemoWebApplication.Controllers
 {
-    public class StartPageController : Controller
+    public class StartPageController : ContentControllerBase<StartPage>
     {
         public IActionResult Index()
         {
-            var item = GetCurrentItem();
+            var item = CurrentItem;
             ViewBag.Title = item.Title;
             return View(item);
-        }
-
-        protected virtual AbstractItem GetCurrentItem()
-        {
-            return RouteData.DataTokens["ui-item"] as AbstractItem;
         }
     }
 }

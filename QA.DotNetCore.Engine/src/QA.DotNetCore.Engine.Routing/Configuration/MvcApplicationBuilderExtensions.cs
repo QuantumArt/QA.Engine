@@ -9,7 +9,7 @@ namespace QA.DotNetCore.Engine.Routing.Configuration
         /// </summary>
         /// <param name="app"></param>
         /// <returns></returns>
-        public static IApplicationBuilder UseSiteSctructure(this IApplicationBuilder app)
+        public static IApplicationBuilder UseSiteStructure(this IApplicationBuilder app)
         {
             app.UseMiddleware<RoutingMiddleware>();
             return app;

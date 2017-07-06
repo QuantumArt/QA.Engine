@@ -48,7 +48,7 @@ namespace QA.DotNetCore.Engine.Routing
 
             EnsureLoggers(context.HttpContext);
 
-            var startPage = context.HttpContext.Items["start-page"] as IAbstractItem;//проставляется в RoutingMiddleware
+            var startPage = context.HttpContext.Items[RoutingKeys.StartPage] as IAbstractItem;//проставляется в RoutingMiddleware
             if (startPage == null)
             {
                 return Task.FromResult<int>(0);
@@ -79,8 +79,8 @@ namespace QA.DotNetCore.Engine.Routing
 
             if (data != null)
             {
-                context.RouteData.Values["ui-item"] = data.AbstractItem.Id;
-                context.RouteData.DataTokens["ui-item"] = data.AbstractItem;
+                context.RouteData.Values[RoutingKeys.CurrentItem] = data.AbstractItem.Id;
+                context.RouteData.DataTokens[RoutingKeys.CurrentItem] = data.AbstractItem;
             }
 
             if (this.DataTokens.Count > 0)
@@ -110,8 +110,8 @@ namespace QA.DotNetCore.Engine.Routing
             this.EnsureBinder(context.HttpContext);
             this.EnsureLoggers(context.HttpContext);
 
-            if (!context.HttpContext.GetRouteData().DataTokens.ContainsKey("ui-item") &&
-                 !context.HttpContext.Items.ContainsKey("ui-part"))
+            if (!context.HttpContext.GetRouteData().DataTokens.ContainsKey(RoutingKeys.CurrentItem) &&
+                 !context.HttpContext.Items.ContainsKey(RoutingKeys.CurrentWidget))
             {
                 return null;
             }
@@ -139,8 +139,8 @@ namespace QA.DotNetCore.Engine.Routing
             }
 
 
-            var part = (context.HttpContext.Items["ui-part"] as IAbstractItem);
-            var page = (context.HttpContext.GetRouteData().DataTokens["ui-item"] as IAbstractItem);
+            var part = (context.HttpContext.Items[RoutingKeys.CurrentWidget] as IAbstractItem);
+            var page = (context.HttpContext.GetRouteData().DataTokens[RoutingKeys.CurrentItem] as IAbstractItem);
 
             if (page == null && part == null)
             {
@@ -159,11 +159,11 @@ namespace QA.DotNetCore.Engine.Routing
             {
                 values.AcceptedValues["controller"] = "--replace-with-path--";
 
-                values.AcceptedValues.Remove("ui-item");
+                values.AcceptedValues.Remove(RoutingKeys.CurrentItem);
             }
-            else if(part != null)
+            else if (part != null)
             {                
-                values.AcceptedValues["ui-part"] = part.Id;
+                values.AcceptedValues[RoutingKeys.CurrentWidget] = part.Id;
             }
 
             string text = this._binder.BindValues(values.AcceptedValues);

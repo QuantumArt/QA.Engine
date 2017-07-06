@@ -22,7 +22,7 @@ namespace QA.DotNetCore.Engine.Routing
                 .Get()
                 .GetStartPage(context.Request.Host.Value, _filterAccessor?.Get());
 
-            context.Items["start-page"] = startPage;
+            context.Items[RoutingKeys.StartPage] = startPage;
 
             // Call the next delegate/middleware in the pipeline
             return _next(context);

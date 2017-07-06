@@ -67,7 +67,7 @@ namespace DemoNetFrameworkWebApp
 
             app.UseStaticFiles();
 
-            app.UseSiteSctructure();
+            app.UseSiteStructure();
 
             app.UseMvc(routes =>
             {

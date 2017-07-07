@@ -13,57 +13,37 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
     public class AbstractItemRepository : IAbstractItemRepository
     {
         private readonly IDbConnection _connection;
+        private readonly INetNameQueryAnalyzer _netNameQueryAnalyzer;
 
-        public AbstractItemRepository(IUnitOfWork uow)
+        public AbstractItemRepository(IUnitOfWork uow, INetNameQueryAnalyzer netNameQueryAnalyzer)
         {
             _connection = uow.Connection;
+            _netNameQueryAnalyzer = netNameQueryAnalyzer;
         }
 
-        private const string CmdGetAbstractItemContentId = @"
-SELECT CONTENT_ID AS ContentId
-FROM content
-WHERE NET_CONTENT_NAME = 'QPAbstractItem' and SITE_ID = {0}";
-
-        private const string CmdGetItemDefinitionContentId = @"
-SELECT CONTENT_ID AS ContentId
-FROM content
-WHERE NET_CONTENT_NAME = 'QPDiscriminator' and SITE_ID = {0}";
-
+        //запрос с использованием NetName таблиц и столбцов
         private const string CmdGetAbstractItem = @"
 SELECT
     ai.content_item_id AS Id,
-    ai.Name as Alias,
-    ai.Title,
+    ai.[|QPAbstractItem.Name|] as Alias,
+    ai.[|QPAbstractItem.Title|] as Title,
     ai.Visible,
-    ai.Parent AS ParentId,
-    ai.ZoneName,
-    ai.ExtensionId,
-    def.Name as Discriminator,
-    def.IsPage
-FROM {0} ai
-INNER JOIN {1} def on ai.Discriminator = def.content_item_id
+    ai.[|QPAbstractItem.Parent|] AS ParentId,
+    ai.[|QPAbstractItem.ZoneName|] AS ZoneName,
+    ai.[|QPAbstractItem.ExtensionId|] AS ExtensionId,
+    def.[|QPDiscriminator.Name|] as Discriminator,
+    def.[|QPDiscriminator.IsPage|] as IsPage
+FROM [|QPAbstractItem|] ai
+INNER JOIN [|QPDiscriminator|] def on ai.[|QPAbstractItem.Discriminator|] = def.content_item_id
 ";
 
         private const string CmdGetExtension = @"[qa_extend_items]";
         private const string CmdGetManyToMany = @"[qa_extend_items_m2m]";
 
-        string GetAbstractItemTable(int siteId, bool isStage)
-        {
-            var result =  _connection.Query(string.Format(CmdGetAbstractItemContentId, siteId)).First();
-            var stageOrLiveToken = isStage ? "stage" : "live";
-            return $"content_{result.ContentId}_{stageOrLiveToken}_new";
-        }
-
-        string GetItemDefinitionTable(int siteId, bool isStage)
-        {
-            var result = _connection.Query(string.Format(CmdGetItemDefinitionContentId, siteId)).First();
-            var stageOrLiveToken = isStage ? "stage" : "live";
-            return $"content_{result.ContentId}_{stageOrLiveToken}_new";
-        }
-
         public IEnumerable<AbstractItemPersistentData> GetPlainAllAbstractItems(int siteId, bool isStage)
         {
-            return _connection.Query<AbstractItemPersistentData>(string.Format(CmdGetAbstractItem, GetAbstractItemTable(siteId, isStage), GetItemDefinitionTable(siteId, isStage)));
+            var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAbstractItem, siteId, isStage);
+            return _connection.Query<AbstractItemPersistentData>(query);
         }
 
         public IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionId, IEnumerable<int> ids, bool isStage)

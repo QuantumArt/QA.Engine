@@ -7,5 +7,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Interfaces
         QpSitePersistentData GetSite(int siteId);
 
         ContentAttributePersistentData GetContentAttribute(int contentId, string fieldName);
+
+        ContentPersistentData GetContent(string contentNetName, int siteId);
     }
 }

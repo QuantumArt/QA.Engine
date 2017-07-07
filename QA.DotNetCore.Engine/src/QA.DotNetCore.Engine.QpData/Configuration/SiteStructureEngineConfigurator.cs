@@ -31,8 +31,9 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
 
             //DAL
             services.AddScoped<IUnitOfWork, UnitOfWork>(sp => new UnitOfWork(options.QpConnectionString));
-            services.AddScoped<IAbstractItemRepository, AbstractItemRepository>();
             services.AddScoped<IMetaInfoRepository, MetaInfoRepository>();
+            services.AddScoped<INetNameQueryAnalyzer, NetNameQueryAnalyzer>();
+            services.AddScoped<IAbstractItemRepository, AbstractItemRepository>();
             services.AddScoped<IItemDefinitionRepository, ItemDefinitionRepository>();
 
             //сервисы

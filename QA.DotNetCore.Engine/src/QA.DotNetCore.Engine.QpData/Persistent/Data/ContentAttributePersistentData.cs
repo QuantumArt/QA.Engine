@@ -9,6 +9,10 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Data
 
         public int ContentId { get; set; }
 
+        public string NetName { get; set; }
+
+        public string ColumnName { get; set; }
+
         public bool UseSiteLibrary { get; set; }
 
         public string SubFolder { get; set; }

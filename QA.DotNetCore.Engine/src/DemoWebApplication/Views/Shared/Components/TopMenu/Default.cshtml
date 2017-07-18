@@ -1,0 +1,7 @@
+﻿@model DemoWebApplication.Components.TopMenuViewModel
+<ul class="nav navbar-nav">
+  @foreach (var item in Model.Items)
+  {
+    <li><a href="@item.GetUrl()">@item.Title</a></li>
+  }  
+</ul>

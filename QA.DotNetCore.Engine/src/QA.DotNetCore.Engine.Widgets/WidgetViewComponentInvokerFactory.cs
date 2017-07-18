@@ -36,10 +36,24 @@ namespace QA.DotNetCore.Engine.Widgets
             {
                 throw new ArgumentNullException("context");
             }
-            return new WidgetViewComponentInvoker(_scope, new DefaultViewComponentInvoker(this._viewComponentFactory,
-                this._viewComponentInvokerCache,
-                this._diagnosticSource,
-                this._logger));
+
+            if (context.ViewContext.HttpContext.Items["should-use-custom-invoker"] == null)
+            {
+                return GetDefaultInvoker();
+            }
+
+            // remove flag to use defualt invoker for non widget components
+            context.ViewContext.HttpContext.Items.Remove("should-use-custom-invoker");
+
+            return new WidgetViewComponentInvoker(_scope, GetDefaultInvoker());
+        }
+
+        private DefaultViewComponentInvoker GetDefaultInvoker()
+        {
+            return new DefaultViewComponentInvoker(this._viewComponentFactory,
+                            this._viewComponentInvokerCache,
+                            this._diagnosticSource,
+                            this._logger);
         }
     }
 }

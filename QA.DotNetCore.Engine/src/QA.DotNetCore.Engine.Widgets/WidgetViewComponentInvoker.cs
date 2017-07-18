@@ -20,12 +20,8 @@ namespace QA.DotNetCore.Engine.Widgets
         {
             var currentItem = context.ViewContext.HttpContext.Items["ui-part"] as IAbstractItem;
 
-            if(currentItem == null)
-            {
-                throw new InvalidOperationException("Current item is null");
-            }
+            context.Arguments["currentItem"] = currentItem ?? throw new InvalidOperationException("Current item is null");
 
-            context.Arguments["currentItem"] = currentItem;
             context.ViewData["CurrentItem"] = currentItem;
 
             return _inner.InvokeAsync(context);

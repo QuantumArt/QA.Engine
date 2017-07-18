@@ -43,6 +43,7 @@ namespace QA.DotNetCore.Engine.Widgets
                         try
                         {
                             html.ViewContext.HttpContext.Items["start-redendering-widgets"] = true;
+                            html.ViewContext.HttpContext.Items["should-use-custom-invoker"] = true;
                             html.ViewContext.HttpContext.Items["ui-part"] = widget;
                             var result = await helper.InvokeAsync(name, arguments);
                             builder.AppendHtml(result);

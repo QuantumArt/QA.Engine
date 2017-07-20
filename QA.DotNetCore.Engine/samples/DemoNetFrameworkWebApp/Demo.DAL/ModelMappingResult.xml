@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<schema connectionStringName="qp_database" class="QpDataContext" namespace="QA.DemoSite.DAL" useLongUrls="true" replaceUrls="true" dbIndependent="true" isPartial="false" sendNotifications="false" siteName="main_site" siteId="52" forStage="true" connectionString="Data Source=mscdemosql01;Initial Catalog=mts_rf_qp;User ID=sa;Password=1q2w-p;Connect Timeout=120;Application Name=QP8Backend" connectionStringObject="System.Configuration.ConfigurationManager.ConnectionStrings">
+  <content id="537" name="AbstractItem" mapped_name="QPAbstractItem" plural_mapped_name="QPAbstractItems" use_default_filtration="true" virtual="0" user_query="0" split_articles="true">
+    <attribute name="Title" mapped_name="Title" id="27505" type="String" is_localization="false" size="255" />
+    <attribute name="Name" mapped_name="Name" id="27507" type="String" is_localization="false" size="255" />
+    <attribute name="Parent" mapped_back_name="Children" mapped_name="Parent" id="27508" type="O2M" is_localization="false" related_content_id="537" has_m2o="false" />
+    <attribute name="IsVisible" mapped_name="IsVisible" id="27509" type="Boolean" is_localization="false" />
+    <attribute name="IsPage" mapped_name="IsPage" id="27510" type="Boolean" is_localization="false" />
+    <attribute name="Regions" mapped_name="Regions" id="27529" type="M2M" is_localization="false" related_content_id="542" link_id="87" use_separate_reverse_views="false" />
+    <attribute name="ZoneName" mapped_name="ZoneName" id="27512" type="String" is_localization="false" size="255" />
+    <attribute name="AllowedUrlPatterns" mapped_name="AllowedUrlPatterns" id="27513" type="Textbox" is_localization="false" />
+    <attribute name="DeniedUrlPatterns" mapped_name="DeniedUrlPatterns" id="27514" type="Textbox" is_localization="false" />
+    <attribute name="Description" mapped_name="Description" id="27515" type="String" is_localization="false" size="500" />
+    <attribute name="Discriminator" mapped_back_name="Items" mapped_name="Discriminator" id="27516" type="O2M" is_localization="false" related_content_id="538" has_m2o="false" />
+    <attribute name="VersionOf" mapped_back_name="Versions" mapped_name="VersionOf" id="27520" type="O2M" is_localization="false" related_content_id="537" has_m2o="false" />
+    <attribute name="Culture" mapped_back_name="AbstractItems" mapped_name="Culture" id="27521" type="O2M" is_localization="false" related_content_id="540" has_m2o="false" />
+    <attribute name="TitleFormat" mapped_back_name="Item" mapped_name="TitleFormat" id="27532" type="O2M" is_localization="false" related_content_id="541" has_m2o="false" />
+    <attribute name="Keywords" mapped_name="Keywords" id="27533" type="String" is_localization="false" size="512" />
+    <attribute name="MetaDescription" mapped_name="MetaDescription" id="27534" type="String" is_localization="false" size="512" />
+    <attribute name="Tags" mapped_name="Tags" id="27535" type="Textbox" is_localization="false" />
+    <attribute name="IsInSiteMap" mapped_name="IsInSiteMap" id="27536" type="Boolean" is_localization="false" />
+    <attribute name="IndexOrder" mapped_name="IndexOrder" id="27537" type="Numeric" is_localization="false" size="0" is_long="false" />
+    <attribute name="ExtensionId" mapped_name="ExtensionId" id="27538" type="Numeric" is_localization="false" size="0" is_long="false" is_classifier="true" use_inheritance="true" />
+    <attribute name="ContentId" mapped_name="ContentId" id="37906" type="Numeric" is_localization="false" size="0" is_long="false" />
+  </content>
+  <content id="538" name="ItemDefinition" mapped_name="QPDiscriminator" plural_mapped_name="QPDiscriminators" use_default_filtration="true" virtual="0" user_query="0" split_articles="true">
+    <attribute name="Title" mapped_name="Title" id="27506" type="String" is_localization="false" size="255" />
+    <attribute name="Name" mapped_name="Name" id="27539" type="String" is_localization="false" size="255" />
+    <attribute name="PreferredContentId" mapped_name="PreferredContentId" id="27540" type="Numeric" is_localization="false" size="0" is_long="false" />
+    <attribute name="CategoryName" mapped_name="CategoryName" id="27542" type="String" is_localization="false" size="255" />
+    <attribute name="Description" mapped_name="Description" id="27543" type="String" is_localization="false" size="512" />
+    <attribute name="IconUrl" mapped_name="IconUrl" id="27544" type="Image" is_localization="false" />
+    <attribute name="IsPage" mapped_name="IsPage" id="27545" type="Boolean" is_localization="false" />
+    <attribute name="AllowedZones" mapped_name="AllowedZones" id="27546" type="String" is_localization="false" size="255" />
+    <attribute name="AllowedItemDefinitions1" mapped_name="AllowedItemDefinitions1" id="27552" type="M2M" is_localization="false" related_content_id="538" link_id="88" use_separate_reverse_views="false" />
+    <attribute name="FilterPartByUrl" mapped_name="FilterPartByUrl" id="27553" type="Boolean" is_localization="false" />
+    <attribute name="AllowedItemDefinitions" mapped_name="AllowedItemDefinitions" id="47910" type="M2O" is_localization="false" related_content_id="10609" related_attribute_id="47909" />
+  </content>
+  <content id="539" name="Маркетинговые регионы" mapped_name="MarketingRegion" plural_mapped_name="MarketingRegions" use_default_filtration="true" virtual="0" user_query="0" split_articles="true">
+    <attribute name="Parent" mapped_back_name="Children" mapped_name="Parent" id="27523" type="O2M" is_localization="false" related_content_id="539" has_m2o="false" />
+    <attribute name="Title" mapped_name="Title" id="27511" type="String" is_localization="false" size="255" />
+    <attribute name="Url" mapped_name="Url" id="27524" type="String" is_localization="false" size="255" />
+  </content>
+  <content id="540" name="Локализация" mapped_name="QPCulture" plural_mapped_name="QPCultures" use_default_filtration="true" virtual="0" user_query="0" split_articles="true">
+    <attribute name="Title" mapped_name="Title" id="27517" type="String" is_localization="false" size="255" />
+    <attribute name="Name" mapped_name="Name" id="27518" type="String" is_localization="false" size="255" />
+    <attribute name="Icon" mapped_name="Icon" id="27519" type="Image" is_localization="false" />
+  </content>
+  <content id="541" name="ItemTitleFormat" mapped_name="ItemTitleFormat" plural_mapped_name="ItemTitleFormats" use_default_filtration="true" virtual="0" user_query="0" split_articles="true">
+    <attribute name="Value" mapped_name="Value" id="27530" type="String" is_localization="false" size="512" />
+    <attribute name="Description" mapped_name="Description" id="27531" type="Textbox" is_localization="false" />
+  </content>
+  <content id="542" name="AbtractItemRegion" mapped_name="QPRegion" plural_mapped_name="QPRegions" use_default_filtration="true" virtual="1" user_query="1" split_articles="false">
+    <attribute name="ParentId" mapped_name="ParentId" id="27525" type="Numeric" is_localization="false" size="0" is_long="false" />
+    <attribute name="Title" mapped_name="Title" id="27527" type="String" is_localization="false" size="255" />
+    <attribute name="Alias" mapped_name="Alias" id="27528" type="String" is_localization="false" size="255" />
+  </content>
+  <content id="545" name="TrailedAbstractItem" mapped_name="TrailedAbstractItem" plural_mapped_name="TrailedAbstractItems" use_default_filtration="true" virtual="1" user_query="1" split_articles="false">
+    <attribute name="Trail" mapped_name="Trail" id="27555" type="Textbox" is_localization="false" />
+    <attribute name="Title" mapped_name="Title" id="27556" type="String" is_localization="false" size="255" />
+    <attribute name="Name" mapped_name="Name" id="27557" type="String" is_localization="false" size="255" />
+  </content>
+  <content id="578" name="SiteSettings" mapped_name="SiteSetting" plural_mapped_name="SiteSettings" use_default_filtration="true" virtual="0" user_query="0" split_articles="true">
+    <attribute name="SettingKey" mapped_name="SettingKey" id="37743" type="String" is_localization="false" size="255" />
+    <attribute name="SettingType" mapped_name="SettingType" id="37745" type="String" is_localization="false" size="255" />
+    <attribute name="SettingValue" mapped_name="SettingValue" id="37744" type="Textbox" is_localization="false" />
+  </content>
+  <content id="602" name="Region Tag" mapped_name="QpRegionTag" plural_mapped_name="QpRegionTags" use_default_filtration="true" virtual="0" user_query="0" split_articles="true">
+    <attribute name="Key" mapped_name="Key" id="37883" type="String" is_localization="false" size="255" />
+    <attribute name="Value" mapped_name="Value" id="37884" type="VisualEdit" is_localization="false" />
+  </content>
+  <content id="603" name="Region Tag Values" mapped_name="QpRegionTagValue" plural_mapped_name="QpRegionTagValues" use_default_filtration="true" virtual="0" user_query="0" split_articles="true">
+    <attribute name="ParentId" mapped_name="Parent" mapped_back_name="QpRegionTagValues" id="37886" type="O2M" is_localization="false" related_content_id="602" has_m2o="true" />
+    <attribute name="Regions" mapped_name="Regions" id="37889" type="M2M" is_localization="false" related_content_id="539" link_id="114" use_separate_reverse_views="false" />
+    <attribute name="Value" mapped_name="Value" id="37891" type="VisualEdit" is_localization="false" />
+  </content>
+  <content id="10609" name="ItemDefinitionConstraint" mapped_name="QPItemDefinitionConstraint" plural_mapped_name="QPItemDefinitionConstraints" use_default_filtration="true" virtual="0" user_query="0" split_articles="true">
+    <attribute name="Target" mapped_back_name="AllowDefinition" mapped_name="Target" id="47908" type="O2M" is_localization="false" related_content_id="538" has_m2o="false" />
+    <attribute name="Source" mapped_back_name="QPItemDefinitionConstraints_2" mapped_name="Source" id="47909" type="O2M" is_localization="false" related_content_id="538" has_m2o="true" />
+  </content>
+  <content id="10610" name="Новости" mapped_name="News" plural_mapped_name="News" use_default_filtration="true" virtual="0" user_query="0" split_articles="true">
+    <attribute name="Title" mapped_name="Title" id="47915" type="String" is_localization="false" size="255" />
+    <attribute name="TitleForDetails" mapped_name="TitleForDetails" id="48012" type="String" is_localization="false" size="255" />
+    <attribute name="TransliterationTitle" mapped_name="TransliterationTitle" id="48013" type="String" is_localization="false" size="255" />
+    <attribute name="Alias" mapped_name="PublishDate" id="47970" type="DateTime" is_localization="false" />
+    <attribute name="ParentManyToMany" mapped_name="Groups" id="47971" type="M2M" is_localization="false" related_content_id="10612" link_id="118" use_separate_reverse_views="false" />
+    <attribute name="Anounce" mapped_name="Anounce" id="47918" type="VisualEdit" is_localization="false" />
+    <attribute name="Text" mapped_name="Text" id="47919" type="VisualEdit" is_localization="false" />
+    <attribute name="Regions" mapped_name="Regions" id="47923" type="M2M" is_localization="false" related_content_id="539" link_id="115" use_separate_reverse_views="false" />
+    <attribute name="Order" mapped_name="Order" id="47954" type="Numeric" is_localization="false" size="0" is_long="false" />
+    <attribute name="MainImage" mapped_name="MainImage" id="47959" type="Image" is_localization="false" />
+    <attribute name="PublishSMI" mapped_back_name="News" mapped_name="PublishSMI" id="47963" type="O2M" is_localization="false" related_content_id="10624" has_m2o="false" />
+    <attribute name="Keywords" mapped_name="Keywords" id="47964" type="String" is_localization="false" size="255" />
+    <attribute name="MetaDescription" mapped_name="MetaDescription" id="47965" type="Textbox" is_localization="false" />
+    <attribute name="Rubrics" mapped_name="Rubrics" id="47990" type="M2M" is_localization="false" related_content_id="10627" link_id="121" use_separate_reverse_views="false" />
+    <attribute name="CommonAlias" mapped_name="Alias" id="47958" type="String" is_localization="false" size="255" />
+    <attribute name="TitleFormat" mapped_back_name="News" mapped_name="TitleFormat" id="47992" type="O2M" is_localization="false" related_content_id="541" has_m2o="false" />
+    <attribute name="SmallImage" mapped_name="SmallImage" id="48014" type="Image" is_localization="false" />
+  </content>
+  <content id="10612" name="Новости Группы новостей" mapped_name="NewsGroup" plural_mapped_name="NewsGroups" use_default_filtration="true" virtual="0" user_query="0" split_articles="false">
+    <attribute name="Title" mapped_name="Title" id="47924" type="String" is_localization="false" size="255" />
+  </content>
+  <content id="10624" name="СМИ" mapped_name="QpSMI" plural_mapped_name="QpSMI" use_default_filtration="true" virtual="0" user_query="0" split_articles="true" />
+  <content id="10627" name="Рубрики Новостей" mapped_name="QpNewsRubric" plural_mapped_name="QpNewsRubrics" use_default_filtration="true" virtual="0" user_query="0" split_articles="true">
+    <attribute name="Title" mapped_name="Title" id="47986" type="String" is_localization="false" size="255" />
+    <attribute name="RubricId" mapped_name="RubricId" id="47987" type="Numeric" is_localization="false" size="0" is_long="false" />
+    <attribute name="Order" mapped_name="Order" id="48010" type="Numeric" is_localization="false" size="0" is_long="false" />
+    <attribute name="Alias" mapped_name="Alias" id="48011" type="String" is_localization="false" size="255" />
+  </content>
+  <content id="10644" name="Популярные услуги" mapped_name="PopularServicesValue" plural_mapped_name="PopularServicesValues" use_default_filtration="true" virtual="0" user_query="0" split_articles="true">
+    <attribute name="Order" mapped_name="Order" id="48098" type="Numeric" is_localization="false" size="0" is_long="false" />
+    <attribute name="Text" mapped_name="Text" id="48099" type="Textbox" is_localization="false" />
+    <attribute name="Url" mapped_name="Url" id="48100" type="String" is_localization="false" size="255" />
+  </content>
+  <content id="10646" name="Секции на главной" mapped_name="MainSectionsValue" plural_mapped_name="MainSectionsValues" use_default_filtration="true" virtual="0" user_query="0" split_articles="true">
+    <attribute name="Title" mapped_name="Title" id="48103" type="String" is_localization="false" size="255" />
+    <attribute name="Order" mapped_name="Order" id="48104" type="Numeric" is_localization="false" size="0" is_long="false" />
+    <attribute name="LT1Text" mapped_name="LT1Text" id="48105" type="Textbox" is_localization="false" />
+    <attribute name="LT1URL" mapped_name="LT1URL" id="48106" type="String" is_localization="false" size="255" />
+    <attribute name="LB2Text" mapped_name="LB2Text" id="48107" type="Textbox" is_localization="false" />
+    <attribute name="LB2URL" mapped_name="LB2URL" id="48108" type="String" is_localization="false" size="255" />
+    <attribute name="RT3Text" mapped_name="RT3Text" id="48109" type="Textbox" is_localization="false" />
+    <attribute name="RT3URL" mapped_name="RT3URL" id="48110" type="String" is_localization="false" size="255" />
+    <attribute name="RB4Text" mapped_name="RB4Text" id="48111" type="Textbox" is_localization="false" />
+    <attribute name="RB4URL" mapped_name="RB4URL" id="48112" type="String" is_localization="false" size="255" />
+  </content>
+  <content id="10648" name="Акции" mapped_name="QpAction" plural_mapped_name="QpActions" use_default_filtration="true" virtual="0" user_query="0" split_articles="true">
+    <attribute name="Title" mapped_name="Title" id="48117" type="String" is_localization="false" size="1024" />
+    <attribute name="Alias" mapped_name="Alias" id="48118" type="String" is_localization="false" size="255" />
+    <attribute name="Regions" mapped_name="Regions" id="48119" type="M2M" is_localization="false" related_content_id="539" link_id="126" use_separate_reverse_views="false" />
+    <attribute name="Description" mapped_name="Description" id="48121" type="VisualEdit" is_localization="false" />
+    <attribute name="Text" mapped_name="Text" id="48122" type="VisualEdit" is_localization="false" />
+    <attribute name="ShowUntil" mapped_name="ShowUntil" id="48123" type="DateTime" is_localization="false" />
+  </content>
+  <content id="10651" name="Блог" mapped_name="QpBlog" plural_mapped_name="QpBlogs" use_default_filtration="true" virtual="0" user_query="0" split_articles="true">
+    <attribute name="PostTitle" mapped_name="PostTitle" id="48132" type="String" is_localization="false" size="255" />
+    <attribute name="PostDescription" mapped_name="PostDescription" id="48134" type="VisualEdit" is_localization="false" />
+    <attribute name="PostText" mapped_name="PostText" id="48133" type="VisualEdit" is_localization="false" />
+    <attribute name="PostImgDescription" mapped_name="PostImgDescription" id="48136" type="String" is_localization="false" size="255" />
+    <attribute name="PostImage" mapped_name="PostImage" id="48135" type="Image" is_localization="false" />
+  </content>
+  <link id="87" self="0" content_id="537" linked_content_id="542" mapped_name="AbstractItemAbtractItemRegionArticle" plural_mapped_name="AbstractItemAbtractItemRegionArticles" />
+  <link id="121" self="0" content_id="10610" linked_content_id="10627" mapped_name="NewsRubric" plural_mapped_name="NewsRubrics" />
+  <link id="88" self="1" content_id="538" linked_content_id="538" mapped_name="ItemDefinitionItemDefinitionArticle" plural_mapped_name="ItemDefinitionItemDefinitionArticles" />
+  <link id="114" self="0" content_id="603" linked_content_id="539" mapped_name="RegionTagValuesMarketingovyeregionyArticle" plural_mapped_name="RegionTagValuesMarketingovyeregionyArticles" />
+  <link id="118" self="0" content_id="10610" linked_content_id="10612" mapped_name="NovostiNovostiGruppynovosteyArticle" plural_mapped_name="NovostiNovostiGruppynovosteyArticles" />
+  <link id="115" self="0" content_id="10610" linked_content_id="539" mapped_name="NovostiMarketingovyeregionyArticle" plural_mapped_name="NovostiMarketingovyeregionyArticles" />
+  <link id="126" self="0" content_id="10648" linked_content_id="539" mapped_name="AktsiiMarketingovyeregionyArticle" plural_mapped_name="AktsiiMarketingovyeregionyArticles" />
+  <status_type id="141" name="Created" site_id="52" />
+  <status_type id="142" name="Approved" site_id="52" />
+  <status_type id="143" name="Published" site_id="52" />
+  <status_type id="144" name="None" site_id="52" />
+  <status_type id="145" name="Created" site_id="53" />
+  <status_type id="146" name="Approved" site_id="53" />
+  <status_type id="147" name="Published" site_id="53" />
+  <status_type id="148" name="None" site_id="53" />
+</schema>

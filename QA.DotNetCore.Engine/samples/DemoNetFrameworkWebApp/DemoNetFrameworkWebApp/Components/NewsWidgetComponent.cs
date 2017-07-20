@@ -10,6 +10,7 @@ namespace DemoNetFrameworkWebApp.Components
     {
         public override async Task<IViewComponentResult> RenderAsync(NewsWidget widget, IDictionary<string, object> argumets)
         {
+            await Task.Yield();
             return View(widget);
         }
     }

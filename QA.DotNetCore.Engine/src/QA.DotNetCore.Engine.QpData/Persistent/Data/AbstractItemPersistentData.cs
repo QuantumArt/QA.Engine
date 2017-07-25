@@ -1,4 +1,4 @@
-namespace QA.DotNetCore.Engine.QpData.Persistent.Data
+﻿namespace QA.DotNetCore.Engine.QpData.Persistent.Data
 {
     public class AbstractItemPersistentData
     {
@@ -15,7 +15,8 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Data
         public bool Visible { get; set; }
 
         public int? ExtensionId { get; set; }
-
+        public int? IndexOrder { get; set; }
+        public bool? IsVisible { get; set; }
         public string Discriminator { get; set; }
 
         public bool IsPage { get; set; }

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Runtime.CompilerServices;
 
 namespace QA.DotNetCore.Engine.QpData
 {
@@ -25,7 +26,7 @@ namespace QA.DotNetCore.Engine.QpData
         {
             _children.Add(child);
             child.Parent = this;
-            child.ParentId = this.Id;
+            child.ParentId = Id;
         }
 
         public int Id { get; set; }
@@ -33,6 +34,8 @@ namespace QA.DotNetCore.Engine.QpData
         public int? ParentId { get; private set; }
         public string Alias { get; internal set; }
         public string Title { get; internal set; }
+        public bool IsVisible { get; internal set; }
+        public int SortOrder { get; internal set; }
         public abstract bool IsPage { get; }
         internal int? ExtensionId { get; set; }
         internal AbstractItemExtensionCollection Details { get; set; }
@@ -104,6 +107,17 @@ namespace QA.DotNetCore.Engine.QpData
             return (T)value;
         }
 
+
+#if NETFX_462 || NETFX_47 || NET462 || NET47
+        /// <summary>
+        /// Получение свойств расширения, названия которых совпадают с именем поля.
+        /// </summary>
+        public virtual T GetValue<T>(T defaultValue, [CallerMemberName] string name = "")
+        {
+            return GetDetail(name, defaultValue);
+        }
+
+#endif
         /// <summary>
         /// Получение ссылок m2m
         /// </summary>
@@ -123,12 +137,12 @@ namespace QA.DotNetCore.Engine.QpData
         /// <returns></returns>
         public Type GetContentType()
         {
-            return this.GetType();
+            return GetType();
         }
 
         public virtual object GetTargetingValue(string targetingKey)
         {
-            return null;//пока AbstractItem не научили таргетироваться
+            return null; //пока AbstractItem не научили таргетироваться
         }
     }
 }

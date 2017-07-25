@@ -1,4 +1,4 @@
-using QA.DotNetCore.Engine.Abstractions.Targeting;
+﻿using QA.DotNetCore.Engine.Abstractions.Targeting;
 using System.Collections.Generic;
 
 namespace QA.DotNetCore.Engine.Abstractions
@@ -14,6 +14,11 @@ namespace QA.DotNetCore.Engine.Abstractions
         string Alias { get; }
         string Title { get; }
         bool IsPage { get; }
+        int SortOrder { get; }
+        /// <summary>
+        /// Is the item is visible (in navigation, on page, etc)
+        /// </summary>
+        bool IsVisible { get; }
         string GetUrl();
         string GetTrail();
         IEnumerable<IAbstractItem> GetChildren(ITargetingFilter filter = null);

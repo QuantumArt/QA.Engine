@@ -1,4 +1,4 @@
-using Dapper;
+﻿using Dapper;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -29,7 +29,9 @@ SELECT
     ai.[|QPAbstractItem.Title|] as Title,
     ai.Visible,
     ai.[|QPAbstractItem.Parent|] AS ParentId,
+    ai.[|QPAbstractItem.IsVisible|] AS IsVisible,
     ai.[|QPAbstractItem.ZoneName|] AS ZoneName,
+    ai.[|QPAbstractItem.IndexOrder|] AS IndexOrder,
     ai.[|QPAbstractItem.ExtensionId|] AS ExtensionId,
     def.[|QPDiscriminator.Name|] as Discriminator,
     def.[|QPDiscriminator.IsPage|] as IsPage

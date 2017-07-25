@@ -1,4 +1,4 @@
-using QA.DotNetCore.Engine.QpData.Persistent.Interfaces;
+﻿using QA.DotNetCore.Engine.QpData.Persistent.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,7 +53,9 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             {
                 var contentMetaInfo = _metaInfoRepository.GetContent(tableNetName, siteId);
                 if (contentMetaInfo == null)
+                {
                     throw new Exception($"Content with netname '{tableNetName}' was not found for site {siteId}");
+                }
 
                 sb.Replace($"|{tableNetName}|", isStage ? contentMetaInfo.StageTableName : contentMetaInfo.LiveTableName);
 
@@ -61,7 +63,9 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
                 {
                     var contentAttribute = contentMetaInfo.ContentAttributes.FirstOrDefault(ca => ca.NetName == columnNetName);
                     if (contentAttribute == null)
+                    {
                         throw new Exception($"Content attribute with netname '{columnNetName}' was not found for table '{tableNetName}' and site {siteId}");
+                    }
 
                     sb.Replace($"|{tableNetName}.{columnNetName}|", contentAttribute.ColumnName);
                 }

@@ -1,4 +1,4 @@
-using QA.DotNetCore.Engine.Abstractions;
+﻿using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Data;
 using QA.DotNetCore.Engine.QpData.Persistent.Interfaces;
@@ -172,6 +172,8 @@ namespace QA.DotNetCore.Engine.QpData
             item.Id = persistentItem.Id;
             item.Alias = persistentItem.Alias;
             item.Title = persistentItem.Title;
+            item.IsVisible = persistentItem.IsVisible ?? false;
+            item.SortOrder= persistentItem.IndexOrder ?? 0;
             item.ExtensionId = persistentItem.ExtensionId;
             if (!item.IsPage)
             {

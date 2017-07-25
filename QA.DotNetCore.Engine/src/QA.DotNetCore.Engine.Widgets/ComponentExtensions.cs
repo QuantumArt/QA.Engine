@@ -30,12 +30,14 @@ namespace QA.DotNetCore.Engine.Widgets
 
                 var children = currentPage.GetChildren(filter)
                     .OfType<IAbstractWidget>()
-                    .Where(x => string.Equals(x.ZoneName, zoneName));
+                    .Where(x => string.Equals(x.ZoneName, zoneName))
+                    .OrderBy(x => x.SortOrder);
 
                 using (var writer = new StringWriter(sb))
                 {
                     builder.AppendHtml($"<!--start zone {zoneName} -->");
-
+                    var currentLevelUIItem = html.ViewContext.HttpContext.Items["ui-part"] as IAbstractItem;
+                    var currentLevelFlag = html.ViewContext.HttpContext.Items["start-redendering-widgets"] as bool?;
                     foreach (var widget in children)
                     {
                         var name = mapper.Map(widget);
@@ -50,8 +52,20 @@ namespace QA.DotNetCore.Engine.Widgets
                         }
                         finally
                         {
-                            html.ViewContext.HttpContext.Items.Remove("ui-part");
-                            html.ViewContext.HttpContext.Items.Remove("start-redendering-widgets");
+                            if (currentLevelUIItem == null)
+                            {
+                                html.ViewContext.HttpContext.Items.Remove("ui-part");
+                            }
+                            else
+                            {
+                                html.ViewContext.HttpContext.Items["ui-part"] = currentLevelUIItem;
+                            }
+
+                            if (currentLevelFlag != true)
+                            {
+                                html.ViewContext.HttpContext.Items.Remove("start-redendering-widgets");
+                            }
+
                             builder.AppendHtml($"<!-- finish render widget {widget.Id} -->");
                         }
                     }

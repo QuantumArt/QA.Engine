@@ -8,9 +8,7 @@ using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Caching;
 using QA.DotNetCore.Engine.QpData.Configuration;
 using QA.DotNetCore.Engine.QpData.Settings;
-using QA.DotNetCore.Engine.Reflection.Configuration;
 using QA.DotNetCore.Engine.Routing.Configuration;
-using QA.DotNetCore.Engine.Widgets.Configuration;
 
 namespace DemoNetFrameworkWebApp
 {
@@ -37,16 +35,11 @@ namespace DemoNetFrameworkWebApp
             services.AddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            var siteStructure = services.AddSiteStructureEngine(options => {
+            services.AddSiteStructureEngine(options => {
                 options.QpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
                 options.QpConnectionString = Configuration.GetConnectionString("QpConnection");
+                options.TypeFinderOptions = new TypeFinderOptions { Kind = TypeFinderKind.SingleAssembly, Sample = new RootPage() };
             });
-
-            siteStructure
-                .AddWidgetInvokerFactory()
-                .AddSingleAssemblyTypeFinder(new RootPage())
-                .AddComponentMapper(ComponentMapperConvention.Name)
-                .AddControllerMapper(ControllerMapperConvention.Name);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

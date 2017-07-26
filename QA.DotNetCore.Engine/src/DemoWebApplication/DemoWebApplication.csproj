@@ -24,6 +24,7 @@
     <ProjectReference Include="..\DemoWebSite.PagesAndWidgets\DemoWebSite.PagesAndWidgets.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Caching\QA.DotNetCore.Caching.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Abstractions\QA.DotNetCore.Engine.Abstractions.csproj" />
+    <ProjectReference Include="..\QA.DotNetCore.Engine.QpData.Configuration\QA.DotNetCore.Engine.QpData.Configuration.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.QpData\QA.DotNetCore.Engine.QpData.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Reflection\QA.DotNetCore.Engine.Reflection.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Routing\QA.DotNetCore.Engine.Routing.csproj" />

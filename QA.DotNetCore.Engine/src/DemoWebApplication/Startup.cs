@@ -10,10 +10,8 @@ using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Caching;
 using QA.DotNetCore.Engine.QpData.Configuration;
 using QA.DotNetCore.Engine.QpData.Settings;
-using QA.DotNetCore.Engine.Reflection.Configuration;
 using QA.DotNetCore.Engine.Routing.Configuration;
 using QA.DotNetCore.Engine.Targeting.Configuration;
-using QA.DotNetCore.Engine.Widgets.Configuration;
 
 namespace DemoWebApplication
 {
@@ -40,17 +38,11 @@ namespace DemoWebApplication
 
             services.AddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
 
-            var siteStructure = services.AddSiteStructureEngine(options => {
+            services.AddSiteStructureEngine(options => {
                 options.QpConnectionString = Configuration.GetConnectionString("QpConnection");
                 options.QpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
-                //options.QpSiteStructureSettings.UseCache = false;
+                options.TypeFinderOptions = new TypeFinderOptions { Kind = TypeFinderKind.SingleAssembly, Sample = new RootPage() };
             });
-
-            siteStructure
-                .AddWidgetInvokerFactory()
-                .AddSingleAssemblyTypeFinder(new RootPage())
-                .AddComponentMapper(ComponentMapperConvention.Name)
-                .AddControllerMapper(ControllerMapperConvention.Name);
 
             services.AddSingleton(typeof(DemoRegionTargetingProvider));
             services.AddSingleton(typeof(DemoCultureTargetingProvider));

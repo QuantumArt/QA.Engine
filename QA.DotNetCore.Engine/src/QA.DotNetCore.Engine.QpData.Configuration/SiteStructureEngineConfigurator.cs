@@ -1,9 +1,14 @@
+using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.Extensions.DependencyInjection;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 using QA.DotNetCore.Engine.QpData.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Replacements;
+using QA.DotNetCore.Engine.Reflection;
+using QA.DotNetCore.Engine.Routing.Mappers;
+using QA.DotNetCore.Engine.Widgets;
+using QA.DotNetCore.Engine.Widgets.Mappers;
 using System;
 
 namespace QA.DotNetCore.Engine.QpData.Configuration
@@ -42,10 +47,36 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             services.AddScoped<IAbstractItemStorageBuilder, QpAbstractItemStorageBuilder>();
             services.AddScoped<IAbstractItemStorageProvider, SimpleAbstractItemStorageProvider>();
 
+            //itypefinder
+            if (options.TypeFinderOptions == null)
+                throw new Exception("TypeFinderOptions is not configured.");
+
+            if (options.TypeFinderOptions.Kind == TypeFinderKind.SingleAssembly)
+            {
+                if (options.TypeFinderOptions.Sample == null)
+                    throw new Exception("Sample object for single assembly type finder is not configured.");
+
+                services.Add(new ServiceDescriptor(typeof(ITypeFinder), provider => new SingleAssemblyTypeFinder(options.TypeFinderOptions.Sample), ServiceLifetime.Singleton));
+            }
+            else
+                throw new Exception($"TypeFinder kind {options.TypeFinderOptions.Kind.ToString()} is not implemented yet.");
+
             if (options.ItemDefinitionConvention == ItemDefinitionConvention.Name)
                 services.AddScoped<IItemDefinitionProvider, NameConventionalItemDefinitionProvider>();
             else if (options.ItemDefinitionConvention == ItemDefinitionConvention.Attribute)
                 throw new NotImplementedException("AttributeConventionalItemDefinitionProvider not implemented yet");
+
+            if (options.ControllerMapperConvention == ControllerMapperConvention.Name)
+                services.AddSingleton<IControllerMapper, NameConventionalControllerMapper>();
+            else if (options.ControllerMapperConvention == ControllerMapperConvention.Attribute)
+                services.AddSingleton<IControllerMapper, AttributeConventionalControllerMapper>();
+
+            if (options.ComponentMapperConvention == ComponentMapperConvention.Name)
+                services.AddSingleton<IComponentMapper, NameConventionalComponentMapper>();
+            else if (options.ComponentMapperConvention == ComponentMapperConvention.Attribute)
+                services.AddSingleton<IComponentMapper, AttributeConventionalComponentMapper>();
+
+            services.AddScoped<IViewComponentInvokerFactory, WidgetViewComponentInvokerFactory>();
         }
 
         public IServiceCollection Services { get; private set; }

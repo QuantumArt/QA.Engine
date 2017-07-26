@@ -108,16 +108,17 @@ namespace QA.DotNetCore.Engine.QpData
         }
 
 
-#if NETFX_462 || NETFX_47 || NET462 || NET47
-        /// <summary>
-        /// Получение свойств расширения, названия которых совпадают с именем поля.
-        /// </summary>
-        public virtual T GetValue<T>(T defaultValue, [CallerMemberName] string name = "")
-        {
-            return GetDetail(name, defaultValue);
-        }
+//#if NETFX_462 || NETFX_47 || NET462 || NET47
+//        /// <summary>
+//        /// Получение свойств расширения, названия которых совпадают с именем поля.
+//        /// </summary>
+//        public virtual T GetValue<T>(T defaultValue, [CallerMemberName] string name = "")
+//        {
+//            return GetDetail(name, defaultValue);
+//        }
 
-#endif
+//#endif
+
         /// <summary>
         /// Получение ссылок m2m
         /// </summary>

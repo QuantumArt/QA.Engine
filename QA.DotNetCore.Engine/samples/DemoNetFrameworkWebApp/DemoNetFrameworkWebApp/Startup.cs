@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Caching;
+using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.QpData.Configuration;
 using QA.DotNetCore.Engine.QpData.Settings;
 using QA.DotNetCore.Engine.Routing.Configuration;
@@ -38,7 +39,7 @@ namespace DemoNetFrameworkWebApp
             services.AddSiteStructureEngine(options => {
                 options.QpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
                 options.QpConnectionString = Configuration.GetConnectionString("QpConnection");
-                options.TypeFinderOptions = new TypeFinderOptions { Kind = TypeFinderKind.SingleAssembly, Sample = new RootPage() };
+                options.TypeFinder.RegisterFromAssemblyContaining<RootPage, IAbstractItem>();
             });
         }
 

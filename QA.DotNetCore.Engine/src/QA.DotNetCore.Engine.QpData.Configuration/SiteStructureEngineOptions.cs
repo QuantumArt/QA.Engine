@@ -1,4 +1,5 @@
 using QA.DotNetCore.Engine.QpData.Settings;
+using QA.DotNetCore.Engine.Reflection;
 using System;
 
 namespace QA.DotNetCore.Engine.QpData.Configuration
@@ -33,33 +34,18 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
         /// </summary>
         public QpSettings QpSettings { get; set; }
 
+        /// <summary>
+        /// TypeFinder, позволящий регистрировать сборки
+        /// </summary>
+        public RegisterTypeFinder TypeFinder { get; set; } = new RegisterTypeFinder();
+
         public QpSiteStructureSettings QpSiteStructureSettings { get; set; } = DefaultQpSiteStructureSettings;
         public QpSchemeCacheSettings QpSchemeCacheSettings { get; set; } = DefaultQpSchemeCacheSettings;
         public ItemDefinitionCacheSettings ItemDefinitionCacheSettings { get; set; } = DefaultItemDefinitionCacheSettings;
-        public TypeFinderOptions TypeFinderOptions { get; set; } = DefaultTypeFinderOptions;
 
         static QpSiteStructureSettings DefaultQpSiteStructureSettings = new QpSiteStructureSettings { CachePeriod = new TimeSpan(0, 0, 30), RootPageDiscriminator = "root_page", UseCache = true };
         static QpSchemeCacheSettings DefaultQpSchemeCacheSettings = new QpSchemeCacheSettings { CachePeriod = new TimeSpan(0, 0, 30) };
         static ItemDefinitionCacheSettings DefaultItemDefinitionCacheSettings = new ItemDefinitionCacheSettings { CachePeriod = new TimeSpan(0, 0, 30) };
-        static TypeFinderOptions DefaultTypeFinderOptions = new TypeFinderOptions { Kind = TypeFinderKind.SingleAssembly };
-    }
-
-    public class TypeFinderOptions
-    {
-        public TypeFinderKind Kind { get; set; }
-
-        /// <summary>
-        /// Для TypeFinderKind = SingleAssembly. Объект, определяющий сборку, в которой нужно искать
-        /// </summary>
-        public object Sample { get; set; }
-    }
-
-    /// <summary>
-    /// Виды реализаций ITypeFinder
-    /// </summary>
-    public enum TypeFinderKind
-    {
-        SingleAssembly
     }
 
     /// <summary>

@@ -14,8 +14,8 @@
     <PackageReference Include="QA.DotNetCore.Caching" Version="0.1.0" />
     <PackageReference Include="QA.DotNetCore.Engine.Abstractions" Version="0.1.4" />
     <PackageReference Include="QA.DotNetCore.Engine.QpData" Version="0.1.4" />
-    <PackageReference Include="QA.DotNetCore.Engine.QpData.Configuration" Version="0.1.0" />
-    <PackageReference Include="QA.DotNetCore.Engine.Reflection" Version="0.1.1" />
+    <PackageReference Include="QA.DotNetCore.Engine.QpData.Configuration" Version="0.1.1" />
+    <PackageReference Include="QA.DotNetCore.Engine.Reflection" Version="0.1.2" />
     <PackageReference Include="QA.DotNetCore.Engine.Routing" Version="0.1.3" />
     <PackageReference Include="QA.DotNetCore.Engine.Targeting" Version="0.1.1" />
     <PackageReference Include="QA.DotNetCore.Engine.Widgets" Version="0.1.4" />

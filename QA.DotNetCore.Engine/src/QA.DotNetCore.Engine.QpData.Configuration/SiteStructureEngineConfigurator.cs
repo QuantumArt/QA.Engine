@@ -5,7 +5,6 @@ using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 using QA.DotNetCore.Engine.QpData.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Replacements;
-using QA.DotNetCore.Engine.Reflection;
 using QA.DotNetCore.Engine.Routing.Mappers;
 using QA.DotNetCore.Engine.Widgets;
 using QA.DotNetCore.Engine.Widgets.Mappers;
@@ -48,19 +47,8 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             services.AddScoped<IAbstractItemStorageProvider, SimpleAbstractItemStorageProvider>();
 
             //itypefinder
-            if (options.TypeFinderOptions == null)
-                throw new Exception("TypeFinderOptions is not configured.");
-
-            if (options.TypeFinderOptions.Kind == TypeFinderKind.SingleAssembly)
-            {
-                if (options.TypeFinderOptions.Sample == null)
-                    throw new Exception("Sample object for single assembly type finder is not configured.");
-
-                services.Add(new ServiceDescriptor(typeof(ITypeFinder), provider => new SingleAssemblyTypeFinder(options.TypeFinderOptions.Sample), ServiceLifetime.Singleton));
-            }
-            else
-                throw new Exception($"TypeFinder kind {options.TypeFinderOptions.Kind.ToString()} is not implemented yet.");
-
+            services.Add(new ServiceDescriptor(typeof(ITypeFinder), provider => options.TypeFinder, ServiceLifetime.Singleton));
+            
             if (options.ItemDefinitionConvention == ItemDefinitionConvention.Name)
                 services.AddScoped<IItemDefinitionProvider, NameConventionalItemDefinitionProvider>();
             else if (options.ItemDefinitionConvention == ItemDefinitionConvention.Attribute)

@@ -1,4 +1,4 @@
-﻿using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Data;
 using QA.DotNetCore.Engine.QpData.Persistent.Interfaces;
@@ -74,7 +74,7 @@ namespace QA.DotNetCore.Engine.QpData
                     .ToList();
 
                 //словарь, каким элементам нужна загрузка связи m2m
-                var needLoadM2MDict = new Dictionary<int, AbstractItem>();
+                var needLoadM2mInExtensionDict = new Dictionary<int, AbstractItem>();
 
                 //догрузим доп поля
                 foreach (var group in groupsByExtensions)
@@ -82,7 +82,7 @@ namespace QA.DotNetCore.Engine.QpData
                     var extensionId = group.Key;
                     var ids = group.Select(_ => _.Id).ToArray();
 
-                    var extensions = _abstractItemRepository.GetAbstractItemExtensionData(extensionId, ids, _qpSettings.IsStage);
+                    var extensions = _abstractItemRepository.GetAbstractItemExtensionData(extensionId, ids, _settings.LoadAbstractItemFieldsToDetailsCollection, _qpSettings.IsStage);
 
                     //словарь соответствий полей и атрибутов ILoaderOption
                     ILookup<string, ILoaderOption> optionsMap = null;
@@ -103,13 +103,13 @@ namespace QA.DotNetCore.Engine.QpData
                             {
                                 if (needLoadM2m && key == "CONTENT_ITEM_ID")
                                 {
-                                    needLoadM2MDict[Convert.ToInt32(details[key])] = item;
+                                    needLoadM2mInExtensionDict[Convert.ToInt32(details[key])] = item;
                                 }
 
                                 if (details[key] is string stringValue)
                                 {
                                     //1) надо заменить плейсхолдер <%=upload_url%> на реальный урл
-                                    details.Set(key, stringValue.Replace("<%=upload_url%>", _qpUrlResolver.UploadUrl()));
+                                    details.Set(key, stringValue.Replace(_settings.UploadUrlPlaceholder, _qpUrlResolver.UploadUrl()));
 
                                     //2) если поле помечено атрибутом интерфейса ILoaderOption, то нужно преобразовать значение этого поля согласно внутренней логике атрибута
                                     //пример: атрибут LibraryUrl значит, что поле является файлом в библиотеке сайта, нужно чтобы в значении этого поля был полный урл до этого файла
@@ -130,16 +130,26 @@ namespace QA.DotNetCore.Engine.QpData
                     }
                 }
 
-                //догрузим связи m2m
-                if (needLoadM2MDict.Any())
+                //догрузим связи m2m в контентах расширений
+                if (needLoadM2mInExtensionDict.Any())
                 {
-                    var m2mData = _abstractItemRepository.GetAbstractItemManyToManyData(needLoadM2MDict.Keys.ToArray(), _qpSettings.IsStage);
+                    var m2mData = _abstractItemRepository.GetManyToManyData(needLoadM2mInExtensionDict.Keys.ToArray(), _qpSettings.IsStage);
                     foreach (var key in m2mData.Keys)
                     {
-                        if (!needLoadM2MDict.ContainsKey(key))
+                        if (!needLoadM2mInExtensionDict.ContainsKey(key))
                             continue;
 
-                        needLoadM2MDict[key].M2mRelations = m2mData[key];
+                        needLoadM2mInExtensionDict[key].M2mRelations.Merge(m2mData[key]);
+                    }
+                }
+
+                //догрузим связи m2m в основном контенте
+                if (_settings.LoadM2mForAbstractItem)
+                {
+                    var m2mData = _abstractItemRepository.GetManyToManyData(activated.Keys.ToArray(), _qpSettings.IsStage);
+                    foreach (var key in m2mData.Keys)
+                    {
+                        activated[key].M2mRelations.Merge(m2mData[key]);
                     }
                 }
 

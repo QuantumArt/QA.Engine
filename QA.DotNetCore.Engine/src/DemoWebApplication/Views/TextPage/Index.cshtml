@@ -7,6 +7,15 @@
 
 <h2>@Model.Title (@Model.Alias - @Model.Id) </h2>
 
+@if (Model.RegionIds.Any())
+{
+  <h3>Регионы @String.Join(",", Model.RegionIds)</h3>
+}
+@if (Model.CultureId.HasValue)
+{
+  <h3>Культура @Model.CultureId.Value</h3>
+}
+
 @Html.Raw(Model.Text)
 <div>
     Ссылка - 

@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -48,7 +48,7 @@ INNER JOIN [|QPDiscriminator|] def on ai.[|QPAbstractItem.Discriminator|] = def.
             return _connection.Query<AbstractItemPersistentData>(query);
         }
 
-        public IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionId, IEnumerable<int> ids, bool isStage)
+        public IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionId, IEnumerable<int> ids, bool loadAbstractItemFields, bool isStage)
         {
             if (!(_connection is SqlConnection))
                 throw new NotImplementedException("GetAbstractItemExtensionData can be executed in MS SQL only");
@@ -70,10 +70,12 @@ INNER JOIN [|QPDiscriminator|] def on ai.[|QPAbstractItem.Discriminator|] = def.
                 var tvpParam = command.Parameters.AddWithValue("@Ids", idsParameter);
                 var isLive = command.Parameters.AddWithValue("@isLive", !isStage);
                 var contentId = command.Parameters.AddWithValue("@contentId", extensionId);
+                var includeBaseFields = command.Parameters.AddWithValue("@includeBaseFields", loadAbstractItemFields);
 
                 isLive.SqlDbType = SqlDbType.Bit;
                 contentId.SqlDbType = SqlDbType.Int;
                 tvpParam.SqlDbType = SqlDbType.Structured;
+                includeBaseFields.SqlDbType = SqlDbType.Bit;
 
                 var result = new Dictionary<int, AbstractItemExtensionCollection>();
                 
@@ -107,7 +109,7 @@ INNER JOIN [|QPDiscriminator|] def on ai.[|QPAbstractItem.Discriminator|] = def.
 
         }
 
-        public IDictionary<int, AbstractItemM2mRelations> GetAbstractItemManyToManyData(IEnumerable<int> ids, bool isStage)
+        public IDictionary<int, M2mRelations> GetManyToManyData(IEnumerable<int> ids, bool isStage)
         {
             if (!(_connection is SqlConnection))
                 throw new NotImplementedException("GetAbstractItemManyToManyData can be executed in MS SQL only");
@@ -132,7 +134,7 @@ INNER JOIN [|QPDiscriminator|] def on ai.[|QPAbstractItem.Discriminator|] = def.
                 isLive.SqlDbType = SqlDbType.Bit;
                 tvpParam.SqlDbType = SqlDbType.Structured;
 
-                var result = new Dictionary<int, AbstractItemM2mRelations>();
+                var result = new Dictionary<int, M2mRelations>();
                 
                 using (var reader = command.ExecuteReader())
                 {
@@ -140,7 +142,7 @@ INNER JOIN [|QPDiscriminator|] def on ai.[|QPAbstractItem.Discriminator|] = def.
                     {
                         var itemId = Convert.ToInt32(reader.GetDecimal(reader.GetOrdinal("item_id")));
                         if (!result.ContainsKey(itemId))
-                            result[itemId] = new AbstractItemM2mRelations();
+                            result[itemId] = new M2mRelations();
 
                         result[itemId].AddRelation(
                             Convert.ToInt32(reader.GetDecimal(reader.GetOrdinal("link_id"))),

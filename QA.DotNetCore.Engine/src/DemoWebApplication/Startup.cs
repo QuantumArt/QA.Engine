@@ -43,6 +43,7 @@ namespace DemoWebApplication
                 options.QpConnectionString = Configuration.GetConnectionString("QpConnection");
                 options.QpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
                 options.TypeFinder.RegisterFromAssemblyContaining<RootPage, IAbstractItem>();
+                //options.QpSiteStructureSettings.LoadAbstractItemFieldsToDetailsCollection = false;
             });
 
             services.AddSingleton(typeof(DemoRegionTargetingProvider));

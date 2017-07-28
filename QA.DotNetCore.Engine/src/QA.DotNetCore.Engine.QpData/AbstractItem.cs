@@ -39,7 +39,7 @@ namespace QA.DotNetCore.Engine.QpData
         public abstract bool IsPage { get; }
         internal int? ExtensionId { get; set; }
         internal AbstractItemExtensionCollection Details { get; set; }
-        internal AbstractItemM2mRelations M2mRelations { get; set; }
+        internal M2mRelations M2mRelations { get; set; } = new M2mRelations();
 
         public string GetUrl()
         {
@@ -141,9 +141,24 @@ namespace QA.DotNetCore.Engine.QpData
             return GetType();
         }
 
+        /// <summary>
+        /// Получить значение таргетирования по ключу (ключ определяет систему таргетирования, например, регион, культура итп)
+        /// </summary>
+        /// <param name="targetingKey"></param>
+        /// <returns></returns>
         public virtual object GetTargetingValue(string targetingKey)
         {
             return null; //пока AbstractItem не научили таргетироваться
         }
+
+        /// <summary>
+        /// Список id регионов
+        /// </summary>
+        public virtual IEnumerable<int> RegionIds { get { return GetRelationIds("Regions"); } }
+
+        /// <summary>
+        /// Id культуры
+        /// </summary>
+        public virtual int? CultureId { get { return GetDetail("Culture", default(int?)); } }
     }
 }

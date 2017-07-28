@@ -43,7 +43,14 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
         public QpSchemeCacheSettings QpSchemeCacheSettings { get; set; } = DefaultQpSchemeCacheSettings;
         public ItemDefinitionCacheSettings ItemDefinitionCacheSettings { get; set; } = DefaultItemDefinitionCacheSettings;
 
-        static QpSiteStructureSettings DefaultQpSiteStructureSettings = new QpSiteStructureSettings { CachePeriod = new TimeSpan(0, 0, 30), RootPageDiscriminator = "root_page", UseCache = true };
+        static QpSiteStructureSettings DefaultQpSiteStructureSettings = new QpSiteStructureSettings {
+            UseCache = true,
+            CachePeriod = new TimeSpan(0, 0, 30),
+            RootPageDiscriminator = "root_page",
+            UploadUrlPlaceholder = "<%=upload_url%>",
+            LoadM2mForAbstractItem = true,
+            LoadAbstractItemFieldsToDetailsCollection = true
+        };
         static QpSchemeCacheSettings DefaultQpSchemeCacheSettings = new QpSchemeCacheSettings { CachePeriod = new TimeSpan(0, 0, 30) };
         static ItemDefinitionCacheSettings DefaultItemDefinitionCacheSettings = new ItemDefinitionCacheSettings { CachePeriod = new TimeSpan(0, 0, 30) };
     }

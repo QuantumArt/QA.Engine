@@ -17,7 +17,8 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Data
 
         public void Add(string key, object value)
         {
-            _innerDictionary.Add(key, new InnerItem(value));
+            if (!_innerDictionary.ContainsKey(key))
+                _innerDictionary.Add(key, new InnerItem(value));
         }
 
         public void Set(string key, object value)

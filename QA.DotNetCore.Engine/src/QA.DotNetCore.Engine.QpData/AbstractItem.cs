@@ -26,12 +26,11 @@ namespace QA.DotNetCore.Engine.QpData
         {
             _children.Add(child);
             child.Parent = this;
-            child.ParentId = Id;
         }
 
-        public int Id { get; set; }
+        public int Id { get; internal set; }
         public IAbstractItem Parent { get; private set; }
-        public int? ParentId { get; private set; }
+        public int? ParentId { get; internal set; }
         public string Alias { get; internal set; }
         public string Title { get; internal set; }
         public bool IsVisible { get; internal set; }

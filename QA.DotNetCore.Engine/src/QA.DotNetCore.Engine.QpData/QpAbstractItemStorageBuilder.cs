@@ -42,11 +42,10 @@ namespace QA.DotNetCore.Engine.QpData
         public AbstractItemStorage Build()
         {
             var plainList = _abstractItemRepository.GetPlainAllAbstractItems(_qpSettings.SiteId, _qpSettings.IsStage);//плоский список dto
-            var parentMapping = new Dictionary<int, List<int>>();//соответсвие id - parentId
             var activated = new Dictionary<int, AbstractItem>();
             AbstractItem root = null;
 
-            //первый проход списка - активируем, т.е. создаём AbsractItem-ы с правильным типом, запоминаем родительские связи и root
+            //первый проход списка - активируем, т.е. создаём AbsractItem-ы с правильным типом и набором заполненных полей, запоминаем root
             foreach (var persistentItem in plainList)
             {
                 var activatedItem = _itemFactory.Create(persistentItem.Discriminator);
@@ -55,11 +54,6 @@ namespace QA.DotNetCore.Engine.QpData
 
                 MapAbstractItem(activatedItem as AbstractItem, persistentItem);
                 activated.Add(persistentItem.Id, activatedItem);
-
-                var parentId = persistentItem.ParentId ?? 0;
-                if (!parentMapping.ContainsKey(parentId))
-                    parentMapping[parentId] = new List<int>();
-                parentMapping[parentId].Add(persistentItem.Id);
 
                 if (persistentItem.Discriminator == _settings.RootPageDiscriminator)
                     root = activatedItem;
@@ -153,28 +147,19 @@ namespace QA.DotNetCore.Engine.QpData
                     }
                 }
 
-                //рекурсивно, начиная от корня, заполняем Children
-                FillChildrenRecursive(root, activated, parentMapping);
+                //второй проход списка: заполняем поля иерархии Parent-Children, на основании ParentId
+                foreach (var item in activated.Values)
+                {
+                    if (item.ParentId.HasValue && activated.ContainsKey(item.ParentId.Value))
+                        activated[item.ParentId.Value].AddChild(item);
+                }
+
                 return new AbstractItemStorage(root);
             }
             else
             {
                 return null;
             }
-        }
-
-        private void FillChildrenRecursive(AbstractItem root, Dictionary<int, AbstractItem> activated, Dictionary<int, List<int>> parentMapping)
-        {
-            if (parentMapping.ContainsKey(root.Id))
-            {
-                foreach (var childId in parentMapping[root.Id])
-                {
-                    var child = activated[childId];
-                    root.AddChild(child);
-                    FillChildrenRecursive(child, activated, parentMapping);
-                }
-            }
-
         }
 
         private void MapAbstractItem(AbstractItem item, AbstractItemPersistentData persistentItem)
@@ -185,6 +170,7 @@ namespace QA.DotNetCore.Engine.QpData
             item.IsVisible = persistentItem.IsVisible ?? false;
             item.SortOrder= persistentItem.IndexOrder ?? 0;
             item.ExtensionId = persistentItem.ExtensionId;
+            item.ParentId = persistentItem.ParentId;
             if (!item.IsPage)
             {
                 if (item is AbstractWidget wigdet)

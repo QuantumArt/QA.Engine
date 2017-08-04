@@ -1,8 +1,10 @@
 using System;
+using System.Linq;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Internal;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 
 namespace QA.DotNetCore.Engine.Widgets
 {
@@ -37,13 +39,16 @@ namespace QA.DotNetCore.Engine.Widgets
                 throw new ArgumentNullException("context");
             }
 
-            if (context.ViewContext.HttpContext.Items["should-use-custom-invoker"] == null)
+            var renderingContext = context.ViewContext.HttpContext.GetCurrentRenderingWidgetContext();
+            if (renderingContext == null || !renderingContext.ShouldUseCustomInvoker)
             {
+                //если стэка виджетов нет, или в нём нет отметки, что сейчас рендерится компонент как виджет структуры сайта
+                //используем стандартный Invoker для компонентов
                 return GetDefaultInvoker();
             }
-
-            // remove flag to use defualt invoker for non widget components
-            context.ViewContext.HttpContext.Items.Remove("should-use-custom-invoker");
+            //сейчас рендерится компонент как виджет структуры сайта
+            //это ясно по одноразовому флагу ShouldUseCustomInvoker, снимем его
+            renderingContext.ShouldUseCustomInvoker = false;
 
             return new WidgetViewComponentInvoker(_scope, GetDefaultInvoker());
         }

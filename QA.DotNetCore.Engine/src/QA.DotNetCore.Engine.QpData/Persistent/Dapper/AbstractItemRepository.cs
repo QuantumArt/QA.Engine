@@ -27,7 +27,6 @@ SELECT
     ai.content_item_id AS Id,
     ai.[|QPAbstractItem.Name|] as Alias,
     ai.[|QPAbstractItem.Title|] as Title,
-    ai.Visible,
     ai.[|QPAbstractItem.Parent|] AS ParentId,
     ai.[|QPAbstractItem.IsVisible|] AS IsVisible,
     ai.[|QPAbstractItem.ZoneName|] AS ZoneName,

@@ -1,6 +1,6 @@
 namespace QA.DotNetCore.Engine.Abstractions
 {
-    public interface IStartPage : IAbstractItem
+    public interface IStartPage : IAbstractPage
     {
         string[] GetDNSBindings();
     }

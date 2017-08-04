@@ -167,11 +167,17 @@ namespace QA.DotNetCore.Engine.QpData
             item.Id = persistentItem.Id;
             item.Alias = persistentItem.Alias;
             item.Title = persistentItem.Title;
-            item.IsVisible = persistentItem.IsVisible ?? false;
             item.SortOrder= persistentItem.IndexOrder ?? 0;
             item.ExtensionId = persistentItem.ExtensionId;
             item.ParentId = persistentItem.ParentId;
-            if (!item.IsPage)
+            if (item.IsPage)
+            {
+                if (item is AbstractPage page)
+                {
+                    page.IsVisible = persistentItem.IsVisible ?? false;
+                }
+            }
+            else
             {
                 if (item is AbstractWidget wigdet)
                 {

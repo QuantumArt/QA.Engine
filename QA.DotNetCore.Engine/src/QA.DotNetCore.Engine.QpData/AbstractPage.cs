@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using QA.DotNetCore.Engine.Abstractions;
 
 namespace QA.DotNetCore.Engine.QpData
 {
-    public abstract class AbstractPage : AbstractItem
+    public abstract class AbstractPage : AbstractItem, IAbstractPage
     {
         public override bool IsPage
         {
@@ -14,5 +11,7 @@ namespace QA.DotNetCore.Engine.QpData
                 return true;
             }
         }
+
+        public bool IsVisible { get; internal set; }
     }
 }

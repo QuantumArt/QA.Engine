@@ -33,7 +33,6 @@ namespace QA.DotNetCore.Engine.QpData
         public int? ParentId { get; internal set; }
         public string Alias { get; internal set; }
         public string Title { get; internal set; }
-        public bool IsVisible { get; internal set; }
         public int SortOrder { get; internal set; }
         public abstract bool IsPage { get; }
         internal int? ExtensionId { get; set; }

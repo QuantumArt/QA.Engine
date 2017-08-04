@@ -17,17 +17,14 @@ namespace QA.DotNetCore.Engine.Widgets
     {
         public static async Task<IHtmlContent> WidgetZone(this IViewComponentHelper helper, IHtmlHelper html, string zoneName, object arguments = null)
         {
-            IEnumerable<IAbstractWidget> widgets = null;
+            IEnumerable<IAbstractItem> widgets = null;
             if (ZoneIsGlobal(zoneName))
             {
                 //зона глобальная - значит нужны дочерние виджеты стартовой страницы
                 var startPage = html.ViewContext.HttpContext.GetStartPage();
                 if (startPage != null)
                 {
-                    widgets = startPage.GetChildren(GetFilter(html))
-                        .OfType<IAbstractWidget>()
-                        .Where(x => string.Equals(x.ZoneName, zoneName))
-                        .OrderBy(x => x.SortOrder);
+                    widgets = startPage.GetChildren(GetFilter(html, zoneName));
                 }
             }
             else
@@ -60,17 +57,12 @@ namespace QA.DotNetCore.Engine.Widgets
                             current = current.Parent;
                         }
 
-                        widgets = allParents
-                            .SelectMany(x => x.GetChildren(GetFilter(html)).OfType<IAbstractWidget>().Where(w => string.Equals(w.ZoneName, zoneName)))
-                            .OrderBy(x => x.SortOrder);
+                        widgets = allParents.SelectMany(x => x.GetChildren(GetFilter(html, zoneName)));
                     }
                     else
                     {
                         //ищем виджеты с зоной у текущего элемента
-                        widgets = renderingContainer.GetChildren(GetFilter(html))
-                            .OfType<IAbstractWidget>()
-                            .Where(x => string.Equals(x.ZoneName, zoneName))
-                            .OrderBy(x => x.SortOrder);
+                        widgets = renderingContainer.GetChildren(GetFilter(html, zoneName));
                     }
                 }
             }
@@ -81,7 +73,7 @@ namespace QA.DotNetCore.Engine.Widgets
             {
                 var mapper = ((IComponentMapper)html.ViewContext.HttpContext.RequestServices.GetService(typeof(IComponentMapper)));
 
-                foreach (var widget in widgets)
+                foreach (var widget in widgets.OfType<IAbstractWidget>().OrderBy(x => x.SortOrder))
                 {
                     var name = mapper.Map(widget);
                     builder.AppendHtml($"<!-- start render widget {widget.Id} -->");
@@ -160,9 +152,14 @@ namespace QA.DotNetCore.Engine.Widgets
             return new HtmlString(result);
         }
 
-        private static ITargetingFilter GetFilter(IHtmlHelper html)
+        private static ITargetingFilter GetFilter(IHtmlHelper html, string zone)
         {
-            return ((ITargetingFilterAccessor)html.ViewContext.HttpContext.RequestServices.GetService(typeof(ITargetingFilterAccessor)))?.Get();
+            //фильтр виджетов. проверяет зону и доступен ли для текущего урла
+            var widgetFilter = new WidgetFilter(zone, html.ViewContext.HttpContext.Request.Path);
+            //общий фильтр структуры сайта
+            var siteSctructureFilter = ((ITargetingFilterAccessor)html.ViewContext.HttpContext.RequestServices.GetService(typeof(ITargetingFilterAccessor)))?.Get() ?? new NullFilter();
+            //объединяем их
+            return new UnitedFilter(siteSctructureFilter, widgetFilter);
         }
 
         private static bool ZoneIsRecursive(string zoneName)

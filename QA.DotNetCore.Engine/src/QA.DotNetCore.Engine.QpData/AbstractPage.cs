@@ -13,7 +13,7 @@ namespace QA.DotNetCore.Engine.QpData
             }
         }
 
-        public bool IsVisible { get; internal set; }
+        public bool IsVisible { get; private set; }
 
         internal override void MapPersistent(AbstractItemPersistentData persistentItem)
         {

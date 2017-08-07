@@ -1,4 +1,5 @@
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.QpData.Persistent.Data;
 
 namespace QA.DotNetCore.Engine.QpData
 {
@@ -13,5 +14,11 @@ namespace QA.DotNetCore.Engine.QpData
         }
 
         public bool IsVisible { get; internal set; }
+
+        internal override void MapPersistent(AbstractItemPersistentData persistentItem)
+        {
+            base.MapPersistent(persistentItem);
+            IsVisible = persistentItem.IsVisible ?? false;
+        }
     }
 }

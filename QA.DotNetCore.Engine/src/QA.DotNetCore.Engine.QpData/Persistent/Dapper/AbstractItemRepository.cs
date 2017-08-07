@@ -32,6 +32,7 @@ SELECT
     ai.[|QPAbstractItem.ZoneName|] AS ZoneName,
     ai.[|QPAbstractItem.IndexOrder|] AS IndexOrder,
     ai.[|QPAbstractItem.ExtensionId|] AS ExtensionId,
+    ai.[|QPAbstractItem.VersionOf|] AS VersionOfId,
     def.[|QPDiscriminator.Name|] as Discriminator,
     def.[|QPDiscriminator.IsPage|] as IsPage
 FROM [|QPAbstractItem|] ai

@@ -52,7 +52,7 @@ namespace QA.DotNetCore.Engine.QpData
                 if (activatedItem == null)
                     continue;
 
-                MapAbstractItem(activatedItem as AbstractItem, persistentItem);
+                activatedItem.MapPersistent(persistentItem);
                 activated.Add(persistentItem.Id, activatedItem);
 
                 if (persistentItem.Discriminator == _settings.RootPageDiscriminator)
@@ -147,10 +147,18 @@ namespace QA.DotNetCore.Engine.QpData
                     }
                 }
 
-                //второй проход списка: заполняем поля иерархии Parent-Children, на основании ParentId
+                //второй проход списка: заполняем поля иерархии Parent-Children, на основании ParentId. Заполняем VersionOf
                 foreach (var item in activated.Values)
                 {
-                    if (item.ParentId.HasValue && activated.ContainsKey(item.ParentId.Value))
+                    if (item.VersionOfId.HasValue && activated.ContainsKey(item.VersionOfId.Value))
+                    {
+                        var main = activated[item.VersionOfId.Value];
+                        item.MapVersionOf(main);
+
+                        if (main.ParentId.HasValue && activated.ContainsKey(main.ParentId.Value))
+                            activated[main.ParentId.Value].AddChild(item);
+                    }
+                    else if (item.ParentId.HasValue && activated.ContainsKey(item.ParentId.Value))
                         activated[item.ParentId.Value].AddChild(item);
                 }
 
@@ -162,31 +170,14 @@ namespace QA.DotNetCore.Engine.QpData
             }
         }
 
-        private void MapAbstractItem(AbstractItem item, AbstractItemPersistentData persistentItem)
-        {
-            item.Id = persistentItem.Id;
-            item.Alias = persistentItem.Alias;
-            item.Title = persistentItem.Title;
-            item.SortOrder= persistentItem.IndexOrder ?? 0;
-            item.ExtensionId = persistentItem.ExtensionId;
-            item.ParentId = persistentItem.ParentId;
-            if (item.IsPage)
-            {
-                if (item is AbstractPage page)
-                {
-                    page.IsVisible = persistentItem.IsVisible ?? false;
-                }
-            }
-            else
-            {
-                if (item is AbstractWidget wigdet)
-                {
-                    wigdet.ZoneName = persistentItem.ZoneName;
-                }
-            }
-        }
-
         private readonly ConcurrentDictionary<Type, IReadOnlyList<ILoaderOption>> _loadOptions = new ConcurrentDictionary<Type, IReadOnlyList<ILoaderOption>>();
+
+        /// <summary>
+        /// Получить список опций загрузки для типа
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="contentId"></param>
+        /// <returns></returns>
         private IReadOnlyList<ILoaderOption> ProcessLoadOptions(Type t, int contentId)
         {
             return _loadOptions.GetOrAdd(t, key =>
@@ -211,6 +202,11 @@ namespace QA.DotNetCore.Engine.QpData
         }
 
         private readonly ConcurrentDictionary<Type, bool> _m2mOptions = new ConcurrentDictionary<Type, bool>();
+        /// <summary>
+        /// Нужно ли грузить M2M для экстеншна, соответствующего типу
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
         private bool NeedManyToManyLoad(Type t)
         {
             return _m2mOptions.GetOrAdd(t, key =>

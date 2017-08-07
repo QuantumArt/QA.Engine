@@ -12,5 +12,6 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Data
         public bool? IsVisible { get; set; }
         public string Discriminator { get; set; }
         public bool IsPage { get; set; }
+        public int? VersionOfId { get; set; }
     }
 }

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net462;netcoreapp2.0</TargetFrameworks>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <Authors>Grigorenko Paul, Karlov Nickolay</Authors>
     <Company>Quantum Art</Company>
     <Description>Provides interface and .Net Core implementation of cache provider.</Description>

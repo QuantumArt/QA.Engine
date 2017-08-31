@@ -14,37 +14,60 @@ namespace QA.DotNetCore.Engine.QpData
     /// </summary>
     public abstract class AbstractItem : IAbstractItem
     {
-        private string _url;
-        private IList<IAbstractItem> _children;
-
         public AbstractItem()
         {
-            _children = new List<IAbstractItem>();
+            Children = new HashSet<IAbstractItem>();
+            M2mRelations = new M2mRelations();
         }
 
         internal void AddChild(AbstractItem child)
         {
-            _children.Add(child);
+            Children.Add(child);
             child.Parent = this;
-            child.ParentId = Id;
         }
 
-        public int Id { get; set; }
+        internal virtual void MapPersistent(AbstractItemPersistentData persistentItem)
+        {
+            Id = persistentItem.Id;
+            Alias = persistentItem.Alias;
+            Title = persistentItem.Title;
+            RawSortOrder = persistentItem.IndexOrder;
+            ExtensionId = persistentItem.ExtensionId;
+            ParentId = persistentItem.ParentId;
+            VersionOfId = persistentItem.VersionOfId;
+        }
+
+        internal virtual void MapVersionOf(AbstractItem main)
+        {
+            VersionOf = main;
+            Alias = main.Alias;//у контентной версии не проставлен алиас, берём из основной
+            Children = main.Children;//у контентной версии должно быть те же дочерние элементы, что и у основной
+            if (!RawSortOrder.HasValue)//если у контентной версии нет порядкового номера, берём его у основной
+                RawSortOrder = main.RawSortOrder;
+        }
+
+        public int Id { get; private set; }
         public IAbstractItem Parent { get; private set; }
-        public int? ParentId { get; private set; }
-        public string Alias { get; internal set; }
-        public string Title { get; internal set; }
-        public bool IsVisible { get; internal set; }
-        public int SortOrder { get; internal set; }
+        public string Alias { get; private set; }
+        public string Title { get; private set; }
+        public int SortOrder { get { return RawSortOrder ?? 0; } }
         public abstract bool IsPage { get; }
+        public IAbstractItem VersionOf { get; private set; }
+
+        internal ICollection<IAbstractItem> Children { get; set; }
+        internal int? RawSortOrder { get; set; }
         internal int? ExtensionId { get; set; }
+        internal int? ParentId { get; set; }
+        internal int? VersionOfId { get; set; }
         internal AbstractItemExtensionCollection Details { get; set; }
-        internal M2mRelations M2mRelations { get; set; } = new M2mRelations();
+        internal M2mRelations M2mRelations { get; set; }
 
         public string GetUrl()
         {
             return GetTrail();
         }
+
+        private string _url;
 
         public string GetTrail()
         {
@@ -76,7 +99,7 @@ namespace QA.DotNetCore.Engine.QpData
         /// <returns></returns>
         public IEnumerable<IAbstractItem> GetChildren(ITargetingFilter filter = null)
         {
-            return filter == null ? _children : _children.Pipe(filter);
+            return filter == null ? Children : Children.Pipe(filter);
         }
 
         /// <summary>
@@ -160,5 +183,7 @@ namespace QA.DotNetCore.Engine.QpData
         /// Id культуры
         /// </summary>
         public virtual int? CultureId { get { return GetDetail("Culture", default(int?)); } }
+
+        
     }
 }

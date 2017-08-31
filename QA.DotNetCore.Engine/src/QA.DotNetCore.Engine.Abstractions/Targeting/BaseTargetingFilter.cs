@@ -1,10 +1,8 @@
-using QA.DotNetCore.Engine.Abstractions;
-using QA.DotNetCore.Engine.Abstractions.Targeting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace QA.DotNetCore.Engine.Targeting.Filters
+namespace QA.DotNetCore.Engine.Abstractions.Targeting
 {
     public abstract class BaseTargetingFilter : ITargetingFilter
     {

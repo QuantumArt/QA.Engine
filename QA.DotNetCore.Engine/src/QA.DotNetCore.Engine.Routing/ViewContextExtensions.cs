@@ -7,13 +7,23 @@ namespace QA.DotNetCore.Engine.Routing
     {
         public static IAbstractItem GetCurrentItem(this ViewContext context)
         {
-            return context.ViewData[RoutingKeys.CurrentItem] as IAbstractItem;
+            var item = context.ViewData[RoutingKeys.CurrentItem] as IAbstractItem;
+            if (item == null)
+            {
+                item = context.RouteData.DataTokens[RoutingKeys.CurrentItem] as IAbstractItem;
+            }
+            return item;
         }
 
         public static T GetCurrentItem<T>(this ViewContext context)
             where T : class, IAbstractItem
         {
-            return context.ViewData[RoutingKeys.CurrentItem] as T;
+            var item = context.ViewData[RoutingKeys.CurrentItem] as T;
+            if (item == null)
+            {
+                item = context.RouteData.DataTokens[RoutingKeys.CurrentItem] as T;
+            }
+            return item;
         }
 
         public static IStartPage GetStartPage(this ViewContext context)

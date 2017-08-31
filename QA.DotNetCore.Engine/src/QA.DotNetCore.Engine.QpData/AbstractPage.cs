@@ -1,11 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.QpData.Persistent.Data;
 
 namespace QA.DotNetCore.Engine.QpData
 {
-    public abstract class AbstractPage : AbstractItem
+    public abstract class AbstractPage : AbstractItem, IAbstractPage
     {
         public override bool IsPage
         {
@@ -13,6 +11,14 @@ namespace QA.DotNetCore.Engine.QpData
             {
                 return true;
             }
+        }
+
+        public bool IsVisible { get; private set; }
+
+        internal override void MapPersistent(AbstractItemPersistentData persistentItem)
+        {
+            base.MapPersistent(persistentItem);
+            IsVisible = persistentItem.IsVisible ?? false;
         }
     }
 }

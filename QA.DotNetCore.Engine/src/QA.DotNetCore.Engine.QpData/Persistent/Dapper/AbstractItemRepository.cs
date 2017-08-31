@@ -27,12 +27,12 @@ SELECT
     ai.content_item_id AS Id,
     ai.[|QPAbstractItem.Name|] as Alias,
     ai.[|QPAbstractItem.Title|] as Title,
-    ai.Visible,
     ai.[|QPAbstractItem.Parent|] AS ParentId,
     ai.[|QPAbstractItem.IsVisible|] AS IsVisible,
     ai.[|QPAbstractItem.ZoneName|] AS ZoneName,
     ai.[|QPAbstractItem.IndexOrder|] AS IndexOrder,
     ai.[|QPAbstractItem.ExtensionId|] AS ExtensionId,
+    ai.[|QPAbstractItem.VersionOf|] AS VersionOfId,
     def.[|QPDiscriminator.Name|] as Discriminator,
     def.[|QPDiscriminator.IsPage|] as IsPage
 FROM [|QPAbstractItem|] ai

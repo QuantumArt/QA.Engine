@@ -1,7 +1,9 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using QA.DotNetCore.Engine.Abstractions;
+using System.Collections.Generic;
 
 namespace QA.DotNetCore.Engine.Widgets
 {
@@ -18,11 +20,9 @@ namespace QA.DotNetCore.Engine.Widgets
 
         public Task InvokeAsync(ViewComponentContext context)
         {
-            var currentItem = context.ViewContext.HttpContext.Items["ui-part"] as IAbstractItem;
+            IAbstractItem currentItem = context.ViewContext.HttpContext.GetCurrentRenderingWidgetContext()?.CurrentWidget;
 
             context.Arguments["currentItem"] = currentItem ?? throw new InvalidOperationException("Current item is null");
-
-            context.ViewData["CurrentItem"] = currentItem;
 
             return _inner.InvokeAsync(context);
 

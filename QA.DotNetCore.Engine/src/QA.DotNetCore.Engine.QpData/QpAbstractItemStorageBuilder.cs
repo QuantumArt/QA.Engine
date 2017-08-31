@@ -42,24 +42,18 @@ namespace QA.DotNetCore.Engine.QpData
         public AbstractItemStorage Build()
         {
             var plainList = _abstractItemRepository.GetPlainAllAbstractItems(_qpSettings.SiteId, _qpSettings.IsStage);//плоский список dto
-            var parentMapping = new Dictionary<int, List<int>>();//соответсвие id - parentId
             var activated = new Dictionary<int, AbstractItem>();
             AbstractItem root = null;
 
-            //первый проход списка - активируем, т.е. создаём AbsractItem-ы с правильным типом, запоминаем родительские связи и root
+            //первый проход списка - активируем, т.е. создаём AbsractItem-ы с правильным типом и набором заполненных полей, запоминаем root
             foreach (var persistentItem in plainList)
             {
                 var activatedItem = _itemFactory.Create(persistentItem.Discriminator);
                 if (activatedItem == null)
                     continue;
 
-                MapAbstractItem(activatedItem as AbstractItem, persistentItem);
+                activatedItem.MapPersistent(persistentItem);
                 activated.Add(persistentItem.Id, activatedItem);
-
-                var parentId = persistentItem.ParentId ?? 0;
-                if (!parentMapping.ContainsKey(parentId))
-                    parentMapping[parentId] = new List<int>();
-                parentMapping[parentId].Add(persistentItem.Id);
 
                 if (persistentItem.Discriminator == _settings.RootPageDiscriminator)
                     root = activatedItem;
@@ -153,8 +147,21 @@ namespace QA.DotNetCore.Engine.QpData
                     }
                 }
 
-                //рекурсивно, начиная от корня, заполняем Children
-                FillChildrenRecursive(root, activated, parentMapping);
+                //второй проход списка: заполняем поля иерархии Parent-Children, на основании ParentId. Заполняем VersionOf
+                foreach (var item in activated.Values)
+                {
+                    if (item.VersionOfId.HasValue && activated.ContainsKey(item.VersionOfId.Value))
+                    {
+                        var main = activated[item.VersionOfId.Value];
+                        item.MapVersionOf(main);
+
+                        if (main.ParentId.HasValue && activated.ContainsKey(main.ParentId.Value))
+                            activated[main.ParentId.Value].AddChild(item);
+                    }
+                    else if (item.ParentId.HasValue && activated.ContainsKey(item.ParentId.Value))
+                        activated[item.ParentId.Value].AddChild(item);
+                }
+
                 return new AbstractItemStorage(root);
             }
             else
@@ -163,38 +170,14 @@ namespace QA.DotNetCore.Engine.QpData
             }
         }
 
-        private void FillChildrenRecursive(AbstractItem root, Dictionary<int, AbstractItem> activated, Dictionary<int, List<int>> parentMapping)
-        {
-            if (parentMapping.ContainsKey(root.Id))
-            {
-                foreach (var childId in parentMapping[root.Id])
-                {
-                    var child = activated[childId];
-                    root.AddChild(child);
-                    FillChildrenRecursive(child, activated, parentMapping);
-                }
-            }
-
-        }
-
-        private void MapAbstractItem(AbstractItem item, AbstractItemPersistentData persistentItem)
-        {
-            item.Id = persistentItem.Id;
-            item.Alias = persistentItem.Alias;
-            item.Title = persistentItem.Title;
-            item.IsVisible = persistentItem.IsVisible ?? false;
-            item.SortOrder= persistentItem.IndexOrder ?? 0;
-            item.ExtensionId = persistentItem.ExtensionId;
-            if (!item.IsPage)
-            {
-                if (item is AbstractWidget wigdet)
-                {
-                    wigdet.ZoneName = persistentItem.ZoneName;
-                }
-            }
-        }
-
         private readonly ConcurrentDictionary<Type, IReadOnlyList<ILoaderOption>> _loadOptions = new ConcurrentDictionary<Type, IReadOnlyList<ILoaderOption>>();
+
+        /// <summary>
+        /// Получить список опций загрузки для типа
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="contentId"></param>
+        /// <returns></returns>
         private IReadOnlyList<ILoaderOption> ProcessLoadOptions(Type t, int contentId)
         {
             return _loadOptions.GetOrAdd(t, key =>
@@ -219,6 +202,11 @@ namespace QA.DotNetCore.Engine.QpData
         }
 
         private readonly ConcurrentDictionary<Type, bool> _m2mOptions = new ConcurrentDictionary<Type, bool>();
+        /// <summary>
+        /// Нужно ли грузить M2M для экстеншна, соответствующего типу
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
         private bool NeedManyToManyLoad(Type t)
         {
             return _m2mOptions.GetOrAdd(t, key =>

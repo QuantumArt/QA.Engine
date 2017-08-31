@@ -2,12 +2,9 @@
 
 @model DemoWebSite.PagesAndWidgets.Widgets.TextPart
  
-@Html.Raw(Model.Title)
 @Html.Raw(Model.Text)
 <!--content-->
-<br/>
 @await Component.WidgetZone(Html, "Content")
 
 <!--subcontent-->
-<br />
 @await Component.WidgetZone(Html, "SubContent")

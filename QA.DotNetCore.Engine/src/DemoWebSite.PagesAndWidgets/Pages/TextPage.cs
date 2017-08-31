@@ -12,9 +12,4 @@ namespace DemoWebSite.PagesAndWidgets.Pages
         public virtual string Picture { get { return GetDetail("Picture", String.Empty); } }
     }
 
-
-    public class BlogPage : TextPage
-    {
-        public override string Picture => base.Picture;
-    }
 }

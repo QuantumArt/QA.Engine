@@ -35,11 +35,13 @@ namespace DemoWebApplication
         {
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddMvc();
+            //services.Add<IRouter, DemoWebApplication.Debugging.MvcRouteHandler>();
             services.AddMemoryCache();
 
             services.AddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
 
-            services.AddSiteStructureEngine(options => {
+            services.AddSiteStructureEngine(options =>
+            {
                 options.QpConnectionString = Configuration.GetConnectionString("QpConnection");
                 options.QpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
                 options.TypeFinder.RegisterFromAssemblyContaining<RootPage, IAbstractItem>();
@@ -88,8 +90,17 @@ namespace DemoWebApplication
 
             app.UseMvc(routes =>
             {
-                routes.MapContentRoute("Route with custom params", "{controller}/{id}/{page}", new RouteValueDictionary(new { action = "details" }));
+                routes.MapContentRoute("Route with custom params", "{controller}/{id}/{page}",
+                    defaults: new RouteValueDictionary(new { action = "details" }),
+                    constraints: new { page = @"^\d+$"
+                    });
+
                 routes.MapContentRoute("default", "{controller}/{action=Index}/{id?}");
+
+                routes.MapGreedyContentRoute("blog bage with tail", "{controller}",
+                    defaults: new { controller = "blogpagetype", action = "Index" },
+                    constraints: new { controller = "blogpagetype" });
+
                 routes.MapRoute("static controllers route", "{controller}/{action=Index}/{id?}");
             });
         }

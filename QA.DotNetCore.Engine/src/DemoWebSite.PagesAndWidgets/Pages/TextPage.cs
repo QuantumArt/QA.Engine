@@ -10,6 +10,9 @@ namespace DemoWebSite.PagesAndWidgets.Pages
 
         [LibraryUrl]
         public virtual string Picture { get { return GetDetail("Picture", String.Empty); } }
+
+        [LibraryUrl]
+        public virtual string Icon { get { return GetDetail("Icon", String.Empty); } }
     }
 
 }

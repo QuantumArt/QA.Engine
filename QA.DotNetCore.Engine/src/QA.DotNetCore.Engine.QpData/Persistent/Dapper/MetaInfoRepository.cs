@@ -56,7 +56,7 @@ WHERE c.[SITE_ID]={0} AND c.[NET_CONTENT_NAME]='{1}'
 
         public ContentAttributePersistentData GetContentAttribute(int contentId, string fieldName)
         {
-            return _connection.QueryFirst<ContentAttributePersistentData>(string.Format(CmdGetContentAttribute, contentId, fieldName));
+            return _connection.QueryFirstOrDefault<ContentAttributePersistentData>(string.Format(CmdGetContentAttribute, contentId, fieldName));
         }
 
         public ContentPersistentData GetContent(string contentNetName, int siteId)

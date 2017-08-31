@@ -20,6 +20,7 @@ namespace QA.DotNetCore.Engine.QpData
         IAbstractItemFactory _itemFactory;
         IQpUrlResolver _qpUrlResolver;
         IAbstractItemRepository _abstractItemRepository;
+        IMetaInfoRepository _metaInfoRepository;
         QpSiteStructureSettings _settings;
         QpSettings _qpSettings;
 
@@ -28,6 +29,7 @@ namespace QA.DotNetCore.Engine.QpData
             IAbstractItemFactory itemFactory,
             IQpUrlResolver qpUrlResolver,
             IAbstractItemRepository abstractItemRepository,
+            IMetaInfoRepository metaInfoRepository,
             QpSiteStructureSettings settings,
             QpSettings qpSettings)
         {
@@ -35,6 +37,7 @@ namespace QA.DotNetCore.Engine.QpData
             _itemFactory = itemFactory;
             _qpUrlResolver = qpUrlResolver;
             _abstractItemRepository = abstractItemRepository;
+            _metaInfoRepository = metaInfoRepository;
             _settings = settings;
             _qpSettings = qpSettings;
         }
@@ -70,6 +73,9 @@ namespace QA.DotNetCore.Engine.QpData
                 //словарь, каким элементам нужна загрузка связи m2m
                 var needLoadM2mInExtensionDict = new Dictionary<int, AbstractItem>();
 
+                //получим инфу об основном контенте (AbstractItem), она нам пригодится. Мы зашиваемся на netName контента - это легально
+                var baseContent = _metaInfoRepository.GetContent("QPAbstractItem", _qpSettings.SiteId);
+
                 //догрузим доп поля
                 foreach (var group in groupsByExtensions)
                 {
@@ -86,7 +92,7 @@ namespace QA.DotNetCore.Engine.QpData
                         {
                             if (optionsMap == null)
                             {
-                                optionsMap = ProcessLoadOptions(item.GetContentType(), extensionId)?.ToLookup(x => x.PropertyName);
+                                optionsMap = ProcessLoadOptions(item.GetContentType(), extensionId, baseContent?.ContentId ?? 0)?.ToLookup(x => x.PropertyName);
                             }
 
                             var needLoadM2m = NeedManyToManyLoad(item.GetContentType());
@@ -178,7 +184,7 @@ namespace QA.DotNetCore.Engine.QpData
         /// <param name="t"></param>
         /// <param name="contentId"></param>
         /// <returns></returns>
-        private IReadOnlyList<ILoaderOption> ProcessLoadOptions(Type t, int contentId)
+        private IReadOnlyList<ILoaderOption> ProcessLoadOptions(Type t, int contentId, int baseContentId)
         {
             return _loadOptions.GetOrAdd(t, key =>
             {
@@ -192,7 +198,7 @@ namespace QA.DotNetCore.Engine.QpData
 
                     foreach (var attr in attrs)
                     {
-                        attr.AttachTo(t, prop.Name, contentId);
+                        attr.AttachTo(t, prop.Name, contentId, baseContentId);
                         lst.Add(attr);
                     }
                 }

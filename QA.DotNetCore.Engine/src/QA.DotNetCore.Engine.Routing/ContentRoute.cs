@@ -60,6 +60,7 @@ namespace QA.DotNetCore.Engine.Routing
             if (data != null)
             {
                 path = data.RemainingUrl;
+                // молжет вызывать ошибки при использовании жадных роутов
                 context.HttpContext.Items["current-page"] = data;
             }
 
@@ -81,6 +82,14 @@ namespace QA.DotNetCore.Engine.Routing
             {
                 context.RouteData.Values[RoutingKeys.CurrentItem] = data.AbstractItem.Id;
                 context.RouteData.DataTokens[RoutingKeys.CurrentItem] = data.AbstractItem;
+
+                var parsedControllerName = (string)context.RouteData.Values["controller"];
+                if (!string.Equals(parsedControllerName, controllerName, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    // проверяем, что полученный из роута контроллер соответствует контроллеру,
+                    // полученному из типа страницы
+                    return Task.FromResult<int>(0);
+                }
             }
 
             if (this.DataTokens.Count > 0)

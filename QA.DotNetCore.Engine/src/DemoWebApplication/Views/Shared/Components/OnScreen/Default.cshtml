@@ -1,0 +1,20 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model DemoWebApplication.Components.OnScreenViewModel
+
+
+@if (Model.IsOnscreenMode)
+{
+  <environment names="Development">
+    <script src="@($"{Model.AdminSiteBaseUrl}/lib/lodash/dist/lodash.js")" defer></script>
+    <script src="@($"{Model.AdminSiteBaseUrl}/lib/mutation-summary.js")" defer></script>
+    <script src="@($"{Model.AdminSiteBaseUrl}/js/onscreen/componentTree.js")" defer></script>
+    <script src="@($"{Model.AdminSiteBaseUrl}/js/onscreen/index.js")" defer></script>
+  </environment>
+  <environment names="Staging,Production">
+    <script src="@($"{Model.AdminSiteBaseUrl}/lib/lodash/dist/lodash.min.js")" defer></script>
+    <script src="@($"{Model.AdminSiteBaseUrl}/lib/mutation-summary.js")" defer></script>
+    <script src="@($"{Model.AdminSiteBaseUrl}/js/onscreen/componentTree.min.js")" defer></script>
+    <script src="@($"{Model.AdminSiteBaseUrl}/js/onscreen/index.min.js")" defer></script>
+  </environment>
+  
+}

@@ -10,6 +10,8 @@ using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using QA.DotNetCore.Engine.Widgets.OnScreen;
 
 namespace QA.DotNetCore.Engine.Widgets
 {
@@ -42,6 +44,7 @@ namespace QA.DotNetCore.Engine.Widgets
                 {
                     //рендеримся на странице
                     renderingContainer = html.ViewContext.GetCurrentItem();
+                    
                 }
 
                 if (renderingContainer != null)
@@ -67,8 +70,12 @@ namespace QA.DotNetCore.Engine.Widgets
                 }
             }
 
+            
             var builder = new HtmlContentBuilder();
+            var isOnScreenEditMode = IsOnScreenEditMode(html.ViewContext.HttpContext);
+        
             builder.AppendHtml($"<!--start zone {zoneName} -->");
+            RenderOnScreenModeZoneWrapperStart(isOnScreenEditMode, zoneName, builder);
             if (widgets != null)
             {
                 var mapper = ((IComponentMapper)html.ViewContext.HttpContext.RequestServices.GetService(typeof(IComponentMapper)));
@@ -77,6 +84,7 @@ namespace QA.DotNetCore.Engine.Widgets
                 {
                     var name = mapper.Map(widget);
                     builder.AppendHtml($"<!-- start render widget {widget.Id} -->");
+                    RenderOnScreenModeWidgetWrapperStart(isOnScreenEditMode, builder, widget);
                     var renderingStack = html.ViewContext.HttpContext.PushWidgetToRenderingStack(new WidgetRenderingContext { CurrentWidget = widget, ShouldUseCustomInvoker = true });
                     try
                     {
@@ -87,14 +95,19 @@ namespace QA.DotNetCore.Engine.Widgets
                     {
                         renderingStack.Pop();
 
+                    
+                        RenderOnScreenModeWidgetWrapperEnd(isOnScreenEditMode, builder);
                         builder.AppendHtml($"<!-- finish render widget {widget.Id} -->");
+
                     }
                 }
             }
-
+            RenderOnScreenModeZoneWrapperEnd(isOnScreenEditMode, builder);
             builder.AppendHtml($"<!--end zone {zoneName} -->");
             return builder;
         }
+
+      
 
         /// <summary>
         /// Рендеринг текста с зонами, объявленных в контенте в виде [[zone=имя_зоны]]
@@ -148,7 +161,7 @@ namespace QA.DotNetCore.Engine.Widgets
                 }
                 return string.Empty;
             }));
-            
+
             return new HtmlString(result);
         }
 
@@ -170,6 +183,40 @@ namespace QA.DotNetCore.Engine.Widgets
         private static bool ZoneIsGlobal(string zoneName)
         {
             return zoneName.StartsWith("Site");
+        }
+
+        
+        private static void RenderOnScreenModeWidgetWrapperStart(bool isOnScreenEditMode, IHtmlContentBuilder builder, IAbstractItem widget)
+        {
+            if (!isOnScreenEditMode) return;
+            builder.AppendHtml($"<div data-qa-component-type=\"widget\" data-qa-widget-id=\"{widget.Id}\" data-qa-widget-alias=\"{widget.Alias}\" data-qa-widget-title=\"{widget.Title}\">");
+        }
+
+        private static void RenderOnScreenModeZoneWrapperStart(bool isOnScreenEditMode, string zoneName, IHtmlContentBuilder builder)
+        {
+            if (!isOnScreenEditMode) return;
+            builder.AppendHtml($"<div data-qa-component-type=\"zone\" data-qa-zone-name=\"{zoneName}\" data-qa-zone-is-recursive=\"{ZoneIsRecursive(zoneName).ToString().ToLowerInvariant()}\" data-qa-zone-is-global=\"{ZoneIsGlobal(zoneName).ToString().ToLowerInvariant()}\">");
+        }
+
+        private static void RenderOnScreenModeZoneWrapperEnd(bool isOnScreenEditMode, IHtmlContentBuilder builder)
+        {
+            if (!isOnScreenEditMode) return;
+            builder.AppendHtml("</div>");
+        }
+
+        private static void RenderOnScreenModeWidgetWrapperEnd(bool isOnScreenEditMode, IHtmlContentBuilder builder)
+        {
+            if (!isOnScreenEditMode) return;
+            builder.AppendHtml("</div>");
+        }
+
+        private static bool IsOnScreenEditMode(HttpContext httpContext)
+        {
+            if (!httpContext.Items.ContainsKey(OnScreenModeKeys.OnScreenContext))
+                return false;
+            if (!(httpContext.Items[OnScreenModeKeys.OnScreenContext] is OnScreenContext context))
+                return false;
+            return context.IsAuthorised && context.IsEditMode;
         }
 
         /// <summary>

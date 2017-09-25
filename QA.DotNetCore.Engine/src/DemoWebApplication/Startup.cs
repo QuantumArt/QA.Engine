@@ -13,6 +13,8 @@ using QA.DotNetCore.Engine.QpData.Configuration;
 using QA.DotNetCore.Engine.QpData.Settings;
 using QA.DotNetCore.Engine.Routing.Configuration;
 using QA.DotNetCore.Engine.Targeting.Configuration;
+using QA.DotNetCore.Engine.Widgets.Configuration;
+using QA.DotNetCore.Engine.Widgets.OnScreen;
 
 namespace DemoWebApplication
 {
@@ -47,11 +49,15 @@ namespace DemoWebApplication
                 options.TypeFinder.RegisterFromAssemblyContaining<RootPage, IAbstractItem>();
                 //options.QpSiteStructureSettings.LoadAbstractItemFieldsToDetailsCollection = false;
             });
+            services.AddOptions();
+            services.Configure<OnScreenSettings>(Configuration.GetSection("OnScreen"));
 
             services.AddSingleton(typeof(DemoRegionTargetingProvider));
             services.AddSingleton(typeof(DemoCultureTargetingProvider));
             services.AddSingleton(typeof(DemoRegionFilter));
             services.AddSingleton(typeof(DemoCultureFilter));
+
+            services.AddSingleton<IOnScreenContextProvider, OnScreenContextProvider>();
 
             services.AddTargeting();
         }
@@ -81,6 +87,8 @@ namespace DemoWebApplication
                 targeting.Add<DemoCultureTargetingProvider>();
                 targeting.Add<DemoRegionTargetingProvider>();
             });
+
+            app.UseOnScreenMode();
 
             app.UseSiteSctructureFilters(cfg =>
             {

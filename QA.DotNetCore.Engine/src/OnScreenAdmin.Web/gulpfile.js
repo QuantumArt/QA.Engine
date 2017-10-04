@@ -8,6 +8,15 @@ var gulp = require("gulp"),
     merge = require("merge-stream"),
     del = require("del"),
     bundleconfig = require("./bundleconfig.json");
+  
+var shell = require('gulp-shell');
+var onscreenBuildDir = "app/build";
+var template = require('gulp-template');
+var clean = require('gulp-clean');
+var gulpSequence = require('gulp-sequence');
+
+
+    
 
 var regex = {
     css: /\.css$/,
@@ -68,6 +77,31 @@ gulp.task("watch", function () {
         gulp.watch(bundle.inputFiles, ["min:html"]);
     });
 });
+
+
+gulp.task("buildOnscreenApp", shell.task('npm run build', {cwd: 'app'}));
+
+gulp.task("cleanOnscreenStatic", function(){
+  return gulp.src("wwwroot/onscreen", {read: false})
+    .pipe(clean());
+})
+
+gulp.task("copyOnscreenStatic", function(){
+  return gulp.src([onscreenBuildDir + '/static/**/*']).pipe(gulp.dest('wwwroot/onscreen/static'));
+})
+
+gulp.task("generateOnscreenLoaders", function(){
+  var manifest = require("./" + onscreenBuildDir + "/asset-manifest.json");
+
+  return gulp.src("./onScreenLoader.js")
+  .pipe(template({mainJsFile: manifest["main.js"], mainCssFile: manifest["main.css"]}))
+  .pipe(gulp.dest("wwwroot"));
+ 
+})
+
+gulp.task("prepareOnscreen", gulpSequence(["cleanOnscreenStatic", "buildOnscreenApp"], "copyOnscreenStatic", "generateOnscreenLoaders"));
+
+
 
 function getBundles(regexPattern) {
     return bundleconfig.filter(function (bundle) {

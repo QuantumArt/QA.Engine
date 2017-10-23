@@ -15,10 +15,10 @@
 }
 
 @await Component.RenderZonesInText(Html, Model.Text)
-<div>
-    Ссылка - 
-    @Html.ActionLink("link do details", "details", new { id = "some-alias", page = 2, r = 4 })
 
+<div>
+      @*Ссылка -
+@Html.ActionLink("link do details", "details", new { id = "some-alias", page = 2, r = 4 })*@
     @if (!String.IsNullOrWhiteSpace(Model.Picture))
     {
       <img src="@Model.Picture" alt="picture"/>

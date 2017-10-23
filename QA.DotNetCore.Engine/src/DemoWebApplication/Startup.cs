@@ -49,15 +49,16 @@ namespace DemoWebApplication
                 options.TypeFinder.RegisterFromAssemblyContaining<RootPage, IAbstractItem>();
                 //options.QpSiteStructureSettings.LoadAbstractItemFieldsToDetailsCollection = false;
             });
-            services.AddOptions();
-            services.Configure<OnScreenSettings>(Configuration.GetSection("OnScreen"));
+
+            services.AddOnScreenServices(options =>
+            {
+                options.AdminSiteBaseUrl = Configuration.GetSection("OnScreen").Get<OnScreenSettings>().AdminSiteBaseUrl;
+            });
 
             services.AddSingleton(typeof(DemoRegionTargetingProvider));
             services.AddSingleton(typeof(DemoCultureTargetingProvider));
             services.AddSingleton(typeof(DemoRegionFilter));
             services.AddSingleton(typeof(DemoCultureFilter));
-
-            services.AddSingleton<IOnScreenContextProvider, OnScreenContextProvider>();
 
             services.AddTargeting();
         }

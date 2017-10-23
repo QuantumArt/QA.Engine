@@ -3,7 +3,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iis": {
-      "applicationUrl": "http://localhost/OnScreenAdmin.Web",
+      "applicationUrl": "http://localhost:5000",
       "sslPort": 0
     },
     "iisExpress": {
@@ -26,6 +26,10 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "applicationUrl": "http://localhost:65421/"
+    },
+    "IIS": {
+      "commandName": "IIS",
+      "launchBrowser": true
     }
   }
 }

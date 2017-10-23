@@ -72,7 +72,7 @@ namespace QA.DotNetCore.Engine.Widgets
 
             
             var builder = new HtmlContentBuilder();
-            var isOnScreenEditMode = IsOnScreenEditMode(html.ViewContext.HttpContext);
+            var isOnScreenEditMode = html.ViewContext.HttpContext.OnScreenEditEnabled();
         
             builder.AppendHtml($"<!--start zone {zoneName} -->");
             RenderOnScreenModeZoneWrapperStart(isOnScreenEditMode, zoneName, builder);
@@ -208,15 +208,6 @@ namespace QA.DotNetCore.Engine.Widgets
         {
             if (!isOnScreenEditMode) return;
             builder.AppendHtml("</div>");
-        }
-
-        private static bool IsOnScreenEditMode(HttpContext httpContext)
-        {
-            if (!httpContext.Items.ContainsKey(OnScreenModeKeys.OnScreenContext))
-                return false;
-            if (!(httpContext.Items[OnScreenModeKeys.OnScreenContext] is OnScreenContext context))
-                return false;
-            return context.IsAuthorised && context.IsEditMode;
         }
 
         /// <summary>

@@ -19,7 +19,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "OnScreenAdmin.Web": {
+    "QA.DotNetCore.OnScreenAdmin.Web": {
       "commandName": "IIS",
       "launchBrowser": true,
       "environmentVariables": {

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using OnScreenAdmin.Web.Models;
+using QA.DotNetCore.OnScreenAdmin.Web.Models;
+using System.Diagnostics;
 
-namespace OnScreenAdmin.Web.Controllers
+namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
 {
     public class HomeController : Controller
     {

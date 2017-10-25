@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 
-namespace QA.Toyota.WebApp.Controllers
+namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
 {
     [Route("api")]
     public class ApiController

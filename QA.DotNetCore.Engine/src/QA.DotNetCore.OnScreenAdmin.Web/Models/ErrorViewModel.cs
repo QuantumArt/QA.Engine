@@ -1,6 +1,4 @@
-using System;
-
-namespace OnScreenAdmin.Web.Models
+namespace QA.DotNetCore.OnScreenAdmin.Web.Models
 {
     public class ErrorViewModel
     {

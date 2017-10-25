@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 
-namespace OnScreenAdmin.Web
+namespace QA.DotNetCore.OnScreenAdmin.Web
 {
     public class Startup
     {

@@ -22,7 +22,11 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 SELECT
     CONTENT_ITEM_ID as Id,
     [|QPDiscriminator.Name|] as Discriminator,
-    [|QPDiscriminator.TypeName|] as TypeName
+    [|QPDiscriminator.TypeName|] as TypeName,
+    [|QPDiscriminator.IsPage|] as IsPage,
+    [|QPDiscriminator.Title|] as Title,
+    [|QPDiscriminator.Description|] as Description,
+    [|QPDiscriminator.IconUrl|] as IconUrl
 FROM [|QPDiscriminator|]
 ";
 

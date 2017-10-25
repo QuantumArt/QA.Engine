@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace  QA.DotNetCore.Engine.Persistent.Interfaces.Data
+namespace QA.DotNetCore.Engine.Persistent.Interfaces.Data
 {
     public class ItemDefinitionPersistentData
     {
@@ -13,5 +7,13 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces.Data
         public string Discriminator { get; set; }
 
         public string TypeName { get; set; }
+
+        public bool IsPage { get; set; }
+
+        public string Title { get; set; }
+
+        public string Description { get; set; }
+
+        public string IconUrl { get; set; }
     }
 }

@@ -29,7 +29,10 @@
     },
     "IIS": {
       "commandName": "IIS",
-      "launchBrowser": true
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT ": "Development"
+      }
     }
   }
 }

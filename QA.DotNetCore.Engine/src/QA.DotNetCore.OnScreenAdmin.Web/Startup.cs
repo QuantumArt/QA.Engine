@@ -27,6 +27,8 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
 
             services.AddScoped<IUnitOfWork, UnitOfWork>(sp => new UnitOfWork(Configuration.GetConnectionString("QpConnection")));
             services.AddScoped<IMetaInfoRepository, MetaInfoRepository>();
+            services.AddScoped<INetNameQueryAnalyzer, NetNameQueryAnalyzer>();
+            services.AddScoped<IItemDefinitionRepository, ItemDefinitionRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace QA.DotNetCore.Engine.QpData.Persistent.Data
+namespace  QA.DotNetCore.Engine.Persistent.Interfaces.Data
 {
     public class ItemDefinitionPersistentData
     {

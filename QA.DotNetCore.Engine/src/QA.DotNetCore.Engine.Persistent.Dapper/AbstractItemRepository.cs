@@ -5,8 +5,8 @@ using System.Linq;
 using System;
 using System.Data.SqlClient;
 using Microsoft.SqlServer.Server;
-using QA.DotNetCore.Engine.QpData.Persistent.Interfaces;
-using QA.DotNetCore.Engine.QpData.Persistent.Data;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 
 namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {

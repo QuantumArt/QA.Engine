@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace QA.DotNetCore.Engine.QpData.Persistent.Data
+namespace  QA.DotNetCore.Engine.Persistent.Interfaces.Data
 {
     /// <summary>
     /// Настройки сайта в qp. (Таблица SITE)

@@ -1,7 +1,7 @@
-using QA.DotNetCore.Engine.QpData.Persistent.Data;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using System.Collections.Generic;
 
-namespace QA.DotNetCore.Engine.QpData.Persistent.Interfaces
+namespace  QA.DotNetCore.Engine.Persistent.Interfaces
 {
     public interface IItemDefinitionRepository
     {

@@ -1,6 +1,6 @@
-using QA.DotNetCore.Engine.QpData.Persistent.Data;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 
-namespace QA.DotNetCore.Engine.QpData.Persistent.Interfaces
+namespace  QA.DotNetCore.Engine.Persistent.Interfaces
 {
     public interface IMetaInfoRepository
     {

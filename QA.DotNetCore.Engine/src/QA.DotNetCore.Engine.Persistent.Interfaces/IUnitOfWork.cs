@@ -1,6 +1,6 @@
 using System.Data;
 
-namespace QA.DotNetCore.Engine.QpData.Persistent.Interfaces
+namespace  QA.DotNetCore.Engine.Persistent.Interfaces
 {
     public interface IUnitOfWork
     {

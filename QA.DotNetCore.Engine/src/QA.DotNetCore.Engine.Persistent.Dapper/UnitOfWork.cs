@@ -1,6 +1,4 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
-using QA.DotNetCore.Engine.QpData.Persistent.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
 using System;
 using System.Data;
 using System.Data.SqlClient;

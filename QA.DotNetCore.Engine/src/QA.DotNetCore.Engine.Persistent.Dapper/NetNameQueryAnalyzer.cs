@@ -1,4 +1,4 @@
-﻿using QA.DotNetCore.Engine.QpData.Persistent.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,4 +1,4 @@
-namespace QA.DotNetCore.Engine.QpData.Persistent.Data
+namespace  QA.DotNetCore.Engine.Persistent.Interfaces.Data
 {
     /// <summary>
     /// Настройки поля в контенте QP. (Таблица CONTENT_ATTRIBUTE)
@@ -16,5 +16,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Data
         public bool UseSiteLibrary { get; set; }
 
         public string SubFolder { get; set; }
+
+        public string InvariantName { get { return $"field_{Id}"; } }
     }
 }

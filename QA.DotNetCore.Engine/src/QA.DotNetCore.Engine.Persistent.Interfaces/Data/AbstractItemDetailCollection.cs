@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace QA.DotNetCore.Engine.QpData.Persistent.Data
+namespace  QA.DotNetCore.Engine.Persistent.Interfaces.Data
 {
     /// <summary>
     /// Коллекция полей-расширений для AbstractItem (позаимствовано из QA.Core.Engine)

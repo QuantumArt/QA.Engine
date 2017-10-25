@@ -1,6 +1,6 @@
 using Dapper;
-using QA.DotNetCore.Engine.QpData.Persistent.Data;
-using QA.DotNetCore.Engine.QpData.Persistent.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
 using System.Data;
 using System.Linq;
 

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.10
+VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.Abstractions", "QA.DotNetCore.Engine.Abstractions\QA.DotNetCore.Engine.Abstractions.csproj", "{D91C01B9-12D7-4784-AAC8-D6D57E08CF5B}"
 EndProject
@@ -23,11 +23,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.Target
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.QpData.Configuration", "QA.DotNetCore.Engine.QpData.Configuration\QA.DotNetCore.Engine.QpData.Configuration.csproj", "{12A6F6D6-5C10-4623-A458-2B12E48B595A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnScreenAdmin.Web", "OnScreenAdmin.Web\OnScreenAdmin.Web.csproj", "{FFB6C22B-8D34-40CF-AD62-F11E18ECE9BD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.Persistent.Interfaces", "QA.DotNetCore.Engine.Persistent.Interfaces\QA.DotNetCore.Engine.Persistent.Interfaces.csproj", "{4FEBFA0A-3A3B-4DA6-92BC-099BE66163CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QA.DotNetCore.Engine.Persistent.Interfaces", "QA.DotNetCore.Engine.Persistent.Interfaces\QA.DotNetCore.Engine.Persistent.Interfaces.csproj", "{4FEBFA0A-3A3B-4DA6-92BC-099BE66163CE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.Persistent.Dapper", "QA.DotNetCore.Engine.Persistent.Dapper\QA.DotNetCore.Engine.Persistent.Dapper.csproj", "{E471F3B6-4BC6-42A6-8D90-93A9A269BDC2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QA.DotNetCore.Engine.Persistent.Dapper", "QA.DotNetCore.Engine.Persistent.Dapper\QA.DotNetCore.Engine.Persistent.Dapper.csproj", "{E471F3B6-4BC6-42A6-8D90-93A9A269BDC2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.OnScreenAdmin.Web", "QA.DotNetCore.OnScreenAdmin.Web\QA.DotNetCore.OnScreenAdmin.Web.csproj", "{E99470A4-DE2C-459C-BC5F-81ABCC100EFA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,10 +75,6 @@ Global
 		{12A6F6D6-5C10-4623-A458-2B12E48B595A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12A6F6D6-5C10-4623-A458-2B12E48B595A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12A6F6D6-5C10-4623-A458-2B12E48B595A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FFB6C22B-8D34-40CF-AD62-F11E18ECE9BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FFB6C22B-8D34-40CF-AD62-F11E18ECE9BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FFB6C22B-8D34-40CF-AD62-F11E18ECE9BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FFB6C22B-8D34-40CF-AD62-F11E18ECE9BD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4FEBFA0A-3A3B-4DA6-92BC-099BE66163CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4FEBFA0A-3A3B-4DA6-92BC-099BE66163CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4FEBFA0A-3A3B-4DA6-92BC-099BE66163CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -87,6 +83,10 @@ Global
 		{E471F3B6-4BC6-42A6-8D90-93A9A269BDC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E471F3B6-4BC6-42A6-8D90-93A9A269BDC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E471F3B6-4BC6-42A6-8D90-93A9A269BDC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E99470A4-DE2C-459C-BC5F-81ABCC100EFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E99470A4-DE2C-459C-BC5F-81ABCC100EFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E99470A4-DE2C-459C-BC5F-81ABCC100EFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E99470A4-DE2C-459C-BC5F-81ABCC100EFA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -250,6 +250,6 @@ _Pvt_Extensions
 npm-debug.log.*
 *.xproj.user
 
-QA\.DotNetCore\.Engine/src/OnScreenAdmin\.Web/wwwroot/onscreen/
+QA\.DotNetCore\.Engine/src/QA\.DotNetCore\.OnScreenAdmin\.Web/wwwroot/onscreen/
 
-QA\.DotNetCore\.Engine/src/OnScreenAdmin\.Web/wwwroot/onScreenLoader\.js
+QA\.DotNetCore\.Engine/src/QA\.DotNetCore\.OnScreenAdmin\.Web/wwwroot/onScreenLoader\.js

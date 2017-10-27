@@ -17,7 +17,7 @@ namespace QA.DotNetCore.Engine.Widgets.OnScreen
         {
             var enabled = ViewContext.HttpContext.OnScreenEditEnabled();
             if (enabled)
-                return new HtmlString($@"<div id='sidebarplaceholder'></div><script type='text/javascript'>window.onScreenAdminBaseUrl = '{_onScreenSettings.AdminSiteBaseUrl}';</script><script src='{ _onScreenSettings.AdminSiteBaseUrl}/onScreenLoader.js' defer></script>");
+                return new HtmlString($@"<div id='sidebarplaceholder'></div><script type='text/javascript'>window.onScreenAdminBaseUrl = '{_onScreenSettings.AdminSiteBaseUrl}';</script><script src='{ _onScreenSettings.AdminSiteBaseUrl}/dist/onScreenLoader.js' defer></script>");
             return HtmlString.Empty;
         }
     }

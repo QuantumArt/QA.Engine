@@ -24,7 +24,7 @@ SELECT
 FROM [SITE]
 WHERE SITE_ID = {0}";
 
-        private const string CmdGetContentAttribute = @"
+        private const string CmdGetContentAttributeByName = @"
 SELECT
     ATTRIBUTE_ID as Id,
     CONTENT_ID as ContentId,
@@ -34,6 +34,18 @@ SELECT
     SUBFOLDER
 FROM [CONTENT_ATTRIBUTE]
 WHERE CONTENT_ID={0} AND ATTRIBUTE_NAME='{1}'
+";
+
+        private const string CmdGetContentAttributeByNetName = @"
+SELECT
+    ATTRIBUTE_ID as Id,
+    CONTENT_ID as ContentId,
+    ATTRIBUTE_NAME as ColumnName,
+    NET_ATTRIBUTE_NAME as NetName,
+    USE_SITE_LIBRARY as UseSiteLibrary,
+    SUBFOLDER
+FROM [CONTENT_ATTRIBUTE]
+WHERE CONTENT_ID={0} AND NET_ATTRIBUTE_NAME='{1}'
 ";
 
         private const string CmdGetContent = @"
@@ -56,7 +68,12 @@ WHERE c.[SITE_ID]={0} AND c.[NET_CONTENT_NAME]='{1}'
 
         public ContentAttributePersistentData GetContentAttribute(int contentId, string fieldName)
         {
-            return _connection.QueryFirstOrDefault<ContentAttributePersistentData>(string.Format(CmdGetContentAttribute, contentId, fieldName));
+            return _connection.QueryFirstOrDefault<ContentAttributePersistentData>(string.Format(CmdGetContentAttributeByName, contentId, fieldName));
+        }
+
+        public ContentAttributePersistentData GetContentAttributeByNetName(int contentId, string fieldNetName)
+        {
+            return _connection.QueryFirstOrDefault<ContentAttributePersistentData>(string.Format(CmdGetContentAttributeByNetName, contentId, fieldNetName));
         }
 
         public ContentPersistentData GetContent(string contentNetName, int siteId)

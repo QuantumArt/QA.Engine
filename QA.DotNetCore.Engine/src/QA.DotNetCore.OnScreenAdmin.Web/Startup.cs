@@ -8,6 +8,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
+using Microsoft.AspNetCore.Http;
+using Quantumart.QPublishing.Database;
 
 namespace QA.DotNetCore.OnScreenAdmin.Web
 {
@@ -24,6 +26,14 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+
+            services.AddMemoryCache();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            var dbConnectorSettings = Configuration.GetSection("DbConnectorSettings").Get<DbConnectorSettings>();
+            dbConnectorSettings.ConnectionStrings = new Dictionary<string, string> { { "qp_database", Configuration.GetConnectionString("QpConnection") } };
+            services.AddSingleton(typeof(DbConnectorSettings), dbConnectorSettings);
+            services.AddScoped<DBConnector>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>(sp => new UnitOfWork(Configuration.GetConnectionString("QpConnection")));
             services.AddScoped<IMetaInfoRepository, MetaInfoRepository>();

@@ -8,6 +8,8 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces
 
         ContentAttributePersistentData GetContentAttribute(int contentId, string fieldName);
 
+        ContentAttributePersistentData GetContentAttributeByNetName(int contentId, string fieldNetName);
+
         ContentPersistentData GetContent(string contentNetName, int siteId);
     }
 }

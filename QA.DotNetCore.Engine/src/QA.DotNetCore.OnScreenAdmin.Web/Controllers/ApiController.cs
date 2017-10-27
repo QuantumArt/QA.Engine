@@ -1,15 +1,12 @@
-using System.Linq;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
-using System.Collections.Generic;
-using Quantumart.QPublishing.Database;
-using System.Collections;
-using Quantumart.QPublishing.Info;
 using QA.DotNetCore.OnScreenAdmin.Web.Models;
+using Quantumart.QPublishing.Database;
+using Quantumart.QPublishing.Info;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
 {
@@ -60,6 +57,9 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
             {
                 //получим id контента (это должен быть AbstractItem)
                 var contentId = _dbConnector.GetContentIdForItem(widgetId);
+
+                if (contentId == 0)
+                    return ApiResult.Error($"Not found content with article {widgetId}");
 
                 //получим названия полей Parent и ZoneName в найденном контенте, чтобы использовать их для метода MassUpdate
                 //на разных базах эти названия в теории могут отличаться, инвариант - это NetName

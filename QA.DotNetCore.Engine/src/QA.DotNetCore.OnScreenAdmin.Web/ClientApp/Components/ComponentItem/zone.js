@@ -1,10 +1,23 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { withStyles } from 'material-ui/styles';
+import { ListItem, ListItemIcon, ListItemText } from 'material-ui/List';
+// import Collapse from 'material-ui/transitions/Collapse';
+import StarBorder from 'material-ui-icons/StarBorder';
+
+const styles = theme => ({
+  nested: {
+    paddingLeft: theme.spacing.unit * 4,
+  },
+});
 
 const ZoneComponentTreeItem = ({ properties, onClick }) => (
-  <li onClick={onClick}>
-    Zone name: {properties.zoneName}
-  </li>
+  <ListItem button onClick={onClick} className="nested">
+    <ListItemIcon>
+      <StarBorder />
+    </ListItemIcon>
+    <ListItemText disableTypography primary={`zone name: ${properties.zoneName}`} />
+  </ListItem>
 );
 
 ZoneComponentTreeItem.propTypes = {
@@ -14,4 +27,4 @@ ZoneComponentTreeItem.propTypes = {
   }).isRequired,
 };
 
-export default ZoneComponentTreeItem;
+export default withStyles(styles)(ZoneComponentTreeItem);

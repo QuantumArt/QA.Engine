@@ -1,5 +1,5 @@
 import * as types from '../actions/actionTypes';
-import buildTree from '../componentTreeBuilder';
+import buildTree from '../utils/componentTreeBuilder';
 
 const initialState = { selectedComponentId: null, components: buildTree() };
 

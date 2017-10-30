@@ -2,6 +2,7 @@ import _ from 'lodash';
 /* eslint-disable no-param-reassign */
 
 const findParentComponent = (component) => {
+  console.log(component);
   let currentElement = component;
   while (currentElement && currentElement.parentNode) {
     currentElement = currentElement.parentNode;

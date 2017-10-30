@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { ListItem } from 'material-ui/List';
 
 const WidgetComponentTreeItem = ({ properties, onClick }) => (
-  <li onClick={onClick}>
+  <ListItem button onClick={onClick}>
     Widget id: {properties.widgetId} - {properties.title}
-  </li>
+  </ListItem>
 );
 
 WidgetComponentTreeItem.propTypes = {

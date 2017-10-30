@@ -5,7 +5,7 @@ import ComponentTree from '../../containers/componentTree';
 
 
 const Sidebar = () => (
-  <div className="sidebar1">
+  <div className="sidebar">
     <Drawer type="permanent">
       <ComponentTree />
     </Drawer>

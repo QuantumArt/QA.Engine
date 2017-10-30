@@ -1,32 +1,34 @@
 import React from 'react';
+import Button from 'material-ui/Button';
+import List from 'material-ui/List';
 import ComponentItem from '../ComponentItem';
-import EditComponent from '../EditComponentButton';
-import EditComponentButton from '../EditComponentButton/button';
+import EditComponent from '../EditComponent';
 
 /* eslint-disable */
 const ComponentTree = ({ components, onSelectComponent }) => (
-  <ul>
+  <List>
     {components.map(component => (
-      <ComponentItem
-        {...component}
-        key={component.onScreenId}
-        onClick={() => onSelectComponent(component.onScreenId)}
-      />
-    ))}
-    {components.map(component => (
-      <EditComponent
-        {...component}
-        key={component.onScreenId}
-        onClick={() => onSelectComponent(component.onScreenId)}
-      >
-        <EditComponentButton
+      <div key={`${component.onScreenId}-wrap`}>
+        <ComponentItem
           {...component}
-          key={component.onScreenId}
+          key={`${component.onScreenId}-item`}
           onClick={() => onSelectComponent(component.onScreenId)}
         />
-      </EditComponent>
+        <EditComponent
+          {...component}
+          key={`${component.onScreenId}-edit`}
+          onClick={() => onSelectComponent(component.onScreenId)}
+        >
+          <Button
+            key={`${component.onScreenId}-button`}
+            onClick={() => onSelectComponent(component.onScreenId)}
+          >
+            Edit
+          </Button>
+        </EditComponent>
+      </div>
     ))}
-  </ul>
+  </List>
 );
 
 export default ComponentTree;

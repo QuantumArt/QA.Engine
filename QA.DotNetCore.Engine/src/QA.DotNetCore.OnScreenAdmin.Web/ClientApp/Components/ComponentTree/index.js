@@ -1,34 +1,30 @@
 import React from 'react';
-import Button from 'material-ui/Button';
+import PropTypes from 'prop-types';
 import List from 'material-ui/List';
 import ComponentItem from '../ComponentItem';
-import EditComponent from '../EditComponent';
 
-/* eslint-disable */
 const ComponentTree = ({ components, onSelectComponent }) => (
   <List>
     {components.map(component => (
-      <div key={`${component.onScreenId}-wrap`}>
-        <ComponentItem
-          {...component}
-          key={`${component.onScreenId}-item`}
-          onClick={() => onSelectComponent(component.onScreenId)}
-        />
-        <EditComponent
-          {...component}
-          key={`${component.onScreenId}-edit`}
-          onClick={() => onSelectComponent(component.onScreenId)}
-        >
-          <Button
-            key={`${component.onScreenId}-button`}
-            onClick={() => onSelectComponent(component.onScreenId)}
-          >
-            Edit
-          </Button>
-        </EditComponent>
-      </div>
+      <ComponentItem
+        {...component}
+        key={`${component.properties.reduxAlias}-item`}
+        onSelectComponent={onSelectComponent}
+      />
     ))}
   </List>
 );
+
+ComponentTree.propTypes = {
+  components: PropTypes.arrayOf(
+    PropTypes.shape({
+      parent: PropTypes.string.isRequired,
+      type: PropTypes.string.isRequired,
+      properties: PropTypes.object.isRequired,
+      children: PropTypes.array.isRequired,
+    }).isRequired,
+  ).isRequired,
+  onSelectComponent: PropTypes.func.isRequired,
+};
 
 export default ComponentTree;

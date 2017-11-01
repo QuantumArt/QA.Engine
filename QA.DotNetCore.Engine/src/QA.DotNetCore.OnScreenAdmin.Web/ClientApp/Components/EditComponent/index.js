@@ -1,12 +1,21 @@
 import { Component } from 'react';
+import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
+import './editcomponent.css';
 
-/* eslint-disable */
 class EditComponent extends Component {
   constructor(props) {
     super(props);
-    this.root = document.querySelector(`[data-qa-component-on-screen-id="${props.onScreenId}"]`);
-    this.el = document.createElement('span');
+    const { type, properties: { widgetId, zoneName } } = props;
+
+    if (type === 'zone') {
+      this.root = document.querySelector(`[data-qa-zone-name="${zoneName}"]`);
+    } else {
+      this.root = document.querySelector(`[data-qa-widget-id="${widgetId}"]`);
+    }
+
+    this.el = document.createElement('div');
+    this.el.classList.add('edit-qa-item');
   }
 
   componentDidMount() {
@@ -30,5 +39,22 @@ class EditComponent extends Component {
     );
   }
 }
+
+EditComponent.propTypes = {
+  type: PropTypes.string.isRequired,
+  properties: PropTypes.oneOfType([
+    PropTypes.shape({
+      widgetId: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+    }),
+    PropTypes.shape({
+      zoneName: PropTypes.string.isRequired,
+    }),
+  ]).isRequired,
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node).isRequired,
+    PropTypes.node.isRequired,
+  ]).isRequired,
+};
 
 export default EditComponent;

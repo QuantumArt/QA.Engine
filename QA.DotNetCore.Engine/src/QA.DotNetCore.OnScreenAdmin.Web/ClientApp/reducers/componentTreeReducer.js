@@ -1,7 +1,13 @@
 import * as types from '../actions/actionTypes';
-import buildTree from '../utils/componentTreeBuilder';
+// import buildTree from '../utils/buildFlatList';
+import buildTree from '../utils/buildTree';
 
-const initialState = { selectedComponentId: null, components: buildTree() };
+const components = buildTree();
+
+const initialState = {
+  selectedComponentId: null,
+  components,
+};
 
 export default function componentTreeReducer(state = initialState, action) {
   switch (action.type) {

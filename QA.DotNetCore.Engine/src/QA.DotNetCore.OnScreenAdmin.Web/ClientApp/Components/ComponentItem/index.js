@@ -29,7 +29,7 @@ class ComponentItem extends Component {
   }
 
   handleSelectClick = () => {
-    this.props.onSelectComponent(this.props.properties.reduxAlias);
+    this.props.onSelectComponent(this.props.properties.onScreenId);
   }
 
   handleSubtreeClick = () => {
@@ -52,7 +52,7 @@ class ComponentItem extends Component {
       const subtree = children.map(child => (
         <ComponentItem
           properties={child.properties}
-          key={`${child.properties.reduxAlias}-item`}
+          key={child.properties.onScreenId}
           type={child.type}
           onSelectComponent={onSelectComponent}
           classes={classes}
@@ -148,13 +148,13 @@ ComponentItem.propTypes = {
   type: PropTypes.string.isRequired,
   properties: PropTypes.oneOfType([
     PropTypes.shape({
+      onScreenId: PropTypes.string.isRequired,
       widgetId: PropTypes.string.isRequired,
       title: PropTypes.string.isRequired,
-      reduxAlias: PropTypes.string.isRequired,
     }),
     PropTypes.shape({
+      onScreenId: PropTypes.string.isRequired,
       zoneName: PropTypes.string.isRequired,
-      reduxAlias: PropTypes.string.isRequired,
     }),
   ]).isRequired,
   children: PropTypes.arrayOf(PropTypes.object).isRequired,

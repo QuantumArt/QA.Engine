@@ -8,10 +8,9 @@ const ComponentTree = ({ components, onSelectComponent }) => (
     {components.map(component => (
       <ComponentItem
         {...component}
-        key={`${component.properties.reduxAlias}-item`}
+        key={component.properties.onScreenId}
         onSelectComponent={onSelectComponent}
-      />
-    ))}
+      />))}
   </List>
 );
 

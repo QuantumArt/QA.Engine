@@ -12,11 +12,48 @@ const findParentComponent = (component) => {
   return null;
 };
 
+const getComponentOnScreenId = (component, parentComponent) => {
+  let thisComponentPart = '';
+  const data = component.dataset;
+  if (data.qaComponentType === 'zone') {
+    thisComponentPart += `;zone-${data.qaZoneName}`;
+    if (JSON.parse(data.qaZoneIsRecursive)) {
+      thisComponentPart += '|recursive';
+    }
+    if (JSON.parse(data.qaZoneIsGlobal)) {
+      thisComponentPart += '|global';
+    }
+  } else {
+    thisComponentPart += `;widget-${data.qaWidgetId}|alias-${data.qaWidgetAlias}|title-${data.qaWidgetTitle}`;
+  }
+  const parentComponentOnScreenId = parentComponent === null
+    ? 'page'
+    : parentComponent.dataset.qaComponentOnScreenId;
+
+  return parentComponentOnScreenId + thisComponentPart;
+};
+
+const setComponentIds = (component, parentComponent) => {
+  if (component.dataset.qaComponentOnScreenId && component.dataset.qaComponentParentOnScreenId) {
+    return;
+  }
+
+  if (!parentComponent) {
+    component.dataset.qaComponentParentOnScreenId = 'page';
+    component.dataset.qaComponentOnScreenId = getComponentOnScreenId(component, null);
+  } else if (parentComponent.dataset.qaComponentOnScreenId) {
+    component.dataset.qaComponentParentOnScreenId = parentComponent.dataset.qaComponentOnScreenId;
+    component.dataset.qaComponentOnScreenId = getComponentOnScreenId(component, parentComponent);
+  } else {
+    setComponentIds(parentComponent);
+  }
+};
+
 const mapComponentProperties = (domElement) => {
   const data = domElement.dataset;
   if (data.qaComponentType === 'zone') {
     return {
-      reduxAlias: `${data.qaComponentType}-${data.qaZoneName}`,
+      onScreenId: data.qaComponentOnScreenId,
       zoneName: data.qaZoneName,
       isRecursive: JSON.parse(data.qaZoneIsRecursive),
       isGlobal: JSON.parse(data.qaZoneIsGlobal),
@@ -24,7 +61,7 @@ const mapComponentProperties = (domElement) => {
   }
 
   return {
-    reduxAlias: `${data.qaComponentType}-${data.qaWidgetId}`,
+    onScreenId: data.qaComponentOnScreenId,
     widgetId: data.qaWidgetId,
     alias: data.qaWidgetAlias,
     title: data.qaWidgetTitle,
@@ -46,6 +83,7 @@ const buildTree = () => {
   for (let i = 0; i < allComponents.length; i += 1) {
     const currentElement = allComponents[i];
     const parent = findParentComponent(currentElement);
+    setComponentIds(currentElement, parent);
 
     if (parent == null) {
       const dataObject = mapComponent(currentElement, 'page');

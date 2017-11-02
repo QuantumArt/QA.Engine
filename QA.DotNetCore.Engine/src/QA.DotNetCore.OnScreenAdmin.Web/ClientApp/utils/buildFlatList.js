@@ -48,7 +48,7 @@ const mapComponent = domElement => ({
 //   return directChildren;
 // };
 
-const setComponentOnScreenId = (component, parentComponent) => {
+const getComponentOnScreenId = (component, parentComponent) => {
   let thisComponentPart = '';
   const data = component.dataset;
   if (data.qaComponentType === 'zone') {
@@ -69,19 +69,19 @@ const setComponentOnScreenId = (component, parentComponent) => {
   return parentComponentOnScreenId + thisComponentPart;
 };
 
-const fillComponentIds = (component) => {
+const setComponentIds = (component) => {
   if (component.dataset.qaComponentOnScreenId && component.dataset.qaComponentParentOnScreenId) {
     return;
   }
   const parentComponent = findParentComponent(component);
   if (!parentComponent) {
     component.dataset.qaComponentParentOnScreenId = 'page';
-    component.dataset.qaComponentOnScreenId = setComponentOnScreenId(component, null);
+    component.dataset.qaComponentOnScreenId = getComponentOnScreenId(component, null);
   } else if (parentComponent.dataset.qaComponentOnScreenId) {
     component.dataset.qaComponentParentOnScreenId = parentComponent.dataset.qaComponentOnScreenId;
-    component.dataset.qaComponentOnScreenId = setComponentOnScreenId(component, parentComponent);
+    component.dataset.qaComponentOnScreenId = getComponentOnScreenId(component, parentComponent);
   } else {
-    fillComponentIds(parentComponent);
+    setComponentIds(parentComponent);
   }
 };
 
@@ -92,7 +92,7 @@ const buildList = () => {
   const allComponents = document.querySelectorAll('[data-qa-component-type]');
 
   _.forEach(allComponents, (component) => {
-    fillComponentIds(component);
+    setComponentIds(component);
   });
 
   // _.forEach(allComponents, function(component){

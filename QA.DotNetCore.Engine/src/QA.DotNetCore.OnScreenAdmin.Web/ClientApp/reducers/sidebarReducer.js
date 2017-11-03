@@ -1,6 +1,9 @@
 import * as types from '../actions/actionTypes';
 
-const initialState = { opened: false };
+const initialState = {
+  opened: false,
+  side: 'left',
+};
 
 export default function sidebarReducer(state = initialState, action) {
   switch (action.type) {

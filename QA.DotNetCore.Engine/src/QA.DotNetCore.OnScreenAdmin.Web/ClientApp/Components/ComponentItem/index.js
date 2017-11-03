@@ -16,12 +16,18 @@ import IconButton from 'material-ui/IconButton';
 import Collapse from 'material-ui/transitions/Collapse';
 import EditComponent from '../EditComponent';
 
-const styles = theme => ({
-  listItem: {
-    height: theme.spacing.unit * 7.5,
-    minWidth: 250,
-  },
-});
+const styles = (theme) => {
+  console.log(theme);
+  return {
+    listItem: {
+      height: theme.spacing.unit * 7.5,
+      minWidth: 250,
+    },
+    listItemText: {
+      fontSize: theme.typography.fontSize,
+    },
+  };
+};
 
 class ComponentItem extends Component {
   state = {
@@ -34,6 +40,18 @@ class ComponentItem extends Component {
 
   handleSubtreeClick = () => {
     this.setState({ opened: !this.state.opened });
+  }
+
+  renderSecondaryText = (type, properties) => {
+    if (type === 'zone') {
+      let zoneSettings = '';
+      if (properties.isRecursive) zoneSettings += ' recursive';
+      if (properties.isGlobal) zoneSettings += ' global';
+
+      return zoneSettings === '' ? 'zone' : `${type}:${zoneSettings}`;
+    }
+
+    return `${type}: ID - ${properties.widgetId}`;
   }
 
   render() {
@@ -66,7 +84,7 @@ class ComponentItem extends Component {
         <div>
           <ListItem
             onClick={this.handleSelectClick}
-            classes={{ root: classes.listItem }}
+            classes={{ root: classes.listItemRoot }}
             style={{ paddingLeft: nestLevel > 1 ? `${nestLevel}em` : '16px' }}
             button
           >
@@ -81,7 +99,8 @@ class ComponentItem extends Component {
                 ? `${properties.zoneName}`
                 : `${properties.title}`
               }
-              disableTypography
+              secondary={this.renderSecondaryText(type, properties)}
+              classes={{ text: classes.listItemText }}
             />
             <ListItemSecondaryAction>
               <IconButton onClick={this.handleSubtreeClick}>
@@ -110,7 +129,7 @@ class ComponentItem extends Component {
       <div>
         <ListItem
           onClick={this.handleSelectClick}
-          classes={{ root: classes.listItem }}
+          classes={{ root: classes.listItemRoot }}
           style={{ paddingLeft: nestLevel > 1 ? `${nestLevel}em` : '16px' }}
           button
         >
@@ -125,7 +144,8 @@ class ComponentItem extends Component {
               ? `${properties.zoneName}`
               : `${properties.title}`
             }
-            disableTypography
+            secondary={this.renderSecondaryText(type, properties)}
+            classes={{ text: classes.listItemText }}
           />
         </ListItem>
         <EditComponent type={type} properties={properties}>

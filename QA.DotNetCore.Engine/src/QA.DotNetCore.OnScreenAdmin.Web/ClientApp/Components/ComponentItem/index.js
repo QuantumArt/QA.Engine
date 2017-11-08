@@ -26,6 +26,10 @@ const styles = (theme) => {
     listItemText: {
       fontSize: theme.typography.fontSize,
     },
+    expandNodeIcon: {
+      width: theme.spacing.unit * 3,
+      height: theme.spacing.unit * 3,
+    },
   };
 };
 
@@ -103,7 +107,10 @@ class ComponentItem extends Component {
               classes={{ text: classes.listItemText }}
             />
             <ListItemSecondaryAction>
-              <IconButton onClick={this.handleSubtreeClick}>
+              <IconButton
+                onClick={this.handleSubtreeClick}
+                classes={{ icon: classes.expandNodeIcon }}
+              >
                 {this.state.opened ? <ExpandLess /> : <ExpandMore />}
               </IconButton>
             </ListItemSecondaryAction>

@@ -2,18 +2,23 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
 import { withStyles } from 'material-ui/styles';
-import Popover from 'material-ui/Popover';
 import Button from 'material-ui/Button';
-import IconButton from 'material-ui/IconButton';
 import Settings from 'material-ui-icons/Settings';
-import BorderLeft from 'material-ui-icons/BorderLeft';
-import BorderRight from 'material-ui-icons/BorderRight';
 
 const styles = {
   wrap: {
     position: 'fixed',
     top: 20,
     left: 20,
+  },
+  popover: {
+    backgroundColor: 'transparent',
+    boxShadow: 'none',
+    padding: 5,
+  },
+  buttonSmall: {
+    width: 36,
+    height: 36,
   },
   buttonHidden: {
     display: 'none',
@@ -23,6 +28,7 @@ const styles = {
 class OpenControl extends Component {
   state = {
     canClick: true,
+    preventDrag: false,
     popoverOpened: false,
   };
 
@@ -38,50 +44,32 @@ class OpenControl extends Component {
     this.disableClick();
   }
 
-  handleDoubleClick = (e) => {
-    e.preventDefault();
-    this.setState({ popoverOpened: !this.state.popoverOpened });
-  }
-
-  handlePopoverClose = () => {
-    this.setState({ popoverOpened: !this.state.popoverOpened });
-  }
-
   render() {
-    /* eslint-disable */
-    const { onClick, classes, drawerOpened } = this.props;
-    const { canClick } = this.state;
+    const {
+      toggleSidebar,
+      classes,
+      drawerOpened,
+    } = this.props;
+    const { canClick, preventDrag } = this.state;
 
     return (
       <Draggable
         onStart={this.enableClick}
         onDrag={this.dragHander}
+        bounds="body"
+        defaultPosition={{ x: 10, y: 10 }}
         grid={[25, 25]}
+        disabled={preventDrag}
       >
-        <div className={classes.wrap} ref={el => this.wrap = el}>
+        <div className={classes.wrap} ref={(el) => { this.wrap = el; }}>
           <Button
             fab
             color="primary"
-            onClick={canClick ? onClick : null}
+            onClick={canClick ? toggleSidebar : null}
             className={drawerOpened ? classes.buttonHidden : null}
-            onContextMenu={this.handleDoubleClick}
           >
             <Settings />
           </Button>
-          <Popover
-            open={this.state.popoverOpened}
-            onRequestClose={this.handlePopoverClose}
-            anchorEl={this.wrap}
-            anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
-            transformOrigin={{vertical: 'top', horizontal: 'center'}}
-          >
-            <IconButton>
-              <BorderLeft />
-            </IconButton>
-            <IconButton>
-              <BorderRight />
-            </IconButton>
-          </Popover>
         </div>
       </Draggable>
     );
@@ -89,7 +77,7 @@ class OpenControl extends Component {
 }
 
 OpenControl.propTypes = {
-  onClick: PropTypes.func.isRequired,
+  toggleSidebar: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired,
   drawerOpened: PropTypes.bool.isRequired,
 };

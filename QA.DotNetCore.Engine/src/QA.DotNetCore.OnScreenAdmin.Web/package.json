@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.4",
-    "material-ui": "^1.0.0-beta.12",
+    "material-ui": "^1.0.0-beta.20",
     "material-ui-icons": "^1.0.0-beta.17",
     "mutation-summary": "^0.1.1",
     "prop-types": "^15.6.0",

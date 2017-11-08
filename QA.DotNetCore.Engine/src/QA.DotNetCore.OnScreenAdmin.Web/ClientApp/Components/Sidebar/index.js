@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import Drawer from 'material-ui/Drawer';
@@ -7,6 +7,8 @@ import Toolbar from 'material-ui/Toolbar';
 import IconButton from 'material-ui/IconButton';
 import ExitToApp from 'material-ui-icons/ExitToApp';
 import TextField from 'material-ui/TextField';
+import BorderLeft from 'material-ui-icons/BorderLeft';
+import BorderRight from 'material-ui-icons/BorderRight';
 import 'typeface-roboto/index.css';
 import ComponentTree from '../../containers/componentTree';
 import OpenControl from '../OpenControl';
@@ -18,64 +20,116 @@ const styles = theme => ({
   drawer: {
 
   },
-  toolbar: {
+  controlToolbar: {
+    minHeight: 0,
+    paddingTop: 10,
+    justifyContent: 'center',
+  },
+  controlButtonRoot: {
+    width: 30,
+    height: 15,
+  },
+  controlButtonIcon: {
+    width: 15,
+    height: 15,
+  },
+  treeToolbar: {
 
   },
   closeButton: {
-    transform: 'rotate(180deg)',
+    width: theme.spacing.unit * 3,
+    height: theme.spacing.unit * 3,
   },
   searchField: {
     marginLeft: theme.spacing.unit * 2,
+    fontSize: theme.spacing.unit * 2,
+  },
+  searchInput: {
+    fontSize: theme.spacing.unit * 2,
   },
   searchFieldLabel: {
     fontWeight: 'normal',
+    fontSize: theme.spacing.unit * 2,
   },
 });
 
-class Sidebar extends Component {
-  eventLogger = (e: MouseEvent, data: Object) => {
-    console.log('Event: ', e);
-    console.log('Data: ', data);
-  };
+const Sidebar = (props) => {
+  const {
+    opened,
+    side,
+    toggleSidebar,
+    toggleLeft,
+    toggleRight,
+    classes,
+  } = props;
 
-  render() {
-    const { opened, toggleSidebar, classes } = this.props;
-
-    return (
-      <div className={classes.sidebar}>
-        <OpenControl onClick={toggleSidebar} drawerOpened={opened} />
-        <Drawer type="persistent" open={opened} classes={{ paper: classes.drawer }}>
-          <Toolbar disableGutters classes={{ root: classes.toolbar }}>
-            <TextField
-              id="search"
-              label="Search items"
-              type="text"
-              margin="normal"
-              fullWidth
-              className={classes.searchField}
-              InputLabelProps={{
-                className: classes.searchFieldLabel,
-              }}
-            />
-            <IconButton
-              color="primary"
-              onClick={toggleSidebar}
-              className={classes.closeButton}
-            >
-              <ExitToApp />
-            </IconButton>
-          </Toolbar>
-          <Divider light />
-          <ComponentTree />
-        </Drawer>
-      </div>
-    );
-  }
-}
+  return (
+    <div className={classes.sidebar}>
+      <OpenControl
+        toggleSidebar={toggleSidebar}
+        toggleLeft={toggleLeft}
+        toggleRight={toggleRight}
+        drawerOpened={opened}
+      />
+      <Drawer
+        type="persistent"
+        open={opened}
+        classes={{ paper: classes.drawer }}
+        anchor={side}
+      >
+        <Toolbar disableGutters classes={{ root: classes.controlToolbar }}>
+          <IconButton
+            color="primary"
+            classes={{ icon: classes.controlButtonIcon, root: classes.controlButtonRoot }}
+            onClick={toggleLeft}
+          >
+            <BorderLeft />
+          </IconButton>
+          <IconButton
+            color="primary"
+            classes={{ icon: classes.controlButtonIcon, root: classes.controlButtonRoot }}
+            onClick={toggleRight}
+          >
+            <BorderRight />
+          </IconButton>
+        </Toolbar>
+        <Toolbar disableGutters classes={{ root: classes.treeToolbar }}>
+          <TextField
+            id="search"
+            label="Search items"
+            type="text"
+            margin="normal"
+            fullWidth
+            className={classes.searchField}
+            InputLabelProps={{
+              className: classes.searchFieldLabel,
+            }}
+            InputProps={{
+              className: classes.searchInput,
+            }}
+          />
+          <IconButton
+            color="primary"
+            onClick={toggleSidebar}
+            classes={{ icon: classes.closeButton }}
+            style={{ transform: side === 'left' ? 'rotate(180deg)' : '' }}
+          >
+            <ExitToApp />
+          </IconButton>
+        </Toolbar>
+        <Divider light />
+        <ComponentTree />
+      </Drawer>
+    </div>
+  );
+};
 
 Sidebar.propTypes = {
   opened: PropTypes.bool.isRequired,
+  side: PropTypes.string.isRequired,
   toggleSidebar: PropTypes.func.isRequired,
+  toggleLeft: PropTypes.func.isRequired,
+  toggleRight: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired,
 };
 

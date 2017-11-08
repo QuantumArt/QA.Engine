@@ -1,5 +1,9 @@
 import { connect } from 'react-redux';
-import toggleState from '../actions/sidebarActions';
+import {
+  toggleState,
+  toggleLeftPosition,
+  toggleRightPosition,
+} from '../actions/sidebarActions';
 import Sidebar from '../Components/Sidebar';
 
 const mapStateToProps = state => ({
@@ -10,6 +14,12 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   toggleSidebar: () => {
     dispatch(toggleState());
+  },
+  toggleLeft: () => {
+    dispatch(toggleLeftPosition());
+  },
+  toggleRight: () => {
+    dispatch(toggleRightPosition());
   },
 });
 

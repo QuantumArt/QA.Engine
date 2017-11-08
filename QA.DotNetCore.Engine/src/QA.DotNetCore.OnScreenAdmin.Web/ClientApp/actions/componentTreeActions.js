@@ -1,9 +1,12 @@
-import * as types from './actionTypes';
+import {
+  SELECT_COMPONENT,
+  LOADED_COMPONENT_TREE,
+} from './actionTypes';
 
 export function selectComponent(id) {
-  return { type: types.SELECT_COMPONENT, id };
+  return { type: SELECT_COMPONENT, id };
 }
 
 export function loadedComponentTree(componentTree) {
-  return { type: types.LOADED_COMPONENT_TREE, componentTree };
+  return { type: LOADED_COMPONENT_TREE, componentTree };
 }

@@ -1,4 +1,8 @@
-import * as types from '../actions/actionTypes';
+import {
+  TOGGLE_OPEN_STATE,
+  TOGGLE_LEFT_POSITION,
+  TOGGLE_RIGHT_POSITION,
+} from '../actions/actionTypes';
 
 const initialState = {
   opened: false,
@@ -7,8 +11,12 @@ const initialState = {
 
 export default function sidebarReducer(state = initialState, action) {
   switch (action.type) {
-    case types.TOGGLE_OPEN_STATE:
+    case TOGGLE_OPEN_STATE:
       return { ...state, opened: !state.opened };
+    case TOGGLE_LEFT_POSITION:
+      return { ...state, side: 'left' };
+    case TOGGLE_RIGHT_POSITION:
+      return { ...state, side: 'right' };
     default:
       return state;
   }

@@ -166,15 +166,19 @@ class ComponentItem extends Component {
 ComponentItem.propTypes = {
   onSelectComponent: PropTypes.func.isRequired,
   type: PropTypes.string.isRequired,
+
   properties: PropTypes.oneOfType([
     PropTypes.shape({
       onScreenId: PropTypes.string.isRequired,
       widgetId: PropTypes.string.isRequired,
       title: PropTypes.string.isRequired,
+      alias: PropTypes.string.isRequired,
     }),
     PropTypes.shape({
       onScreenId: PropTypes.string.isRequired,
       zoneName: PropTypes.string.isRequired,
+      isRecursive: PropTypes.bool.isRequired,
+      isGlobal: PropTypes.bool.isRequired,
     }),
   ]).isRequired,
   children: PropTypes.arrayOf(PropTypes.object).isRequired,

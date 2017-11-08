@@ -13,7 +13,9 @@ module.exports = {
     path: path.resolve(__dirname, 'wwwroot/dist'),
     filename: 'onScreenLoader.js',
     publicPath: '/dist/',
+    devtoolModuleFilenameTemplate: info => path.resolve(info.absoluteResourcePath).replace(/\\/g, '/'),
   },
+  devtool: 'cheap-module-source-map',
   module: {
     rules: [{
       enforce: 'pre',

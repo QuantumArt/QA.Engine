@@ -20,12 +20,14 @@ const mapComponentProperties = (domElement) => {
       zoneName: data.qaZoneName,
       isRecursive: JSON.parse(data.qaZoneIsRecursive),
       isGlobal: JSON.parse(data.qaZoneIsGlobal),
+      onScreenId: data.qaComponentOnScreenId,
     };
   }
   return {
     widgetId: data.qaWidgetId,
     alias: data.qaWidgetAlias,
     title: data.qaWidgetTitle,
+    onScreenId: data.qaComponentOnScreenId,
   };
 };
 
@@ -35,18 +37,9 @@ const mapComponent = domElement => ({
   parentOnScreenId: domElement.dataset.qaComponentParentOnScreenId === '-1'
     ? null
     : domElement.dataset.qaComponentParentOnScreenId,
-  childComponents: [],
   properties: mapComponentProperties(domElement),
 });
 
-// const findChildComponents = (currentComponent, allComponents) => {
-//   const directChildren = _.filter(allComponents, c => c.parentOnScreenId === currentComponent.onScreenId);
-//   _.forEach(directChildren, (child) => {
-//     child.childComponents = findChildComponents(child, allComponents);
-//   });
-
-//   return directChildren;
-// };
 
 const getComponentOnScreenId = (component, parentComponent) => {
   let thisComponentPart = '';
@@ -86,31 +79,15 @@ const setComponentIds = (component) => {
 };
 
 const buildList = () => {
-  console.log('build tree fired');
-  // const tree = [];
-
   const allComponents = document.querySelectorAll('[data-qa-component-type]');
 
   _.forEach(allComponents, (component) => {
     setComponentIds(component);
   });
 
-  // _.forEach(allComponents, function(component){
-  //     component.dataset.qaComponentParentOnScreenId = findParentComponent(component);
-  //   }
-  // );
-
   const components = _.map(allComponents, mapComponent);
-  // возвращаем плоский список (для использования в store - лучше плоский)
-
-  // const rootComponents = _.filter(components, c => c.parentOnScreenId == null);
-  // _.forEach(rootComponents, (component) => {
-  //   component.childComponents = findChildComponents(component, components);
-  //   tree.components.push(component);
-  // });
 
   return components;
-  // return tree;
 };
 
 export default buildList;

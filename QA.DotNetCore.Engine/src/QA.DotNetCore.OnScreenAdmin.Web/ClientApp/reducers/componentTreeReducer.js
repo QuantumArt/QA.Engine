@@ -1,6 +1,6 @@
 import * as types from '../actions/actionTypes';
-// import buildTree from '../utils/buildFlatList';
-import buildTree from '../utils/buildTree';
+import buildTree from '../utils/buildFlatList';
+// import buildTree from '../utils/buildTree';
 
 const components = buildTree();
 

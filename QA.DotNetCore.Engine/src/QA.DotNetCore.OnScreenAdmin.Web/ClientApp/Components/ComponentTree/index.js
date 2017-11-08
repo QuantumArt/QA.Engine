@@ -17,7 +17,6 @@ const ComponentTree = ({ components, onSelectComponent }) => (
 ComponentTree.propTypes = {
   components: PropTypes.arrayOf(
     PropTypes.shape({
-      parent: PropTypes.string.isRequired,
       type: PropTypes.string.isRequired,
       properties: PropTypes.object.isRequired,
       children: PropTypes.array.isRequired,

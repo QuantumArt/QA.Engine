@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import scrollToElement from 'scroll-to-element';
 import { withStyles } from 'material-ui/styles';
 import {
   ListItem,
@@ -39,7 +40,12 @@ class ComponentItem extends Component {
   }
 
   handleSelectClick = () => {
-    this.props.onSelectComponent(this.props.properties.onScreenId);
+    this.props.onSelectComponent(this.props.onScreenId);
+    scrollToElement(`[data-qa-component-on-screen-id="${this.props.onScreenId}"]`, {
+      offset: 0,
+      ease: 'in-out-expo', // https://github.com/component/ease#aliases
+      duration: 1500,
+    });
   }
 
   handleSubtreeClick = () => {
@@ -62,6 +68,7 @@ class ComponentItem extends Component {
     const {
       onSelectComponent,
       type,
+      onScreenId,
       properties,
       children,
       classes,
@@ -74,8 +81,9 @@ class ComponentItem extends Component {
       const subtree = children.map(child => (
         <ComponentItem
           properties={child.properties}
-          key={child.properties.onScreenId}
+          key={child.onScreenId}
           type={child.type}
+          onScreenId={child.onScreenId}
           onSelectComponent={onSelectComponent}
           classes={classes}
           nestLevel={currentLevel}
@@ -115,7 +123,7 @@ class ComponentItem extends Component {
               </IconButton>
             </ListItemSecondaryAction>
           </ListItem>
-          <EditComponent type={type} properties={properties}>
+          <EditComponent type={type} onScreenId={onScreenId} properties={properties}>
             <Button
               raised
               color="accent"
@@ -155,7 +163,7 @@ class ComponentItem extends Component {
             classes={{ text: classes.listItemText }}
           />
         </ListItem>
-        <EditComponent type={type} properties={properties}>
+        <EditComponent type={type} onScreenId={onScreenId} properties={properties}>
           <Button
             raised
             color="accent"
@@ -173,16 +181,14 @@ class ComponentItem extends Component {
 ComponentItem.propTypes = {
   onSelectComponent: PropTypes.func.isRequired,
   type: PropTypes.string.isRequired,
-
+  onScreenId: PropTypes.string.isRequired,
   properties: PropTypes.oneOfType([
     PropTypes.shape({
-      onScreenId: PropTypes.string.isRequired,
       widgetId: PropTypes.string.isRequired,
       title: PropTypes.string.isRequired,
       alias: PropTypes.string.isRequired,
     }),
     PropTypes.shape({
-      onScreenId: PropTypes.string.isRequired,
       zoneName: PropTypes.string.isRequired,
       isRecursive: PropTypes.bool.isRequired,
       isGlobal: PropTypes.bool.isRequired,

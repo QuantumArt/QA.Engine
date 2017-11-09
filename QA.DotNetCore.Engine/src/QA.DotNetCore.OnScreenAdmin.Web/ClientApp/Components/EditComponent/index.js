@@ -1,13 +1,13 @@
 import { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
-import './editcomponent.css';
 
 class EditComponent extends Component {
   constructor(props) {
     super(props);
-    const { properties: { onScreenId } } = props;
+    const { onScreenId } = props;
 
+    console.log(onScreenId);
     this.root = document.querySelector(`[data-qa-component-on-screen-id="${onScreenId}"]`);
 
     this.el = document.createElement('div');
@@ -39,17 +39,7 @@ class EditComponent extends Component {
 
 EditComponent.propTypes = {
   type: PropTypes.string.isRequired,
-  properties: PropTypes.oneOfType([
-    PropTypes.shape({
-      onScreenId: PropTypes.string.isRequired,
-      widgetId: PropTypes.string.isRequired,
-      title: PropTypes.string.isRequired,
-    }),
-    PropTypes.shape({
-      onScreenId: PropTypes.string.isRequired,
-      zoneName: PropTypes.string.isRequired,
-    }),
-  ]).isRequired,
+  onScreenId: PropTypes.string.isRequired,
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node).isRequired,
     PropTypes.node.isRequired,

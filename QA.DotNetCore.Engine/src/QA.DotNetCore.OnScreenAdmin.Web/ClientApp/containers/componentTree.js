@@ -3,14 +3,9 @@ import { selectComponent } from '../actions/componentTreeActions';
 import ComponentTree from '../Components/ComponentTree';
 import buildTree from '../utils/buildTree';
 
-const mapStateToProps = (state) => {
-  const tree = buildTree(state.componentTree.components);
-
-  console.log('mapStateToProps', state, tree);
-  return {
-    components: tree,
-  };
-};
+const mapStateToProps = state => ({
+  components: buildTree(state.componentTree.components),
+});
 
 const mapDispatchToProps = dispatch => ({
   onSelectComponent: (id) => {

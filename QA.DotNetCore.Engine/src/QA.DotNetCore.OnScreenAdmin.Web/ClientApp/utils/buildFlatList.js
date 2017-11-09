@@ -20,14 +20,13 @@ const mapComponentProperties = (domElement) => {
       zoneName: data.qaZoneName,
       isRecursive: JSON.parse(data.qaZoneIsRecursive),
       isGlobal: JSON.parse(data.qaZoneIsGlobal),
-      onScreenId: data.qaComponentOnScreenId,
     };
   }
+
   return {
     widgetId: data.qaWidgetId,
     alias: data.qaWidgetAlias,
     title: data.qaWidgetTitle,
-    onScreenId: data.qaComponentOnScreenId,
   };
 };
 

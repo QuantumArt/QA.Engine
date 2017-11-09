@@ -8,7 +8,7 @@ const ComponentTree = ({ components, onSelectComponent }) => (
     {components.map(component => (
       <ComponentItem
         {...component}
-        key={component.properties.onScreenId}
+        key={component.onScreenId}
         onSelectComponent={onSelectComponent}
       />))}
   </List>
@@ -18,6 +18,7 @@ ComponentTree.propTypes = {
   components: PropTypes.arrayOf(
     PropTypes.shape({
       type: PropTypes.string.isRequired,
+      onScreenId: PropTypes.string.isRequired,
       properties: PropTypes.object.isRequired,
       children: PropTypes.array.isRequired,
     }).isRequired,

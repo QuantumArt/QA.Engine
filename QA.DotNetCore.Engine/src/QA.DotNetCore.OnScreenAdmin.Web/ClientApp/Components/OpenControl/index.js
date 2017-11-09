@@ -10,6 +10,7 @@ const styles = {
     position: 'fixed',
     top: 20,
     left: 20,
+    zIndex: 9999,
   },
   popover: {
     backgroundColor: 'transparent',
@@ -56,7 +57,7 @@ class OpenControl extends Component {
       <Draggable
         onStart={this.enableClick}
         onDrag={this.dragHander}
-        bounds="body"
+        bounds="html"
         defaultPosition={{ x: 10, y: 10 }}
         grid={[25, 25]}
         disabled={preventDrag}

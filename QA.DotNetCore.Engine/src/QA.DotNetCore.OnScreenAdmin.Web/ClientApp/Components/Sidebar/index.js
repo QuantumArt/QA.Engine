@@ -21,17 +21,17 @@ const styles = theme => ({
 
   },
   controlToolbar: {
-    minHeight: 0,
-    paddingTop: 10,
-    justifyContent: 'center',
+    minHeight: 40,
+    marginTop: 10,
+    justifyContent: 'space-around',
   },
   controlButtonRoot: {
-    width: 30,
-    height: 15,
+    width: 40,
+    height: 40,
   },
   controlButtonIcon: {
-    width: 15,
-    height: 15,
+    width: 20,
+    height: 20,
   },
   treeToolbar: {
 

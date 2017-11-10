@@ -3,13 +3,15 @@ import PropTypes from 'prop-types';
 import List from 'material-ui/List';
 import ComponentItem from '../ComponentItem';
 
-const ComponentTree = ({ components, onSelectComponent }) => (
+const ComponentTree = ({ components, selectedComponentId, onToggleComponent, showAllZones }) => (
   <List>
     {components.map(component => (
       <ComponentItem
         {...component}
+        selectedComponentId={selectedComponentId}
         key={component.onScreenId}
-        onSelectComponent={onSelectComponent}
+        onToggleComponent={onToggleComponent}
+        showAllZones={showAllZones}
       />))}
   </List>
 );
@@ -23,7 +25,9 @@ ComponentTree.propTypes = {
       children: PropTypes.array.isRequired,
     }).isRequired,
   ).isRequired,
-  onSelectComponent: PropTypes.func.isRequired,
+  selectedComponentId: PropTypes.string.isRequired,
+  onToggleComponent: PropTypes.func.isRequired,
+  showAllZones: PropTypes.bool.isRequired,
 };
 
 export default ComponentTree;

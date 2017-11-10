@@ -10,7 +10,7 @@ const styles = {
     position: 'fixed',
     top: 20,
     left: 20,
-    zIndex: 9999,
+    zIndex: 1299,
   },
   popover: {
     backgroundColor: 'transparent',

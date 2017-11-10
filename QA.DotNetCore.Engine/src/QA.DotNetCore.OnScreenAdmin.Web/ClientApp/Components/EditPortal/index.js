@@ -2,13 +2,13 @@ import { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 
-class EditComponent extends Component {
+class EditPortal extends Component {
   constructor(props) {
     super(props);
     const { onScreenId } = props;
 
-    console.log(onScreenId);
     this.root = document.querySelector(`[data-qa-component-on-screen-id="${onScreenId}"]`);
+    this.root.style.position = 'relative';
 
     this.el = document.createElement('div');
   }
@@ -37,7 +37,7 @@ class EditComponent extends Component {
   }
 }
 
-EditComponent.propTypes = {
+EditPortal.propTypes = {
   type: PropTypes.string.isRequired,
   onScreenId: PropTypes.string.isRequired,
   children: PropTypes.oneOfType([
@@ -46,4 +46,4 @@ EditComponent.propTypes = {
   ]).isRequired,
 };
 
-export default EditComponent;
+export default EditPortal;

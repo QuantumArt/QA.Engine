@@ -1,10 +1,10 @@
 import {
-  SELECT_COMPONENT,
+  TOGGLE_COMPONENT,
   LOADED_COMPONENT_TREE,
 } from './actionTypes';
 
-export function selectComponent(id) {
-  return { type: SELECT_COMPONENT, id };
+export function toggleComponent(id) {
+  return { type: TOGGLE_COMPONENT, id };
 }
 
 export function loadedComponentTree(componentTree) {

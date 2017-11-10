@@ -2,11 +2,13 @@ import {
   TOGGLE_OPEN_STATE,
   TOGGLE_LEFT_POSITION,
   TOGGLE_RIGHT_POSITION,
+  TOGGLE_ALL_ZONES,
 } from '../actions/actionTypes';
 
 const initialState = {
   opened: false,
   side: 'left',
+  showAllZones: false,
 };
 
 export default function sidebarReducer(state = initialState, action) {
@@ -17,6 +19,8 @@ export default function sidebarReducer(state = initialState, action) {
       return { ...state, side: 'left' };
     case TOGGLE_RIGHT_POSITION:
       return { ...state, side: 'right' };
+    case TOGGLE_ALL_ZONES:
+      return { ...state, showAllZones: !state.showAllZones };
     default:
       return state;
   }

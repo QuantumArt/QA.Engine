@@ -8,14 +8,15 @@ import {
   ListItemIcon,
   ListItemSecondaryAction,
 } from 'material-ui/List';
-import Button from 'material-ui/Button';
 import ExpandLess from 'material-ui-icons/ExpandLess';
 import ExpandMore from 'material-ui-icons/ExpandMore';
 import Widgets from 'material-ui-icons/Widgets';
 import PanoramaHorizontal from 'material-ui-icons/PanoramaHorizontal';
 import IconButton from 'material-ui/IconButton';
 import Collapse from 'material-ui/transitions/Collapse';
-import EditComponent from '../EditComponent';
+import { deepPurple } from 'material-ui/colors';
+import EditPortal from '../EditPortal';
+import EditControl from '../EditControl';
 
 const styles = (theme) => {
   console.log(theme);
@@ -26,6 +27,9 @@ const styles = (theme) => {
     },
     listItemText: {
       fontSize: theme.typography.fontSize,
+    },
+    listItemIconSelected: {
+      color: deepPurple[500],
     },
     expandNodeIcon: {
       width: theme.spacing.unit * 3,
@@ -39,13 +43,14 @@ class ComponentItem extends Component {
     opened: false,
   }
 
-  handleSelectClick = () => {
-    this.props.onSelectComponent(this.props.onScreenId);
-    scrollToElement(`[data-qa-component-on-screen-id="${this.props.onScreenId}"]`, {
-      offset: 0,
-      ease: 'in-out-expo', // https://github.com/component/ease#aliases
-      duration: 1500,
-    });
+  handleToggleClick = () => {
+    this.props.onToggleComponent(this.props.onScreenId);
+    scrollToElement(`[data-qa-component-on-screen-id="${this.props.onScreenId}"]`,
+      { offset: -100,
+        ease: 'in-out-expo', // https://github.com/component/ease#aliases
+        duration: 1500,
+      },
+    );
   }
 
   handleSubtreeClick = () => {
@@ -66,14 +71,17 @@ class ComponentItem extends Component {
 
   render() {
     const {
-      onSelectComponent,
+      onToggleComponent,
       type,
       onScreenId,
       properties,
+      selectedComponentId,
+      showAllZones,
       children,
       classes,
       nestLevel,
     } = this.props;
+    const isSelected = selectedComponentId === onScreenId;
     let currentLevel = nestLevel;
 
     if (children.length > 0) {
@@ -84,7 +92,9 @@ class ComponentItem extends Component {
           key={child.onScreenId}
           type={child.type}
           onScreenId={child.onScreenId}
-          onSelectComponent={onSelectComponent}
+          onToggleComponent={onToggleComponent}
+          selectedComponentId={selectedComponentId}
+          showAllZones={showAllZones}
           classes={classes}
           nestLevel={currentLevel}
         >
@@ -95,12 +105,15 @@ class ComponentItem extends Component {
       return (
         <div>
           <ListItem
-            onClick={this.handleSelectClick}
+            onClick={this.handleToggleClick}
             classes={{ root: classes.listItemRoot }}
             style={{ paddingLeft: nestLevel > 1 ? `${nestLevel}em` : '16px' }}
             button
           >
-            <ListItemIcon>
+            <ListItemIcon className={isSelected
+              ? classes.listItemIconSelected
+              : ''}
+            >
               {type === 'zone'
                 ? <PanoramaHorizontal />
                 : <Widgets />
@@ -123,16 +136,15 @@ class ComponentItem extends Component {
               </IconButton>
             </ListItemSecondaryAction>
           </ListItem>
-          <EditComponent type={type} onScreenId={onScreenId} properties={properties}>
-            <Button
-              raised
-              color="accent"
-              component="span"
-              onClick={this.handleSelectClick}
-            >
-              Edit {type === 'zone' ? properties.zoneName : properties.title}
-            </Button>
-          </EditComponent>
+          <EditPortal type={type} onScreenId={onScreenId}>
+            <EditControl
+              properties={properties}
+              type={type}
+              isSelected={isSelected}
+              showAllZones={showAllZones}
+              handleToggleClick={this.handleToggleClick}
+            />
+          </EditPortal>
           <Collapse in={this.state.opened}>
             {subtree}
           </Collapse>
@@ -143,12 +155,15 @@ class ComponentItem extends Component {
     return (
       <div>
         <ListItem
-          onClick={this.handleSelectClick}
+          onClick={this.handleToggleClick}
           classes={{ root: classes.listItemRoot }}
           style={{ paddingLeft: nestLevel > 1 ? `${nestLevel}em` : '16px' }}
           button
         >
-          <ListItemIcon>
+          <ListItemIcon className={isSelected
+            ? classes.listItemIconSelected
+            : ''}
+          >
             {type === 'zone'
               ? <PanoramaHorizontal />
               : <Widgets />
@@ -163,25 +178,26 @@ class ComponentItem extends Component {
             classes={{ text: classes.listItemText }}
           />
         </ListItem>
-        <EditComponent type={type} onScreenId={onScreenId} properties={properties}>
-          <Button
-            raised
-            color="accent"
-            component="span"
-            onClick={this.handleSelectClick}
-          >
-            Edit {type === 'zone' ? properties.zoneName : properties.title}
-          </Button>
-        </EditComponent>
+        <EditPortal type={type} onScreenId={onScreenId} properties={properties}>
+          <EditControl
+            properties={properties}
+            type={type}
+            isSelected={isSelected}
+            showAllZones={showAllZones}
+            handleToggleClick={this.handleToggleClick}
+          />
+        </EditPortal>
       </div>
     );
   }
 }
 
 ComponentItem.propTypes = {
-  onSelectComponent: PropTypes.func.isRequired,
+  onToggleComponent: PropTypes.func.isRequired,
   type: PropTypes.string.isRequired,
   onScreenId: PropTypes.string.isRequired,
+  selectedComponentId: PropTypes.string.isRequired,
+  showAllZones: PropTypes.bool.isRequired,
   properties: PropTypes.oneOfType([
     PropTypes.shape({
       widgetId: PropTypes.string.isRequired,

@@ -33,11 +33,6 @@ class EditControl extends Component {
     isHovered: false,
   }
 
-  componentWillMount() {
-    if (!this.props.isSelected && this.state.isHovered) {
-      this.setState({ isHovered: false });
-    }
-  }
 
   mouseEnterHandler = () => {
     this.setState({ isHovered: true });
@@ -45,6 +40,7 @@ class EditControl extends Component {
 
   mouseLeaveHandler = () => {
     this.setState({ isHovered: false });
+    console.log('leave');
   }
 
   render() {
@@ -64,8 +60,8 @@ class EditControl extends Component {
         role="button"
         tabIndex={0}
         onClick={isSelected ? null : handleToggleClick}
-        onMouseEnter={showAllZones && !isSelected ? this.mouseEnterHandler : null}
-        onMouseLeave={showAllZones && !isSelected ? this.mouseLeaveHandler : null}
+        onMouseEnter={this.mouseEnterHandler}
+        onMouseLeave={this.mouseLeaveHandler}
         style={{ cursor: isSelected ? 'default' : 'pointer' }}
       >
         {(isSelected || isHovered) &&

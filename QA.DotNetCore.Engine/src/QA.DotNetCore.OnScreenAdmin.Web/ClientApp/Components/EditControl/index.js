@@ -33,6 +33,12 @@ class EditControl extends Component {
     isHovered: false,
   }
 
+  componentWillMount() {
+    if (!this.props.isSelected && this.state.isHovered) {
+      this.setState({ isHovered: false });
+    }
+  }
+
   mouseEnterHandler = () => {
     this.setState({ isHovered: true });
   }

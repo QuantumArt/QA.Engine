@@ -1,21 +1,25 @@
-import * as types from '../actions/actionTypes';
+import { TOGGLE_COMPONENT } from '../actions/actionTypes';
 import buildTree from '../utils/buildFlatList';
-// import buildTree from '../utils/buildTree';
 
 const components = buildTree();
 
 const initialState = {
-  selectedComponentId: null,
+  selectedComponentId: '',
   components,
 };
 
 export default function componentTreeReducer(state = initialState, action) {
   switch (action.type) {
-    case types.SELECT_COMPONENT:
-      return { ...state, selectedComponentId: action.id };
-    case types.LOADED_COMPONENT_TREE:
-      console.log('loaded tree reducer', state, action.componentTree);
-      return { ...state, components: action.componentTree };
+    case TOGGLE_COMPONENT:
+      return {
+        ...state,
+        components: state.components.map(component =>
+          (component.onScreenId === action.id
+            ? { ...component, isSelected: true }
+            : { ...component, isSelected: false }),
+        ),
+        selectedComponentId: state.selectedComponentId === action.id ? '' : action.id,
+      };
     default:
       return state;
   }

@@ -9,6 +9,8 @@ import ExitToApp from 'material-ui-icons/ExitToApp';
 import TextField from 'material-ui/TextField';
 import BorderLeft from 'material-ui-icons/BorderLeft';
 import BorderRight from 'material-ui-icons/BorderRight';
+import FlipToBack from 'material-ui-icons/FlipToBack';
+import FlipToFront from 'material-ui-icons/FlipToFront';
 import 'typeface-roboto/index.css';
 import ComponentTree from '../../containers/componentTree';
 import OpenControl from '../OpenControl';
@@ -56,10 +58,12 @@ const styles = theme => ({
 const Sidebar = (props) => {
   const {
     opened,
+    showAllZones,
     side,
     toggleSidebar,
     toggleLeft,
     toggleRight,
+    toggleAllZones,
     classes,
   } = props;
 
@@ -91,6 +95,13 @@ const Sidebar = (props) => {
             onClick={toggleRight}
           >
             <BorderRight />
+          </IconButton>
+          <IconButton
+            color="primary"
+            classes={{ icon: classes.controlButtonIcon, root: classes.controlButtonRoot }}
+            onClick={toggleAllZones}
+          >
+            {showAllZones ? <FlipToFront /> : <FlipToBack />}
           </IconButton>
         </Toolbar>
         <Toolbar disableGutters classes={{ root: classes.treeToolbar }}>
@@ -126,10 +137,12 @@ const Sidebar = (props) => {
 
 Sidebar.propTypes = {
   opened: PropTypes.bool.isRequired,
+  showAllZones: PropTypes.bool.isRequired,
   side: PropTypes.string.isRequired,
   toggleSidebar: PropTypes.func.isRequired,
   toggleLeft: PropTypes.func.isRequired,
   toggleRight: PropTypes.func.isRequired,
+  toggleAllZones: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired,
 };
 

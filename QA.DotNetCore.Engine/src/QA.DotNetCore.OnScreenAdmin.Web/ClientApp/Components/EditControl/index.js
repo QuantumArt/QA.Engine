@@ -40,7 +40,6 @@ class EditControl extends Component {
 
   mouseLeaveHandler = () => {
     this.setState({ isHovered: false });
-    console.log('leave');
   }
 
   render() {
@@ -62,7 +61,10 @@ class EditControl extends Component {
         onClick={isSelected ? null : handleToggleClick}
         onMouseEnter={this.mouseEnterHandler}
         onMouseLeave={this.mouseLeaveHandler}
-        style={{ cursor: isSelected ? 'default' : 'pointer' }}
+        style={{
+          cursor: isSelected ? 'default' : 'pointer',
+          pointerEvents: isSelected ? 'none' : 'auto',
+        }}
       >
         {(isSelected || isHovered) &&
           <Button

@@ -1,4 +1,4 @@
-import { TOGGLE_COMPONENT } from '../actions/actionTypes';
+import { TOGGLE_COMPONENT, TOGGLE_SUBTREE } from '../actions/actionTypes';
 import buildTree from '../utils/buildFlatList';
 
 const components = buildTree();
@@ -20,6 +20,16 @@ export default function componentTreeReducer(state = initialState, action) {
         ),
         selectedComponentId: state.selectedComponentId === action.id ? '' : action.id,
       };
+    case TOGGLE_SUBTREE:
+      return {
+        ...state,
+        components: state.components.map(component =>
+          (component.onScreenId === action.id
+            ? { ...component, isOpened: !component.isOpened }
+            : component),
+        ),
+      };
+
     default:
       return state;
   }

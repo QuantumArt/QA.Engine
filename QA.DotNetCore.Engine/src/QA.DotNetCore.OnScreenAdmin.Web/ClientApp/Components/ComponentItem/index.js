@@ -39,10 +39,6 @@ const styles = (theme) => {
 };
 
 class ComponentItem extends Component {
-  state = {
-    opened: false,
-  }
-
   handleToggleClick = () => {
     this.props.onToggleComponent(this.props.onScreenId);
     scrollToElement(`[data-qa-component-on-screen-id="${this.props.onScreenId}"]`,
@@ -54,7 +50,8 @@ class ComponentItem extends Component {
   }
 
   handleSubtreeClick = () => {
-    this.setState({ opened: !this.state.opened });
+    // this.setState({ opened: !this.state.opened });
+    this.props.onToggleSubtree(this.props.onScreenId);
   }
 
   renderSecondaryText = (type, properties) => {
@@ -72,6 +69,7 @@ class ComponentItem extends Component {
   render() {
     const {
       onToggleComponent,
+      onToggleSubtree,
       type,
       onScreenId,
       properties,
@@ -80,6 +78,7 @@ class ComponentItem extends Component {
       children,
       classes,
       nestLevel,
+      isOpened,
     } = this.props;
     const isSelected = selectedComponentId === onScreenId;
     let currentLevel = nestLevel;
@@ -92,7 +91,9 @@ class ComponentItem extends Component {
           key={child.onScreenId}
           type={child.type}
           onScreenId={child.onScreenId}
+          isOpened={child.isOpened}
           onToggleComponent={onToggleComponent}
+          onToggleSubtree={onToggleSubtree}
           selectedComponentId={selectedComponentId}
           showAllZones={showAllZones}
           classes={classes}
@@ -132,7 +133,7 @@ class ComponentItem extends Component {
                 onClick={this.handleSubtreeClick}
                 classes={{ icon: classes.expandNodeIcon }}
               >
-                {this.state.opened ? <ExpandLess /> : <ExpandMore />}
+                {isOpened ? <ExpandLess /> : <ExpandMore />}
               </IconButton>
             </ListItemSecondaryAction>
           </ListItem>
@@ -145,7 +146,7 @@ class ComponentItem extends Component {
               handleToggleClick={this.handleToggleClick}
             />
           </EditPortal>
-          <Collapse in={this.state.opened}>
+          <Collapse in={isOpened}>
             {subtree}
           </Collapse>
         </div>
@@ -194,8 +195,10 @@ class ComponentItem extends Component {
 
 ComponentItem.propTypes = {
   onToggleComponent: PropTypes.func.isRequired,
+  onToggleSubtree: PropTypes.func.isRequired,
   type: PropTypes.string.isRequired,
   onScreenId: PropTypes.string.isRequired,
+  isOpened: PropTypes.bool,
   selectedComponentId: PropTypes.string.isRequired,
   showAllZones: PropTypes.bool.isRequired,
   properties: PropTypes.oneOfType([
@@ -217,6 +220,7 @@ ComponentItem.propTypes = {
 
 ComponentItem.defaultProps = {
   nestLevel: 1,
+  isOpened: false,
 };
 
 

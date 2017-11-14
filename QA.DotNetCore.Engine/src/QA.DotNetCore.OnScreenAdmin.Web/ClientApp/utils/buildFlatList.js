@@ -32,6 +32,7 @@ const mapComponentProperties = (domElement) => {
 
 const mapComponent = domElement => ({
   isSelected: false,
+  isOpened: false,
   type: domElement.dataset.qaComponentType,
   onScreenId: domElement.dataset.qaComponentOnScreenId,
   parentOnScreenId: domElement.dataset.qaComponentParentOnScreenId === '-1'

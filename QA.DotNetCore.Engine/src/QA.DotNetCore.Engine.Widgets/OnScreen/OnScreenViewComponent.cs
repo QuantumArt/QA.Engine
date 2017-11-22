@@ -19,7 +19,15 @@ namespace QA.DotNetCore.Engine.Widgets.OnScreen
             var enabled = ViewContext.HttpContext.OnScreenEditEnabled();
             var ai = ViewContext.GetCurrentItem();
             if (enabled)
-                return new HtmlString($@"<div id='sidebarplaceholder'></div><script type='text/javascript'>window.onScreenAdminBaseUrl = '{_onScreenSettings.AdminSiteBaseUrl}';window.currentPageId='{ai?.Id}';</script><script src='{ _onScreenSettings.AdminSiteBaseUrl}/dist/onScreenLoader.js' defer></script>");
+                return new HtmlString($@"<div id='sidebarplaceholder'></div>
+                <script type='text/javascript'>
+                    window.onScreenAdminBaseUrl = '{_onScreenSettings.AdminSiteBaseUrl}';
+                    window.currentPageId='{ai?.Id}';
+                    window.siteId='{_onScreenSettings.SiteId}';
+                    document.cookie = 'onscreen = true; expires = 0; path =/ ';
+                 </script>
+                <script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/pmrpc.js' defer></script>
+                <script src='{ _onScreenSettings.AdminSiteBaseUrl}/dist/onScreenLoader.js' defer></script>");
             return HtmlString.Empty;
         }
     }

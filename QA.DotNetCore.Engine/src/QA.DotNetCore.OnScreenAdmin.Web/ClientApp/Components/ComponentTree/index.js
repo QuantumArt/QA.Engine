@@ -3,7 +3,14 @@ import PropTypes from 'prop-types';
 import List from 'material-ui/List';
 import ComponentItem from '../ComponentItem';
 
-const ComponentTree = ({ components, selectedComponentId, onToggleComponent, onToggleSubtree, showAllZones }) => (
+const ComponentTree = ({
+  components,
+  selectedComponentId,
+  onToggleComponent,
+  onToggleSubtree,
+  onEditWidget,
+  showAllZones,
+}) => (
   <List>
     {components.map(component => (
       <ComponentItem
@@ -13,6 +20,7 @@ const ComponentTree = ({ components, selectedComponentId, onToggleComponent, onT
         key={component.onScreenId}
         onToggleComponent={onToggleComponent}
         onToggleSubtree={onToggleSubtree}
+        onEditWidget={onEditWidget}
         showAllZones={showAllZones}
       />))}
   </List>
@@ -31,6 +39,7 @@ ComponentTree.propTypes = {
   selectedComponentId: PropTypes.string.isRequired,
   onToggleComponent: PropTypes.func.isRequired,
   onToggleSubtree: PropTypes.func.isRequired,
+  onEditWidget: PropTypes.func.isRequired,
   showAllZones: PropTypes.bool.isRequired,
 };
 

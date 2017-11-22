@@ -53,6 +53,7 @@ namespace DemoWebApplication
             services.AddOnScreenServices(options =>
             {
                 options.AdminSiteBaseUrl = Configuration.GetSection("OnScreen").Get<OnScreenSettings>().AdminSiteBaseUrl;
+                options.SiteId = Configuration.GetSection("QpSettings").Get<QpSettings>().SiteId;
             });
 
             services.AddSingleton(typeof(DemoRegionTargetingProvider));

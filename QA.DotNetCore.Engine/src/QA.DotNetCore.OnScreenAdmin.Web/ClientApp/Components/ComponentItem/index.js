@@ -54,6 +54,10 @@ class ComponentItem extends Component {
     this.props.onToggleSubtree(this.props.onScreenId);
   }
 
+  handleEditWidget = () => {
+    this.props.onEditWidget(this.props.properties.widgetId);
+  }
+
   renderSecondaryText = (type, properties) => {
     if (type === 'zone') {
       let zoneSettings = '';
@@ -70,6 +74,7 @@ class ComponentItem extends Component {
     const {
       onToggleComponent,
       onToggleSubtree,
+      onEditWidget,
       type,
       onScreenId,
       properties,
@@ -94,10 +99,12 @@ class ComponentItem extends Component {
           isOpened={child.isOpened}
           onToggleComponent={onToggleComponent}
           onToggleSubtree={onToggleSubtree}
+          onEditWidget={onEditWidget}
           selectedComponentId={selectedComponentId}
           showAllZones={showAllZones}
           classes={classes}
           nestLevel={currentLevel}
+
         >
           {child.children}
         </ComponentItem>
@@ -149,6 +156,11 @@ class ComponentItem extends Component {
           <Collapse in={isOpened}>
             {subtree}
           </Collapse>
+          <ComponentControlMenu
+            onEditWidget={this.handleEditWidget}
+            properties={properties}
+            type={type}
+          />
         </div>
       );
     }
@@ -188,6 +200,11 @@ class ComponentItem extends Component {
             handleToggleClick={this.handleToggleClick}
           />
         </EditPortal>
+        <ComponentControlMenu
+          onEditWidget={this.handleEditWidget}
+          properties={properties}
+          type={type}
+        />
       </div>
     );
   }
@@ -196,6 +213,7 @@ class ComponentItem extends Component {
 ComponentItem.propTypes = {
   onToggleComponent: PropTypes.func.isRequired,
   onToggleSubtree: PropTypes.func.isRequired,
+  onEditWidget: PropTypes.func.isRequired,
   type: PropTypes.string.isRequired,
   onScreenId: PropTypes.string.isRequired,
   isOpened: PropTypes.bool,

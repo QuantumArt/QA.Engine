@@ -1,4 +1,11 @@
-import { TOGGLE_COMPONENT, TOGGLE_SUBTREE } from '../actions/actionTypes';
+import { TOGGLE_COMPONENT,
+  TOGGLE_SUBTREE,
+  EDIT_WIDGET,
+  GET_ABSTRACT_ITEM_INFO_REQUESTED,
+  GET_ABSTRACT_ITEM_INFO_SUCCESS,
+  GET_ABSTRACT_ITEM_INFO_FAIL,
+  EDIT_WIDGET_SHOW_QP_FORM,
+  EDIT_WIDGET_CLOSE_QP_FORM } from '../actions/actionTypes';
 import buildTree from '../utils/buildFlatList';
 
 const components = buildTree();
@@ -6,6 +13,12 @@ const components = buildTree();
 const initialState = {
   selectedComponentId: '',
   components,
+  isLoading: false,
+  editingComponent: false,
+  editingComponentId: null,
+  error: null,
+  showQpForm: false,
+  abstractItemMetaInfo: null,
 };
 
 export default function componentTreeReducer(state = initialState, action) {
@@ -30,6 +43,42 @@ export default function componentTreeReducer(state = initialState, action) {
         ),
       };
 
+    case EDIT_WIDGET:
+      return {
+        ...state,
+        editingComponent: true,
+        editingComponentId: action.id,
+      };
+    case GET_ABSTRACT_ITEM_INFO_REQUESTED:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case GET_ABSTRACT_ITEM_INFO_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        error: null,
+        abstractItemMetaInfo: action.info,
+      };
+    case GET_ABSTRACT_ITEM_INFO_FAIL:
+      return {
+        ...state,
+        isLoading: false,
+        error: action.error,
+      };
+    case EDIT_WIDGET_SHOW_QP_FORM:
+      return {
+        ...state,
+        showQpForm: true,
+      };
+    case EDIT_WIDGET_CLOSE_QP_FORM:
+      return {
+        ...state,
+        showQpForm: false,
+        editingComponent: false,
+        editingComponentId: null,
+      };
     default:
       return state;
   }

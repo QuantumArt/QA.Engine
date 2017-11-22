@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { toggleComponent, toggleSubtree } from '../actions/componentTreeActions';
+import { toggleComponent, toggleSubtree, editWidget } from '../actions/componentTreeActions';
 import ComponentTree from '../Components/ComponentTree';
 import buildTree from '../utils/buildTree';
 
@@ -15,6 +15,9 @@ const mapDispatchToProps = dispatch => ({
   },
   onToggleSubtree: (id) => {
     dispatch(toggleSubtree(id));
+  },
+  onEditWidget: (id) => {
+    dispatch(editWidget(id));
   },
 });
 

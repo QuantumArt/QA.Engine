@@ -7,6 +7,8 @@
     "build:prod": "cross-env NODE_ENV=production webpack --config webpack.prod.config.js --progress --profile --colors --display-error-details"
   },
   "dependencies": {
+    "axios": "^0.17.1",
+    "babel-polyfill": "^6.26.0",
     "lodash": "^4.17.4",
     "material-ui": "^1.0.0-beta.20",
     "material-ui-icons": "^1.0.0-beta.17",
@@ -18,15 +20,16 @@
     "react-grid-layout": "^0.16.0",
     "react-redux": "^5.0.6",
     "redux": "^3.7.2",
+    "redux-saga": "^0.16.0",
     "redux-thunk": "^2.2.0",
     "scroll-to-element": "^2.0.0",
+    "store": "^2.0.12",
     "typeface-roboto": "0.0.43"
   },
   "devDependencies": {
     "aspnet-webpack": "^2.0.1",
     "aspnet-webpack-react": "^3.0.0",
     "autoprefixer": "^7.1.5",
-    "axios": "^0.16.2",
     "babel-core": "^6.26.0",
     "babel-eslint": "^7.2.3",
     "babel-loader": "^7.1.2",

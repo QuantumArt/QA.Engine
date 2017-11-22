@@ -7,7 +7,10 @@ console.log(process.env.NODE_ENV);
 
 module.exports = {
   entry: {
-    main: './ClientApp/index.js',
+    main: [
+      'babel-polyfill',
+      './ClientApp/index.js',
+    ],
   },
   output: {
     path: path.resolve(__dirname, 'wwwroot/dist'),

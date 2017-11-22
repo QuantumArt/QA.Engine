@@ -11,7 +11,9 @@ namespace QA.DotNetCore.Engine.Widgets.OnScreen
     {
         public OnScreenContext GetContext(HttpContext httpContext)
         {
-            var isOnscreen = httpContext.Request.Query.ContainsKey("onscreen") && httpContext.Request.Query["onscreen"].Equals(new string[] { "true" });
+            var queryOnscreen = httpContext.Request.Query.ContainsKey("onscreen") && httpContext.Request.Query["onscreen"].Equals(new string[] { "true" });
+            var cookieOnscreen = httpContext.Request.Cookies.ContainsKey("onscreen") && httpContext.Request.Cookies["onscreen"].Equals("true");
+            var isOnscreen = queryOnscreen || cookieOnscreen;
             return isOnscreen
                 ?
             new OnScreenContext

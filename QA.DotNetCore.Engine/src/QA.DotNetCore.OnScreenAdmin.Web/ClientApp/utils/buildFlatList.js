@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { getSubtreeState } from './componentTreeStateStorage';
 /* eslint-disable no-param-reassign */
 
 const findParentComponent = (component) => {
@@ -30,9 +31,16 @@ const mapComponentProperties = (domElement) => {
   };
 };
 
+const storedState = getSubtreeState();
+
+const getIsSelected = (onScreenId) => {
+  if (!storedState) { return false; }
+  return _.includes(storedState.openedNodes, onScreenId);
+};
+
 const mapComponent = domElement => ({
   isSelected: false,
-  isOpened: false,
+  isOpened: getIsSelected(domElement.dataset.qaComponentOnScreenId),
   type: domElement.dataset.qaComponentType,
   onScreenId: domElement.dataset.qaComponentOnScreenId,
   parentOnScreenId: domElement.dataset.qaComponentParentOnScreenId === '-1'

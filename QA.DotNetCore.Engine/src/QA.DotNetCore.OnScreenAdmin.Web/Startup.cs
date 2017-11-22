@@ -62,6 +62,11 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
             }
 
             app.UseStaticFiles();
+            app.UseCors(builder => builder
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials());
 
             app.UseMvc(routes =>
             {

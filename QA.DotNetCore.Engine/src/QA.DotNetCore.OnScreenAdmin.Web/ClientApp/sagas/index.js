@@ -1,6 +1,10 @@
 import { all } from 'redux-saga/effects';
 import { watchSubtreeToggle } from './treeStateSagas';
-import { watchEditWidget, watchGetAbstractItemInfo, watchGetAbstractItemInfoSuccess } from './editWidgetSagas';
+import { watchEditWidget,
+  watchGetAbstractItemInfo,
+  watchGetAbstractItemInfoSuccess,
+  watchQpFormChannel,
+  watchQpFormClosed } from './editWidgetSagas';
 
 
 export default function* rootSaga() {
@@ -9,5 +13,7 @@ export default function* rootSaga() {
     watchEditWidget(),
     watchGetAbstractItemInfo(),
     watchGetAbstractItemInfoSuccess(),
+    watchQpFormChannel(),
+    watchQpFormClosed(),
   ]);
 }

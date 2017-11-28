@@ -17,6 +17,7 @@ import Collapse from 'material-ui/transitions/Collapse';
 import { deepPurple } from 'material-ui/colors';
 import EditPortal from '../EditPortal';
 import EditControl from '../EditControl';
+import ComponentControlMenu from '../ComponentControlMenu';
 
 const styles = (theme) => {
   console.log(theme);

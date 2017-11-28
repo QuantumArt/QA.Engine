@@ -2,12 +2,7 @@ import {
   TOGGLE_COMPONENT,
   LOADED_COMPONENT_TREE,
   TOGGLE_SUBTREE,
-  EDIT_WIDGET,
-  GET_ABSTRACT_ITEM_INFO_REQUESTED,
-  GET_ABSTRACT_ITEM_INFO_SUCCESS,
-  GET_ABSTRACT_ITEM_INFO_FAIL,
-  EDIT_WIDGET_SHOW_QP_FORM,
-  EDIT_WIDGET_CLOSE_QP_FORM,
+  EDIT_WIDGET_ACTIONS,
 } from './actionTypes';
 
 export function toggleComponent(id) {
@@ -23,25 +18,29 @@ export function toggleSubtree(id) {
 }
 
 export function editWidget(id) {
-  return { type: EDIT_WIDGET, id };
+  return { type: EDIT_WIDGET_ACTIONS.EDIT_WIDGET, id };
 }
 
 export function getAbstractItemInfoRequested() {
-  return { type: GET_ABSTRACT_ITEM_INFO_REQUESTED };
+  return { type: EDIT_WIDGET_ACTIONS.GET_ABSTRACT_ITEM_INFO_REQUESTED };
 }
 
 export function getAbstractItemInfoSuccess(info) {
-  return { type: GET_ABSTRACT_ITEM_INFO_SUCCESS, info };
+  return { type: EDIT_WIDGET_ACTIONS.GET_ABSTRACT_ITEM_INFO_SUCCESS, info };
 }
 
 export function getAbstractItemInfoFail(error) {
-  return { type: GET_ABSTRACT_ITEM_INFO_FAIL, error };
+  return { type: EDIT_WIDGET_ACTIONS.GET_ABSTRACT_ITEM_INFO_FAIL, error };
 }
 
 export function showQpForm() {
-  return { type: EDIT_WIDGET_SHOW_QP_FORM };
+  return { type: EDIT_WIDGET_ACTIONS.SHOW_QP_FORM };
 }
 
 export function closeQpForm() {
-  return { type: EDIT_WIDGET_CLOSE_QP_FORM };
+  return { type: EDIT_WIDGET_ACTIONS.CLOSE_QP_FORM };
+}
+
+export function needReload() {
+  return { type: EDIT_WIDGET_ACTIONS.NEED_RELOAD };
 }

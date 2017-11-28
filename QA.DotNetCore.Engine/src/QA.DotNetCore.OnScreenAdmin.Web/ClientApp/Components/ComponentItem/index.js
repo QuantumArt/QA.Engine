@@ -24,7 +24,7 @@ const styles = (theme) => {
   return {
     listItem: {
       height: theme.spacing.unit * 7.5,
-      minWidth: 250,
+      minWidth: 350,
     },
     listItemText: {
       fontSize: theme.typography.fontSize,
@@ -71,6 +71,43 @@ class ComponentItem extends Component {
     return `${type}: ID - ${properties.widgetId}`;
   }
 
+  renderContextMenu = (isSelected, type, properties) => {
+    if (!isSelected) { return null; }
+
+    return (<ComponentControlMenu
+      onEditWidget={this.handleEditWidget}
+      properties={properties}
+      type={type}
+    />);
+  }
+
+  renderSubtree = (isOpened, subtree) => {
+    if (!subtree) {
+      return null;
+    }
+    return (
+      <Collapse in={isOpened}>
+        {subtree}
+      </Collapse>
+    );
+  }
+
+  renderCollapseButton = (isOpened, subtree, classes) => {
+    if (!subtree) {
+      return null;
+    }
+    return (
+      <ListItemSecondaryAction>
+        <IconButton
+          onClick={this.handleSubtreeClick}
+          classes={{ icon: classes.expandNodeIcon }}
+        >
+          {isOpened ? <ExpandLess /> : <ExpandMore />}
+        </IconButton>
+      </ListItemSecondaryAction>
+    );
+  }
+
   render() {
     const {
       onToggleComponent,
@@ -88,10 +125,11 @@ class ComponentItem extends Component {
     } = this.props;
     const isSelected = selectedComponentId === onScreenId;
     let currentLevel = nestLevel;
+    let subtree = null;
 
     if (children.length > 0) {
       currentLevel += 1;
-      const subtree = children.map(child => (
+      subtree = children.map(child => (
         <ComponentItem
           properties={child.properties}
           key={child.onScreenId}
@@ -105,78 +143,23 @@ class ComponentItem extends Component {
           showAllZones={showAllZones}
           classes={classes}
           nestLevel={currentLevel}
-
         >
           {child.children}
         </ComponentItem>
       ));
-
-      return (
-        <div>
-          <ListItem
-            onClick={this.handleToggleClick}
-            classes={{ root: classes.listItemRoot }}
-            style={{ paddingLeft: nestLevel > 1 ? `${nestLevel}em` : '16px' }}
-            button
-          >
-            <ListItemIcon className={isSelected
-              ? classes.listItemIconSelected
-              : ''}
-            >
-              {type === 'zone'
-                ? <PanoramaHorizontal />
-                : <Widgets />
-              }
-            </ListItemIcon>
-            <ListItemText
-              primary={type === 'zone'
-                ? `${properties.zoneName}`
-                : `${properties.title}`
-              }
-              secondary={this.renderSecondaryText(type, properties)}
-              classes={{ text: classes.listItemText }}
-            />
-            <ListItemSecondaryAction>
-              <IconButton
-                onClick={this.handleSubtreeClick}
-                classes={{ icon: classes.expandNodeIcon }}
-              >
-                {isOpened ? <ExpandLess /> : <ExpandMore />}
-              </IconButton>
-            </ListItemSecondaryAction>
-          </ListItem>
-          <EditPortal type={type} onScreenId={onScreenId}>
-            <EditControl
-              properties={properties}
-              type={type}
-              isSelected={isSelected}
-              showAllZones={showAllZones}
-              handleToggleClick={this.handleToggleClick}
-            />
-          </EditPortal>
-          <Collapse in={isOpened}>
-            {subtree}
-          </Collapse>
-          <ComponentControlMenu
-            onEditWidget={this.handleEditWidget}
-            properties={properties}
-            type={type}
-          />
-        </div>
-      );
     }
-
     return (
       <div>
         <ListItem
-          onClick={this.handleToggleClick}
           classes={{ root: classes.listItemRoot }}
           style={{ paddingLeft: nestLevel > 1 ? `${nestLevel}em` : '16px' }}
           button
         >
-          <ListItemIcon className={isSelected
-            ? classes.listItemIconSelected
-            : ''}
+          <ListItemIcon
+            className={isSelected
+              ? classes.listItemIconSelected
+              : ''}
+            onClick={this.handleToggleClick}
           >
             {type === 'zone'
               ? <PanoramaHorizontal />
@@ -190,9 +173,14 @@ class ComponentItem extends Component {
             }
             secondary={this.renderSecondaryText(type, properties)}
             classes={{ text: classes.listItemText }}
+            onClick={this.handleToggleClick}
           />
+          { this.renderContextMenu(isSelected, type, properties) }
+
+          { this.renderCollapseButton(isOpened, subtree, classes) }
+
         </ListItem>
-        <EditPortal type={type} onScreenId={onScreenId} properties={properties}>
+        <EditPortal type={type} onScreenId={onScreenId}>
           <EditControl
             properties={properties}
             type={type}
@@ -201,11 +189,9 @@ class ComponentItem extends Component {
             handleToggleClick={this.handleToggleClick}
           />
         </EditPortal>
-        <ComponentControlMenu
-          onEditWidget={this.handleEditWidget}
-          properties={properties}
-          type={type}
-        />
+        { this.renderSubtree(isOpened, subtree) }
+
+
       </div>
     );
   }

@@ -1,7 +1,6 @@
-import _ from 'lodash';
-import { select, call, put, take, takeEvery } from 'redux-saga/effects';
-import { channel } from 'redux-saga';
+import { select, call, put, takeEvery, all } from 'redux-saga/effects';
 import { EDIT_WIDGET_ACTIONS } from '../actions/actionTypes';
+import { qpFormCallback } from './qpFormSagas';
 
 import { getMeta } from '../api';
 import editWidgetQpForm from '../articleManagement';
@@ -9,15 +8,7 @@ import editWidgetQpForm from '../articleManagement';
 
 const getAbstractItemMetaInfo = state => state.componentTree.abstractItemMetaInfo;
 const getCurrentEditingWidgetId = state => state.componentTree.editingComponentId;
-const getNeedReload = state => state.componentTree.needReload;
-const qpFormChannel = channel();
 
-const qpFormActionsNeedReload = [
-  'update_article',
-  'update_article_and_up',
-  'move_to_archive_article',
-  'remove_article',
-];
 
 function* editWidget(action) {
   console.log('editWidget saga');
@@ -41,20 +32,6 @@ function* getAbstractItemInfo() {
   }
 }
 
-function qpFormCallback(eventType, details) {
-  console.log('qpFormCallback', eventType, details);
-  if (eventType === 1) { // host unbinded
-    if (details.reason === 'closed') { // closed without saving
-      qpFormChannel.put({ type: EDIT_WIDGET_ACTIONS.CLOSE_QP_FORM, eventType, details });
-    }
-  }
-  if (eventType === 2) { // action executed
-    if (_.includes(qpFormActionsNeedReload, details.actionCode)) {
-      qpFormChannel.put({ type: EDIT_WIDGET_ACTIONS.NEED_RELOAD });
-    }
-  }
-}
-
 function* showQpForm() {
   console.log('showQpForm');
   const widgetId = yield select(getCurrentEditingWidgetId);
@@ -63,34 +40,25 @@ function* showQpForm() {
   yield put({ type: EDIT_WIDGET_ACTIONS.SHOW_QP_FORM });
 }
 
-function* qpFormClosed(action) {
-  console.log('qpFormClosed', action);
-  const isReloadNeeded = yield select(getNeedReload);
-  if (isReloadNeeded) {
-    location.reload();
-  }
-}
 
-export function* watchEditWidget() {
+function* watchEditWidget() {
   yield takeEvery(EDIT_WIDGET_ACTIONS.EDIT_WIDGET, editWidget);
 }
 
-export function* watchGetAbstractItemInfo() {
+function* watchGetAbstractItemInfo() {
   yield takeEvery(EDIT_WIDGET_ACTIONS.GET_ABSTRACT_ITEM_INFO_REQUESTED, getAbstractItemInfo);
 }
 
-export function* watchGetAbstractItemInfoSuccess() {
+function* watchGetAbstractItemInfoSuccess() {
   yield takeEvery(EDIT_WIDGET_ACTIONS.GET_ABSTRACT_ITEM_INFO_SUCCESS, showQpForm);
 }
 
-export function* watchQpFormClosed() {
-  yield takeEvery(EDIT_WIDGET_ACTIONS.CLOSE_QP_FORM, qpFormClosed);
-}
 
-export function* watchQpFormChannel() {
-  while (true) {
-    const action = yield take(qpFormChannel);
-    yield put(action);
-  }
+export default function* rootSaga() {
+  yield all([
+    watchEditWidget(),
+    watchGetAbstractItemInfo(),
+    watchGetAbstractItemInfoSuccess(),
+  ]);
 }
 

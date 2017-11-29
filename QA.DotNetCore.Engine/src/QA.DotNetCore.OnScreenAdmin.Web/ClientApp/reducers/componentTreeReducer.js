@@ -1,6 +1,9 @@
 import { TOGGLE_COMPONENT,
   TOGGLE_SUBTREE,
-  EDIT_WIDGET_ACTIONS } from '../actions/actionTypes';
+  EDIT_WIDGET_ACTIONS,
+  ADD_WIDGET_ACTIONS,
+  QP_FORM_ACTIONS,
+} from '../actions/actionTypes';
 import buildTree from '../utils/buildFlatList';
 
 const components = buildTree();
@@ -67,17 +70,23 @@ export default function componentTreeReducer(state = initialState, action) {
         ...state,
         showQpForm: true,
       };
-    case EDIT_WIDGET_ACTIONS.CLOSE_QP_FORM:
+    case QP_FORM_ACTIONS.CLOSE_QP_FORM:
       return {
         ...state,
         showQpForm: false,
         editingComponent: false,
         editingComponentId: null,
       };
-    case EDIT_WIDGET_ACTIONS.NEED_RELOAD:
+    case QP_FORM_ACTIONS.NEED_RELOAD:
       return {
         ...state,
         needReload: true,
+      };
+    case ADD_WIDGET_ACTIONS.ADD_WIDGET_TO_ZONE:
+      return {
+        ...state,
+        addingWidget: true,
+        zoneId: action.zoneId,
       };
     default:
       return state;

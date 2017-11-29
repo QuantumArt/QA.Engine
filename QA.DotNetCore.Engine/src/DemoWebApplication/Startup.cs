@@ -46,6 +46,7 @@ namespace DemoWebApplication
             {
                 options.QpConnectionString = Configuration.GetConnectionString("QpConnection");
                 options.QpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
+                options.QpSiteStructureSettings = Configuration.GetSection("QpSiteStructureSettings").Get<QpSiteStructureSettings>();
                 options.TypeFinder.RegisterFromAssemblyContaining<RootPage, IAbstractItem>();
                 //options.QpSiteStructureSettings.LoadAbstractItemFieldsToDetailsCollection = false;
             });

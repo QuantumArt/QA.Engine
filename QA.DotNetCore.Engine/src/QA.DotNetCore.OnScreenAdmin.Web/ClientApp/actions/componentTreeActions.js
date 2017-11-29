@@ -3,6 +3,7 @@ import {
   LOADED_COMPONENT_TREE,
   TOGGLE_SUBTREE,
   EDIT_WIDGET_ACTIONS,
+  ADD_WIDGET_ACTIONS,
 } from './actionTypes';
 
 export function toggleComponent(id) {
@@ -37,10 +38,6 @@ export function showQpForm() {
   return { type: EDIT_WIDGET_ACTIONS.SHOW_QP_FORM };
 }
 
-export function closeQpForm() {
-  return { type: EDIT_WIDGET_ACTIONS.CLOSE_QP_FORM };
-}
-
-export function needReload() {
-  return { type: EDIT_WIDGET_ACTIONS.NEED_RELOAD };
+export function addWidgetToZone(zoneId) {
+  return { type: ADD_WIDGET_ACTIONS.ADD_WIDGET_TO_ZONE, zoneId };
 }

@@ -22,7 +22,30 @@ class ComponentControlMenu extends Component {
     onEditWidget();
   }
 
-  renderZoneMenu = () => null
+  renderZoneMenu = () => {
+    const open = Boolean(this.state.anchorEl);
+    return (
+      <div>
+        <IconButton
+          aria-label="More"
+          aria-owns={open ? 'long-menu' : null}
+          aria-haspopup="true"
+          onClick={this.handleClick}
+        >
+          <MoreVertIcon />
+        </IconButton>
+        <Menu
+          id="long-menu"
+          anchorEl={this.state.anchorEl}
+          open={open}
+          onRequestClose={this.handleRequestClose}
+        >
+          <MenuItem key="someZoneAction" onClick={this.handleRequestClose}>Some zone action</MenuItem>
+          <MenuItem key="anotherZoneAction" onClick={this.handleRequestClose}>Another zone action</MenuItem>
+        </Menu>
+      </div>
+    );
+  }
 
   renderWidgetMenu = () => {
     const open = Boolean(this.state.anchorEl);
@@ -43,7 +66,7 @@ class ComponentControlMenu extends Component {
           onRequestClose={this.handleRequestClose}
         >
           <MenuItem key="editWidget" onClick={this.handleEditWidget}>Edit</MenuItem>
-          <MenuItem key="dummyMenuItem" onClick={this.handleRequestClose}>Some other action</MenuItem>
+          <MenuItem key="dummyMenuItem" onClick={this.handleRequestClose}>Some other widget action</MenuItem>
         </Menu>
       </div>
     );

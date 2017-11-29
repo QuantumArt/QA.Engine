@@ -1,19 +1,13 @@
 import { all } from 'redux-saga/effects';
 import { watchSubtreeToggle } from './treeStateSagas';
-import { watchEditWidget,
-  watchGetAbstractItemInfo,
-  watchGetAbstractItemInfoSuccess,
-  watchQpFormChannel,
-  watchQpFormClosed } from './editWidgetSagas';
+import watchEditWidgetSaga from './editWidgetSagas';
+import watchQpForm from './qpFormSagas';
 
 
 export default function* rootSaga() {
   yield all([
     watchSubtreeToggle(),
-    watchEditWidget(),
-    watchGetAbstractItemInfo(),
-    watchGetAbstractItemInfoSuccess(),
-    watchQpFormChannel(),
-    watchQpFormClosed(),
+    watchEditWidgetSaga(),
+    watchQpForm(),
   ]);
 }

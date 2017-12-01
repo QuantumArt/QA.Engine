@@ -1,6 +1,6 @@
 import { showQPForm } from '../qpInteraction';
 
-const editWidget = (widgetId, callback, abstractItemMetaInfo) => {
+export const editWidget = (widgetId, callback, abstractItemMetaInfo) => {
   const options = {
     id: widgetId,
     contentId: abstractItemMetaInfo.contentId,
@@ -9,5 +9,9 @@ const editWidget = (widgetId, callback, abstractItemMetaInfo) => {
   showQPForm(options);
 };
 
+export const addWidget = () => {
+  const options = {};
 
-export default editWidget;
+  showQPForm(options);
+};
+

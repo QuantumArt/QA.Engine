@@ -3,7 +3,7 @@ import { EDIT_WIDGET_ACTIONS } from '../actions/actionTypes';
 import { qpFormCallback } from './qpFormSagas';
 
 import { getMeta } from '../api';
-import editWidgetQpForm from '../articleManagement';
+import { editWidget as editWidgetQpForm } from '../articleManagement';
 
 
 const getAbstractItemMetaInfo = state => state.componentTree.abstractItemMetaInfo;

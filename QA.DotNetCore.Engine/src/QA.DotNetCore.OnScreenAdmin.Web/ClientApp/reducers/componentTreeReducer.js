@@ -17,6 +17,8 @@ const initialState = {
   error: null,
   showQpForm: false,
   abstractItemMetaInfo: null,
+  showAvailableWidgets: false,
+  availableWidgets: null,
 };
 
 export default function componentTreeReducer(state = initialState, action) {
@@ -40,7 +42,6 @@ export default function componentTreeReducer(state = initialState, action) {
             : component),
         ),
       };
-
     case EDIT_WIDGET_ACTIONS.EDIT_WIDGET:
       return {
         ...state,
@@ -87,6 +88,29 @@ export default function componentTreeReducer(state = initialState, action) {
         ...state,
         addingWidget: true,
         zoneId: action.zoneId,
+      };
+    case ADD_WIDGET_ACTIONS.SHOW_AVAILABLE_WIDGETS:
+      return {
+        ...state,
+        showAvailableWidgets: true,
+      };
+    case ADD_WIDGET_ACTIONS.GET_AVAILABLE_WIDGETS_REQUESTED:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case ADD_WIDGET_ACTIONS.GET_AVAILABLE_WIDGETS_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        error: null,
+        availableWidgets: action.availableWidgets,
+      };
+    case ADD_WIDGET_ACTIONS.GET_AVAILABLE_WIDGETS_FAIL:
+      return {
+        ...state,
+        isLoading: false,
+        error: action.error,
       };
     default:
       return state;

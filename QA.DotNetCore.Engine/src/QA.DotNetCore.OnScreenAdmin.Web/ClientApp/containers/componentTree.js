@@ -7,6 +7,7 @@ const mapStateToProps = state => ({
   components: buildTree(state.componentTree.components),
   selectedComponentId: state.componentTree.selectedComponentId,
   showAllZones: state.sidebar.showAllZones,
+  showAvailableWidgets: state.componentTree.showAvailableWidgets,
 });
 
 const mapDispatchToProps = dispatch => ({

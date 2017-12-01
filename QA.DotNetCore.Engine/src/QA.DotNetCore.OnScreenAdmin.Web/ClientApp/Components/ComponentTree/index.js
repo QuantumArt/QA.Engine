@@ -9,7 +9,9 @@ const ComponentTree = ({
   onToggleComponent,
   onToggleSubtree,
   onEditWidget,
+  onAddWidgetToZone,
   showAllZones,
+  showAvailableWidgets,
 }) => (
   <List>
     {components.map(component => (
@@ -21,7 +23,9 @@ const ComponentTree = ({
         onToggleComponent={onToggleComponent}
         onToggleSubtree={onToggleSubtree}
         onEditWidget={onEditWidget}
+        onAddWidget={onAddWidgetToZone}
         showAllZones={showAllZones}
+        showListItem={!showAvailableWidgets}
       />))}
   </List>
 );
@@ -40,7 +44,9 @@ ComponentTree.propTypes = {
   onToggleComponent: PropTypes.func.isRequired,
   onToggleSubtree: PropTypes.func.isRequired,
   onEditWidget: PropTypes.func.isRequired,
+  onAddWidgetToZone: PropTypes.func.isRequired,
   showAllZones: PropTypes.bool.isRequired,
+  showAvailableWidgets: PropTypes.bool.isRequired,
 };
 
 export default ComponentTree;

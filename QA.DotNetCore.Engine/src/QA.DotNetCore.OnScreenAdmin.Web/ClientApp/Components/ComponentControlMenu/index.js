@@ -22,6 +22,12 @@ class ComponentControlMenu extends Component {
     onEditWidget();
   }
 
+  handleAddWidget = () => {
+    const { onAddWidget } = this.props;
+    this.handleRequestClose();
+    onAddWidget();
+  }
+
   renderZoneMenu = () => {
     const open = Boolean(this.state.anchorEl);
     return (
@@ -40,7 +46,7 @@ class ComponentControlMenu extends Component {
           open={open}
           onRequestClose={this.handleRequestClose}
         >
-          <MenuItem key="someZoneAction" onClick={this.handleRequestClose}>Some zone action</MenuItem>
+          <MenuItem key="addWidget" onClick={this.handleAddWidget}>Add widget</MenuItem>
           <MenuItem key="anotherZoneAction" onClick={this.handleRequestClose}>Another zone action</MenuItem>
         </Menu>
       </div>
@@ -88,6 +94,7 @@ class ComponentControlMenu extends Component {
 
 ComponentControlMenu.propTypes = {
   onEditWidget: PropTypes.func.isRequired,
+  onAddWidget: PropTypes.func.isRequired,
   type: PropTypes.string.isRequired,
 
 };

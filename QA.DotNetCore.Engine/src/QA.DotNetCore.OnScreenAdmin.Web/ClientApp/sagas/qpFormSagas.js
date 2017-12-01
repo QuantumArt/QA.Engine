@@ -16,7 +16,7 @@ const qpFormActionsNeedReload = [
 export function qpFormCallback(eventType, details) {
   console.log('qpFormCallback', eventType, details);
   if (eventType === 1) { // host unbinded
-    if (details.reason === 'closed') { // closed without saving
+    if (details.reason === 'closed') { // closed 
       qpFormChannel.put({ type: QP_FORM_ACTIONS.CLOSE_QP_FORM, eventType, details });
     }
   }

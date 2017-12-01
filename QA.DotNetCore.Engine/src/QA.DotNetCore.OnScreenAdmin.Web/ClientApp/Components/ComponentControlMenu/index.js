@@ -5,9 +5,9 @@ import Menu, { MenuItem } from 'material-ui/Menu';
 import IconButton from 'material-ui/IconButton';
 import MoreVertIcon from 'material-ui-icons/MoreVert';
 
-const styles = ({
+const styles = theme => ({
   menuItem: {
-    fontSize: 15,
+    fontSize: theme.spacing.unit * 1.8,
   },
 });
 

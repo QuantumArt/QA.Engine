@@ -1,16 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Scrollbars } from 'react-custom-scrollbars';
 import { withStyles } from 'material-ui/styles';
 import Drawer from 'material-ui/Drawer';
-// import Divider from 'material-ui/Divider';
+import Tabs, { Tab } from 'material-ui/Tabs';
+import Divider from 'material-ui/Divider';
+import Switch from 'material-ui/Switch';
+import { FormControlLabel } from 'material-ui/Form';
 import Toolbar from 'material-ui/Toolbar';
 import IconButton from 'material-ui/IconButton';
 import ExitToApp from 'material-ui-icons/ExitToApp';
 import TextField from 'material-ui/TextField';
 import BorderLeft from 'material-ui-icons/BorderLeft';
 import BorderRight from 'material-ui-icons/BorderRight';
-import FlipToBack from 'material-ui-icons/FlipToBack';
-import FlipToFront from 'material-ui-icons/FlipToFront';
+import DeveloperBoard from 'material-ui-icons/DeveloperBoard';
+import Kitchen from 'material-ui-icons/Kitchen';
+import Tune from 'material-ui-icons/Tune';
 import 'typeface-roboto/index.css';
 import ComponentTree from '../../containers/componentTree';
 import OpenControl from '../OpenControl';
@@ -20,27 +25,32 @@ const styles = theme => ({
 
   },
   drawer: {
-    width: 360,
+    width: 361,
   },
   controlToolbar: {
     minHeight: 40,
     marginTop: 10,
-    justifyContent: 'space-around',
+    marginBottom: 10,
+    marginRight: 6,
+    justifyContent: 'flex-end',
   },
   controlButtonRoot: {
-    width: 40,
-    height: 40,
+    width: theme.spacing.unit * 5,
+    height: theme.spacing.unit * 5,
   },
   controlButtonIcon: {
-    width: 20,
-    height: 20,
+    width: theme.spacing.unit * 2.8,
+    height: theme.spacing.unit * 2.8,
+  },
+  tabsToolbar: {
+    padding: '10px 0 0',
   },
   treeToolbar: {
 
   },
   closeButton: {
-    width: theme.spacing.unit * 3,
-    height: theme.spacing.unit * 3,
+    width: theme.spacing.unit * 2.8,
+    height: theme.spacing.unit * 2.8,
   },
   searchField: {
     marginLeft: theme.spacing.unit * 2,
@@ -52,6 +62,12 @@ const styles = theme => ({
   searchFieldLabel: {
     fontWeight: 'normal',
     fontSize: theme.spacing.unit * 2,
+  },
+  switchLabel: {
+    fontSize: theme.spacing.unit * 1.8,
+  },
+  tabRoot: {
+    minWidth: 120,
   },
 });
 
@@ -75,60 +91,82 @@ const Sidebar = (props) => {
         toggleRight={toggleRight}
         drawerOpened={opened}
       />
+
       <Drawer
         type="persistent"
         open={opened}
         classes={{ paper: classes.drawer }}
         anchor={side}
       >
-        <Toolbar disableGutters classes={{ root: classes.controlToolbar }}>
-          <IconButton
-            color="primary"
-            classes={{ icon: classes.controlButtonIcon, root: classes.controlButtonRoot }}
-            onClick={toggleLeft}
-          >
-            <BorderLeft />
-          </IconButton>
-          <IconButton
-            color="primary"
-            classes={{ icon: classes.controlButtonIcon, root: classes.controlButtonRoot }}
-            onClick={toggleAllZones}
-          >
-            {showAllZones ? <FlipToFront /> : <FlipToBack />}
-          </IconButton>
-          <IconButton
-            color="primary"
-            classes={{ icon: classes.controlButtonIcon, root: classes.controlButtonRoot }}
-            onClick={toggleRight}
-          >
-            <BorderRight />
-          </IconButton>
-        </Toolbar>
-        <Toolbar disableGutters classes={{ root: classes.treeToolbar }}>
-          <TextField
-            id="search"
-            label="Search items"
-            type="text"
-            margin="normal"
-            fullWidth
-            className={classes.searchField}
-            InputLabelProps={{
-              className: classes.searchFieldLabel,
-            }}
-            InputProps={{
-              className: classes.searchInput,
-            }}
-          />
-          <IconButton
-            color="primary"
-            onClick={toggleSidebar}
-            classes={{ icon: classes.closeButton }}
-            style={{ transform: side === 'left' ? 'rotate(180deg)' : '' }}
-          >
-            <ExitToApp />
-          </IconButton>
-        </Toolbar>
-        <ComponentTree />
+        <Scrollbars autoHide>
+          <Toolbar disableGutters classes={{ root: classes.controlToolbar }}>
+            <IconButton
+              color="primary"
+              onClick={toggleSidebar}
+              classes={{ icon: classes.closeButton }}
+              style={{ transform: side === 'left' ? 'rotate(180deg)' : '' }}
+            >
+              <ExitToApp />
+            </IconButton>
+            <IconButton
+              color="primary"
+              classes={{ icon: classes.controlButtonIcon, root: classes.controlButtonRoot }}
+              onClick={toggleLeft}
+            >
+              <BorderLeft />
+            </IconButton>
+            <IconButton
+              color="primary"
+              classes={{ icon: classes.controlButtonIcon, root: classes.controlButtonRoot }}
+              onClick={toggleRight}
+            >
+              <BorderRight />
+            </IconButton>
+          </Toolbar>
+          <Divider />
+          <Toolbar classes={{ root: classes.tabsToolbar }}>
+            <Tabs
+              value={1}
+              // onChange={this.handleChange}
+              indicatorColor="primary"
+              textColor="primary"
+            >
+              <Tab icon={<Tune />} label="WIDGETS" classes={{ root: classes.tabRoot }} />
+              <Tab icon={<DeveloperBoard />} label="A/B TESTS" classes={{ root: classes.tabRoot }} />
+              <Tab icon={<Kitchen />} label="ELSE" classes={{ root: classes.tabRoot }} />
+            </Tabs>
+          </Toolbar>
+          <Toolbar disableGutters classes={{ root: classes.treeToolbar }}>
+            <TextField
+              id="search"
+              label="Search items"
+              type="text"
+              margin="normal"
+              fullWidth
+              className={classes.searchField}
+              InputLabelProps={{
+                className: classes.searchFieldLabel,
+              }}
+              InputProps={{
+                className: classes.searchInput,
+              }}
+            />
+          </Toolbar>
+          <Toolbar>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={showAllZones}
+                  onChange={toggleAllZones}
+                  aria-label="AllZonesChecked"
+                />
+              }
+              label="Toggle all zones mode"
+              classes={{ label: classes.switchLabel }}
+            />
+          </Toolbar>
+          <ComponentTree />
+        </Scrollbars>
       </Drawer>
     </div>
   );

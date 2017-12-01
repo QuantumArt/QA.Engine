@@ -32,9 +32,15 @@ const styles = (theme) => {
     listItemIconSelected: {
       color: deepPurple[500],
     },
+    listItemSecondaryAction: {
+      paddingRight: 80,
+    },
     expandNodeIcon: {
       width: theme.spacing.unit * 3,
       height: theme.spacing.unit * 3,
+    },
+    expandNodeRoot: {
+      verticalAlign: 'bottom',
     },
   };
 };
@@ -63,6 +69,10 @@ class ComponentItem extends Component {
     this.props.onAddWidget('some zone id');
   }
 
+  renderPrimaryText = (type, properties) => (type === 'zone'
+    ? `${properties.zoneName}`
+    : `${properties.title}`);
+
   renderSecondaryText = (type, properties) => {
     if (type === 'zone') {
       let zoneSettings = '';
@@ -78,12 +88,14 @@ class ComponentItem extends Component {
   renderContextMenu = (isSelected, type, properties) => {
     if (!isSelected) { return null; }
 
-    return (<ComponentControlMenu
-      onEditWidget={this.handleEditWidget}
-      onAddWidget={this.handleAddWidget}
-      properties={properties}
-      type={type}
-    />);
+    return (
+      <ComponentControlMenu
+        onEditWidget={this.handleEditWidget}
+        onAddWidget={this.handleAddWidget}
+        properties={properties}
+        type={type}
+      />
+    );
   }
 
   renderSubtree = (isOpened, subtree) => {
@@ -102,14 +114,12 @@ class ComponentItem extends Component {
       return null;
     }
     return (
-      <ListItemSecondaryAction>
-        <IconButton
-          onClick={this.handleSubtreeClick}
-          classes={{ icon: classes.expandNodeIcon }}
-        >
-          {isOpened ? <ExpandLess /> : <ExpandMore />}
-        </IconButton>
-      </ListItemSecondaryAction>
+      <IconButton
+        onClick={this.handleSubtreeClick}
+        classes={{ icon: classes.expandNodeIcon, root: classes.expandNodeRoot }}
+      >
+        {isOpened ? <ExpandLess /> : <ExpandMore />}
+      </IconButton>
     );
   }
 
@@ -129,15 +139,18 @@ class ComponentItem extends Component {
     if (!showListItem) { return null; }
     return (
       <ListItem
-        classes={{ root: classes.listItemRoot }}
+        classes={{
+          root: classes.listItemRoot,
+          secondaryAction: classes.listItemSecondaryAction,
+        }}
         style={{ paddingLeft: nestLevel > 1 ? `${nestLevel}em` : '16px' }}
+        onClick={this.handleToggleClick}
         button
       >
         <ListItemIcon
           className={isSelected
             ? classes.listItemIconSelected
             : ''}
-          onClick={this.handleToggleClick}
         >
           {type === 'zone'
             ? <PanoramaHorizontal />
@@ -145,18 +158,14 @@ class ComponentItem extends Component {
           }
         </ListItemIcon>
         <ListItemText
-          primary={type === 'zone'
-            ? `${properties.zoneName}`
-            : `${properties.title}`
-          }
+          primary={this.renderPrimaryText(type, properties)}
           secondary={this.renderSecondaryText(type, properties)}
           classes={{ text: classes.listItemText }}
-          onClick={this.handleToggleClick}
         />
-        { this.renderContextMenu(isSelected, type, properties) }
-
-        { this.renderCollapseButton(isOpened, subtree, classes) }
-
+        <ListItemSecondaryAction>
+          { this.renderContextMenu(isSelected, type, properties) }
+          { this.renderCollapseButton(isOpened, subtree, classes) }
+        </ListItemSecondaryAction>
       </ListItem>
     );
   }

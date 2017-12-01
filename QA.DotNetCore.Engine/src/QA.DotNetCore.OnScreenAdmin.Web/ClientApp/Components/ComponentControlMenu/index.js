@@ -1,8 +1,15 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
+import { withStyles } from 'material-ui/styles';
 import Menu, { MenuItem } from 'material-ui/Menu';
 import IconButton from 'material-ui/IconButton';
 import MoreVertIcon from 'material-ui-icons/MoreVert';
+
+const styles = ({
+  menuItem: {
+    fontSize: 15,
+  },
+});
 
 class ComponentControlMenu extends Component {
   state = {
@@ -29,9 +36,10 @@ class ComponentControlMenu extends Component {
   }
 
   renderZoneMenu = () => {
+    const { classes } = this.props;
     const open = Boolean(this.state.anchorEl);
     return (
-      <div>
+      <Fragment>
         <IconButton
           aria-label="More"
           aria-owns={open ? 'long-menu' : null}
@@ -46,17 +54,30 @@ class ComponentControlMenu extends Component {
           open={open}
           onRequestClose={this.handleRequestClose}
         >
-          <MenuItem key="addWidget" onClick={this.handleAddWidget}>Add widget</MenuItem>
-          <MenuItem key="anotherZoneAction" onClick={this.handleRequestClose}>Another zone action</MenuItem>
+          <MenuItem
+            key="addWidget"
+            onClick={this.handleAddWidget}
+            classes={{ root: classes.menuItem }}
+          >
+            Add widget
+          </MenuItem>
+          <MenuItem
+            key="anotherZoneAction"
+            onClick={this.handleRequestClose}
+            classes={{ root: classes.menuItem }}
+          >
+            Another zone action
+          </MenuItem>
         </Menu>
-      </div>
+      </Fragment>
     );
   }
 
   renderWidgetMenu = () => {
+    const { classes } = this.props;
     const open = Boolean(this.state.anchorEl);
     return (
-      <div>
+      <Fragment>
         <IconButton
           aria-label="More"
           aria-owns={open ? 'long-menu' : null}
@@ -71,10 +92,22 @@ class ComponentControlMenu extends Component {
           open={open}
           onRequestClose={this.handleRequestClose}
         >
-          <MenuItem key="editWidget" onClick={this.handleEditWidget}>Edit</MenuItem>
-          <MenuItem key="dummyMenuItem" onClick={this.handleRequestClose}>Some other widget action</MenuItem>
+          <MenuItem
+            key="editWidget"
+            onClick={this.handleEditWidget}
+            classes={{ root: classes.menuItem }}
+          >
+            Edit
+          </MenuItem>
+          <MenuItem
+            key="dummyMenuItem"
+            onClick={this.handleRequestClose}
+            classes={{ root: classes.menuItem }}
+          >
+            Some other widget action
+          </MenuItem>
         </Menu>
-      </div>
+      </Fragment>
     );
   }
 
@@ -96,7 +129,7 @@ ComponentControlMenu.propTypes = {
   onEditWidget: PropTypes.func.isRequired,
   onAddWidget: PropTypes.func.isRequired,
   type: PropTypes.string.isRequired,
-
+  classes: PropTypes.object.isRequired,
 };
 
-export default ComponentControlMenu;
+export default withStyles(styles)(ComponentControlMenu);

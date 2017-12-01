@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import Drawer from 'material-ui/Drawer';
-import Divider from 'material-ui/Divider';
+// import Divider from 'material-ui/Divider';
 import Toolbar from 'material-ui/Toolbar';
 import IconButton from 'material-ui/IconButton';
 import ExitToApp from 'material-ui-icons/ExitToApp';
@@ -20,7 +20,7 @@ const styles = theme => ({
 
   },
   drawer: {
-
+    width: 360,
   },
   controlToolbar: {
     minHeight: 40,
@@ -92,16 +92,16 @@ const Sidebar = (props) => {
           <IconButton
             color="primary"
             classes={{ icon: classes.controlButtonIcon, root: classes.controlButtonRoot }}
-            onClick={toggleRight}
+            onClick={toggleAllZones}
           >
-            <BorderRight />
+            {showAllZones ? <FlipToFront /> : <FlipToBack />}
           </IconButton>
           <IconButton
             color="primary"
             classes={{ icon: classes.controlButtonIcon, root: classes.controlButtonRoot }}
-            onClick={toggleAllZones}
+            onClick={toggleRight}
           >
-            {showAllZones ? <FlipToFront /> : <FlipToBack />}
+            <BorderRight />
           </IconButton>
         </Toolbar>
         <Toolbar disableGutters classes={{ root: classes.treeToolbar }}>
@@ -128,7 +128,6 @@ const Sidebar = (props) => {
             <ExitToApp />
           </IconButton>
         </Toolbar>
-        <Divider light />
         <ComponentTree />
       </Drawer>
     </div>

@@ -33,7 +33,6 @@ class EditControl extends Component {
     isHovered: false,
   }
 
-
   mouseEnterHandler = () => {
     this.setState({ isHovered: true });
   }
@@ -72,8 +71,9 @@ class EditControl extends Component {
             color="primary"
             component="span"
             className={classes.button}
+            style={{ pointerEvents: isSelected ? 'auto' : 'none' }}
           >
-                Edit {type === 'zone'
+            Edit {type === 'zone'
               ? `Zone ${properties.zoneName}`
               : `Widget ${properties.title}`}
           </Button>

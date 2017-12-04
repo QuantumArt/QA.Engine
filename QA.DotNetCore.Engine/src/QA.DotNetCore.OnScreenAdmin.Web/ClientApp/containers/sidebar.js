@@ -4,6 +4,7 @@ import {
   toggleLeftPosition,
   toggleRightPosition,
   toggleAllZones,
+  toggleTab,
 } from '../actions/sidebarActions';
 import Sidebar from '../Components/Sidebar';
 
@@ -11,6 +12,7 @@ const mapStateToProps = state => ({
   opened: state.sidebar.opened,
   side: state.sidebar.side,
   showAllZones: state.sidebar.showAllZones,
+  activeTab: state.sidebar.activeTab,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -25,6 +27,9 @@ const mapDispatchToProps = dispatch => ({
   },
   toggleAllZones: () => {
     dispatch(toggleAllZones());
+  },
+  toggleTab: (value) => {
+    dispatch(toggleTab(value));
   },
 });
 

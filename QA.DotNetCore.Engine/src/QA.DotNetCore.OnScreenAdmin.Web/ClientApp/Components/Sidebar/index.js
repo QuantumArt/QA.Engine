@@ -1,24 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import SwipeableViews from 'react-swipeable-views';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { withStyles } from 'material-ui/styles';
 import Drawer from 'material-ui/Drawer';
 import Tabs, { Tab } from 'material-ui/Tabs';
 import Divider from 'material-ui/Divider';
-import Switch from 'material-ui/Switch';
-import { FormControlLabel } from 'material-ui/Form';
 import Toolbar from 'material-ui/Toolbar';
 import IconButton from 'material-ui/IconButton';
 import ExitToApp from 'material-ui-icons/ExitToApp';
-import TextField from 'material-ui/TextField';
 import BorderLeft from 'material-ui-icons/BorderLeft';
 import BorderRight from 'material-ui-icons/BorderRight';
 import DeveloperBoard from 'material-ui-icons/DeveloperBoard';
 import Kitchen from 'material-ui-icons/Kitchen';
 import Tune from 'material-ui-icons/Tune';
 import 'typeface-roboto/index.css';
-import ComponentTree from '../../containers/componentTree';
 import OpenControl from '../OpenControl';
+import WidgetsScreen from '../WidgetsScreen';
 
 const styles = theme => ({
   sidebar: {
@@ -45,26 +43,9 @@ const styles = theme => ({
   tabsToolbar: {
     padding: '10px 0 0',
   },
-  treeToolbar: {
-
-  },
   closeButton: {
     width: theme.spacing.unit * 2.8,
     height: theme.spacing.unit * 2.8,
-  },
-  searchField: {
-    marginLeft: theme.spacing.unit * 2,
-    fontSize: theme.spacing.unit * 2,
-  },
-  searchInput: {
-    fontSize: theme.spacing.unit * 2,
-  },
-  searchFieldLabel: {
-    fontWeight: 'normal',
-    fontSize: theme.spacing.unit * 2,
-  },
-  switchLabel: {
-    fontSize: theme.spacing.unit * 1.8,
   },
   tabRoot: {
     minWidth: 120,
@@ -76,10 +57,12 @@ const Sidebar = (props) => {
     opened,
     showAllZones,
     side,
+    activeTab,
     toggleSidebar,
     toggleLeft,
     toggleRight,
     toggleAllZones,
+    toggleTab,
     classes,
   } = props;
 
@@ -126,46 +109,36 @@ const Sidebar = (props) => {
           <Divider />
           <Toolbar classes={{ root: classes.tabsToolbar }}>
             <Tabs
-              value={1}
-              // onChange={this.handleChange}
+              value={activeTab}
+              onChange={(e, value) => { toggleTab(value); }}
               indicatorColor="primary"
               textColor="primary"
             >
-              <Tab icon={<Tune />} label="WIDGETS" classes={{ root: classes.tabRoot }} />
-              <Tab icon={<DeveloperBoard />} label="A/B TESTS" classes={{ root: classes.tabRoot }} />
-              <Tab icon={<Kitchen />} label="ELSE" classes={{ root: classes.tabRoot }} />
+              <Tab
+                icon={<DeveloperBoard />}
+                label="WIDGETS"
+                classes={{ root: classes.tabRoot }}
+              />
+              <Tab
+                icon={<Tune />}
+                label="A/B TESTS"
+                classes={{ root: classes.tabRoot }}
+              />
+              <Tab
+                icon={<Kitchen />}
+                label="ELSE"
+                classes={{ root: classes.tabRoot }}
+                disabled
+              />
             </Tabs>
           </Toolbar>
-          <Toolbar disableGutters classes={{ root: classes.treeToolbar }}>
-            <TextField
-              id="search"
-              label="Search items"
-              type="text"
-              margin="normal"
-              fullWidth
-              className={classes.searchField}
-              InputLabelProps={{
-                className: classes.searchFieldLabel,
-              }}
-              InputProps={{
-                className: classes.searchInput,
-              }}
+          <SwipeableViews axis="x" index={activeTab}>
+            <WidgetsScreen
+              showAllZones={showAllZones}
+              toggleAllZones={toggleAllZones}
             />
-          </Toolbar>
-          <Toolbar>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={showAllZones}
-                  onChange={toggleAllZones}
-                  aria-label="AllZonesChecked"
-                />
-              }
-              label="Toggle all zones mode"
-              classes={{ label: classes.switchLabel }}
-            />
-          </Toolbar>
-          <ComponentTree />
+            <div>123</div>
+          </SwipeableViews>
         </Scrollbars>
       </Drawer>
     </div>
@@ -176,10 +149,12 @@ Sidebar.propTypes = {
   opened: PropTypes.bool.isRequired,
   showAllZones: PropTypes.bool.isRequired,
   side: PropTypes.string.isRequired,
+  activeTab: PropTypes.number.isRequired,
   toggleSidebar: PropTypes.func.isRequired,
   toggleLeft: PropTypes.func.isRequired,
   toggleRight: PropTypes.func.isRequired,
   toggleAllZones: PropTypes.func.isRequired,
+  toggleTab: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired,
 };
 

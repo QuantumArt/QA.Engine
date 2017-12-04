@@ -20,6 +20,7 @@
     "react-draggable": "^3.0.3",
     "react-grid-layout": "^0.16.0",
     "react-redux": "^5.0.6",
+    "react-swipeable-views": "^0.12.12",
     "redux": "^3.7.2",
     "redux-saga": "^0.16.0",
     "redux-thunk": "^2.2.0",

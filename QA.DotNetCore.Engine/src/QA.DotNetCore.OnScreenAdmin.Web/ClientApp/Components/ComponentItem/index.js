@@ -102,6 +102,7 @@ class ComponentItem extends Component {
     if (!subtree) {
       return null;
     }
+
     return (
       <Collapse in={isOpened}>
         {subtree}
@@ -179,6 +180,7 @@ class ComponentItem extends Component {
       type,
     } = this.props;
     const isSelected = selectedComponentId === onScreenId;
+
     return (
       <EditPortal type={type} onScreenId={onScreenId}>
         <EditControl

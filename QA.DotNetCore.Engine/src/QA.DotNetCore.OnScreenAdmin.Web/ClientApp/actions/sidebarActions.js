@@ -3,6 +3,7 @@ import {
   TOGGLE_LEFT_POSITION,
   TOGGLE_RIGHT_POSITION,
   TOGGLE_ALL_ZONES,
+  TOGGLE_TAB,
 } from './actionTypes';
 
 export function toggleState() {
@@ -19,4 +20,8 @@ export function toggleRightPosition() {
 
 export function toggleAllZones() {
   return { type: TOGGLE_ALL_ZONES };
+}
+
+export function toggleTab(value) {
+  return { type: TOGGLE_TAB, value };
 }

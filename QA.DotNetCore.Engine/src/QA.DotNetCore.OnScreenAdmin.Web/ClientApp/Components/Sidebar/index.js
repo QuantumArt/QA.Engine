@@ -85,14 +85,6 @@ const Sidebar = (props) => {
           <Toolbar disableGutters classes={{ root: classes.controlToolbar }}>
             <IconButton
               color="primary"
-              onClick={toggleSidebar}
-              classes={{ icon: classes.closeButton }}
-              style={{ transform: side === 'left' ? 'rotate(180deg)' : '' }}
-            >
-              <ExitToApp />
-            </IconButton>
-            <IconButton
-              color="primary"
               classes={{ icon: classes.controlButtonIcon, root: classes.controlButtonRoot }}
               onClick={toggleLeft}
             >
@@ -104,6 +96,14 @@ const Sidebar = (props) => {
               onClick={toggleRight}
             >
               <BorderRight />
+            </IconButton>
+            <IconButton
+              color="primary"
+              onClick={toggleSidebar}
+              classes={{ icon: classes.closeButton }}
+              style={{ transform: side === 'left' ? 'rotate(180deg)' : '' }}
+            >
+              <ExitToApp />
             </IconButton>
           </Toolbar>
           <Divider />

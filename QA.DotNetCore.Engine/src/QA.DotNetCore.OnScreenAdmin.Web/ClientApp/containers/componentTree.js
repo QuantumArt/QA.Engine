@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+import _ from 'lodash';
 import {
   toggleComponent,
   toggleSubtree,
@@ -11,12 +12,20 @@ import {
 import ComponentTree from '../Components/ComponentTree';
 import buildTree from '../utils/buildTree';
 
+const filterAvailableWidgets = (widgets, searchText) => {
+  const lowerSearchText = _.toLower(searchText);
+  return _.filter(widgets, w => _.includes(_.toLower(w.title), lowerSearchText)
+          || _.includes(_.toLower(w.description), lowerSearchText),
+  );
+};
+
 const mapStateToProps = state => ({
   components: buildTree(state.componentTree.components),
-  availableWidgets: state.metaInfo.availableWidgets,
+  availableWidgets: filterAvailableWidgets(state.metaInfo.availableWidgets, state.sidebar.widgetScreenSearchText),
   selectedComponentId: state.componentTree.selectedComponentId,
   showAllZones: state.sidebar.showAllZones,
   showAvailableWidgets: state.componentTree.showAvailableWidgets,
+  searchText: state.sidebar.widgetScreenSearchText,
 });
 
 const mapDispatchToProps = dispatch => ({

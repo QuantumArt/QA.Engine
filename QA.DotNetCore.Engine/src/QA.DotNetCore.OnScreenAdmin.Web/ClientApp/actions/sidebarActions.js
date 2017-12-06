@@ -4,6 +4,7 @@ import {
   TOGGLE_RIGHT_POSITION,
   TOGGLE_ALL_ZONES,
   TOGGLE_TAB,
+  WIDGET_SCREEN_CHANGE_SEARCH_TEXT,
 } from './actionTypes';
 
 export function toggleState() {
@@ -24,4 +25,8 @@ export function toggleAllZones() {
 
 export function toggleTab(value) {
   return { type: TOGGLE_TAB, value };
+}
+
+export function widgetScreenChangeSearchText(value) {
+  return { type: WIDGET_SCREEN_CHANGE_SEARCH_TEXT, value };
 }

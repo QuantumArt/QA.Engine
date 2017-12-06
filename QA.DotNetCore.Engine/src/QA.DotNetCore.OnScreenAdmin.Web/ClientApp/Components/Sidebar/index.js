@@ -63,6 +63,8 @@ const Sidebar = (props) => {
     toggleRight,
     toggleAllZones,
     toggleTab,
+    widgetScreenSearchText,
+    widgetScreenChangeSearchText,
     classes,
   } = props;
 
@@ -136,6 +138,8 @@ const Sidebar = (props) => {
             <WidgetsScreen
               showAllZones={showAllZones}
               toggleAllZones={toggleAllZones}
+              searchText={widgetScreenSearchText}
+              changeSearchText={widgetScreenChangeSearchText}
             />
             <div>123</div>
           </SwipeableViews>
@@ -155,6 +159,8 @@ Sidebar.propTypes = {
   toggleRight: PropTypes.func.isRequired,
   toggleAllZones: PropTypes.func.isRequired,
   toggleTab: PropTypes.func.isRequired,
+  widgetScreenSearchText: PropTypes.string.isRequired,
+  widgetScreenChangeSearchText: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired,
 };
 

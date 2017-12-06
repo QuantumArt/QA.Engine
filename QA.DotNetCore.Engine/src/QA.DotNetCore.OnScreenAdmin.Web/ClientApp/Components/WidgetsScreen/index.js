@@ -27,8 +27,6 @@ const styles = theme => ({
 
 class WidgetsScreen extends Component {
   // debouncedSearchChange = e => _.debounce(() => { console.log(e); }, 250);
-
-
   handleSearchChange = (event) => {
     const { changeSearchText } = this.props;
     console.log('handle change', event.target.value);

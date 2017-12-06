@@ -93,8 +93,6 @@ class EditControl extends Component {
             className={classes.button}
             style={{
               pointerEvents: isSelected ? 'auto' : 'none',
-              top: isSelected ? -41 : '',
-              left: isSelected ? -1 : '',
             }}
           >
             Edit {type === 'zone'

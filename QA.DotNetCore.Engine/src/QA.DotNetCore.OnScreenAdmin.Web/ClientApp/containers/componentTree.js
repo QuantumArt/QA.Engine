@@ -5,12 +5,15 @@ import {
   toggleFullSubtree,
   editWidget,
   addWidgetToZone,
+  selectWidgetToAdd,
+  hideAvailableWidgets,
 } from '../actions/componentTreeActions';
 import ComponentTree from '../Components/ComponentTree';
 import buildTree from '../utils/buildTree';
 
 const mapStateToProps = state => ({
   components: buildTree(state.componentTree.components),
+  availableWidgets: state.metaInfo.availableWidgets,
   selectedComponentId: state.componentTree.selectedComponentId,
   showAllZones: state.sidebar.showAllZones,
   showAvailableWidgets: state.componentTree.showAvailableWidgets,
@@ -31,6 +34,12 @@ const mapDispatchToProps = dispatch => ({
   },
   onAddWidgetToZone: (id) => {
     dispatch(addWidgetToZone(id));
+  },
+  onSelectWidgetToAdd: (id) => {
+    dispatch(selectWidgetToAdd(id));
+  },
+  onCancelAddWidget: () => {
+    dispatch(hideAvailableWidgets());
   },
 });
 

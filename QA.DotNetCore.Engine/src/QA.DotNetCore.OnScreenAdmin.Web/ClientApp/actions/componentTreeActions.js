@@ -43,6 +43,14 @@ export function showQpForm() {
   return { type: EDIT_WIDGET_ACTIONS.SHOW_QP_FORM };
 }
 
-export function addWidgetToZone(zoneId) {
-  return { type: ADD_WIDGET_ACTIONS.ADD_WIDGET_TO_ZONE, zoneId };
+export function addWidgetToZone(id) {
+  return { type: ADD_WIDGET_ACTIONS.ADD_WIDGET_TO_ZONE, id };
+}
+
+export function selectWidgetToAdd(id) {
+  return { type: ADD_WIDGET_ACTIONS.SELECT_WIDGET_TO_ADD, id };
+}
+
+export function hideAvailableWidgets() {
+  return { type: ADD_WIDGET_ACTIONS.HIDE_AVAILABLE_WIDGETS };
 }

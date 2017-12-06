@@ -70,7 +70,7 @@ class ComponentItem extends Component {
   }
 
   handleAddWidget = () => {
-    this.props.onAddWidget('some zone id');
+    this.props.onAddWidget(this.props.onScreenId);
   }
 
   renderPrimaryText = (type, properties) => (type === 'zone'

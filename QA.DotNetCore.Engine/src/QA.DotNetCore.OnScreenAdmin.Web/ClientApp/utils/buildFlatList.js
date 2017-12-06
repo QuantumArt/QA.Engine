@@ -17,10 +17,13 @@ const findParentComponent = (component) => {
 const mapComponentProperties = (domElement) => {
   const data = domElement.dataset;
   if (data.qaComponentType === 'zone') {
+    const isGlobal = JSON.parse(data.qaZoneIsGlobal);
+    const zoneParentPageId = isGlobal ? window.startPageId : window.currentPageId;
     return {
       zoneName: data.qaZoneName,
       isRecursive: JSON.parse(data.qaZoneIsRecursive),
-      isGlobal: JSON.parse(data.qaZoneIsGlobal),
+      isGlobal,
+      parentPageId: zoneParentPageId,
     };
   }
 

@@ -12,7 +12,8 @@ const findChildComponents = (currentComponent, allComponents) => {
 
 const buildTree = (componentsList) => {
   const tree = [];
-  const rootComponents = _.filter(componentsList, c => c.parentOnScreenId === 'page');
+  const componentsClone = _.cloneDeep(componentsList);
+  const rootComponents = _.filter(componentsClone, c => c.parentOnScreenId === 'page');
   _.forEach(rootComponents, (component) => {
     component.children = findChildComponents(component, componentsList);
     tree.push(component);

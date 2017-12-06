@@ -18,11 +18,13 @@ namespace QA.DotNetCore.Engine.Widgets.OnScreen
         {
             var enabled = ViewContext.HttpContext.OnScreenEditEnabled();
             var ai = ViewContext.GetCurrentItem();
+            var startPage = ViewContext.GetStartPage();
             if (enabled)
                 return new HtmlString($@"<div id='sidebarplaceholder'></div>
                 <script type='text/javascript'>
                     window.onScreenAdminBaseUrl = '{_onScreenSettings.AdminSiteBaseUrl}';
                     window.currentPageId='{ai?.Id}';
+                    window.startPageId='{startPage?.Id}';
                     window.siteId='{_onScreenSettings.SiteId}';
                     document.cookie = 'onscreen = true; expires = 0; path =/ ';
                  </script>

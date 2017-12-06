@@ -42,7 +42,12 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
         {
             try
             {
-                return ApiResult.Success<IEnumerable<ItemDefinitionPersistentData>>(_itemDefinitionRepository.GetAllItemDefinitions(siteId, true).Where(d => !d.IsPage).ToList());
+                ///TODO: заменять IconUrl на абсолютный
+                return ApiResult
+                    .Success<IEnumerable<ItemDefinitionPersistentData>>(_itemDefinitionRepository
+                    .GetAllItemDefinitions(siteId, true)
+                    .Where(d => !d.IsPage)
+                    .ToList());
             }
             catch (Exception ex)
             {

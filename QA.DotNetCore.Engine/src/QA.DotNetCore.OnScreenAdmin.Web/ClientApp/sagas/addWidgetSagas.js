@@ -1,36 +1,42 @@
-import { select, call, put, takeEvery, all } from 'redux-saga/effects';
-import { ADD_WIDGET_ACTIONS } from '../actions/actionTypes';
-// import { qpFormCallback } from './qpFormSagas';
+import _ from 'lodash';
+import { select, put, takeEvery, all } from 'redux-saga/effects';
+import { ADD_WIDGET_ACTIONS, CONTENT_META_INFO_ACTION } from '../actions/actionTypes';
+import { qpFormCallback } from './qpFormSagas';
 
-import { getAvailableWidgets as getAvailableWidgetsFromServer } from '../api';
-// import { addWidget as addWidgetQpForm } from '../articleManagement';
+import { addWidget as addWidgetQpForm } from '../articleManagement';
 
-const getAvailableWidgetsFromStore = state => state.componentTree.availableWidgetsInfo;
+const selfSource = 'meta_info_add_widget';
+
+const abstractItemMetaInfoSelector = state => state.metaInfo.abstractItemMetaInfo;
+const widgetToAddSelector = state =>
+  _.find(
+    state.metaInfo.availableWidgets,
+    { id: state.componentTree.selectedWidgetToAddId });
+const zoneToAddSelector = state =>
+  _.find(
+    state.componentTree.components,
+    { onScreenId: state.componentTree.zoneToAddWidgetOnScreenId });
+
 
 function* addWidget() {
   console.log('addWidget saga');
-  yield put({ type: ADD_WIDGET_ACTIONS.GET_AVAILABLE_WIDGETS_REQUESTED });
+  // см metaInfoSagas.js
+  yield put({ type: CONTENT_META_INFO_ACTION.GET_AVAILABLE_WIDGETS_REQUESTED, source: selfSource });
+  yield put({ type: CONTENT_META_INFO_ACTION.GET_ABSTRACT_ITEM_INFO_REQUESTED, source: selfSource });
 }
 
-function* getAvailableWidgets() {
-  console.log('getAvailableWidgets');
-  try {
-    const cachedAvailableWidgets = yield select(getAvailableWidgetsFromStore);
-    if (cachedAvailableWidgets) {
-      yield put({ type: ADD_WIDGET_ACTIONS.GET_AVAILABLE_WIDGETS_SUCCESS, availableWidgets: cachedAvailableWidgets });
-    } else {
-      const availableWidgetsInfo = yield call(getAvailableWidgetsFromServer);
-      yield put({
-        type: ADD_WIDGET_ACTIONS.GET_AVAILABLE_WIDGETS_SUCCESS,
-        availableWidgets: availableWidgetsInfo.data.data,
-      });
-    }
-  } catch (e) {
-    yield put({ type: ADD_WIDGET_ACTIONS.GET_AVAILABLE_WIDGETS_FAIL, error: e });
-  }
+function* widgetSelected() {
+  console.log('widget selected saga');
+  const zoneToAdd = yield select(zoneToAddSelector);
+  const widgetToAdd = yield select(widgetToAddSelector);
+  const abstractItemInfo = yield select(abstractItemMetaInfoSelector);
+  yield put({ type: ADD_WIDGET_ACTIONS.HIDE_AVAILABLE_WIDGETS });
+  addWidgetQpForm(widgetToAdd, zoneToAdd, abstractItemInfo, qpFormCallback);
+  console.log(zoneToAdd, widgetToAdd, abstractItemInfo);
 }
 
-function* showAvailableWidgets() {
+function* showAvailableWidgets(action) {
+  if (action.source !== selfSource) { return; }
   yield put({ type: ADD_WIDGET_ACTIONS.SHOW_AVAILABLE_WIDGETS });
 }
 
@@ -38,18 +44,18 @@ function* watchAddWidget() {
   yield takeEvery(ADD_WIDGET_ACTIONS.ADD_WIDGET_TO_ZONE, addWidget);
 }
 
-function* watchGetAvailableWidgets() {
-  yield takeEvery(ADD_WIDGET_ACTIONS.GET_AVAILABLE_WIDGETS_REQUESTED, getAvailableWidgets);
+function* watchGetAvailableWidgetsSuccess() {
+  yield takeEvery(CONTENT_META_INFO_ACTION.GET_AVAILABLE_WIDGETS_SUCCESS, showAvailableWidgets);
 }
 
-function* watchGetAvailableWidgetsSuccess() {
-  yield takeEvery(ADD_WIDGET_ACTIONS.GET_AVAILABLE_WIDGETS_SUCCESS, showAvailableWidgets);
+function* watchSelectWidgetToAdd() {
+  yield takeEvery(ADD_WIDGET_ACTIONS.SELECT_WIDGET_TO_ADD, widgetSelected);
 }
 
 export default function* rootSaga() {
   yield all([
     watchAddWidget(),
-    watchGetAvailableWidgets(),
     watchGetAvailableWidgetsSuccess(),
+    watchSelectWidgetToAdd(),
   ]);
 }

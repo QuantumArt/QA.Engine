@@ -26,7 +26,8 @@ SELECT
     [|QPDiscriminator.IsPage|] as IsPage,
     [|QPDiscriminator.Title|] as Title,
     [|QPDiscriminator.Description|] as Description,
-    [|QPDiscriminator.IconUrl|] as IconUrl
+    [|QPDiscriminator.IconUrl|] as IconUrl,
+    [|QPDiscriminator.PreferredContentId|] as PreferredContentId
 FROM [|QPDiscriminator|]
 ";
 

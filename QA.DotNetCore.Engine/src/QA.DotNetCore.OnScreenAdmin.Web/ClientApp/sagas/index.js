@@ -3,6 +3,7 @@ import { watchSubtreeToggle } from './treeStateSagas';
 import watchEditWidgetSaga from './editWidgetSagas';
 import watchAddWidgetSaga from './addWidgetSagas';
 import watchQpForm from './qpFormSagas';
+import watchMetaInfo from './metaInfoSagas';
 
 
 export default function* rootSaga() {
@@ -11,5 +12,6 @@ export default function* rootSaga() {
     watchEditWidgetSaga(),
     watchAddWidgetSaga(),
     watchQpForm(),
+    watchMetaInfo(),
   ]);
 }

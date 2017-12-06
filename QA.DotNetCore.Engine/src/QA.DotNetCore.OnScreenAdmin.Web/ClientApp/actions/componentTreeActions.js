@@ -2,6 +2,7 @@ import {
   TOGGLE_COMPONENT,
   LOADED_COMPONENT_TREE,
   TOGGLE_SUBTREE,
+  TOGGLE_FULL_SUBTREE,
   EDIT_WIDGET_ACTIONS,
   ADD_WIDGET_ACTIONS,
 } from './actionTypes';
@@ -16,6 +17,10 @@ export function loadedComponentTree(componentTree) {
 
 export function toggleSubtree(id) {
   return { type: TOGGLE_SUBTREE, id };
+}
+
+export function toggleFullSubtree(id) {
+  return { type: TOGGLE_FULL_SUBTREE, id };
 }
 
 export function editWidget(id) {

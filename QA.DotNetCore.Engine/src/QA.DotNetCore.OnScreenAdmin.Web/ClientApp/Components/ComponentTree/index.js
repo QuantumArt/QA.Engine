@@ -8,6 +8,7 @@ const ComponentTree = ({
   selectedComponentId,
   onToggleComponent,
   onToggleSubtree,
+  onToggleFullSubtree,
   onEditWidget,
   onAddWidgetToZone,
   showAllZones,
@@ -22,6 +23,7 @@ const ComponentTree = ({
         key={component.onScreenId}
         onToggleComponent={onToggleComponent}
         onToggleSubtree={onToggleSubtree}
+        onToggleFullSubtree={onToggleFullSubtree}
         onEditWidget={onEditWidget}
         onAddWidget={onAddWidgetToZone}
         showAllZones={showAllZones}
@@ -43,6 +45,7 @@ ComponentTree.propTypes = {
   selectedComponentId: PropTypes.string.isRequired,
   onToggleComponent: PropTypes.func.isRequired,
   onToggleSubtree: PropTypes.func.isRequired,
+  onToggleFullSubtree: PropTypes.func.isRequired,
   onEditWidget: PropTypes.func.isRequired,
   onAddWidgetToZone: PropTypes.func.isRequired,
   showAllZones: PropTypes.bool.isRequired,

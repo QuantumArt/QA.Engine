@@ -45,6 +45,7 @@ class EditControl extends Component {
     const {
       classes,
       properties,
+      nestLevel,
       type,
       isSelected,
       showAllZones,
@@ -63,6 +64,9 @@ class EditControl extends Component {
         style={{
           cursor: isSelected ? 'default' : 'pointer',
           pointerEvents: isSelected ? 'none' : 'auto',
+          width: `calc(100% + ${nestLevel * 10}px)`,
+          height: `calc(100% + ${nestLevel * 10}px)`,
+          margin: `${nestLevel * -10}px`,
         }}
       >
         {(isSelected || isHovered) &&
@@ -87,6 +91,7 @@ EditControl.propTypes = {
   type: PropTypes.string.isRequired,
   isSelected: PropTypes.bool.isRequired,
   showAllZones: PropTypes.bool.isRequired,
+  nestLevel: PropTypes.number.isRequired,
   properties: PropTypes.oneOfType([
     PropTypes.shape({
       widgetId: PropTypes.string.isRequired,

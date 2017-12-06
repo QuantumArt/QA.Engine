@@ -56,8 +56,12 @@ class ComponentItem extends Component {
     );
   }
 
+  handleOnScreenToggleClick = () => {
+    this.handleToggleClick();
+    this.props.onToggleFullSubtree(this.props.onScreenId);
+  }
+
   handleSubtreeClick = () => {
-    // this.setState({ opened: !this.state.opened });
     this.props.onToggleSubtree(this.props.onScreenId);
   }
 
@@ -175,6 +179,7 @@ class ComponentItem extends Component {
     const {
       onScreenId,
       properties,
+      nestLevel,
       selectedComponentId,
       showAllZones,
       type,
@@ -187,8 +192,9 @@ class ComponentItem extends Component {
           properties={properties}
           type={type}
           isSelected={isSelected}
+          nestLevel={nestLevel}
           showAllZones={showAllZones}
-          handleToggleClick={this.handleToggleClick}
+          handleToggleClick={this.handleOnScreenToggleClick}
         />
       </EditPortal>
     );
@@ -198,11 +204,9 @@ class ComponentItem extends Component {
     const {
       onToggleComponent,
       onToggleSubtree,
+      onToggleFullSubtree,
       onEditWidget,
       onAddWidget,
-      // type,
-      // onScreenId,
-      // properties,
       selectedComponentId,
       showAllZones,
       children,
@@ -225,6 +229,7 @@ class ComponentItem extends Component {
           isOpened={child.isOpened}
           onToggleComponent={onToggleComponent}
           onToggleSubtree={onToggleSubtree}
+          onToggleFullSubtree={onToggleFullSubtree}
           onEditWidget={onEditWidget}
           onAddWidget={onAddWidget}
           selectedComponentId={selectedComponentId}
@@ -250,6 +255,7 @@ class ComponentItem extends Component {
 
 ComponentItem.propTypes = {
   onToggleComponent: PropTypes.func.isRequired,
+  onToggleFullSubtree: PropTypes.func.isRequired,
   onToggleSubtree: PropTypes.func.isRequired,
   onEditWidget: PropTypes.func.isRequired,
   onAddWidget: PropTypes.func.isRequired,

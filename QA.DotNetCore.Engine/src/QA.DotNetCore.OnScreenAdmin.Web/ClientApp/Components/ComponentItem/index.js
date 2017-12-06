@@ -180,6 +180,7 @@ class ComponentItem extends Component {
       onScreenId,
       properties,
       nestLevel,
+      maxNestLevel,
       selectedComponentId,
       showAllZones,
       type,
@@ -193,6 +194,7 @@ class ComponentItem extends Component {
           type={type}
           isSelected={isSelected}
           nestLevel={nestLevel}
+          maxNestLevel={maxNestLevel}
           showAllZones={showAllZones}
           handleToggleClick={this.handleOnScreenToggleClick}
         />
@@ -211,15 +213,13 @@ class ComponentItem extends Component {
       showAllZones,
       children,
       classes,
-      nestLevel,
       isOpened,
       showListItem,
+      maxNestLevel,
     } = this.props;
-    let currentLevel = nestLevel;
     let subtree = null;
 
     if (children.length > 0) {
-      currentLevel += 1;
       subtree = children.map(child => (
         <ComponentItem
           properties={child.properties}
@@ -235,7 +235,8 @@ class ComponentItem extends Component {
           selectedComponentId={selectedComponentId}
           showAllZones={showAllZones}
           classes={classes}
-          nestLevel={currentLevel}
+          nestLevel={child.nestLevel}
+          maxNestLevel={maxNestLevel}
           showListItem={showListItem}
         >
           {child.children}
@@ -279,11 +280,11 @@ ComponentItem.propTypes = {
   children: PropTypes.arrayOf(PropTypes.object).isRequired,
   classes: PropTypes.object.isRequired,
   nestLevel: PropTypes.number.isRequired,
+  maxNestLevel: PropTypes.number.isRequired,
   showListItem: PropTypes.bool.isRequired,
 };
 
 ComponentItem.defaultProps = {
-  nestLevel: 1,
   isOpened: false,
 };
 

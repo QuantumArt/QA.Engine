@@ -7,7 +7,9 @@ import AvailableWidget from '../AvailableWidget';
 
 class ComponentTree extends Component {
   renderComponentsList = () => {
-    const { components,
+    const {
+      components,
+      maxNestLevel,
       selectedComponentId,
       onToggleComponent,
       onToggleSubtree,
@@ -23,6 +25,7 @@ class ComponentTree extends Component {
         {components.map(component => (
           <ComponentItem
             {...component}
+            maxNestLevel={maxNestLevel}
             selectedComponentId={selectedComponentId}
             isOpened={component.isOpened}
             key={component.onScreenId}
@@ -93,6 +96,7 @@ ComponentTree.propTypes = {
       iconUrl: PropTypes.string.isRequired,
     }).isRequired,
   ),
+  maxNestLevel: PropTypes.number.isRequired,
   selectedComponentId: PropTypes.string.isRequired,
   onToggleComponent: PropTypes.func.isRequired,
   onToggleSubtree: PropTypes.func.isRequired,

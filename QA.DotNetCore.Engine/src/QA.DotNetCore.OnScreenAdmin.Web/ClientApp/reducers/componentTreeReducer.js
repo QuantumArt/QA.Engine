@@ -10,10 +10,10 @@ import buildFlatList from '../utils/buildFlatList';
 
 
 const components = buildFlatList();
-
 const initialState = {
   selectedComponentId: '',
   components,
+  maxNestLevel: components.map(c => c.nestLevel).reduce((max, cur) => Math.max(max, cur)),
   isLoading: false,
   editingComponent: false,
   editingComponentId: null,

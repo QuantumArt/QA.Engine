@@ -21,7 +21,8 @@ const filterAvailableWidgets = (widgets, searchText) => {
 
 const mapStateToProps = state => ({
   components: buildTree(state.componentTree.components),
-  availableWidgets: filterAvailableWidgets(state.metaInfo.availableWidgets, state.sidebar.widgetScreenSearchText),
+  maxNestLevel: state.componentTree.maxNestLevel,
+  availableWidgets: state.metaInfo.availableWidgets,
   selectedComponentId: state.componentTree.selectedComponentId,
   showAllZones: state.sidebar.showAllZones,
   showAvailableWidgets: state.componentTree.showAvailableWidgets,

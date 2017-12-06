@@ -49,6 +49,7 @@ const mapComponent = domElement => ({
   parentOnScreenId: domElement.dataset.qaComponentParentOnScreenId === '-1'
     ? null
     : domElement.dataset.qaComponentParentOnScreenId,
+  nestLevel: domElement.dataset.qaComponentOnScreenId.split(';').length - 1,
   properties: mapComponentProperties(domElement),
 });
 

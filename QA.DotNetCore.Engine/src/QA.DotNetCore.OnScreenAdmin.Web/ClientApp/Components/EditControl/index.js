@@ -1,17 +1,25 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
+import { deepPurple, grey } from 'material-ui/colors';
 import Button from 'material-ui/Button';
 
 const styles = () => ({
   wrap: {
-    position: 'absolute',
-    width: 'calc(100% + 6px)',
-    height: 'calc(100% + 6px)',
-    margin: -3,
-    border: '1px dashed red',
-    borderRadius: 3,
-    outline: 'none',
+    'position': 'absolute',
+    'border': '1px dashed',
+    'borderColor': grey[400],
+    'borderRadius': 3,
+    'outline': 'none',
+    'minHeight': 5,
+    '&:hover': {
+      borderColor: deepPurple[500],
+      borderWidth: 2,
+    },
+  },
+  wrapSelected: {
+    extend: 'wrap',
+    borderColor: deepPurple[500],
   },
   bg: {
     position: 'fixed',
@@ -46,16 +54,20 @@ class EditControl extends Component {
       classes,
       properties,
       nestLevel,
+      maxNestLevel,
       type,
       isSelected,
       showAllZones,
       handleToggleClick,
     } = this.props;
     const { isHovered } = this.state;
+    const reversedNestLevel = maxNestLevel - nestLevel;
 
     return (
       <div
-        className={showAllZones || isSelected ? classes.wrap : ''}
+        className={
+          `${showAllZones ? classes.wrap : ''} ${isSelected ? classes.wrapSelected : ''}`
+        }
         role="button"
         tabIndex={0}
         onClick={isSelected ? null : handleToggleClick}
@@ -64,9 +76,9 @@ class EditControl extends Component {
         style={{
           cursor: isSelected ? 'default' : 'pointer',
           pointerEvents: isSelected ? 'none' : 'auto',
-          width: `calc(100% + ${nestLevel * 10}px)`,
-          height: `calc(100% + ${nestLevel * 10}px)`,
-          margin: `${nestLevel * -10}px`,
+          width: `calc(100% + ${reversedNestLevel * 10}px)`,
+          height: `calc(100% + ${reversedNestLevel * 10}px)`,
+          margin: `${reversedNestLevel * -10}px`,
         }}
       >
         {(isSelected || isHovered) &&
@@ -92,6 +104,7 @@ EditControl.propTypes = {
   isSelected: PropTypes.bool.isRequired,
   showAllZones: PropTypes.bool.isRequired,
   nestLevel: PropTypes.number.isRequired,
+  maxNestLevel: PropTypes.number.isRequired,
   properties: PropTypes.oneOfType([
     PropTypes.shape({
       widgetId: PropTypes.string.isRequired,

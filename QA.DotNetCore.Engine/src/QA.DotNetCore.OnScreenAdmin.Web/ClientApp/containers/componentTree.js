@@ -13,6 +13,7 @@ import buildTree from '../utils/buildTree';
 
 const mapStateToProps = state => ({
   components: buildTree(state.componentTree.components),
+  maxNestLevel: state.componentTree.maxNestLevel,
   availableWidgets: state.metaInfo.availableWidgets,
   selectedComponentId: state.componentTree.selectedComponentId,
   showAllZones: state.sidebar.showAllZones,

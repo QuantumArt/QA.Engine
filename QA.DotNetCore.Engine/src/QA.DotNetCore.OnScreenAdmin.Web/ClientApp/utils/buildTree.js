@@ -1,6 +1,5 @@
 import _ from 'lodash';
 
-
 const findChildComponents = (currentComponent, allComponents) => {
   const directChildren = _.filter(allComponents, c => c.parentOnScreenId === currentComponent.onScreenId);
   _.forEach(directChildren, (child) => {

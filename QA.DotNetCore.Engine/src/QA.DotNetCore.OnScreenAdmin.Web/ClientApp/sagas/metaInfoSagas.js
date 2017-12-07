@@ -2,8 +2,8 @@ import { select, call, put, takeEvery, all } from 'redux-saga/effects';
 import { CONTENT_META_INFO_ACTION } from '../actions/actionTypes';
 import { getAvailableWidgets as apiGetAvailableWidgets, getMeta as apiGetMeta } from '../api';
 
-const availableWidgetsSelector = state => state.componentTree.availableWidgetsInfo;
-const abstractItemMetaInfoSelector = state => state.componentTree.abstractItemMetaInfo;
+const availableWidgetsSelector = state => state.metaInfo.availableWidgets;
+const abstractItemMetaInfoSelector = state => state.metaInfo.abstractItemMetaInfo;
 
 function* getAvailableWidgets(action) {
   console.log('getAvailableWidgets');

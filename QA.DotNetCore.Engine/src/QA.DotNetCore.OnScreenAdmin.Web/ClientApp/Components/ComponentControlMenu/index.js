@@ -24,15 +24,15 @@ class ComponentControlMenu extends Component {
   };
 
   handleEditWidget = () => {
-    const { onEditWidget } = this.props;
+    const { onEditWidget, onScreenId } = this.props;
     this.handleRequestClose();
-    onEditWidget();
+    onEditWidget(onScreenId);
   }
 
   handleAddWidget = () => {
-    const { onAddWidget } = this.props;
+    const { onAddWidget, onScreenId } = this.props;
     this.handleRequestClose();
-    onAddWidget();
+    onAddWidget(onScreenId);
   }
 
   renderZoneMenu = () => {
@@ -129,6 +129,7 @@ ComponentControlMenu.propTypes = {
   onEditWidget: PropTypes.func.isRequired,
   onAddWidget: PropTypes.func.isRequired,
   type: PropTypes.string.isRequired,
+  onScreenId: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
 };
 

@@ -24,10 +24,6 @@ export function toggleFullSubtree(id) {
   return { type: TOGGLE_FULL_SUBTREE, id };
 }
 
-export function editWidget(id) {
-  return { type: EDIT_WIDGET_ACTIONS.EDIT_WIDGET, id };
-}
-
 export function getAbstractItemInfoRequested() {
   return { type: EDIT_WIDGET_ACTIONS.GET_ABSTRACT_ITEM_INFO_REQUESTED };
 }
@@ -42,10 +38,6 @@ export function getAbstractItemInfoFail(error) {
 
 export function showQpForm() {
   return { type: EDIT_WIDGET_ACTIONS.SHOW_QP_FORM };
-}
-
-export function addWidgetToZone(id) {
-  return { type: ADD_WIDGET_ACTIONS.ADD_WIDGET_TO_ZONE, id };
 }
 
 export function selectWidgetToAdd(id) {

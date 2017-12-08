@@ -4,8 +4,6 @@ import {
   toggleComponent,
   toggleSubtree,
   toggleFullSubtree,
-  editWidget,
-  addWidgetToZone,
   selectWidgetToAdd,
   hideAvailableWidgets,
 } from '../actions/componentTreeActions';
@@ -39,12 +37,6 @@ const mapDispatchToProps = dispatch => ({
   },
   onToggleFullSubtree: (id) => {
     dispatch(toggleFullSubtree(id));
-  },
-  onEditWidget: (id) => {
-    dispatch(editWidget(id));
-  },
-  onAddWidgetToZone: (id) => {
-    dispatch(addWidgetToZone(id));
   },
   onSelectWidgetToAdd: (id) => {
     dispatch(selectWidgetToAdd(id));

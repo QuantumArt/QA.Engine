@@ -16,7 +16,7 @@ const initialState = {
   maxNestLevel: components.map(c => c.nestLevel).reduce((max, cur) => Math.max(max, cur)),
   isLoading: false,
   editingComponent: false,
-  editingComponentId: null,
+  editingComponentOnScreenId: null,
   error: null,
   showQpForm: false,
   showAvailableWidgets: false,
@@ -89,7 +89,7 @@ export default function componentTreeReducer(state = initialState, action) {
       return {
         ...state,
         editingComponent: true,
-        editingComponentId: action.id,
+        editingComponentOnScreenId: action.onScreenId,
       };
     case EDIT_WIDGET_ACTIONS.SHOW_QP_FORM:
       return {
@@ -101,7 +101,7 @@ export default function componentTreeReducer(state = initialState, action) {
         ...state,
         showQpForm: false,
         editingComponent: false,
-        editingComponentId: null,
+        editingCompoeditingComponentOnScreenIdnentId: null,
       };
     case QP_FORM_ACTIONS.NEED_RELOAD:
       return {
@@ -112,7 +112,7 @@ export default function componentTreeReducer(state = initialState, action) {
       return {
         ...state,
         addingWidget: true,
-        zoneToAddWidgetOnScreenId: action.id,
+        zoneToAddWidgetOnScreenId: action.onScreenId,
       };
     case ADD_WIDGET_ACTIONS.SHOW_AVAILABLE_WIDGETS:
       return {

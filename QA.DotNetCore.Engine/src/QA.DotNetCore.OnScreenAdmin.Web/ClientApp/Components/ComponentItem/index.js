@@ -17,7 +17,7 @@ import Collapse from 'material-ui/transitions/Collapse';
 import { deepPurple } from 'material-ui/colors';
 import EditPortal from '../EditPortal';
 import EditControl from '../EditControl';
-import ComponentControlMenu from '../ComponentControlMenu';
+import ComponentControlMenu from '../../containers/componentControlMenu';
 
 const styles = (theme) => {
   console.log(theme);
@@ -65,13 +65,6 @@ class ComponentItem extends Component {
     this.props.onToggleSubtree(this.props.onScreenId);
   }
 
-  handleEditWidget = () => {
-    this.props.onEditWidget(this.props.properties.widgetId);
-  }
-
-  handleAddWidget = () => {
-    this.props.onAddWidget(this.props.onScreenId);
-  }
 
   renderPrimaryText = (type, properties) => (type === 'zone'
     ? `${properties.zoneName}`
@@ -89,15 +82,13 @@ class ComponentItem extends Component {
     return `${type}: ID - ${properties.widgetId}`;
   }
 
-  renderContextMenu = (isSelected, type, properties) => {
+  renderContextMenu = (isSelected, type) => {
     if (!isSelected) { return null; }
 
     return (
       <ComponentControlMenu
-        onEditWidget={this.handleEditWidget}
-        onAddWidget={this.handleAddWidget}
-        properties={properties}
         type={type}
+        onScreenId={this.props.onScreenId}
       />
     );
   }
@@ -168,7 +159,7 @@ class ComponentItem extends Component {
           classes={{ text: classes.listItemText }}
         />
         <ListItemSecondaryAction>
-          { this.renderContextMenu(isSelected, type, properties) }
+          { this.renderContextMenu(isSelected, type) }
           { this.renderCollapseButton(isOpened, subtree, classes) }
         </ListItemSecondaryAction>
       </ListItem>
@@ -207,8 +198,8 @@ class ComponentItem extends Component {
       onToggleComponent,
       onToggleSubtree,
       onToggleFullSubtree,
-      onEditWidget,
-      onAddWidget,
+      // onEditWidget,
+      // onAddWidget,
       selectedComponentId,
       showAllZones,
       children,
@@ -230,8 +221,8 @@ class ComponentItem extends Component {
           onToggleComponent={onToggleComponent}
           onToggleSubtree={onToggleSubtree}
           onToggleFullSubtree={onToggleFullSubtree}
-          onEditWidget={onEditWidget}
-          onAddWidget={onAddWidget}
+          // onEditWidget={onEditWidget}
+          // onAddWidget={onAddWidget}
           selectedComponentId={selectedComponentId}
           showAllZones={showAllZones}
           classes={classes}
@@ -258,8 +249,8 @@ ComponentItem.propTypes = {
   onToggleComponent: PropTypes.func.isRequired,
   onToggleFullSubtree: PropTypes.func.isRequired,
   onToggleSubtree: PropTypes.func.isRequired,
-  onEditWidget: PropTypes.func.isRequired,
-  onAddWidget: PropTypes.func.isRequired,
+  // onEditWidget: PropTypes.func.isRequired,
+  // onAddWidget: PropTypes.func.isRequired,
   type: PropTypes.string.isRequired,
   onScreenId: PropTypes.string.isRequired,
   isOpened: PropTypes.bool,

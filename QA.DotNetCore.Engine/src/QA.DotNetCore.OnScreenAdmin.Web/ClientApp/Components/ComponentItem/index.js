@@ -170,9 +170,6 @@ class ComponentItem extends Component {
       onToggleSubtree,
       onToggleFullSubtree,
       selectedComponentId,
-      showAllZones,
-      showAllWidgets,
-      side,
       children,
       classes,
       isOpened,
@@ -193,9 +190,6 @@ class ComponentItem extends Component {
           onToggleSubtree={onToggleSubtree}
           onToggleFullSubtree={onToggleFullSubtree}
           selectedComponentId={selectedComponentId}
-          showAllZones={showAllZones}
-          showAllWidgets={showAllWidgets}
-          side={side}
           classes={classes}
           nestLevel={child.nestLevel}
           maxNestLevel={maxNestLevel}
@@ -223,9 +217,6 @@ ComponentItem.propTypes = {
   onScreenId: PropTypes.string.isRequired,
   isOpened: PropTypes.bool,
   selectedComponentId: PropTypes.string.isRequired,
-  showAllZones: PropTypes.bool.isRequired,
-  showAllWidgets: PropTypes.bool.isRequired,
-  side: PropTypes.string.isRequired,
   properties: PropTypes.oneOfType([
     PropTypes.shape({
       widgetId: PropTypes.string.isRequired,

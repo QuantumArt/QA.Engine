@@ -4,6 +4,7 @@ import {
   toggleLeftPosition,
   toggleRightPosition,
   toggleAllZones,
+  toggleAllWidgets,
   toggleTab,
   widgetScreenChangeSearchText,
 } from '../actions/sidebarActions';
@@ -13,6 +14,7 @@ const mapStateToProps = state => ({
   opened: state.sidebar.opened,
   side: state.sidebar.side,
   showAllZones: state.sidebar.showAllZones,
+  showAllWidgets: state.sidebar.showAllWidgets,
   activeTab: state.sidebar.activeTab,
   widgetScreenSearchText: state.sidebar.widgetScreenSearchText,
 });
@@ -29,6 +31,9 @@ const mapDispatchToProps = dispatch => ({
   },
   toggleAllZones: () => {
     dispatch(toggleAllZones());
+  },
+  toggleAllWidgets: () => {
+    dispatch(toggleAllWidgets());
   },
   toggleTab: (value) => {
     dispatch(toggleTab(value));

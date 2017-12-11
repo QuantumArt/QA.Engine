@@ -3,6 +3,7 @@ import {
   TOGGLE_LEFT_POSITION,
   TOGGLE_RIGHT_POSITION,
   TOGGLE_ALL_ZONES,
+  TOGGLE_ALL_WIDGETS,
   TOGGLE_TAB,
   WIDGET_SCREEN_CHANGE_SEARCH_TEXT,
 } from '../actions/actionTypes';
@@ -11,6 +12,7 @@ const initialState = {
   opened: false,
   side: 'left',
   showAllZones: false,
+  showAllWidgets: false,
   activeTab: 0,
   widgetScreenSearchText: '',
 };
@@ -25,6 +27,8 @@ export default function sidebarReducer(state = initialState, action) {
       return { ...state, side: 'right' };
     case TOGGLE_ALL_ZONES:
       return { ...state, showAllZones: !state.showAllZones };
+    case TOGGLE_ALL_WIDGETS:
+      return { ...state, showAllWidgets: !state.showAllWidgets };
     case TOGGLE_TAB:
       return { ...state, activeTab: action.value };
     case WIDGET_SCREEN_CHANGE_SEARCH_TEXT:

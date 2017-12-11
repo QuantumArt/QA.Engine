@@ -17,11 +17,13 @@ class ComponentTree extends Component {
       // onEditWidget,
       // onAddWidgetToZone,
       showAllZones,
+      showAllWidgets,
+      side,
       showAvailableWidgets,
     } = this.props;
 
     return (
-      <List>
+      <List dense >
         {components.map(component => (
           <ComponentItem
             {...component}
@@ -35,6 +37,8 @@ class ComponentTree extends Component {
             // onEditWidget={onEditWidget}
             // onAddWidget={onAddWidgetToZone}
             showAllZones={showAllZones}
+            showAllWidgets={showAllWidgets}
+            side={side}
             showListItem={!showAvailableWidgets}
           />))}
       </List>
@@ -106,6 +110,8 @@ ComponentTree.propTypes = {
   onCancelAddWidget: PropTypes.func.isRequired,
   // onAddWidgetToZone: PropTypes.func.isRequired,
   showAllZones: PropTypes.bool.isRequired,
+  showAllWidgets: PropTypes.bool.isRequired,
+  side: PropTypes.string.isRequired,
   showAvailableWidgets: PropTypes.bool.isRequired,
 };
 

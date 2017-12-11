@@ -3,6 +3,7 @@ import {
   TOGGLE_LEFT_POSITION,
   TOGGLE_RIGHT_POSITION,
   TOGGLE_ALL_ZONES,
+  TOGGLE_ALL_WIDGETS,
   TOGGLE_TAB,
   WIDGET_SCREEN_CHANGE_SEARCH_TEXT,
 } from './actionTypes';
@@ -21,6 +22,10 @@ export function toggleRightPosition() {
 
 export function toggleAllZones() {
   return { type: TOGGLE_ALL_ZONES };
+}
+
+export function toggleAllWidgets() {
+  return { type: TOGGLE_ALL_WIDGETS };
 }
 
 export function toggleTab(value) {

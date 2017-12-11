@@ -139,7 +139,7 @@ class ComponentItem extends Component {
           root: classes.listItemRoot,
           secondaryAction: classes.listItemSecondaryAction,
         }}
-        style={{ paddingLeft: nestLevel > 1 ? `${nestLevel}em` : '16px' }}
+        style={{ paddingLeft: nestLevel > 1 ? `${nestLevel * 0.8}em` : '16px' }}
         onClick={this.handleToggleClick}
         button
       >
@@ -155,7 +155,7 @@ class ComponentItem extends Component {
         </ListItemIcon>
         <ListItemText
           primary={this.renderPrimaryText(type, properties)}
-          secondary={this.renderSecondaryText(type, properties)}
+          // secondary={this.renderSecondaryText(type, properties)}
           classes={{ text: classes.listItemText }}
         />
         <ListItemSecondaryAction>
@@ -174,6 +174,8 @@ class ComponentItem extends Component {
       maxNestLevel,
       selectedComponentId,
       showAllZones,
+      showAllWidgets,
+      side,
       type,
     } = this.props;
     const isSelected = selectedComponentId === onScreenId;
@@ -187,6 +189,8 @@ class ComponentItem extends Component {
           nestLevel={nestLevel}
           maxNestLevel={maxNestLevel}
           showAllZones={showAllZones}
+          showAllWidgets={showAllWidgets}
+          side={side}
           handleToggleClick={this.handleOnScreenToggleClick}
         />
       </EditPortal>
@@ -202,6 +206,8 @@ class ComponentItem extends Component {
       // onAddWidget,
       selectedComponentId,
       showAllZones,
+      showAllWidgets,
+      side,
       children,
       classes,
       isOpened,
@@ -225,6 +231,8 @@ class ComponentItem extends Component {
           // onAddWidget={onAddWidget}
           selectedComponentId={selectedComponentId}
           showAllZones={showAllZones}
+          showAllWidgets={showAllWidgets}
+          side={side}
           classes={classes}
           nestLevel={child.nestLevel}
           maxNestLevel={maxNestLevel}
@@ -256,6 +264,8 @@ ComponentItem.propTypes = {
   isOpened: PropTypes.bool,
   selectedComponentId: PropTypes.string.isRequired,
   showAllZones: PropTypes.bool.isRequired,
+  showAllWidgets: PropTypes.bool.isRequired,
+  side: PropTypes.string.isRequired,
   properties: PropTypes.oneOfType([
     PropTypes.shape({
       widgetId: PropTypes.string.isRequired,

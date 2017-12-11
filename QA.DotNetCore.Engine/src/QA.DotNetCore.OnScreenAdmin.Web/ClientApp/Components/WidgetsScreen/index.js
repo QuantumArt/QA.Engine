@@ -5,6 +5,7 @@ import Toolbar from 'material-ui/Toolbar';
 import TextField from 'material-ui/TextField';
 import { FormControlLabel } from 'material-ui/Form';
 import Switch from 'material-ui/Switch';
+import { lightBlue, green } from 'material-ui/colors';
 import ComponentTree from '../../containers/componentTree';
 
 const styles = theme => ({
@@ -20,8 +21,25 @@ const styles = theme => ({
     fontWeight: 'normal',
     fontSize: theme.spacing.unit * 2,
   },
+  switchToolbar: {
+    justifyContent: 'space-between',
+  },
   switchLabel: {
     fontSize: theme.spacing.unit * 1.8,
+  },
+  zoneSwitchBar: {},
+  zoneSwitchChecked: {
+    'color': green[400],
+    '& + $zoneSwitchBar': {
+      backgroundColor: green[400],
+    },
+  },
+  widgetsSwitchBar: {},
+  widgetSwitchChecked: {
+    'color': lightBlue[400],
+    '& + $widgetsSwitchBar': {
+      backgroundColor: lightBlue[400],
+    },
   },
 });
 
@@ -37,7 +55,10 @@ class WidgetsScreen extends Component {
     const {
       classes,
       showAllZones,
+      showAllWidgets,
       toggleAllZones,
+      toggleAllWidgets,
+      side,
       searchText,
     } = this.props;
     return (
@@ -60,20 +81,43 @@ class WidgetsScreen extends Component {
             onChange={this.handleSearchChange}
           />
         </Toolbar>
-        <Toolbar>
+        <Toolbar className={classes.switchToolbar}>
           <FormControlLabel
             control={
               <Switch
                 checked={showAllZones}
                 onChange={toggleAllZones}
                 aria-label="AllZonesChecked"
+                classes={{
+                  bar: classes.zoneSwitchBar,
+                  checked: classes.zoneSwitchChecked,
+                }}
               />
             }
-            label="Toggle all zones mode"
+            label="Show zones"
+            classes={{ label: classes.switchLabel }}
+          />
+          <FormControlLabel
+            control={
+              <Switch
+                checked={showAllWidgets}
+                onChange={toggleAllWidgets}
+                aria-label="AllWidgetsChecked"
+                classes={{
+                  bar: classes.widgetSwitchBar,
+                  checked: classes.widgetSwitchChecked,
+                }}
+              />
+            }
+            label="Show widgets"
             classes={{ label: classes.switchLabel }}
           />
         </Toolbar>
-        <ComponentTree />
+        <ComponentTree
+          showAllZones={showAllZones}
+          showAllWidgets={showAllWidgets}
+          side={side}
+        />
       </Fragment>
     );
   }
@@ -81,7 +125,10 @@ class WidgetsScreen extends Component {
 
 WidgetsScreen.propTypes = {
   showAllZones: PropTypes.bool.isRequired,
+  showAllWidgets: PropTypes.bool.isRequired,
   toggleAllZones: PropTypes.func.isRequired,
+  toggleAllWidgets: PropTypes.func.isRequired,
+  side: PropTypes.string.isRequired,
   changeSearchText: PropTypes.func.isRequired,
   searchText: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,

@@ -1,8 +1,11 @@
-import React, { Component } from 'react';
+/* eslint-disable */
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
-import { deepPurple, grey } from 'material-ui/colors';
-import Button from 'material-ui/Button';
+import { lightBlue, green } from 'material-ui/colors';
+import IconButton from 'material-ui/IconButton';
+import ModeEdit from 'material-ui-icons/ModeEdit';
+import Add from 'material-ui-icons/Add';
 
 const styles = () => ({
   wrap: {
@@ -11,18 +14,17 @@ const styles = () => ({
     'width': 'calc(100% + 3px)',
     'height': 'calc(100% + 3px)',
     'margin': -3,
-    'borderColor': grey[400],
     'borderRadius': 3,
     'outline': 'none',
     'minHeight': 5,
+    'zIndex': 10,
     '&:hover': {
-      borderColor: deepPurple[500],
       borderWidth: 2,
     },
   },
   wrapSelected: {
     extend: 'wrap',
-    borderColor: deepPurple[500],
+    borderWidth: 2,
   },
   bg: {
     position: 'fixed',
@@ -34,8 +36,7 @@ const styles = () => ({
   },
   button: {
     position: 'absolute',
-    left: 0,
-    top: '-40px',
+    top: -10,
   },
 });
 
@@ -61,47 +62,102 @@ class EditControl extends Component {
       type,
       isSelected,
       showAllZones,
+      showAllWidgets,
+      side,
       handleToggleClick,
     } = this.props;
     const { isHovered } = this.state;
     const reversedNestLevel = maxNestLevel - nestLevel;
 
-    return (
-      <div
-        className={
-          `${showAllZones ? classes.wrap : ''} ${isSelected ? classes.wrapSelected : ''}`
-        }
-        role="button"
-        tabIndex={0}
-        onClick={isSelected ? null : handleToggleClick}
-        onMouseEnter={this.mouseEnterHandler}
-        onMouseLeave={this.mouseLeaveHandler}
-        style={{
-          cursor: isSelected ? 'default' : 'pointer',
-          pointerEvents: isSelected ? 'none' : 'auto',
-          zIndex: isSelected ? 1 : 0,
-          width: showAllZones ? `calc(100% + ${reversedNestLevel * 20}px)` : '',
-          height: showAllZones ? `calc(100% + ${reversedNestLevel * 20}px)` : '',
-          margin: showAllZones ? `${reversedNestLevel * -20}px` : '',
-        }}
-      >
-        {(isSelected || isHovered) &&
-          <Button
-            raised
+    if (type === 'zone' && showAllZones) {
+      return (
+        <div
+          className={
+            `${classes.wrap} ${isSelected ? classes.wrapSelected : ''}`
+          }
+          role="button"
+          tabIndex={0}
+          onClick={isSelected ? null : handleToggleClick}
+          onMouseEnter={this.mouseEnterHandler}
+          onMouseLeave={this.mouseLeaveHandler}
+          style={{
+            cursor: isSelected ? 'default' : 'pointer',
+            pointerEvents: isSelected ? 'none' : 'auto',
+            width: `calc(100% + ${reversedNestLevel * 3}px)`,
+            height: `calc(100% + ${reversedNestLevel * 3}px)`,
+            margin: `${reversedNestLevel * -3}px`,
+            borderColor: green[400],
+          }}
+        >
+          {(isSelected || isHovered) &&
+            <Fragment>
+            <IconButton
+              color="primary"
+              className={classes.button}
+              style={{
+                pointerEvents: isSelected ? 'auto' : 'none',
+                left: side === 'left' ? '100%' : 'auto',
+                right: side === 'right' ? '100%' : 'auto',
+              }}
+            >
+              <ModeEdit />
+            </IconButton>
+            <IconButton
             color="primary"
-            component="span"
             className={classes.button}
             style={{
               pointerEvents: isSelected ? 'auto' : 'none',
+              left: side === 'left' ? '100%' : 'auto',
+              right: side === 'right' ? '100%' : 'auto',
+              top: 30,
             }}
           >
-            Edit {type === 'zone'
-              ? `Zone ${properties.zoneName}`
-              : `Widget ${properties.title}`}
-          </Button>
-        }
-      </div>
-    );
+            <Add />
+          </IconButton>
+          </Fragment>
+          }
+        </div>
+      );
+    }
+
+    if (type === 'widget' && showAllWidgets) {
+      return (
+        <div
+          className={
+            `${classes.wrap} ${isSelected ? classes.wrapSelected : ''}`
+          }
+          role="button"
+          tabIndex={0}
+          onClick={isSelected ? null : handleToggleClick}
+          onMouseEnter={this.mouseEnterHandler}
+          onMouseLeave={this.mouseLeaveHandler}
+          style={{
+            cursor: isSelected ? 'default' : 'pointer',
+            pointerEvents: isSelected ? 'none' : 'auto',
+            width: `calc(100% + ${reversedNestLevel * 3}px)`,
+            height: `calc(100% + ${reversedNestLevel * 3}px)`,
+            margin: `${reversedNestLevel * -3}px`,
+            borderColor: lightBlue[400],
+          }}
+        >
+          {(isSelected || isHovered) &&
+            <IconButton
+              color="primary"
+              className={classes.button}
+              style={{
+                pointerEvents: isSelected ? 'auto' : 'none',
+                left: side === 'left' ? '100%' : 'auto',
+                right: side === 'right' ? '100%' : 'auto',
+              }}
+            >
+              <ModeEdit />
+            </IconButton>
+          }
+        </div>
+      );
+    }
+
+    return null;
   }
 }
 
@@ -109,6 +165,8 @@ EditControl.propTypes = {
   type: PropTypes.string.isRequired,
   isSelected: PropTypes.bool.isRequired,
   showAllZones: PropTypes.bool.isRequired,
+  showAllWidgets: PropTypes.bool.isRequired,
+  side: PropTypes.string.isRequired,
   nestLevel: PropTypes.number.isRequired,
   maxNestLevel: PropTypes.number.isRequired,
   properties: PropTypes.oneOfType([

@@ -23,7 +23,6 @@ const mapStateToProps = state => ({
   maxNestLevel: state.componentTree.maxNestLevel,
   availableWidgets: filterAvailableWidgets(state.metaInfo.availableWidgets, state.sidebar.widgetScreenSearchText),
   selectedComponentId: state.componentTree.selectedComponentId,
-  showAllZones: state.sidebar.showAllZones,
   showAvailableWidgets: state.componentTree.showAvailableWidgets,
   searchText: state.sidebar.widgetScreenSearchText,
 });

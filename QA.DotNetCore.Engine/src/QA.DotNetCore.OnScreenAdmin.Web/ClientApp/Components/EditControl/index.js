@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
@@ -56,7 +55,6 @@ class EditControl extends Component {
   render() {
     const {
       classes,
-      properties,
       nestLevel,
       maxNestLevel,
       type,
@@ -91,30 +89,30 @@ class EditControl extends Component {
         >
           {(isSelected || isHovered) &&
             <Fragment>
-            <IconButton
-              color="primary"
-              className={classes.button}
-              style={{
-                pointerEvents: isSelected ? 'auto' : 'none',
-                left: side === 'left' ? '100%' : 'auto',
-                right: side === 'right' ? '100%' : 'auto',
-              }}
-            >
-              <ModeEdit />
-            </IconButton>
-            <IconButton
-            color="primary"
-            className={classes.button}
-            style={{
-              pointerEvents: isSelected ? 'auto' : 'none',
-              left: side === 'left' ? '100%' : 'auto',
-              right: side === 'right' ? '100%' : 'auto',
-              top: 30,
-            }}
-          >
-            <Add />
-          </IconButton>
-          </Fragment>
+              <IconButton
+                color="primary"
+                className={classes.button}
+                style={{
+                  pointerEvents: isSelected ? 'auto' : 'none',
+                  left: side === 'left' ? '100%' : 'auto',
+                  right: side === 'right' ? '100%' : 'auto',
+                }}
+              >
+                <ModeEdit />
+              </IconButton>
+              <IconButton
+                color="primary"
+                className={classes.button}
+                style={{
+                  pointerEvents: isSelected ? 'auto' : 'none',
+                  left: side === 'left' ? '100%' : 'auto',
+                  right: side === 'right' ? '100%' : 'auto',
+                  top: 30,
+                }}
+              >
+                <Add />
+              </IconButton>
+            </Fragment>
           }
         </div>
       );
@@ -169,18 +167,6 @@ EditControl.propTypes = {
   side: PropTypes.string.isRequired,
   nestLevel: PropTypes.number.isRequired,
   maxNestLevel: PropTypes.number.isRequired,
-  properties: PropTypes.oneOfType([
-    PropTypes.shape({
-      widgetId: PropTypes.string.isRequired,
-      title: PropTypes.string.isRequired,
-      alias: PropTypes.string.isRequired,
-    }),
-    PropTypes.shape({
-      zoneName: PropTypes.string.isRequired,
-      isRecursive: PropTypes.bool.isRequired,
-      isGlobal: PropTypes.bool.isRequired,
-    }),
-  ]).isRequired,
   classes: PropTypes.object.isRequired,
   handleToggleClick: PropTypes.func.isRequired,
 };

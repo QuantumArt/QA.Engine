@@ -4,6 +4,7 @@ import watchEditWidgetSaga from './editWidgetSagas';
 import watchAddWidgetSaga from './addWidgetSagas';
 import watchQpForm from './qpFormSagas';
 import watchMetaInfo from './metaInfoSagas';
+import watchOnScreen from './onScreenEditControls';
 
 
 export default function* rootSaga() {
@@ -13,5 +14,6 @@ export default function* rootSaga() {
     watchAddWidgetSaga(),
     watchQpForm(),
     watchMetaInfo(),
+    watchOnScreen(),
   ]);
 }

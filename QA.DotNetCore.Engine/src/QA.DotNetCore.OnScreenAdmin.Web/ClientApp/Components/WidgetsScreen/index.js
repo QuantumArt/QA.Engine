@@ -7,6 +7,7 @@ import TextField from 'material-ui/TextField';
 // import Switch from 'material-ui/Switch';
 import { lightBlue, green } from 'material-ui/colors';
 import ComponentTree from '../../containers/componentTree';
+import EditComponentTree from '../../containers/editComponentTree';
 import ComponentHighlightToolbar from '../../containers/componentHighlightToolbar';
 
 const styles = theme => ({
@@ -55,12 +56,8 @@ class WidgetsScreen extends Component {
   render() {
     const {
       classes,
-      showAllZones,
-      showAllWidgets,
       side,
       searchText,
-      // showComponentTree,
-      // showAvailableWidgets,
     } = this.props;
     return (
       <Fragment>
@@ -83,26 +80,20 @@ class WidgetsScreen extends Component {
             onChange={this.handleSearchChange}
           />
         </Toolbar>
-
         <ComponentTree
-          showAllZones={showAllZones}
-          showAllWidgets={showAllWidgets}
           side={side}
         />
+        <EditComponentTree />
       </Fragment>
     );
   }
 }
 
 WidgetsScreen.propTypes = {
-  showAllZones: PropTypes.bool.isRequired,
-  showAllWidgets: PropTypes.bool.isRequired,
   side: PropTypes.string.isRequired,
   changeSearchText: PropTypes.func.isRequired,
   searchText: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
-  // showComponentTree: PropTypes.bool.isRequired,
-  // showAvailableWidgets: PropTypes.bool.isRequired,
 };
 
 export default withStyles(styles)(WidgetsScreen);

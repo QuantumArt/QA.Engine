@@ -15,8 +15,6 @@ import PanoramaHorizontal from 'material-ui-icons/PanoramaHorizontal';
 import IconButton from 'material-ui/IconButton';
 import Collapse from 'material-ui/transitions/Collapse';
 import { deepPurple } from 'material-ui/colors';
-import EditPortal from '../EditPortal';
-import EditControl from '../EditControl';
 import ComponentControlMenu from '../../containers/componentControlMenu';
 
 const styles = (theme) => {
@@ -165,44 +163,12 @@ class ComponentItem extends Component {
     );
   }
 
-  renderEditPortal = () => {
-    const {
-      onScreenId,
-      properties,
-      nestLevel,
-      maxNestLevel,
-      selectedComponentId,
-      showAllZones,
-      showAllWidgets,
-      side,
-      type,
-    } = this.props;
-    const isSelected = selectedComponentId === onScreenId;
-
-    return (
-      <EditPortal type={type} onScreenId={onScreenId}>
-        <EditControl
-          properties={properties}
-          type={type}
-          isSelected={isSelected}
-          nestLevel={nestLevel}
-          maxNestLevel={maxNestLevel}
-          showAllZones={showAllZones}
-          showAllWidgets={showAllWidgets}
-          side={side}
-          handleToggleClick={this.handleOnScreenToggleClick}
-        />
-      </EditPortal>
-    );
-  }
 
   render() {
     const {
       onToggleComponent,
       onToggleSubtree,
       onToggleFullSubtree,
-      // onEditWidget,
-      // onAddWidget,
       selectedComponentId,
       showAllZones,
       showAllWidgets,
@@ -226,8 +192,6 @@ class ComponentItem extends Component {
           onToggleComponent={onToggleComponent}
           onToggleSubtree={onToggleSubtree}
           onToggleFullSubtree={onToggleFullSubtree}
-          // onEditWidget={onEditWidget}
-          // onAddWidget={onAddWidget}
           selectedComponentId={selectedComponentId}
           showAllZones={showAllZones}
           showAllWidgets={showAllWidgets}
@@ -245,7 +209,6 @@ class ComponentItem extends Component {
     return (
       <Fragment>
         { this.renderListItem(subtree) }
-        { this.renderEditPortal() }
         { this.renderSubtree(isOpened, subtree) }
       </Fragment>
     );
@@ -256,8 +219,6 @@ ComponentItem.propTypes = {
   onToggleComponent: PropTypes.func.isRequired,
   onToggleFullSubtree: PropTypes.func.isRequired,
   onToggleSubtree: PropTypes.func.isRequired,
-  // onEditWidget: PropTypes.func.isRequired,
-  // onAddWidget: PropTypes.func.isRequired,
   type: PropTypes.string.isRequired,
   onScreenId: PropTypes.string.isRequired,
   isOpened: PropTypes.bool,

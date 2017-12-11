@@ -16,9 +16,6 @@ class ComponentTree extends Component {
       onToggleFullSubtree,
       // onEditWidget,
       // onAddWidgetToZone,
-      showAllZones,
-      showAllWidgets,
-      side,
       showAvailableWidgets,
     } = this.props;
 
@@ -36,9 +33,6 @@ class ComponentTree extends Component {
             onToggleFullSubtree={onToggleFullSubtree}
             // onEditWidget={onEditWidget}
             // onAddWidget={onAddWidgetToZone}
-            showAllZones={showAllZones}
-            showAllWidgets={showAllWidgets}
-            side={side}
             showListItem={!showAvailableWidgets}
           />))}
       </List>
@@ -107,9 +101,6 @@ ComponentTree.propTypes = {
   onToggleFullSubtree: PropTypes.func.isRequired,
   onSelectWidgetToAdd: PropTypes.func.isRequired,
   onCancelAddWidget: PropTypes.func.isRequired,
-  showAllZones: PropTypes.bool.isRequired,
-  showAllWidgets: PropTypes.bool.isRequired,
-  side: PropTypes.string.isRequired,
   showAvailableWidgets: PropTypes.bool.isRequired,
 };
 

@@ -55,15 +55,11 @@ const styles = theme => ({
 const Sidebar = (props) => {
   const {
     opened,
-    showAllZones,
-    showAllWidgets,
     side,
     activeTab,
     toggleSidebar,
     toggleLeft,
     toggleRight,
-    toggleAllZones,
-    toggleAllWidgets,
     toggleTab,
     widgetScreenSearchText,
     widgetScreenChangeSearchText,
@@ -138,10 +134,6 @@ const Sidebar = (props) => {
           </Toolbar>
           <SwipeableViews axis="x" index={activeTab}>
             <WidgetsScreen
-              showAllZones={showAllZones}
-              showAllWidgets={showAllWidgets}
-              toggleAllZones={toggleAllZones}
-              toggleAllWidgets={toggleAllWidgets}
               side={side}
               searchText={widgetScreenSearchText}
               changeSearchText={widgetScreenChangeSearchText}
@@ -161,10 +153,6 @@ Sidebar.propTypes = {
   toggleSidebar: PropTypes.func.isRequired,
   toggleLeft: PropTypes.func.isRequired,
   toggleRight: PropTypes.func.isRequired,
-  showAllZones: PropTypes.bool.isRequired,
-  showAllWidgets: PropTypes.bool.isRequired,
-  toggleAllZones: PropTypes.func.isRequired,
-  toggleAllWidgets: PropTypes.func.isRequired,
   toggleTab: PropTypes.func.isRequired,
   widgetScreenSearchText: PropTypes.string.isRequired,
   widgetScreenChangeSearchText: PropTypes.func.isRequired,

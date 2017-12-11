@@ -16,6 +16,9 @@ export const TOGGLE_FULL_SUBTREE = 'TOGGLE_FULL_SUBTREE';
 export const LOADED_COMPONENT_TREE = 'LOADED_COMPONENT_TREE';
 export const CHANGE_SEARCH_TEXT = 'CHANGE_SEARCH_TEXT';
 
+// edit component tree
+export const ONSCREEN_TOGGLE_COMPONENT = 'ONSCREEN_TOGGLE_COMPONENT';
+
 
 // edit widget
 export const EDIT_WIDGET_ACTIONS = {

@@ -82,12 +82,11 @@ class ComponentItem extends Component {
     return `${type}: ID - ${properties.widgetId}`;
   }
 
-  renderContextMenu = (isSelected, type) => {
+  renderContextMenu = (isSelected) => {
     if (!isSelected) { return null; }
 
     return (
       <ComponentControlMenu
-        type={type}
         onScreenId={this.props.onScreenId}
       />
     );
@@ -159,7 +158,7 @@ class ComponentItem extends Component {
           classes={{ text: classes.listItemText }}
         />
         <ListItemSecondaryAction>
-          { this.renderContextMenu(isSelected, type) }
+          { this.renderContextMenu(isSelected) }
           { this.renderCollapseButton(isOpened, subtree, classes) }
         </ListItemSecondaryAction>
       </ListItem>

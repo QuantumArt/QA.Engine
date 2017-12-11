@@ -4,7 +4,6 @@ import {
   TOGGLE_SUBTREE,
   TOGGLE_FULL_SUBTREE,
   CHANGE_SEARCH_TEXT,
-  EDIT_WIDGET_ACTIONS,
   ADD_WIDGET_ACTIONS,
 } from './actionTypes';
 
@@ -22,22 +21,6 @@ export function toggleSubtree(id) {
 
 export function toggleFullSubtree(id) {
   return { type: TOGGLE_FULL_SUBTREE, id };
-}
-
-export function getAbstractItemInfoRequested() {
-  return { type: EDIT_WIDGET_ACTIONS.GET_ABSTRACT_ITEM_INFO_REQUESTED };
-}
-
-export function getAbstractItemInfoSuccess(info) {
-  return { type: EDIT_WIDGET_ACTIONS.GET_ABSTRACT_ITEM_INFO_SUCCESS, info };
-}
-
-export function getAbstractItemInfoFail(error) {
-  return { type: EDIT_WIDGET_ACTIONS.GET_ABSTRACT_ITEM_INFO_FAIL, error };
-}
-
-export function showQpForm() {
-  return { type: EDIT_WIDGET_ACTIONS.SHOW_QP_FORM };
 }
 
 export function selectWidgetToAdd(id) {

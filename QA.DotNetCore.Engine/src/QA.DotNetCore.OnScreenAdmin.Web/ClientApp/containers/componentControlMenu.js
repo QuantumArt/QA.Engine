@@ -15,7 +15,6 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-
 const mapDispatchToProps = dispatch => ({
   onEditWidget: (id) => {
     dispatch(editWidget(id));

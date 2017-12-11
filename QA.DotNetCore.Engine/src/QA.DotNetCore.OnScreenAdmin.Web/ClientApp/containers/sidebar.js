@@ -9,12 +9,13 @@ import {
   widgetScreenChangeSearchText,
 } from '../actions/sidebarActions';
 import Sidebar from '../Components/Sidebar';
+import { getShowAllZones, getShowAllWidgets } from '../selectors/componentsHighlight';
 
 const mapStateToProps = state => ({
   opened: state.sidebar.opened,
   side: state.sidebar.side,
-  showAllZones: state.sidebar.showAllZones,
-  showAllWidgets: state.sidebar.showAllWidgets,
+  showAllZones: getShowAllZones(state),
+  showAllWidgets: getShowAllWidgets(state),
   activeTab: state.sidebar.activeTab,
   widgetScreenSearchText: state.sidebar.widgetScreenSearchText,
 });

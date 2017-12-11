@@ -3,10 +3,11 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import Toolbar from 'material-ui/Toolbar';
 import TextField from 'material-ui/TextField';
-import { FormControlLabel } from 'material-ui/Form';
-import Switch from 'material-ui/Switch';
+// import { FormControlLabel } from 'material-ui/Form';
+// import Switch from 'material-ui/Switch';
 import { lightBlue, green } from 'material-ui/colors';
 import ComponentTree from '../../containers/componentTree';
+import ComponentHighlightToolbar from '../../containers/componentHighlightToolbar';
 
 const styles = theme => ({
   searchField: {
@@ -56,13 +57,14 @@ class WidgetsScreen extends Component {
       classes,
       showAllZones,
       showAllWidgets,
-      toggleAllZones,
-      toggleAllWidgets,
       side,
       searchText,
+      // showComponentTree,
+      // showAvailableWidgets,
     } = this.props;
     return (
       <Fragment>
+        <ComponentHighlightToolbar />
         <Toolbar disableGutters>
           <TextField
             id="search"
@@ -81,38 +83,7 @@ class WidgetsScreen extends Component {
             onChange={this.handleSearchChange}
           />
         </Toolbar>
-        <Toolbar className={classes.switchToolbar}>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={showAllZones}
-                onChange={toggleAllZones}
-                aria-label="AllZonesChecked"
-                classes={{
-                  bar: classes.zoneSwitchBar,
-                  checked: classes.zoneSwitchChecked,
-                }}
-              />
-            }
-            label="Show zones"
-            classes={{ label: classes.switchLabel }}
-          />
-          <FormControlLabel
-            control={
-              <Switch
-                checked={showAllWidgets}
-                onChange={toggleAllWidgets}
-                aria-label="AllWidgetsChecked"
-                classes={{
-                  bar: classes.widgetSwitchBar,
-                  checked: classes.widgetSwitchChecked,
-                }}
-              />
-            }
-            label="Show widgets"
-            classes={{ label: classes.switchLabel }}
-          />
-        </Toolbar>
+
         <ComponentTree
           showAllZones={showAllZones}
           showAllWidgets={showAllWidgets}
@@ -126,12 +97,12 @@ class WidgetsScreen extends Component {
 WidgetsScreen.propTypes = {
   showAllZones: PropTypes.bool.isRequired,
   showAllWidgets: PropTypes.bool.isRequired,
-  toggleAllZones: PropTypes.func.isRequired,
-  toggleAllWidgets: PropTypes.func.isRequired,
   side: PropTypes.string.isRequired,
   changeSearchText: PropTypes.func.isRequired,
   searchText: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
+  // showComponentTree: PropTypes.bool.isRequired,
+  // showAvailableWidgets: PropTypes.bool.isRequired,
 };
 
 export default withStyles(styles)(WidgetsScreen);

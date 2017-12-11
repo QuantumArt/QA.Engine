@@ -8,7 +8,8 @@ import {
   hideAvailableWidgets,
 } from '../actions/componentTreeActions';
 import ComponentTree from '../Components/ComponentTree';
-import buildTree from '../utils/buildTree';
+// import buildTree from '../utils/buildTree';
+import getComponentTree from '../selectors/componentTree';
 
 const filterAvailableWidgets = (widgets, searchText) => {
   const lowerSearchText = _.toLower(searchText);
@@ -19,7 +20,7 @@ const filterAvailableWidgets = (widgets, searchText) => {
 };
 
 const mapStateToProps = state => ({
-  components: buildTree(state.componentTree.components),
+  components: getComponentTree(state),
   maxNestLevel: state.componentTree.maxNestLevel,
   availableWidgets: filterAvailableWidgets(state.metaInfo.availableWidgets, state.sidebar.widgetScreenSearchText),
   selectedComponentId: state.componentTree.selectedComponentId,

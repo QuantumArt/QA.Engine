@@ -16,7 +16,7 @@ import Kitchen from 'material-ui-icons/Kitchen';
 import Tune from 'material-ui-icons/Tune';
 import 'typeface-roboto/index.css';
 import OpenControl from '../OpenControl';
-import WidgetsScreen from '../WidgetsScreen';
+import WidgetsScreen from '../../containers/widgetsScreen';
 
 const styles = theme => ({
   sidebar: {

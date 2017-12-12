@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using QA.DotNetCore.Engine.QpData.Replacements;
 using QA.DotNetCore.OnScreenAdmin.Web.Models;
 using Quantumart.QPublishing.Database;
 using Quantumart.QPublishing.Info;
@@ -16,12 +17,14 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
         IMetaInfoRepository _metaInfoRepository;
         IItemDefinitionRepository _itemDefinitionRepository;
         DBConnector _dbConnector;
+        IQpUrlResolver _qpUrlResolver;
 
-        public ApiController(IMetaInfoRepository metaInfoRepository, IItemDefinitionRepository itemDefinitionRepository, DBConnector dbConnector)
+        public ApiController(IMetaInfoRepository metaInfoRepository, IItemDefinitionRepository itemDefinitionRepository, DBConnector dbConnector, IQpUrlResolver qpUrlResolver)
         {
             _metaInfoRepository = metaInfoRepository;
             _itemDefinitionRepository = itemDefinitionRepository;
             _dbConnector = dbConnector;
+            _qpUrlResolver = qpUrlResolver;
         }
 
         [HttpGet("meta")]
@@ -42,12 +45,21 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
         {
             try
             {
-                ///TODO: заменять IconUrl на абсолютный
-                return ApiResult
-                    .Success<IEnumerable<ItemDefinitionPersistentData>>(_itemDefinitionRepository
+                var content = _metaInfoRepository.GetContent("QPDiscriminator", siteId);
+                if (content == null)
+                    return ApiResult.Error($"Not found QPDiscriminator content in site {siteId}");
+                var baseIconUrl = _qpUrlResolver.UrlForImage(siteId, content.ContentId, "IconUrl");
+
+                var widgetDefinitions = _itemDefinitionRepository
                     .GetAllItemDefinitions(siteId, true)
-                    .Where(d => !d.IsPage)
-                    .ToList());
+                    .Where(d => !d.IsPage);
+
+                foreach (var w in widgetDefinitions)
+                {
+                    w.IconUrl = (baseIconUrl ?? "") + "/" + w.IconUrl;
+                }
+
+                return ApiResult.Success<IEnumerable<ItemDefinitionPersistentData>>(widgetDefinitions.ToList());
             }
             catch (Exception ex)
             {

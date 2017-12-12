@@ -5,7 +5,7 @@ namespace QA.DotNetCore.Engine.QpData.Replacements
     /// </summary>
     public interface IQpUrlResolver
     {
-        string UploadUrl(bool removeScheme = false);
-        string UrlForImage(int contentId, string fieldName, bool removeScheme = false);
+        string UploadUrl(int siteId, bool removeScheme = false);
+        string UrlForImage(int siteId, int contentId, string fieldName, bool removeScheme = false);
     }
 }

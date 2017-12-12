@@ -11,6 +11,9 @@ using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 using Microsoft.AspNetCore.Http;
 using Quantumart.QPublishing.Database;
+using QA.DotNetCore.Caching;
+using QA.DotNetCore.Engine.QpData.Replacements;
+using QA.DotNetCore.Engine.QpData.Settings;
 
 namespace QA.DotNetCore.OnScreenAdmin.Web
 {
@@ -29,6 +32,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
             services.AddMvc();
 
             services.AddMemoryCache();
+            services.AddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             var dbConnectorSettings = Configuration.GetSection("DbConnectorSettings").Get<DbConnectorSettings>();
@@ -40,6 +44,10 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
             services.AddScoped<IMetaInfoRepository, MetaInfoRepository>();
             services.AddScoped<INetNameQueryAnalyzer, NetNameQueryAnalyzer>();
             services.AddScoped<IItemDefinitionRepository, ItemDefinitionRepository>();
+
+            var qpUrlResolverCacheSettings = new QpSchemeCacheSettings { CachePeriod = new TimeSpan(0, 1, 0) };
+            services.AddSingleton(typeof(QpSchemeCacheSettings), qpUrlResolverCacheSettings);
+            services.AddScoped<IQpUrlResolver, QpUrlResolver>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

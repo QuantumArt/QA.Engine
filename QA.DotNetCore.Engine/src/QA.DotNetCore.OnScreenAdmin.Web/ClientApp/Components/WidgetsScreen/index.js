@@ -5,7 +5,6 @@ import Toolbar from 'material-ui/Toolbar';
 import TextField from 'material-ui/TextField';
 // import { FormControlLabel } from 'material-ui/Form';
 // import Switch from 'material-ui/Switch';
-import { lightBlue, green } from 'material-ui/colors';
 import ComponentTree from '../../containers/componentTree';
 import EditComponentTree from '../../containers/editComponentTree';
 import ComponentHighlightToolbar from '../../containers/componentHighlightToolbar';
@@ -14,6 +13,7 @@ const styles = theme => ({
   searchField: {
     marginLeft: theme.spacing.unit * 2,
     marginRight: theme.spacing.unit * 2,
+    marginTop: 0,
     fontSize: theme.spacing.unit * 2,
   },
   searchInput: {
@@ -22,26 +22,6 @@ const styles = theme => ({
   searchFieldLabel: {
     fontWeight: 'normal',
     fontSize: theme.spacing.unit * 2,
-  },
-  switchToolbar: {
-    justifyContent: 'space-between',
-  },
-  switchLabel: {
-    fontSize: theme.spacing.unit * 1.8,
-  },
-  zoneSwitchBar: {},
-  zoneSwitchChecked: {
-    'color': green[400],
-    '& + $zoneSwitchBar': {
-      backgroundColor: green[400],
-    },
-  },
-  widgetsSwitchBar: {},
-  widgetSwitchChecked: {
-    'color': lightBlue[400],
-    '& + $widgetsSwitchBar': {
-      backgroundColor: lightBlue[400],
-    },
   },
 });
 

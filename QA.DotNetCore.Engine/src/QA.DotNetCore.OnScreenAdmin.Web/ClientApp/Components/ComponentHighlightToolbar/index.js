@@ -9,6 +9,7 @@ import { lightBlue, green } from 'material-ui/colors';
 const styles = theme => ({
   switchToolbar: {
     justifyContent: 'space-between',
+    paddingTop: 16,
   },
   switchLabel: {
     fontSize: theme.spacing.unit * 1.8,

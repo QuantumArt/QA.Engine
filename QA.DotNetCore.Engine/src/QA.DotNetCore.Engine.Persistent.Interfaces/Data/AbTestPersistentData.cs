@@ -16,11 +16,6 @@ namespace QA.DotNetCore.Engine.Persistent.Interfaces.Data
         public int[] Percentage { get; set; }
 
         /// <summary>
-        /// Срок истечения куки с запомненным выбром для теста (если пусто, то куки будет сессионной)
-        /// </summary>
-        public DateTime? CookieExpires { get; set; }
-
-        /// <summary>
         /// Шаблоны страниц, которыми ограничен тест
         /// </summary>
         public string UrlPatterns { get; set; }
@@ -28,26 +23,11 @@ namespace QA.DotNetCore.Engine.Persistent.Interfaces.Data
         /// <summary>
         /// Дата начала
         /// </summary>
-        public DateTime? EndDate { get; set; }
+        public DateTime? StartDate { get; set; }
 
         /// <summary>
         /// Дата окончания
         /// </summary>
-        public DateTime? StartDate { get; set; }
-
-        /// <summary>
-        /// Устанавливать ли куки на региональный домен
-        /// </summary>
-        [Obsolete]
-        public bool IsCookieRegional { get; set; }
-
-        /// <summary>
-        /// Синхронный ли тест (по синхронным тестам будет варьироваться output-cache)
-        /// </summary>
-        [Obsolete]
-        public bool Synchronous { get; set; }
-
-        [Obsolete]
-        public string[] CookiePaths { get; set; }
+        public DateTime? EndDate { get; set; }
     }
 }

@@ -2,26 +2,24 @@ using System.Collections.Generic;
 
 namespace QA.DotNetCore.Engine.Persistent.Interfaces.Data
 {
-    public class AbTestContainerPersistentData
+    public abstract class AbTestContainerBasePersistentData
     {
         public int Id { get; set; }
 
         //public AbTestPersistentData Test { get; set; }
 
-        //public AbTestContainerType Type { get; set; }
+        public abstract AbTestContainerType Type { get; }
 
         public string[] AllowedUrlPatterns { get; set; }
 
         public string[] DeniedUrlPatterns { get; set; }
 
         public string Precondition { get; set; }
-
-        public List<AbTestScriptPersistentData> Scripts { get; set; }
     }
 
-    //public enum AbTestContainerType
-    //{
-    //    Script,
-    //    PageRewrite
-    //}
+    public enum AbTestContainerType
+    {
+        Script,
+        ClientRedirect
+    }
 }

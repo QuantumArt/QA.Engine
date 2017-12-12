@@ -6,11 +6,13 @@ namespace QA.DotNetCore.Engine.AbTesting
     {
         public AbTestWithContainers()
         {
-            Containers = new AbTestContainerPersistentData[] { };
+            ScriptContainers = new AbTestScriptContainerPersistentData[] { };
         }
 
         public AbTestPersistentData Test { get; set; }
 
-        public AbTestContainerPersistentData[] Containers { get; set; }
+        public AbTestClientRedirectContainerPersistentData ClientRedirectContainer { get; set; }
+
+        public AbTestScriptContainerPersistentData[] ScriptContainers { get; set; }
     }
 }

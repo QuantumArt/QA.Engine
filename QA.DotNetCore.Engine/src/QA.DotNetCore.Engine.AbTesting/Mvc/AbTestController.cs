@@ -22,7 +22,7 @@ namespace QA.DotNetCore.Engine.AbTesting.Mvc
         }
 
         //[NoCache]
-        //[RequireReferrer(CheckOrigin = true)]
+        [RequireReferrer(CheckOrigin = true)]
         public virtual ActionResult InlineScript(string u)
         {
             Response.ContentType = "application/x-javascript";
@@ -36,19 +36,17 @@ namespace QA.DotNetCore.Engine.AbTesting.Mvc
             if (tests != null && tests.Any())
             {
                 //построим js-объект для таргетирования тестов
-                var jsCodeForTargetingObject = "query: {}";
+                var jsCodeForTargetingObject = String.Empty;
                 var keys = _targetingContext.GetTargetingKeys();
                 if (keys != null)
                 {
-                    jsCodeForTargetingObject = jsCodeForTargetingObject + ", " + String.Join(", ", keys.Select(k => $"{k}: '{_targetingContext.GetTargetingValue(k)}'"));
+                    jsCodeForTargetingObject = String.Join(", ", keys.Select(k => $"{k}: '{_targetingContext.GetTargetingValue(k)}'"));
                 }
 
                 return Content($@"
 (function(window, $){{
+    ""use strict""
     var ctx = {{ {jsCodeForTargetingObject} }};
-    if(QA && QA.Core && QA.Core.AbTest){{
-        ctx.query = QA.Core.AbTest.getQuery();
-    }}
     {JsCodeForTests(tests)}
 }})(window, jQuery);
 ");
@@ -59,12 +57,11 @@ namespace QA.DotNetCore.Engine.AbTesting.Mvc
 
         private string JsCodeForSetCookies(AbTestPersistentData test, int choice)
         {
-            var expires = test.CookieExpires.HasValue ? $"options.expires = new Date({test.CookieExpires.Value.Year},{test.CookieExpires.Value.Month - 1},{test.CookieExpires.Value.Day},{test.CookieExpires.Value.Hour},{test.CookieExpires.Value.Minute})" : "";
+            var cookieExpireDate = test.EndDate ?? DateTime.Today.AddYears(1);
             return $@"
 if (Cookies && Cookies.set) {{
     var options = {{}};
-    // !!!!!!! options.domain = '@GlobalContext.CookieDomain'
-    {expires}
+    options.expires = new Date({cookieExpireDate.Year},{cookieExpireDate.Month - 1},{cookieExpireDate.Day},{cookieExpireDate.Hour},{cookieExpireDate.Minute})
     options.path = '{Url.Action("InlineScript", "AbTest")}';
     Cookies.set('{AbTestChoiceResolver.CookieNamePrefix + test.Id}', '{choice}', options);
 ";
@@ -77,7 +74,27 @@ if (Cookies && Cookies.set) {{
             {
                 var choice = _abTestChoiceResolver.ResolveChoice(test.Test.Id);
                 sb.Append(JsCodeForSetCookies(test.Test, choice));
-                foreach (var container in test.Containers.Where(c => c.Scripts.Any(s => s.VersionNumber == choice)))
+                if (test.ClientRedirectContainer != null)
+                {
+                    var redirect = test.ClientRedirectContainer.Redirects.FirstOrDefault(r => r.VersionNumber == choice && !String.IsNullOrWhiteSpace(r.RedirectUrl));
+                    if (redirect != null)
+                    {
+                        var precondition = test.ClientRedirectContainer.Precondition;
+                        if (String.IsNullOrWhiteSpace(precondition))
+                        {
+                            precondition = "true";
+                        }
+                        sb.Append($@"
+(function(ctx, window, $){{
+    if(ctx && !({precondition})) return;
+    window.location = '{redirect.RedirectUrl}';
+}})(ctx, window, $);
+");
+                        break;
+                    }
+                }
+
+                foreach (var container in test.ScriptContainers.Where(c => c.Scripts.Any(s => s.VersionNumber == choice)))
                 {
                     var precondition = container.Precondition;
                     if (String.IsNullOrWhiteSpace(precondition))

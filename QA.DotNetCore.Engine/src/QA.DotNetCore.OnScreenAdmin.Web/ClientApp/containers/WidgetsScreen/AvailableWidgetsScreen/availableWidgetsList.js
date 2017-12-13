@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import AvailableWidgetsList from '../../../Components/AvailableWidgetsScreen/AvailableWidgetsList';
+import AvailableWidgetsList from '../../../Components/WidgetsScreen/AvailableWidgetsScreen/AvailableWidgetsList';
 import { selectWidgetToAdd } from '../../../actions/availableWidgetsActions';
 import { hideAvailableWidgets } from '../../../actions/widgetsScreenModeActions';
 import { filteredAvailableWidgets } from '../../../selectors/availableWidgets';

@@ -15,7 +15,7 @@ import PanoramaHorizontal from 'material-ui-icons/PanoramaHorizontal';
 import IconButton from 'material-ui/IconButton';
 import Collapse from 'material-ui/transitions/Collapse';
 import { deepPurple } from 'material-ui/colors';
-import ComponentControlMenu from '../../../containers/WidgetsScreen/componentControlMenu';
+import ComponentControlMenu from '../../../../containers/WidgetsScreen/componentControlMenu';
 
 const styles = (theme) => {
   console.log(theme);
@@ -82,7 +82,6 @@ class ComponentItem extends Component {
 
   renderContextMenu = (isSelected) => {
     if (!isSelected) { return null; }
-
     return (
       <ComponentControlMenu
         onScreenId={this.props.onScreenId}
@@ -125,11 +124,9 @@ class ComponentItem extends Component {
       nestLevel,
       isOpened,
       type,
-      // showListItem,
     } = this.props;
     const isSelected = selectedComponentId === onScreenId;
 
-    // if (!showListItem) { return null; }
     return (
       <ListItem
         classes={{
@@ -173,7 +170,6 @@ class ComponentItem extends Component {
       children,
       classes,
       isOpened,
-      // showListItem,
       maxNestLevel,
     } = this.props;
     let subtree = null;

@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import EditPortalItem from '../EditPortalItem';
+import EditPortalItem from './EditPortalItem';
 
 const EditPortalTree = ({
   components,

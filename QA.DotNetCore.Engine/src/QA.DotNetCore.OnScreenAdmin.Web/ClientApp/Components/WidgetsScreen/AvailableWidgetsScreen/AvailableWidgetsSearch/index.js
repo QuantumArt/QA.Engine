@@ -1,17 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import SearchToolBar from '../../SearchToolBar';
+import SearchToolBar from '../../../../Components/SearchToolBar';
 
-const ComponentTreeSearch = ({ searchText, changeSearchText }) => (
+const AvailableWidgetsSearch = ({ searchText, changeSearchText }) => (
   <SearchToolBar
     searchText={searchText}
     changeSearchText={changeSearchText}
   />
 );
 
-ComponentTreeSearch.propTypes = {
+AvailableWidgetsSearch.propTypes = {
   searchText: PropTypes.string.isRequired,
   changeSearchText: PropTypes.func.isRequired,
 };
 
-export default ComponentTreeSearch;
+export default AvailableWidgetsSearch;

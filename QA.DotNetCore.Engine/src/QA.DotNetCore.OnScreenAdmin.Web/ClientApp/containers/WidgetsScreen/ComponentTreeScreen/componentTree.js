@@ -5,7 +5,7 @@ import {
   toggleSubtree,
   toggleFullSubtree,
 } from '../../../actions/componentTreeActions';
-import ComponentTree from '../../../Components/ComponentTreeScreen/ComponentTree';
+import ComponentTree from '../../../Components/WidgetsScreen/ComponentTreeScreen/ComponentTree';
 import { getComponentTree, getMaxNestLevel, getSelectedComponentId } from '../../../selectors/componentTree';
 
 const filterAvailableWidgets = (widgets, searchText) => {

@@ -20,7 +20,7 @@ const styles = theme => ({
   },
 });
 
-const ComponentTreeSearch = ({ classes, searchText, changeSearchText }) => (
+const SearchToolBar = ({ classes, searchText, changeSearchText }) => (
   <Toolbar disableGutters>
     <TextField
       id="search"
@@ -41,10 +41,10 @@ const ComponentTreeSearch = ({ classes, searchText, changeSearchText }) => (
   </Toolbar>
 );
 
-ComponentTreeSearch.propTypes = {
+SearchToolBar.propTypes = {
   classes: PropTypes.object.isRequired,
   searchText: PropTypes.string.isRequired,
   changeSearchText: PropTypes.func.isRequired,
 };
 
-export default withStyles(styles)(ComponentTreeSearch);
+export default withStyles(styles)(SearchToolBar);

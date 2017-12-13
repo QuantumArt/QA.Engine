@@ -16,7 +16,7 @@ import Kitchen from 'material-ui-icons/Kitchen';
 import Tune from 'material-ui-icons/Tune';
 import 'typeface-roboto/index.css';
 import OpenControl from '../OpenControl';
-import WidgetsScreen from '../../containers/widgetsScreen';
+import WidgetsScreen from '../../containers/WidgetsScreen';
 
 const styles = theme => ({
   sidebar: {
@@ -61,8 +61,6 @@ const Sidebar = (props) => {
     toggleLeft,
     toggleRight,
     toggleTab,
-    widgetScreenSearchText,
-    widgetScreenChangeSearchText,
     classes,
   } = props;
 
@@ -135,8 +133,6 @@ const Sidebar = (props) => {
           <SwipeableViews axis="x" index={activeTab}>
             <WidgetsScreen
               side={side}
-              searchText={widgetScreenSearchText}
-              changeSearchText={widgetScreenChangeSearchText}
             />
             <div>123</div>
           </SwipeableViews>
@@ -154,8 +150,6 @@ Sidebar.propTypes = {
   toggleLeft: PropTypes.func.isRequired,
   toggleRight: PropTypes.func.isRequired,
   toggleTab: PropTypes.func.isRequired,
-  widgetScreenSearchText: PropTypes.string.isRequired,
-  widgetScreenChangeSearchText: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired,
 };
 

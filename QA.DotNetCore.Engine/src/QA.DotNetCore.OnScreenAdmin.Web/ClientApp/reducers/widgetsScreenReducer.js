@@ -1,4 +1,4 @@
-import { ADD_WIDGET_ACTIONS } from '../actions/actionTypes';
+import { WIDGETS_SCREEN_MODE_ACTIONS } from '../actions/actionTypes';
 
 export const MODES = {
   SHOW_COMPONENT_TREE: 0,
@@ -10,9 +10,9 @@ const initialState = {
 
 export default function widgetsScreenReducer(state = initialState, action) {
   switch (action.type) {
-    case ADD_WIDGET_ACTIONS.SHOW_AVAILABLE_WIDGETS:
+    case WIDGETS_SCREEN_MODE_ACTIONS.SHOW_AVAILABLE_WIDGETS:
       return { ...state, mode: MODES.SHOW_AVAILABLE_WIDGETS };
-    case ADD_WIDGET_ACTIONS.HIDE_AVAILABLE_WIDGETS:
+    case WIDGETS_SCREEN_MODE_ACTIONS.HIDE_AVAILABLE_WIDGETS:
       return { ...state, mode: MODES.SHOW_COMPONENT_TREE };
     default:
       return state;

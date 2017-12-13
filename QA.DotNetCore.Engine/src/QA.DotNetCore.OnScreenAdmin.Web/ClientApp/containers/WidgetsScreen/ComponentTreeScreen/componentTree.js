@@ -4,11 +4,9 @@ import {
   toggleComponent,
   toggleSubtree,
   toggleFullSubtree,
-  selectWidgetToAdd,
-  hideAvailableWidgets,
-} from '../actions/componentTreeActions';
-import ComponentTree from '../Components/ComponentTree';
-import { getComponentTree, getMaxNestLevel, getSelectedComponentId } from '../selectors/componentTree';
+} from '../../../actions/componentTreeActions';
+import ComponentTree from '../../../Components/ComponentTreeScreen/ComponentTree';
+import { getComponentTree, getMaxNestLevel, getSelectedComponentId } from '../../../selectors/componentTree';
 
 const filterAvailableWidgets = (widgets, searchText) => {
   const lowerSearchText = _.toLower(searchText);
@@ -36,12 +34,6 @@ const mapDispatchToProps = dispatch => ({
   },
   onToggleFullSubtree: (id) => {
     dispatch(toggleFullSubtree(id));
-  },
-  onSelectWidgetToAdd: (id) => {
-    dispatch(selectWidgetToAdd(id));
-  },
-  onCancelAddWidget: () => {
-    dispatch(hideAvailableWidgets());
   },
 });
 

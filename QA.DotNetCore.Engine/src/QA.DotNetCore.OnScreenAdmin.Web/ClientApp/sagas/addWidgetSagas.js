@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { select, put, takeEvery, all } from 'redux-saga/effects';
-import { ADD_WIDGET_ACTIONS, CONTENT_META_INFO_ACTION } from '../actions/actionTypes';
+import { ADD_WIDGET_ACTIONS, CONTENT_META_INFO_ACTION, WIDGETS_SCREEN_MODE_ACTIONS } from '../actions/actionTypes';
 import { qpFormCallback } from './qpFormSagas';
 
 import { addWidget as addWidgetQpForm } from '../articleManagement';
@@ -30,14 +30,14 @@ function* widgetSelected() {
   const zoneToAdd = yield select(zoneToAddSelector);
   const widgetToAdd = yield select(widgetToAddSelector);
   const abstractItemInfo = yield select(abstractItemMetaInfoSelector);
-  yield put({ type: ADD_WIDGET_ACTIONS.HIDE_AVAILABLE_WIDGETS });
+  yield put({ type: WIDGETS_SCREEN_MODE_ACTIONS.HIDE_AVAILABLE_WIDGETS });
   addWidgetQpForm(widgetToAdd, zoneToAdd, abstractItemInfo, qpFormCallback);
   console.log(zoneToAdd, widgetToAdd, abstractItemInfo);
 }
 
 function* showAvailableWidgets(action) {
   if (action.source !== selfSource) { return; }
-  yield put({ type: ADD_WIDGET_ACTIONS.SHOW_AVAILABLE_WIDGETS });
+  yield put({ type: WIDGETS_SCREEN_MODE_ACTIONS.SHOW_AVAILABLE_WIDGETS });
 }
 
 function* watchAddWidget() {

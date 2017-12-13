@@ -4,7 +4,6 @@ import {
   toggleLeftPosition,
   toggleRightPosition,
   toggleTab,
-  widgetScreenChangeSearchText,
 } from '../actions/sidebarActions';
 import Sidebar from '../Components/Sidebar';
 import { getShowAllZones, getShowAllWidgets } from '../selectors/componentsHighlight';
@@ -31,9 +30,7 @@ const mapDispatchToProps = dispatch => ({
   toggleTab: (value) => {
     dispatch(toggleTab(value));
   },
-  widgetScreenChangeSearchText: (value) => {
-    dispatch(widgetScreenChangeSearchText(value));
-  },
+
 });
 
 const SidebarContainer = connect(

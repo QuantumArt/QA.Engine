@@ -3,9 +3,9 @@ import _ from 'lodash';
 import {
   editWidget,
   addWidgetToZone,
-} from '../actions/componentControlMenuActions';
+} from '../../actions/componentControlMenuActions';
 
-import ComponentControlMenu from '../Components/ComponentControlMenu';
+import ComponentControlMenu from '../../Components/ComponentControlMenu';
 
 const mapStateToProps = (state, ownProps) => {
   const component = _.find(state.componentTree.components, { onScreenId: ownProps.onScreenId });

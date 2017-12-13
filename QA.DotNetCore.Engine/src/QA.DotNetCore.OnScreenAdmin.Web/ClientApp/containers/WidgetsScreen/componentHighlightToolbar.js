@@ -1,8 +1,8 @@
 import { connect } from 'react-redux';
-import { toggleAllWidgets, toggleAllZones } from '../actions/componentHighlightActions';
-import { getShowAllZones, getShowAllWidgets } from '../selectors/componentsHighlight';
+import { toggleAllWidgets, toggleAllZones } from '../../actions/componentHighlightActions';
+import { getShowAllZones, getShowAllWidgets } from '../../selectors/componentsHighlight';
 
-import ComponentHighlightToolbar from '../Components/ComponentHighlightToolbar';
+import ComponentHighlightToolbar from '../../Components/ComponentHighlightToolbar';
 
 const mapStateToProps = state => ({
   showAllZones: getShowAllZones(state),

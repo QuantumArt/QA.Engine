@@ -116,22 +116,22 @@ export default function componentTreeReducer(state = initialState, action) {
         addingWidget: true,
         zoneToAddWidgetOnScreenId: action.onScreenId,
       };
-    case ADD_WIDGET_ACTIONS.SHOW_AVAILABLE_WIDGETS:
-      return {
-        ...state,
-        showAvailableWidgets: true,
-      };
+    // case ADD_WIDGET_ACTIONS.SHOW_AVAILABLE_WIDGETS:
+    //   return {
+    //     ...state,
+    //     showAvailableWidgets: true,
+    //   };
 
     case ADD_WIDGET_ACTIONS.SELECT_WIDGET_TO_ADD:
       return {
         ...state,
         selectedWidgetToAddId: action.id,
       };
-    case ADD_WIDGET_ACTIONS.HIDE_AVAILABLE_WIDGETS:
-      return {
-        ...state,
-        showAvailableWidgets: false,
-      };
+    // case ADD_WIDGET_ACTIONS.HIDE_AVAILABLE_WIDGETS:
+    //   return {
+    //     ...state,
+    //     showAvailableWidgets: false,
+    //   };
 
     case CHANGE_COMPONENT_TREE_SEARCH_TEXT:
       return {

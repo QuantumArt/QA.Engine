@@ -15,7 +15,7 @@ import PanoramaHorizontal from 'material-ui-icons/PanoramaHorizontal';
 import IconButton from 'material-ui/IconButton';
 import Collapse from 'material-ui/transitions/Collapse';
 import { deepPurple } from 'material-ui/colors';
-import ComponentControlMenu from '../../containers/componentControlMenu';
+import ComponentControlMenu from '../../../containers/WidgetsScreen/componentControlMenu';
 
 const styles = (theme) => {
   console.log(theme);
@@ -125,11 +125,11 @@ class ComponentItem extends Component {
       nestLevel,
       isOpened,
       type,
-      showListItem,
+      // showListItem,
     } = this.props;
     const isSelected = selectedComponentId === onScreenId;
 
-    if (!showListItem) { return null; }
+    // if (!showListItem) { return null; }
     return (
       <ListItem
         classes={{
@@ -173,7 +173,7 @@ class ComponentItem extends Component {
       children,
       classes,
       isOpened,
-      showListItem,
+      // showListItem,
       maxNestLevel,
     } = this.props;
     let subtree = null;
@@ -193,7 +193,7 @@ class ComponentItem extends Component {
           classes={classes}
           nestLevel={child.nestLevel}
           maxNestLevel={maxNestLevel}
-          showListItem={showListItem}
+          // showListItem={showListItem}
         >
           {child.children}
         </ComponentItem>
@@ -233,7 +233,7 @@ ComponentItem.propTypes = {
   classes: PropTypes.object.isRequired,
   nestLevel: PropTypes.number.isRequired,
   maxNestLevel: PropTypes.number.isRequired,
-  showListItem: PropTypes.bool.isRequired,
+  // showListItem: PropTypes.bool.isRequired,
 };
 
 ComponentItem.defaultProps = {

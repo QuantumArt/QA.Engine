@@ -4,7 +4,6 @@ import {
   TOGGLE_SUBTREE,
   TOGGLE_FULL_SUBTREE,
   CHANGE_COMPONENT_TREE_SEARCH_TEXT,
-  ADD_WIDGET_ACTIONS,
 } from './actionTypes';
 
 export function toggleComponent(id) {
@@ -21,14 +20,6 @@ export function toggleSubtree(id) {
 
 export function toggleFullSubtree(id) {
   return { type: TOGGLE_FULL_SUBTREE, id };
-}
-
-export function selectWidgetToAdd(id) {
-  return { type: ADD_WIDGET_ACTIONS.SELECT_WIDGET_TO_ADD, id };
-}
-
-export function hideAvailableWidgets() {
-  return { type: ADD_WIDGET_ACTIONS.HIDE_AVAILABLE_WIDGETS };
 }
 
 export function changeSearchText(newValue) {

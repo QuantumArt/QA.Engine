@@ -1,16 +1,29 @@
 import React, { Fragment } from 'react';
-import EditComponentTree from '../../containers/editComponentTree';
-import ComponentHighlightToolbar from '../../containers/componentHighlightToolbar';
+import PropTypes from 'prop-types';
+import EditComponentTree from '../../containers/WidgetsScreen/editComponentTree';
+import ComponentHighlightToolbar from '../../containers/WidgetsScreen/componentHighlightToolbar';
 import ComponentTreeScreen from '../ComponentTreeScreen';
+import AvailableWidgetsScreen from '../AvailableWidgetsScreen';
 
 
-const WidgetsScreen = () => (
+const WidgetsScreen = ({ showComponentTree, showAvailableWidgets }) => (
   <Fragment>
     <ComponentHighlightToolbar />
-    <ComponentTreeScreen />
+    {showComponentTree
+      ? (<ComponentTreeScreen />)
+      : null
+    }
+    {showAvailableWidgets
+      ? (<AvailableWidgetsScreen />)
+      : null
+    }
     <EditComponentTree />
   </Fragment>
 );
 
+WidgetsScreen.propTypes = {
+  showComponentTree: PropTypes.bool.isRequired,
+  showAvailableWidgets: PropTypes.bool.isRequired,
+};
 
 export default WidgetsScreen;

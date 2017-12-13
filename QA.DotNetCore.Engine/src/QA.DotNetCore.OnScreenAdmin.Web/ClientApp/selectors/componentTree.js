@@ -1,13 +1,18 @@
-import { createSelector } from 'reselect';
+import { createSelector, createSelectorCreator, defaultMemoize } from 'reselect';
 import _ from 'lodash';
 import buildTree from '../utils/buildTree';
-
 
 const getComponentTreeSelector = state => buildTree(state.componentTree.components);
 const getFlatComponentsSelector = state => state.componentTree.components;
 const getMaxNestLevelSelector = state => state.componentTree.maxNestLevel;
 const getSelectedComponentIdSelector = state => state.componentTree.selectedComponentId;
 const getSearchTextSelector = state => state.componentTree.searchText;
+
+// create a "selector creator" that uses lodash.isEqual instead of ===
+const createDeepEqualSelector = createSelectorCreator(
+  defaultMemoize,
+  _.isEqual,
+);
 
 const getParentComponents = (allComponents, component) => {
   const parentIds = [];
@@ -76,7 +81,7 @@ export const getSearchText = createSelector(
   searchText => searchText,
 );
 
-export const filteredComponentTree = createSelector(
+export const filteredComponentTree = createDeepEqualSelector(
   [getSearchTextSelector, getFlatComponentsSelector],
   (searchText, componentsFlat) => filterFunction(componentsFlat, searchText),
 );

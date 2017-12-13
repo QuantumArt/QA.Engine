@@ -3,7 +3,7 @@ import {
   LOADED_COMPONENT_TREE,
   TOGGLE_SUBTREE,
   TOGGLE_FULL_SUBTREE,
-  CHANGE_SEARCH_TEXT,
+  CHANGE_COMPONENT_TREE_SEARCH_TEXT,
   ADD_WIDGET_ACTIONS,
 } from './actionTypes';
 
@@ -32,5 +32,5 @@ export function hideAvailableWidgets() {
 }
 
 export function changeSearchText(newValue) {
-  return { type: CHANGE_SEARCH_TEXT, value: newValue };
+  return { type: CHANGE_COMPONENT_TREE_SEARCH_TEXT, value: newValue };
 }

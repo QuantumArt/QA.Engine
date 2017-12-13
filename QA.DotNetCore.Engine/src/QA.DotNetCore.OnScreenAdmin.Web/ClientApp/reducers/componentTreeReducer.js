@@ -5,6 +5,7 @@ import {
   EDIT_WIDGET_ACTIONS,
   ADD_WIDGET_ACTIONS,
   QP_FORM_ACTIONS,
+  CHANGE_COMPONENT_TREE_SEARCH_TEXT,
 } from '../actions/actionTypes';
 import buildFlatList from '../utils/buildFlatList';
 
@@ -20,6 +21,7 @@ const initialState = {
   error: null,
   showQpForm: false,
   showAvailableWidgets: false,
+  searchText: '',
 };
 
 export default function componentTreeReducer(state = initialState, action) {
@@ -129,6 +131,12 @@ export default function componentTreeReducer(state = initialState, action) {
       return {
         ...state,
         showAvailableWidgets: false,
+      };
+
+    case CHANGE_COMPONENT_TREE_SEARCH_TEXT:
+      return {
+        ...state,
+        searchText: action.value,
       };
     default:
       return state;

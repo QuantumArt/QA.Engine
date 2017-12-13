@@ -1,27 +1,16 @@
 import { connect } from 'react-redux';
-import _ from 'lodash';
 import {
   toggleComponent,
   toggleSubtree,
   toggleFullSubtree,
 } from '../../../actions/componentTreeActions';
 import ComponentTree from '../../../Components/WidgetsScreen/ComponentTreeScreen/ComponentTree';
-import { getComponentTree, getMaxNestLevel, getSelectedComponentId } from '../../../selectors/componentTree';
-
-const filterAvailableWidgets = (widgets, searchText) => {
-  const lowerSearchText = _.toLower(searchText);
-
-  return _.filter(widgets, w =>
-    _.includes(_.toLower(w.title), lowerSearchText) || _.includes(_.toLower(w.description), lowerSearchText),
-  );
-};
+import { getMaxNestLevel, getSelectedComponentId, filteredComponentTree } from '../../../selectors/componentTree';
 
 const mapStateToProps = state => ({
-  components: getComponentTree(state),
+  components: filteredComponentTree(state),
   maxNestLevel: getMaxNestLevel(state),
-  availableWidgets: filterAvailableWidgets(state.metaInfo.availableWidgets, state.sidebar.widgetScreenSearchText),
   selectedComponentId: getSelectedComponentId(state),
-  showAvailableWidgets: state.componentTree.showAvailableWidgets,
   searchText: state.sidebar.widgetScreenSearchText,
 });
 

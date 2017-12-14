@@ -18,6 +18,13 @@ module.exports = {
     publicPath: '/dist/',
     devtoolModuleFilenameTemplate: info => path.resolve(info.absoluteResourcePath).replace(/\\/g, '/'),
   },
+  resolve: {
+    extensions: ['.js', '.jsx'],
+    modules: [
+      'node_modules',
+      path.resolve(__dirname, 'ClientApp'),
+    ],
+  },
   devtool: 'cheap-module-source-map',
   module: {
     rules: [{

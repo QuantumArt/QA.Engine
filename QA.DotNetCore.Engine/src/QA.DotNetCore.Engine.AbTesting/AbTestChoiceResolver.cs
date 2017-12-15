@@ -10,7 +10,7 @@ namespace QA.DotNetCore.Engine.AbTesting
     /// </summary>
     public class AbTestChoiceResolver
     {
-        private readonly AbTestStorage _abTestStorage;
+        private readonly IAbTestService _abTestService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public const string QueryParamPrefix = "test-";
@@ -18,9 +18,9 @@ namespace QA.DotNetCore.Engine.AbTesting
 
         private Dictionary<int, int> _currentChoices = new Dictionary<int, int>();
 
-        public AbTestChoiceResolver(AbTestStorage abTestStorage, IHttpContextAccessor httpContextAccessor)
+        public AbTestChoiceResolver(IAbTestService abTestService, IHttpContextAccessor httpContextAccessor)
         {
-            _abTestStorage = abTestStorage;
+            _abTestService = abTestService;
             _httpContextAccessor = httpContextAccessor;
         }
 
@@ -56,7 +56,7 @@ namespace QA.DotNetCore.Engine.AbTesting
             //сделаем выбор на основе рандома
             if (!choice.HasValue)
             {
-                var test = _abTestStorage.GetTestById(testId);
+                var test = _abTestService.GetTestById(testId);
 
                 var percentage = test.Percentage;
                 if (percentage != null && percentage.Length > 1 && percentage.Sum() > 0)

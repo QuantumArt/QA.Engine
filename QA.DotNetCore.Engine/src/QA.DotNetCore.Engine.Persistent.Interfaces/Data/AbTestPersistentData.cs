@@ -1,8 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace QA.DotNetCore.Engine.Persistent.Interfaces.Data
 {
@@ -13,12 +10,40 @@ namespace QA.DotNetCore.Engine.Persistent.Interfaces.Data
         /// <summary>
         /// Массив с вероятностями выбора (может быть более 2, т.е. тест может превращаться в ABN-тест)
         /// </summary>
-        public int[] Percentage { get; set; }
+        public int[] Percentage
+        {
+            get
+            {
+                var percentage = new int[0];
+                if (PercentageStr != null)
+                {
+                    percentage = PercentageStr.Split(new char[] { ',', ';'}, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(_ => Int32.TryParse(_.Trim(), out int tmp) ? tmp : 0)
+                        .Select(_ => _ < 0 ? 0 : _)
+                        .ToArray();
+                }
+                return percentage;
+            }
+            set
+            {
+                PercentageStr = String.Join(",", value);
+            }
+        }
 
         /// <summary>
-        /// Шаблоны страниц, которыми ограничен тест
+        /// Строковое представление поля <see cref="Percentage"/>
         /// </summary>
-        public string UrlPatterns { get; set; }
+        public string PercentageStr { get; set; }
+
+        /// <summary>
+        /// Название теста
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
+        /// Комментарий к тесту
+        /// </summary>
+        public string Comment { get; set; }
 
         /// <summary>
         /// Дата начала

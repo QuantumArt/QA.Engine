@@ -1,6 +1,6 @@
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
-using QA.DotNetCore.Engine.QpData.Persistent.Data;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;

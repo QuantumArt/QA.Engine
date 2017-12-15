@@ -8,10 +8,17 @@ namespace QA.DotNetCore.Engine.Targeting
     /// </summary>
     public class HttpTargetingContext : ITargetingContext
     {
+        public const string TargetingKeysContextKey = "HttpTargetingContext.Keys";
+
         readonly IHttpContextAccessor _httpContextAccessor;
         public HttpTargetingContext(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
+        }
+
+        public string[] GetTargetingKeys()
+        {
+            return _httpContextAccessor.HttpContext.Items[TargetingKeysContextKey] as string[];
         }
 
         public object GetTargetingValue(string key)

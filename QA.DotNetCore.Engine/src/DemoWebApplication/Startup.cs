@@ -9,12 +9,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Caching;
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.AbTesting.Configuration;
 using QA.DotNetCore.Engine.QpData.Configuration;
 using QA.DotNetCore.Engine.QpData.Settings;
 using QA.DotNetCore.Engine.Routing.Configuration;
 using QA.DotNetCore.Engine.Targeting.Configuration;
 using QA.DotNetCore.Engine.Widgets.Configuration;
 using QA.DotNetCore.Engine.Widgets.OnScreen;
+using QA.DotNetCore.Engine.AbTesting;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Dapper;
 
 namespace DemoWebApplication
 {
@@ -49,6 +53,13 @@ namespace DemoWebApplication
                 options.QpSiteStructureSettings = Configuration.GetSection("QpSiteStructureSettings").Get<QpSiteStructureSettings>();
                 options.TypeFinder.RegisterFromAssemblyContaining<RootPage, IAbstractItem>();
                 //options.QpSiteStructureSettings.LoadAbstractItemFieldsToDetailsCollection = false;
+            });
+
+            services.AddAbTestServices(options => {
+                //дублируются некоторые опции из AddSiteStructureEngine, потому что АБ-тесты могут быть или не быть независимо от структуры сайта
+                options.QpConnectionString = Configuration.GetConnectionString("QpConnection");
+                options.AbTestingSettings.SiteId = Configuration.GetSection("QpSettings").Get<QpSettings>().SiteId;
+                options.AbTestingSettings.IsStage = Configuration.GetSection("QpSettings").Get<QpSettings>().IsStage;
             });
 
             services.AddOnScreenServices(options =>

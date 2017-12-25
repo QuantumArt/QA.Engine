@@ -11,11 +11,11 @@ const abstractItemMetaInfoSelector = state => state.metaInfo.abstractItemMetaInf
 const widgetToAddSelector = state =>
   _.find(
     state.metaInfo.availableWidgets,
-    { id: state.componentTree.selectedWidgetToAddId });
+    { id: state.articleManagement.addWidget.selectedWidgetId });
 const zoneToAddSelector = state =>
   _.find(
     state.componentTree.components,
-    { onScreenId: state.componentTree.zoneToAddWidgetOnScreenId });
+    { onScreenId: state.articleManagement.addWidget.zoneOnScreenId });
 
 
 function* addWidget() {
@@ -32,6 +32,7 @@ function* widgetSelected() {
   const abstractItemInfo = yield select(abstractItemMetaInfoSelector);
   yield put({ type: WIDGETS_SCREEN_MODE_ACTIONS.HIDE_AVAILABLE_WIDGETS });
   addWidgetQpForm(widgetToAdd, zoneToAdd, abstractItemInfo, qpFormCallback);
+  yield put({ type: ADD_WIDGET_ACTIONS.SHOW_QP_FORM });
   console.log(zoneToAdd, widgetToAdd, abstractItemInfo);
 }
 

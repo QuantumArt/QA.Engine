@@ -8,7 +8,7 @@ import { editWidget as editWidgetQpForm } from '../articleManagement';
 
 const abstractItemMetaInfoSelector = state => state.metaInfo.abstractItemMetaInfo;
 const currentEditingWidgetSelector = state =>
-  _.find(state.componentTree.components, { onScreenId: state.componentTree.editingComponentOnScreenId });
+  _.find(state.componentTree.components, { onScreenId: state.articleManagement.editWidget.onScreenId });
 const selfSource = 'meta_info_edit_widget';
 
 

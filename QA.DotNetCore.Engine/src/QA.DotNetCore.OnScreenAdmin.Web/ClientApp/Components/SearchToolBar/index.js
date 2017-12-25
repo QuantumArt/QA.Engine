@@ -4,6 +4,7 @@ import { withStyles } from 'material-ui/styles';
 import Toolbar from 'material-ui/Toolbar';
 import TextField from 'material-ui/TextField';
 
+
 const styles = theme => ({
   searchField: {
     marginLeft: theme.spacing.unit * 2,

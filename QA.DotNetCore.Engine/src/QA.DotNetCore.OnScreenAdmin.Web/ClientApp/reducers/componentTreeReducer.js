@@ -2,9 +2,6 @@ import {
   TOGGLE_COMPONENT,
   TOGGLE_SUBTREE,
   TOGGLE_FULL_SUBTREE,
-  EDIT_WIDGET_ACTIONS,
-  ADD_WIDGET_ACTIONS,
-  QP_FORM_ACTIONS,
   CHANGE_COMPONENT_TREE_SEARCH_TEXT,
 } from '../actions/actionTypes';
 import buildFlatList from '../utils/buildFlatList';
@@ -15,12 +12,6 @@ const initialState = {
   selectedComponentId: '',
   components,
   maxNestLevel: components.map(c => c.nestLevel).reduce((max, cur) => Math.max(max, cur)),
-  isLoading: false,
-  editingComponent: false,
-  editingComponentOnScreenId: null,
-  error: null,
-  showQpForm: false,
-  showAvailableWidgets: false,
   searchText: '',
 };
 
@@ -87,52 +78,6 @@ export default function componentTreeReducer(state = initialState, action) {
         ),
       };
     }
-    case EDIT_WIDGET_ACTIONS.EDIT_WIDGET:
-      return {
-        ...state,
-        editingComponent: true,
-        editingComponentOnScreenId: action.onScreenId,
-      };
-    case EDIT_WIDGET_ACTIONS.SHOW_QP_FORM:
-      return {
-        ...state,
-        showQpForm: true,
-      };
-    case QP_FORM_ACTIONS.CLOSE_QP_FORM:
-      return {
-        ...state,
-        showQpForm: false,
-        editingComponent: false,
-        editingCompoeditingComponentOnScreenIdnentId: null,
-      };
-    case QP_FORM_ACTIONS.NEED_RELOAD:
-      return {
-        ...state,
-        needReload: true,
-      };
-    case ADD_WIDGET_ACTIONS.ADD_WIDGET_TO_ZONE:
-      return {
-        ...state,
-        addingWidget: true,
-        zoneToAddWidgetOnScreenId: action.onScreenId,
-      };
-    // case ADD_WIDGET_ACTIONS.SHOW_AVAILABLE_WIDGETS:
-    //   return {
-    //     ...state,
-    //     showAvailableWidgets: true,
-    //   };
-
-    case ADD_WIDGET_ACTIONS.SELECT_WIDGET_TO_ADD:
-      return {
-        ...state,
-        selectedWidgetToAddId: action.id,
-      };
-    // case ADD_WIDGET_ACTIONS.HIDE_AVAILABLE_WIDGETS:
-    //   return {
-    //     ...state,
-    //     showAvailableWidgets: false,
-    //   };
-
     case CHANGE_COMPONENT_TREE_SEARCH_TEXT:
       return {
         ...state,

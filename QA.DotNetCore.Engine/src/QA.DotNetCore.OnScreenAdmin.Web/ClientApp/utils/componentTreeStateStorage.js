@@ -9,8 +9,6 @@ export const setSubtreeState = (components) => {
   const currentData = {
     openedNodes: mapped,
   };
-
-
   store.set(key, currentData);
 };
 

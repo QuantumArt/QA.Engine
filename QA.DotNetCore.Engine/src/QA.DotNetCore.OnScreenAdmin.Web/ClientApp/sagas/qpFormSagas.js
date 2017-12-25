@@ -4,7 +4,7 @@ import { channel } from 'redux-saga';
 import { QP_FORM_ACTIONS } from '../actions/actionTypes';
 
 
-const getNeedReload = state => state.componentTree.needReload;
+const getNeedReload = state => state.articleManagement.needReload;
 const qpFormChannel = channel();
 const qpFormActionsNeedReload = [
   'update_article',

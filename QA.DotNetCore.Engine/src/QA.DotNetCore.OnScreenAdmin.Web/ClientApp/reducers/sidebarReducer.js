@@ -3,7 +3,6 @@ import {
   TOGGLE_LEFT_POSITION,
   TOGGLE_RIGHT_POSITION,
   TOGGLE_TAB,
-  WIDGET_SCREEN_CHANGE_SEARCH_TEXT,
 } from '../actions/actionTypes';
 
 const initialState = {
@@ -23,8 +22,6 @@ export default function sidebarReducer(state = initialState, action) {
       return { ...state, side: 'right' };
     case TOGGLE_TAB:
       return { ...state, activeTab: action.value };
-    case WIDGET_SCREEN_CHANGE_SEARCH_TEXT:
-      return { ...state, widgetScreenSearchText: action.value };
     default:
       return state;
   }

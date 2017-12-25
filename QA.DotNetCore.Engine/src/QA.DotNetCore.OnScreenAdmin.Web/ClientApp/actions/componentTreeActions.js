@@ -1,6 +1,5 @@
 import {
   TOGGLE_COMPONENT,
-  LOADED_COMPONENT_TREE,
   TOGGLE_SUBTREE,
   TOGGLE_FULL_SUBTREE,
   CHANGE_COMPONENT_TREE_SEARCH_TEXT,
@@ -8,10 +7,6 @@ import {
 
 export function toggleComponent(id) {
   return { type: TOGGLE_COMPONENT, id };
-}
-
-export function loadedComponentTree(componentTree) {
-  return { type: LOADED_COMPONENT_TREE, componentTree };
 }
 
 export function toggleSubtree(id) {

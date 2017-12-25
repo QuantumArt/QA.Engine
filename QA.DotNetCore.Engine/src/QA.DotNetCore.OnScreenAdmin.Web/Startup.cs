@@ -11,6 +11,9 @@ using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 using Microsoft.AspNetCore.Http;
 using Quantumart.QPublishing.Database;
+using Quantumart.QPublishing.Authentication;
+using QA.DotNetCore.OnScreenAdmin.Web.Auth;
+using Microsoft.AspNetCore.Authorization;
 
 namespace QA.DotNetCore.OnScreenAdmin.Web
 {
@@ -32,14 +35,35 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             var dbConnectorSettings = Configuration.GetSection("DbConnectorSettings").Get<DbConnectorSettings>();
-            dbConnectorSettings.ConnectionStrings = new Dictionary<string, string> { { "qp_database", Configuration.GetConnectionString("QpConnection") } };
+            dbConnectorSettings.ConnectionString = Configuration.GetConnectionString("QpConnection");
             services.AddSingleton(typeof(DbConnectorSettings), dbConnectorSettings);
             services.AddScoped<DBConnector>();
+            services.AddScoped<AuthenticationService>();
+
 
             services.AddScoped<IUnitOfWork, UnitOfWork>(sp => new UnitOfWork(Configuration.GetConnectionString("QpConnection")));
             services.AddScoped<IMetaInfoRepository, MetaInfoRepository>();
             services.AddScoped<INetNameQueryAnalyzer, NetNameQueryAnalyzer>();
             services.AddScoped<IItemDefinitionRepository, ItemDefinitionRepository>();
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = QpAuthDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = QpAuthDefaults.AuthenticationScheme;
+            }).AddQpAuth(authOptions =>
+            {
+                authOptions.Settings = Configuration.GetSection("QpAuthSettings").Get<QpAuthSettings>();
+            });
+
+            services.AddAuthorization(options =>
+            {
+                options.DefaultPolicy = new AuthorizationPolicy(
+                    new List<IAuthorizationRequirement>
+                    {
+                        new QpUserRequirement()
+                    },
+                    new[] { QpAuthDefaults.AuthenticationScheme });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -67,6 +91,8 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials());
+
+            app.UseAuthentication();
 
             app.UseMvc(routes =>
             {

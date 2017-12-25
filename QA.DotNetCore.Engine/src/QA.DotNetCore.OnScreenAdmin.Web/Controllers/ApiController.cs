@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using QA.DotNetCore.OnScreenAdmin.Web.Auth;
 using QA.DotNetCore.OnScreenAdmin.Web.Models;
 using Quantumart.QPublishing.Database;
 using Quantumart.QPublishing.Info;
@@ -11,7 +14,8 @@ using System.Linq;
 namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
 {
     [Route("api")]
-    public class ApiController
+    [Authorize]
+    public class ApiController : Controller
     {
         IMetaInfoRepository _metaInfoRepository;
         IItemDefinitionRepository _itemDefinitionRepository;
@@ -77,13 +81,25 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
                     [zoneNameField.ColumnName] = zoneName
                 };
 
-                _dbConnector.MassUpdate(contentId, new[] { widgetUpdates }, 1);
+                _dbConnector.MassUpdate(contentId, new[] { widgetUpdates }, UserId);
 
                 return ApiResult.Success();
             }
             catch (Exception ex)
             {
                 return ApiResult.Error(ex.Message);
+            }
+        }
+
+        private int UserId
+        {
+            get
+            {
+                var identity = User.Identity as QpIdentity;
+                if (identity == null)
+                    return -1;
+
+                return identity.UserId;
             }
         }
     }

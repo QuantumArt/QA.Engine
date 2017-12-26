@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace QA.DotNetCore.OnScreenAdmin.Web.Auth
 {
+    /// <summary>
+    /// Policy, проверяющее наличие юзера с Id > 0
+    /// </summary>
     public class QpUserRequirement : AuthorizationHandler<QpUserRequirement>, IAuthorizationRequirement
     {
         protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, QpUserRequirement requirement)

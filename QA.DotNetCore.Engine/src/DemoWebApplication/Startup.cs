@@ -19,6 +19,8 @@ using QA.DotNetCore.Engine.Widgets.OnScreen;
 using QA.DotNetCore.Engine.AbTesting;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Dapper;
+using Quantumart.QPublishing.Database;
+using Quantumart.QPublishing.Authentication;
 
 namespace DemoWebApplication
 {
@@ -74,6 +76,12 @@ namespace DemoWebApplication
             services.AddSingleton(typeof(DemoCultureFilter));
 
             services.AddTargeting();
+
+            services.AddSingleton(new DbConnectorSettings {
+                ConnectionString = Configuration.GetConnectionString("QpConnection"),
+                IsLive = !Configuration.GetSection("QpSettings").Get<QpSettings>().IsStage });
+            services.AddScoped<DBConnector>();
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -109,6 +117,8 @@ namespace DemoWebApplication
                 cfg.Add<DemoRegionFilter>();
                 cfg.Add<DemoCultureFilter>();
             });
+
+            app.UseMiddleware<AuthOnscreenMiddleware>();
 
             app.UseMvc(routes =>
             {

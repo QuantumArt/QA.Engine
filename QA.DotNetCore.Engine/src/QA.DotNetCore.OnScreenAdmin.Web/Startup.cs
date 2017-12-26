@@ -1,19 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
-using Microsoft.AspNetCore.Http;
-using Quantumart.QPublishing.Database;
-using Quantumart.QPublishing.Authentication;
 using QA.DotNetCore.OnScreenAdmin.Web.Auth;
-using Microsoft.AspNetCore.Authorization;
+using Quantumart.QPublishing.Authentication;
+using Quantumart.QPublishing.Database;
+using System.Collections.Generic;
 
 namespace QA.DotNetCore.OnScreenAdmin.Web
 {
@@ -38,7 +35,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
             dbConnectorSettings.ConnectionString = Configuration.GetConnectionString("QpConnection");
             services.AddSingleton(typeof(DbConnectorSettings), dbConnectorSettings);
             services.AddScoped<DBConnector>();
-            services.AddScoped<AuthenticationService>();
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
 
 
             services.AddScoped<IUnitOfWork, UnitOfWork>(sp => new UnitOfWork(Configuration.GetConnectionString("QpConnection")));

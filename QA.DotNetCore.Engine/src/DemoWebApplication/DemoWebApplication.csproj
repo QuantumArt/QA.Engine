@@ -30,6 +30,7 @@
     <ProjectReference Include="..\QA.DotNetCore.Engine.Abstractions\QA.DotNetCore.Engine.Abstractions.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.AbTesting.Configuration\QA.DotNetCore.Engine.AbTesting.Configuration.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.AbTesting\QA.DotNetCore.Engine.AbTesting.csproj" />
+    <ProjectReference Include="..\QA.DotNetCore.Engine.OnScreen\QA.DotNetCore.Engine.OnScreen.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Persistent.Dapper\QA.DotNetCore.Engine.Persistent.Dapper.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Persistent.Interfaces\QA.DotNetCore.Engine.Persistent.Interfaces.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.QpData.Configuration\QA.DotNetCore.Engine.QpData.Configuration.csproj" />

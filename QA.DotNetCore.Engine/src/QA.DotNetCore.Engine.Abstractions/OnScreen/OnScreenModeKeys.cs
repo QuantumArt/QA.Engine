@@ -1,9 +1,7 @@
-namespace QA.DotNetCore.Engine.Widgets.OnScreen
+namespace QA.DotNetCore.Engine.Abstractions.OnScreen
 {
     public class OnScreenModeKeys
     {
-
-
         public static string OnScreenContext = "OnScreenContext";
     }
 }

@@ -43,7 +43,7 @@ namespace QA.DotNetCore.Engine.OnScreen
                             context.User = new OnScreenUser { UserId = auth.UserId, ExpirationDate = auth.ExpirationDate };
                         }
                     }
-                    finally
+                    finally //пока что никак не обрабатываем возможные исключения при аутентификации в QP
                     { }
                 }
 
@@ -60,7 +60,7 @@ namespace QA.DotNetCore.Engine.OnScreen
                             context.User = new OnScreenUser { UserId = auth.UserId, ExpirationDate = auth.ExpirationDate };
                         }
                     }
-                    finally
+                    finally //пока что никак не обрабатываем возможные исключения при аутентификации в QP
                     { }
                 }
 

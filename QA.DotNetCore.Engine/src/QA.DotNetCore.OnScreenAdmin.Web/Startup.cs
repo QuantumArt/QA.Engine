@@ -1,19 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
-using Microsoft.AspNetCore.Http;
+using QA.DotNetCore.OnScreenAdmin.Web.Auth;
+using Quantumart.QPublishing.Authentication;
 using Quantumart.QPublishing.Database;
+using System.Collections.Generic;
 using QA.DotNetCore.Caching;
 using QA.DotNetCore.Engine.QpData.Replacements;
 using QA.DotNetCore.Engine.QpData.Settings;
+using System;
 
 namespace QA.DotNetCore.OnScreenAdmin.Web
 {
@@ -36,9 +37,11 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             var dbConnectorSettings = Configuration.GetSection("DbConnectorSettings").Get<DbConnectorSettings>();
-            dbConnectorSettings.ConnectionStrings = new Dictionary<string, string> { { "qp_database", Configuration.GetConnectionString("QpConnection") } };
+            dbConnectorSettings.ConnectionString = Configuration.GetConnectionString("QpConnection");
             services.AddSingleton(typeof(DbConnectorSettings), dbConnectorSettings);
             services.AddScoped<DBConnector>();
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
+
 
             services.AddScoped<IUnitOfWork, UnitOfWork>(sp => new UnitOfWork(Configuration.GetConnectionString("QpConnection")));
             services.AddScoped<IMetaInfoRepository, MetaInfoRepository>();
@@ -48,6 +51,24 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
             var qpUrlResolverCacheSettings = new QpSchemeCacheSettings { CachePeriod = new TimeSpan(0, 1, 0) };
             services.AddSingleton(typeof(QpSchemeCacheSettings), qpUrlResolverCacheSettings);
             services.AddScoped<IQpUrlResolver, QpUrlResolver>();
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = QpAuthDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = QpAuthDefaults.AuthenticationScheme;
+            }).AddQpAuth(authOptions =>
+            {
+                authOptions.Settings = Configuration.GetSection("QpAuthSettings").Get<QpAuthSettings>();
+            });
+
+            services.AddAuthorization(options =>
+            {
+                options.DefaultPolicy = new AuthorizationPolicy(
+                    new List<IAuthorizationRequirement>
+                    {
+                        new QpUserRequirement()
+                    },
+                    new[] { QpAuthDefaults.AuthenticationScheme });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -75,6 +96,8 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials());
+
+            app.UseAuthentication();
 
             app.UseMvc(routes =>
             {

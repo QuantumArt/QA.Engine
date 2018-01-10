@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Builder;
-using QA.DotNetCore.Engine.Widgets.OnScreen;
 
-namespace QA.DotNetCore.Engine.Widgets.Configuration
+namespace QA.DotNetCore.Engine.OnScreen.Configuration
 {
     public static class MvcApplicationBuilderExtensions
     {

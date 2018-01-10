@@ -14,11 +14,13 @@ using QA.DotNetCore.Engine.QpData.Configuration;
 using QA.DotNetCore.Engine.QpData.Settings;
 using QA.DotNetCore.Engine.Routing.Configuration;
 using QA.DotNetCore.Engine.Targeting.Configuration;
-using QA.DotNetCore.Engine.Widgets.Configuration;
-using QA.DotNetCore.Engine.Widgets.OnScreen;
 using QA.DotNetCore.Engine.AbTesting;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Dapper;
+using Quantumart.QPublishing.Database;
+using Quantumart.QPublishing.Authentication;
+using QA.DotNetCore.Engine.OnScreen.Configuration;
+using QA.DotNetCore.Engine.Abstractions.OnScreen;
 
 namespace DemoWebApplication
 {
@@ -41,15 +43,17 @@ namespace DemoWebApplication
         {
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddMvc();
-            //services.Add<IRouter, DemoWebApplication.Debugging.MvcRouteHandler>();
             services.AddMemoryCache();
 
             services.AddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
 
+            var qpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
+            var qpConnection = Configuration.GetConnectionString("QpConnection");
+
             services.AddSiteStructureEngine(options =>
             {
-                options.QpConnectionString = Configuration.GetConnectionString("QpConnection");
-                options.QpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
+                options.QpConnectionString = qpConnection;
+                options.QpSettings = qpSettings;
                 options.QpSiteStructureSettings = Configuration.GetSection("QpSiteStructureSettings").Get<QpSiteStructureSettings>();
                 options.TypeFinder.RegisterFromAssemblyContaining<RootPage, IAbstractItem>();
                 //options.QpSiteStructureSettings.LoadAbstractItemFieldsToDetailsCollection = false;
@@ -57,15 +61,21 @@ namespace DemoWebApplication
 
             services.AddAbTestServices(options => {
                 //дублируются некоторые опции из AddSiteStructureEngine, потому что АБ-тесты могут быть или не быть независимо от структуры сайта
-                options.QpConnectionString = Configuration.GetConnectionString("QpConnection");
-                options.AbTestingSettings.SiteId = Configuration.GetSection("QpSettings").Get<QpSettings>().SiteId;
-                options.AbTestingSettings.IsStage = Configuration.GetSection("QpSettings").Get<QpSettings>().IsStage;
+                options.QpConnectionString = qpConnection;
+                options.AbTestingSettings.SiteId = qpSettings.SiteId;
+                options.AbTestingSettings.IsStage = qpSettings.IsStage;
             });
 
-            services.AddOnScreenServices(options =>
+            services.AddOnScreenIntegration(options =>
             {
-                options.AdminSiteBaseUrl = Configuration.GetSection("OnScreen").Get<OnScreenSettings>().AdminSiteBaseUrl;
-                options.SiteId = Configuration.GetSection("QpSettings").Get<QpSettings>().SiteId;
+                options.Settings.AdminSiteBaseUrl = Configuration.GetSection("OnScreen").Get<OnScreenSettings>().AdminSiteBaseUrl;
+                options.Settings.SiteId = qpSettings.SiteId;
+                options.Settings.AvailableFeatures = qpSettings.IsStage ? OnScreenFeatures.Widgets | OnScreenFeatures.AbTests : OnScreenFeatures.AbTests;
+                options.DbConnectorSettings = new DbConnectorSettings
+                {
+                    ConnectionString = qpConnection,
+                    IsLive = !qpSettings.IsStage
+                };
             });
 
             services.AddSingleton(typeof(DemoRegionTargetingProvider));
@@ -102,13 +112,13 @@ namespace DemoWebApplication
                 targeting.Add<DemoRegionTargetingProvider>();
             });
 
-            app.UseOnScreenMode();
-
             app.UseSiteSctructureFilters(cfg =>
             {
                 cfg.Add<DemoRegionFilter>();
                 cfg.Add<DemoCultureFilter>();
             });
+
+            app.UseOnScreenMode();
 
             app.UseMvc(routes =>
             {

@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using QA.DotNetCore.Engine.Routing;
-using QA.DotNetCore.Engine.Widgets.Configuration;
+using QA.DotNetCore.Engine.OnScreen.Configuration;
+using QA.DotNetCore.Engine.Abstractions.OnScreen;
+using System;
 
-namespace QA.DotNetCore.Engine.Widgets.OnScreen
+namespace QA.DotNetCore.Engine.OnScreen
 {
     public class OnScreenViewComponent : ViewComponent
     {
@@ -16,18 +18,24 @@ namespace QA.DotNetCore.Engine.Widgets.OnScreen
 
         public HtmlString Invoke()
         {
-            var enabled = ViewContext.HttpContext.OnScreenEditEnabled();
+            var ctx = ((IOnScreenContextProvider)ViewContext.HttpContext.RequestServices.GetService(typeof(IOnScreenContextProvider)))?.GetContext();
+            if (ctx == null)
+                throw new InvalidOperationException("OnScreen context not found.");
+
             var ai = ViewContext.GetCurrentItem();
-            if (enabled)
+            if (ctx.Enabled)
+            { 
                 return new HtmlString($@"<div id='sidebarplaceholder'></div>
                 <script type='text/javascript'>
                     window.onScreenAdminBaseUrl = '{_onScreenSettings.AdminSiteBaseUrl}';
                     window.currentPageId='{ai?.Id}';
                     window.siteId='{_onScreenSettings.SiteId}';
-                    document.cookie = 'onscreen = true; expires = 0; path =/ ';
+                    window.onScreenFeatures = '{ctx.Features}';
+                    window.onScreenTokenCookieName = '{_onScreenSettings.AuthCookieName}';
                  </script>
                 <script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/pmrpc.js' defer></script>
                 <script src='{ _onScreenSettings.AdminSiteBaseUrl}/dist/onScreenLoader.js' defer></script>");
+            }
             return HtmlString.Empty;
         }
     }

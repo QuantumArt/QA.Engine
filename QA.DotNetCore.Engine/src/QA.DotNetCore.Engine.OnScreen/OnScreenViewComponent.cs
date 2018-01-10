@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using QA.DotNetCore.Engine.Routing;
 using QA.DotNetCore.Engine.OnScreen.Configuration;
 using QA.DotNetCore.Engine.Abstractions.OnScreen;
+using System;
 
 namespace QA.DotNetCore.Engine.OnScreen
 {
@@ -18,6 +19,9 @@ namespace QA.DotNetCore.Engine.OnScreen
         public HtmlString Invoke()
         {
             var ctx = ((IOnScreenContextProvider)ViewContext.HttpContext.RequestServices.GetService(typeof(IOnScreenContextProvider)))?.GetContext();
+            if (ctx == null)
+                throw new InvalidOperationException("OnScreen context not found.");
+
             var ai = ViewContext.GetCurrentItem();
             if (ctx.Enabled)
             { 

@@ -31,7 +31,7 @@ namespace QA.DotNetCore.Engine.OnScreen.Configuration
 
             services.AddSingleton(options.Settings);
             services.AddSingleton(options.DbConnectorSettings);
-            services.AddSingleton<IOnScreenContextProvider, OnScreenContextProvider>();
+            services.AddSingleton<IOnScreenContextProvider, OnScreenHttpContextProvider>();
             services.AddScoped<DBConnector>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
         }

@@ -81,7 +81,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
                     [zoneNameField.ColumnName] = zoneName
                 };
 
-                _dbConnector.MassUpdate(contentId, new[] { widgetUpdates }, UserId);
+                _dbConnector.MassUpdate(contentId, new[] { widgetUpdates }, GetUserId());
 
                 return ApiResult.Success();
             }
@@ -91,16 +91,13 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
             }
         }
 
-        private int UserId
+        private int GetUserId()
         {
-            get
-            {
-                var identity = User.Identity as QpIdentity;
-                if (identity == null)
-                    return -1;
+            var identity = User.Identity as QpIdentity;
+            if (identity == null)
+                throw new InvalidOperationException("QpIdentity not found.");
 
-                return identity.UserId;
-            }
+            return identity.UserId;
         }
     }
 }

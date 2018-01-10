@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,8 +16,9 @@ namespace QA.DotNetCore.Engine.AbTesting
 
         public const string QueryParamPrefix = "test-";
         public const string CookieNamePrefix = "abt-";
+        public const string ForceCookieNamePrefix = "force-abt-";
 
-        private Dictionary<int, int> _currentChoices = new Dictionary<int, int>();
+        private Dictionary<int, int?> _currentChoices = new Dictionary<int, int?>();
 
         public AbTestChoiceResolver(IAbTestService abTestService, IHttpContextAccessor httpContextAccessor)
         {
@@ -24,20 +26,49 @@ namespace QA.DotNetCore.Engine.AbTesting
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public int ResolveChoice(int testId)
+        /// <summary>
+        /// Делаем выбор варианта для теста в рамках запроса.
+        /// </summary>
+        /// <param name="test">Тест</param>
+        /// <returns>null - если тест отключен (никакой вариант не выбран), иначе номер варианта.</returns>
+        public int? ResolveChoice(AbTestPersistentData test)
         {
+            if (test == null)
+                throw new ArgumentNullException(nameof(test));
+
             var request = _httpContextAccessor.HttpContext.Request;
 
             //возможно выбор был уже сделан с рамках обработки этого запроса
-            if (_currentChoices.ContainsKey(testId))
+            if (_currentChoices.ContainsKey(test.Id))
             {
-                return _currentChoices[testId];
+                return _currentChoices[test.Id];
+            }
+
+            //нужно понять включен ли на самом деле тест
+            //он может быть включен\выключен в QP. Это может быть переопределено для текущего запроса (с помощью специальной force-куки)
+            var enabled = test.Enabled;
+            var forceCookie = request.Cookies[ForceCookieNamePrefix + test.Id];
+            if (forceCookie != null)
+            {
+                //в force-куки могут быть значения 0 или 1, другие игнорируем
+                var force = ResolveChoiceFromString(forceCookie);
+                if (force == 0 || force == 1)
+                {
+                    enabled = force == 1;
+                }
+            }
+
+            //если тест выключен - выбор по нему не делаем
+            if (!enabled)
+            {
+                _currentChoices[test.Id] = null;
+                return null;
             }
 
             int? choice = null;
 
             //возможно выбор для AB теста передан в query-параметре (приоритетнее куки)
-            string queryParamValue = request.Query[QueryParamPrefix + testId];
+            string queryParamValue = request.Query[QueryParamPrefix + test.Id];
             if (!String.IsNullOrWhiteSpace(queryParamValue))
             {
                 choice = ResolveChoiceFromString(queryParamValue);
@@ -46,7 +77,7 @@ namespace QA.DotNetCore.Engine.AbTesting
             //возможно выбор для AB теста передан в cookie
             if (!choice.HasValue)
             {
-                var cookie = request.Cookies[CookieNamePrefix + testId];
+                var cookie = request.Cookies[CookieNamePrefix + test.Id];
                 if (cookie != null)
                 {
                     choice = ResolveChoiceFromString(cookie);
@@ -56,8 +87,6 @@ namespace QA.DotNetCore.Engine.AbTesting
             //сделаем выбор на основе рандома
             if (!choice.HasValue)
             {
-                var test = _abTestService.GetTestById(testId);
-
                 var percentage = test.Percentage;
                 if (percentage != null && percentage.Length > 1 && percentage.Sum() > 0)
                 {
@@ -82,7 +111,7 @@ namespace QA.DotNetCore.Engine.AbTesting
                 choice = 0;
             }
 
-            _currentChoices[testId] = choice.Value;
+            _currentChoices[test.Id] = choice;
 
             return choice.Value;
         }

@@ -27,9 +27,10 @@ SELECT
     t.[|AbTest.Percentage|] as PercentageStr,
     t.[|AbTest.StartDate|] as StartDate,
     t.[|AbTest.EndDate|] as EndDate,
-    t.[|AbTest.Comment|] as Comment
+    t.[|AbTest.Comment|] as Comment,
+    t.[|AbTest.Enabled|] as Enabled
 FROM [|AbTest|] t
-WHERE t.[|AbTest.Enabled|] = 1 AND (t.[|AbTest.StartDate|] IS NULL OR t.[|AbTest.StartDate|] < getdate()) AND (t.[|AbTest.EndDate|] IS NULL OR getdate() < t.[|AbTest.EndDate|])
+WHERE (t.[|AbTest.StartDate|] IS NULL OR t.[|AbTest.StartDate|] < getdate()) AND (t.[|AbTest.EndDate|] IS NULL OR getdate() < t.[|AbTest.EndDate|])
 ";
 
         private const string CmdGetActiveTestsContainers = @"
@@ -44,8 +45,7 @@ SELECT
     cont.[|AbTestBaseContainer.Arguments|] as Arguments
 FROM [|AbTestBaseContainer|] cont
 JOIN [|AbTest|] t on t.content_item_id = cont.[|AbTestBaseContainer.ParentTest|]
-WHERE t.[|AbTest.Enabled|] = 1
-    AND cont.[|AbTestBaseContainer.Type|] = (SELECT TOP 1 CONTENT_ID FROM CONTENT WHERE NET_CONTENT_NAME = N'{0}')
+WHERE cont.[|AbTestBaseContainer.Type|] = (SELECT TOP 1 CONTENT_ID FROM CONTENT WHERE NET_CONTENT_NAME = N'{0}')
     AND (t.[|AbTest.StartDate|] IS NULL OR t.[|AbTest.StartDate|] < getdate()) AND (t.[|AbTest.EndDate|] IS NULL OR getdate() < t.[|AbTest.EndDate|])
 ";
 

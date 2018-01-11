@@ -15,8 +15,9 @@ import DeveloperBoard from 'material-ui-icons/DeveloperBoard';
 import Kitchen from 'material-ui-icons/Kitchen';
 import Tune from 'material-ui-icons/Tune';
 import 'typeface-roboto/index.css';
+import WidgetsScreen from 'containers/WidgetsScreen';
+import AbTestingScreen from 'containers/AbTestingScreen';
 import OpenControl from '../OpenControl';
-import WidgetsScreen from '../../containers/WidgetsScreen';
 
 const styles = theme => ({
   sidebar: {
@@ -72,7 +73,6 @@ const Sidebar = (props) => {
         toggleRight={toggleRight}
         drawerOpened={opened}
       />
-
       <Drawer
         type="persistent"
         open={opened}
@@ -131,10 +131,8 @@ const Sidebar = (props) => {
             </Tabs>
           </Toolbar>
           <SwipeableViews axis="x" index={activeTab}>
-            <WidgetsScreen
-              side={side}
-            />
-            <div>123</div>
+            <WidgetsScreen />
+            <AbTestingScreen />
           </SwipeableViews>
         </Scrollbars>
       </Drawer>

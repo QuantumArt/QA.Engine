@@ -5,7 +5,7 @@ import watchAddWidgetSaga from './addWidgetSagas';
 import watchQpForm from './qpFormSagas';
 import watchMetaInfo from './metaInfoSagas';
 import watchOnScreen from './onScreenEditControls';
-
+import watchAbTests from './abTestsSagas';
 
 export default function* rootSaga() {
   yield all([
@@ -15,5 +15,6 @@ export default function* rootSaga() {
     watchQpForm(),
     watchMetaInfo(),
     watchOnScreen(),
+    watchAbTests(),
   ]);
 }

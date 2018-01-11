@@ -8,6 +8,8 @@ namespace QA.DotNetCore.Engine.Persistent.Interfaces.Data
 
         public abstract AbTestContainerType Type { get; }
 
+        public string Description { get; set; }
+
         public string AllowedUrlPatternsStr { get; set; }
 
         public string DeniedUrlPatternsStr { get; set; }

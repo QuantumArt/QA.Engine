@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using QA.DotNetCore.OnScreenAdmin.Web.Auth;
 using QA.DotNetCore.OnScreenAdmin.Web.Models;
+using QA.DotNetCore.OnScreenAdmin.Web.Models.AbTests;
 using Quantumart.QPublishing.Database;
 using Quantumart.QPublishing.Info;
 using System;
@@ -19,13 +19,15 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
     {
         IMetaInfoRepository _metaInfoRepository;
         IItemDefinitionRepository _itemDefinitionRepository;
+        IAbTestRepository _abTestRepository;
         DBConnector _dbConnector;
 
-        public ApiController(IMetaInfoRepository metaInfoRepository, IItemDefinitionRepository itemDefinitionRepository, DBConnector dbConnector)
+        public ApiController(IMetaInfoRepository metaInfoRepository, IItemDefinitionRepository itemDefinitionRepository, IAbTestRepository abTestRepository, DBConnector dbConnector)
         {
             _metaInfoRepository = metaInfoRepository;
             _itemDefinitionRepository = itemDefinitionRepository;
             _dbConnector = dbConnector;
+            _abTestRepository = abTestRepository;
         }
 
         [HttpGet("meta")]
@@ -54,7 +56,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
             }
         }
 
-        [HttpGet("moveWidget")]
+        [HttpPost("moveWidget")]
         public ApiResult MoveWidget(int widgetId, int newParentId, string zoneName)
         {
             try
@@ -84,6 +86,27 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
                 _dbConnector.MassUpdate(contentId, new[] { widgetUpdates }, GetUserId());
 
                 return ApiResult.Success();
+            }
+            catch (Exception ex)
+            {
+                return ApiResult.Error(ex.Message);
+            }
+        }
+
+        [HttpGet("abtests")]
+        public ApiResult ContainersByAbTests(int siteId, bool isStage, int[] cids)
+        {
+            try
+            {
+                var tests = _abTestRepository.GetActiveTests(siteId, isStage);
+                var result = _abTestRepository.GetActiveTestsContainers(siteId, isStage)
+                    .Where(c => cids.Contains(c.Id))
+                    .GroupBy(c => c.TestId)
+                    .Select(g => new AbTestInfo(tests.FirstOrDefault(t => t.Id == g.Key), g))
+                    .Where(t => t.Id > 0)
+                    .ToList();
+
+                return ApiResult.Success<IEnumerable<AbTestInfo>>(result);
             }
             catch (Exception ex)
             {

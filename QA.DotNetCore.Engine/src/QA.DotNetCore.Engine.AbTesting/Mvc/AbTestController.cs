@@ -103,6 +103,7 @@ namespace QA.DotNetCore.Engine.AbTesting.Mvc
                             }
                             sb.Append($@"
     (function(ctx, window){{
+        window.abTestingContext['{AbTestChoiceResolver.CookieNamePrefix + test.Test.Id}'].cids.push({test.ClientRedirectContainer.Id});
         if(ctx && !({precondition})) return;
         window.location = '{redirect.RedirectUrl}';
     }})(ctx, window);
@@ -120,7 +121,9 @@ namespace QA.DotNetCore.Engine.AbTesting.Mvc
                         }
                         sb.Append($@"
     (function(ctx, window){{
+        window.abTestingContext['{AbTestChoiceResolver.CookieNamePrefix + test.Test.Id}'].cids.push({container.Id});
         if(ctx && !({precondition})) return;
+        window.abTestingContext['{AbTestChoiceResolver.CookieNamePrefix + test.Test.Id}'].targetedCids.push({container.Id});
         {container.Scripts.First(_ => _.VersionNumber == choice).ScriptText}
     }})(ctx, window);
     ");
@@ -132,7 +135,7 @@ namespace QA.DotNetCore.Engine.AbTesting.Mvc
 
         private string JsCodeForAbTestContext(AbTestPersistentData test, int? resolvedChoice)
         {
-            return $@"window.abTestingContext['{AbTestChoiceResolver.CookieNamePrefix + test.Id}'] = {{ choice: {(resolvedChoice.HasValue ? resolvedChoice.Value.ToString() : "null")} }};
+            return $@"window.abTestingContext['{AbTestChoiceResolver.CookieNamePrefix + test.Id}'] = {{ choice: {(resolvedChoice.HasValue ? resolvedChoice.Value.ToString() : "null")}, enabledInQp: {test.Enabled.ToString().ToLower()}, cids:[], targetedCids:[] }};
 ";
         }
 

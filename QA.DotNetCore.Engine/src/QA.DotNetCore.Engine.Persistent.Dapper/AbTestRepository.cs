@@ -51,6 +51,7 @@ WHERE cont.[|AbTestBaseContainer.Type|] = (SELECT TOP 1 CONTENT_ID FROM CONTENT 
 
         private const string CmdGetAbTestScripts = @"
 SELECT
+    s.content_item_id as Id,
     scont.[|AbTestScriptContainer.BaseContainer|] as ContainerId,
     s.[|AbTestScript.VersionNumber|] as VersionNumber,
     s.[|AbTestScript.ScriptText|] as ScriptText,
@@ -60,6 +61,7 @@ JOIN [|AbTestScriptContainer|] scont on scont.content_item_id = s.[|AbTestScript
 ";
         private const string CmdGetAbTestClientRedirects = @"
 SELECT
+    r.content_item_id as Id,
     rcont.[|AbTestClientRedirectContainer.BaseContainer|] as ContainerId,
     r.[|AbTestClientRedirect.VersionNumber|] as VersionNumber,
     r.[|AbTestClientRedirect.RedirectUrl|] as RedirectUrl

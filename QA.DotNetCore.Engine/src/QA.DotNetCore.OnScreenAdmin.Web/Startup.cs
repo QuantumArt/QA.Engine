@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using QA.DotNetCore.Engine.Persistent.Dapper;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 using QA.DotNetCore.OnScreenAdmin.Web.Auth;
@@ -42,6 +43,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
             services.AddScoped<IMetaInfoRepository, MetaInfoRepository>();
             services.AddScoped<INetNameQueryAnalyzer, NetNameQueryAnalyzer>();
             services.AddScoped<IItemDefinitionRepository, ItemDefinitionRepository>();
+            services.AddScoped<IAbTestRepository, AbTestRepository>();
 
             services.AddAuthentication(options =>
             {

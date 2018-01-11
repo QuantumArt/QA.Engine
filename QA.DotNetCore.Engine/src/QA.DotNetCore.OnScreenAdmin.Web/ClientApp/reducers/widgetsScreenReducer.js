@@ -1,4 +1,4 @@
-import { WIDGETS_SCREEN_MODE_ACTIONS } from '../actions/actionTypes';
+import { WIDGETS_SCREEN_MODE_ACTIONS } from 'actions/actionTypes';
 
 export const MODES = {
   SHOW_COMPONENT_TREE: 0,

@@ -11,15 +11,17 @@ import ExpansionPanel, {
 } from 'material-ui/ExpansionPanel';
 import Typography from 'material-ui/Typography';
 import Button from 'material-ui/Button';
+import Tooltip from 'material-ui/Tooltip';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
 import Playarrow from 'material-ui-icons/Playarrow';
+import Pause from 'material-ui-icons/Pause';
+import Stop from 'material-ui-icons/Stop';
 import TestDetails from './TestDetails';
 
 const styles = theme => ({
   toolBar: {
-    paddingLeft: 5,
-    paddingRight: 5,
-    paddingTop: 25,
+    padding: '25px 5px 10px',
+    overflow: 'hidden',
   },
   paper: {
     width: '100%',
@@ -31,15 +33,31 @@ const styles = theme => ({
   panelDetails: {
     flexDirection: 'column',
   },
+  panelActions: {
+    justifyContent: 'space-around',
+    paddingLeft: 150,
+    paddingRight: 20,
+  },
   actionButton: {
+    fontSize: '10px',
+  },
+  actionButtonLabel: {
+    marginTop: 1,
+    marginRight: 3,
+  },
+  actionIcon: {
+    // width: 15,
+    // height: 15,
+  },
+  actionTooltip: {
     fontSize: '11px',
   }
 });
 
-const AbTestingScreen = ({ testsList, classes }) => (
+const AbTestingScreen = ({ classes, tests }) => (
   <Toolbar className={classes.toolBar}>
     <Paper className={classes.paper} elevation={0}>
-      {testsList.map(test => (
+      {tests.map(test => (
         <ExpansionPanel key={test.id} className={classes.panel}>
           <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
             <Typography className={classes.heading}>{test.title}</Typography>
@@ -47,8 +65,37 @@ const AbTestingScreen = ({ testsList, classes }) => (
           <ExpansionPanelDetails className={classes.panelDetails}>
             <TestDetails {...test} />
           </ExpansionPanelDetails>
-          <ExpansionPanelActions>
-            <Button color="primary" raised dense classes={{label: classes.actionButton}}>Launch</Button>
+          <ExpansionPanelActions className={classes.panelActions}>
+            <Tooltip
+              id="stopTest"
+              placement="top"
+              title="Stop test entirely"
+              classes={{tooltip: classes.actionTooltip}}
+            >
+              <Button color="accent" raised fab mini classes={{label: classes.actionButton}}>
+                <Stop className={classes.actionIcon} />
+              </Button>
+            </Tooltip>
+            <Tooltip
+              id="pauseTest"
+              placement="top"
+              title="Stop test for session"
+              classes={{tooltip: classes.actionTooltip}}
+            >
+              <Button color="primary" raised fab mini classes={{label: classes.actionButton}}>
+                <Pause className={classes.actionIcon} />
+              </Button>
+            </Tooltip>
+            <Tooltip
+              id="runTest"
+              placement="top"
+              title="Launch test for session"
+              classes={{tooltip: classes.actionTooltip}}
+            >
+              <Button color="primary"  fab mini classes={{label: classes.actionButton}}>
+                <Playarrow className={classes.actionIcon} />
+              </Button>
+            </Tooltip>
           </ExpansionPanelActions>
         </ExpansionPanel>
       ))}
@@ -57,7 +104,7 @@ const AbTestingScreen = ({ testsList, classes }) => (
 );
 
 AbTestingScreen.propTypes = {
-  testsList: PropTypes.array.isRequired,
+  tests: PropTypes.array.isRequired,
 };
 
 export default withStyles(styles)(AbTestingScreen);

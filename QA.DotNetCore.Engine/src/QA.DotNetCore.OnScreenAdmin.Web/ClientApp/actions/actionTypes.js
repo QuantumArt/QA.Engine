@@ -48,6 +48,7 @@ export const WIDGETS_SCREEN_MODE_ACTIONS = {
 
 // ab-tests
 export const GET_AVALAIBLE_TESTS = 'GET_AVALAIBLE_TESTS';
+export const API_GET_TESTS_DATA = 'API_GET_TESTS_DATA';
 
 
 // qp integration

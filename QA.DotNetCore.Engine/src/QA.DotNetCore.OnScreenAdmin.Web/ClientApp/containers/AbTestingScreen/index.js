@@ -1,8 +1,8 @@
 import { connect } from 'react-redux';
 import AbtestingScreen from 'Components/AbTestingScreen';
 
-const mapStateToProps = state => ({
-  testsList: state.abTestingScreen.avalaibleTests,
+const mapStateToProps = ({ abTestingScreen: { avalaibleTests, testsData } }) => ({
+  tests: avalaibleTests.map((el, i) => ({ ...el, ...testsData[i] })),
 });
 
 const AbtestingScreenContainer = connect(

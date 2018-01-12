@@ -93,7 +93,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
             }
         }
 
-        [HttpGet("abtests")]
+        [HttpGet("abtests/info")]
         public ApiResult ContainersByAbTests(int siteId, bool isStage, int[] cids)
         {
             try
@@ -107,6 +107,39 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
                     .ToList();
 
                 return ApiResult.Success<IEnumerable<AbTestInfo>>(result);
+            }
+            catch (Exception ex)
+            {
+                return ApiResult.Error(ex.Message);
+            }
+        }
+
+        [HttpGet("abtests/switch")]
+        public ApiResult SwitchAbTest(int testId, bool value)
+        {
+            try
+            {
+                //получим id контента (это должен быть AbTest)
+                var contentId = _dbConnector.GetContentIdForItem(testId);
+
+                if (contentId == 0)
+                    return ApiResult.Error($"Not found content with article {testId}");
+
+                //получим название поля Enabled в найденном контенте, чтобы использовать для метода MassUpdate
+                //на разных базах эти названия в теории могут отличаться, инвариант - это NetName
+                var enabledField = _metaInfoRepository.GetContentAttributeByNetName(contentId, "Enabled");
+                if (enabledField == null)
+                    return ApiResult.Error($"Field with netname 'Enabled' not found in content {contentId}");
+
+                var widgetUpdates = new Dictionary<string, string>
+                {
+                    [SystemColumnNames.Id] = testId.ToString(),
+                    [enabledField.ColumnName] = (value ? 1 : 0).ToString()
+                };
+
+                _dbConnector.MassUpdate(contentId, new[] { widgetUpdates }, GetUserId());
+
+                return ApiResult.Success();
             }
             catch (Exception ex)
             {

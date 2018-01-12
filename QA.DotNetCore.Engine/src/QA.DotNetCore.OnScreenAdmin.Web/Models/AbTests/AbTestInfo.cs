@@ -8,6 +8,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Models.AbTests
     public class AbTestInfo
     {
         public int Id { get; set; }
+        public bool Enabled { get; set; }
         public string Title { get; set; }
         public string Comment { get; set; }
         public DateTime? StartDate { get; set; }
@@ -18,6 +19,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Models.AbTests
         {
             if (test != null && test.Percentage != null && containers != null && containers.Any())
             {
+                Enabled = test.Enabled;
                 Id = test.Id;
                 Title = test.Title;
                 Comment = test.Comment;

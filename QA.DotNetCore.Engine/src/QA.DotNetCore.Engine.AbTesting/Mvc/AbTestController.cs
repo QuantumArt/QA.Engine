@@ -135,7 +135,7 @@ namespace QA.DotNetCore.Engine.AbTesting.Mvc
 
         private string JsCodeForAbTestContext(AbTestPersistentData test, int? resolvedChoice)
         {
-            return $@"window.abTestingContext['{AbTestChoiceResolver.CookieNamePrefix + test.Id}'] = {{ choice: {(resolvedChoice.HasValue ? resolvedChoice.Value.ToString() : "null")}, enabledInQp: {test.Enabled.ToString().ToLower()}, cids:[], targetedCids:[] }};
+            return $@"window.abTestingContext['{AbTestChoiceResolver.CookieNamePrefix + test.Id}'] = {{ choice: {(resolvedChoice.HasValue ? resolvedChoice.Value.ToString() : "null")}, cids:[], targetedCids:[] }};
 ";
         }
 

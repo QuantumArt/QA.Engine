@@ -4,6 +4,7 @@ using QA.DotNetCore.Engine.Routing;
 using QA.DotNetCore.Engine.OnScreen.Configuration;
 using QA.DotNetCore.Engine.Abstractions.OnScreen;
 using System;
+using System.Text;
 
 namespace QA.DotNetCore.Engine.OnScreen
 {
@@ -24,10 +25,9 @@ namespace QA.DotNetCore.Engine.OnScreen
 
             if (ctx.Enabled)
             {
-                var ai = ViewContext.GetCurrentItem();
                 var startPage = ViewContext.GetStartPage();
-
-                return new HtmlString($@"<div id='sidebarplaceholder'></div>
+                var ai = ViewContext.GetCurrentItem();
+                var markup = new StringBuilder($@"<div id='sidebarplaceholder'></div>
                 <script type='text/javascript'>
                     window.onScreenAdminBaseUrl = '{_onScreenSettings.AdminSiteBaseUrl}';
                     window.currentPageId='{ai?.Id}';
@@ -37,7 +37,15 @@ namespace QA.DotNetCore.Engine.OnScreen
                     window.onScreenTokenCookieName = '{_onScreenSettings.AuthCookieName}';
                  </script>
                 <script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/pmrpc.js' defer></script>
-                <script src='{ _onScreenSettings.AdminSiteBaseUrl}/dist/onScreenLoader.js' defer></script>");
+                <script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/onScreenLoader.js' defer></script>");
+
+                if (ctx.HasFeature(OnScreenFeatures.AbTests))
+                {
+                    markup.AppendLine($"<script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/cookies.js' defer></script>");
+                    markup.AppendLine($"<script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/onScreenAbTestApi.js' defer></script>");
+                }
+
+                return new HtmlString(markup.ToString());
             }
             return HtmlString.Empty;
         }

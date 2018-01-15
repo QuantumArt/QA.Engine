@@ -22,7 +22,12 @@ namespace QA.DotNetCore.Engine.AbTesting.Mvc
             _targetingContext = targetingContext;
         }
 
-        //[NoCache]
+        /// <summary>
+        /// Возвращает инлайновый js-скрипт с контейнерами аб-тестов
+        /// </summary>
+        /// <param name="d">Домен страницы</param>
+        /// <param name="p">Относительный путь</param>
+        /// <returns></returns>
         [RequireReferrer(CheckOrigin = true)]
         public virtual ActionResult InlineScript(string d, string p)
         {
@@ -72,7 +77,6 @@ namespace QA.DotNetCore.Engine.AbTesting.Mvc
     options.expires = new Date({cookieExpireDate.Year},{cookieExpireDate.Month - 1},{cookieExpireDate.Day},{cookieExpireDate.Hour},{cookieExpireDate.Minute})
     options.path = '{Url.Action("InlineScript", "AbTest").ToLower()}';
     cookies.set('{AbTestChoiceResolver.CookieNamePrefix + test.Id}', '{choice}', options);
-    window.abTestingContext['{AbTestChoiceResolver.CookieNamePrefix + test.Id}'] = {{ choice: {choice}, title: '{test.Title}', comment: '{test.Comment}', percentage: [{String.Join(",", test.Percentage)}]}};
 ";
         }
 
@@ -81,44 +85,70 @@ namespace QA.DotNetCore.Engine.AbTesting.Mvc
             var sb = new StringBuilder();
             foreach (var test in abTestWithContainers)
             {
-                var choice = _abTestChoiceResolver.ResolveChoice(test.Test.Id);
-                sb.Append(JsCodeForSetCookies(test.Test, choice));
-                if (test.ClientRedirectContainer != null)
+                var resolvedChoice = _abTestChoiceResolver.ResolveChoice(test.Test);
+                sb.Append(JsCodeForAbTestContext(test.Test, resolvedChoice));
+                if (resolvedChoice.HasValue)
                 {
-                    var redirect = test.ClientRedirectContainer.Redirects.FirstOrDefault(r => r.VersionNumber == choice && !String.IsNullOrWhiteSpace(r.RedirectUrl));
-                    if (redirect != null)
+                    var choice = resolvedChoice.Value;
+                    sb.Append(JsCodeForSetCookies(test.Test, choice));
+                    if (test.ClientRedirectContainer != null)
                     {
-                        var precondition = test.ClientRedirectContainer.Precondition;
+                        var redirect = test.ClientRedirectContainer.Redirects.FirstOrDefault(r => r.VersionNumber == choice && !String.IsNullOrWhiteSpace(r.RedirectUrl));
+                        if (redirect != null)
+                        {
+                            var precondition = test.ClientRedirectContainer.Precondition;
+                            if (String.IsNullOrWhiteSpace(precondition))
+                            {
+                                precondition = "true";
+                            }
+                            sb.Append($@"
+    (function(ctx, window){{
+        window.abTestingContext['{AbTestChoiceResolver.CookieNamePrefix + test.Test.Id}'].cids.push({test.ClientRedirectContainer.Id});
+        if(ctx && !({precondition})) return;
+        window.location = '{redirect.RedirectUrl}';
+    }})(ctx, window);
+    ");
+                            break;
+                        }
+                    }
+
+                    foreach (var container in test.ScriptContainers.Where(c => c.Scripts.Any(s => s.VersionNumber == choice)))
+                    {
+                        var precondition = container.Precondition;
                         if (String.IsNullOrWhiteSpace(precondition))
                         {
                             precondition = "true";
                         }
                         sb.Append($@"
-(function(ctx, window){{
-    if(ctx && !({precondition})) return;
-    window.location = '{redirect.RedirectUrl}';
-}})(ctx, window);
-");
-                        break;
+    (function(ctx, window){{
+        window.abTestingContext['{AbTestChoiceResolver.CookieNamePrefix + test.Test.Id}'].cids.push({container.Id});
+        if(ctx && !({precondition})) return;
+        window.abTestingContext['{AbTestChoiceResolver.CookieNamePrefix + test.Test.Id}'].targetedCids.push({container.Id});
+        {container.Scripts.First(_ => _.VersionNumber == choice).ScriptText}
+    }})(ctx, window);
+    ");
                     }
                 }
-
-                foreach (var container in test.ScriptContainers.Where(c => c.Scripts.Any(s => s.VersionNumber == choice)))
+                else
                 {
-                    var precondition = container.Precondition;
-                    if (String.IsNullOrWhiteSpace(precondition))
+                    //если тест выключен всё равно нужно сообщить в js объект abTestingContext информацию о контейнерах в тесте
+                    if (test.ClientRedirectContainer != null)
                     {
-                        precondition = "true";
+                        //контейнер клиентских редиректов блокирующий, если он есть, то другие контейнеры срабатывать не будут
+                        sb.Append($@"window.abTestingContext['{AbTestChoiceResolver.CookieNamePrefix + test.Test.Id}'].cids.push({test.ClientRedirectContainer.Id});");
                     }
-                    sb.Append($@"
-(function(ctx, window){{
-    if(ctx && !({precondition})) return;
-    {container.Scripts.First(_ => _.VersionNumber == choice).ScriptText}
-}})(ctx, window);
-");
+                    else
+                    {
+                        sb.Append($@"window.abTestingContext['{AbTestChoiceResolver.CookieNamePrefix + test.Test.Id}'].cids.push({String.Join(",", test.ScriptContainers.Select(sc => sc.Id))});");
+                    }
                 }
             }
             return sb.ToString();
+        }
+
+        private string JsCodeForAbTestContext(AbTestPersistentData test, int? resolvedChoice)
+        {
+            return $@"window.abTestingContext['{AbTestChoiceResolver.CookieNamePrefix + test.Id}'] = {{ choice: {(resolvedChoice.HasValue ? resolvedChoice.Value.ToString() : "null")}, cids:[], targetedCids:[] }};";
         }
 
         private string JsStringifyObject(object obj)

@@ -25,9 +25,6 @@ bld/
 # Visual Studio 2015 cache/options directory
 .vs/
 
-# Uncomment if you have tasks that create the project's static files in wwwroot
-#wwwroot/
-
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
@@ -249,7 +246,3 @@ _Pvt_Extensions
 **/*.generated.cs
 npm-debug.log.*
 *.xproj.user
-
-QA\.DotNetCore\.Engine/src/QA\.DotNetCore\.OnScreenAdmin\.Web/wwwroot/onscreen/
-
-QA\.DotNetCore\.Engine/src/QA\.DotNetCore\.OnScreenAdmin\.Web/wwwroot/onScreenLoader\.js

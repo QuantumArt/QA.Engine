@@ -14,6 +14,7 @@
     "material-ui-icons": "^1.0.0-beta.17",
     "mutation-summary": "^0.1.1",
     "prop-types": "^15.6.0",
+    "qs": "^6.5.1",
     "react": "^16.2.0",
     "react-custom-scrollbars": "^4.2.1",
     "react-dom": "^16.2.0",

@@ -45,13 +45,18 @@ const styles = (theme) => {
 
 class ComponentItem extends Component {
   handleToggleClick = () => {
-    this.props.onToggleComponent(this.props.onScreenId);
-    scrollToElement(`[data-qa-component-on-screen-id="${this.props.onScreenId}"]`,
-      { offset: -100,
-        ease: 'in-out-expo', // https://github.com/component/ease#aliases
-        duration: 1500,
-      },
-    );
+    const { isMovingWidget, onScreenId, onToggleComponent, onMovingWidgetSelectTargetZone } = this.props;
+    if (isMovingWidget) {
+      onMovingWidgetSelectTargetZone(onScreenId);
+    } else {
+      onToggleComponent(onScreenId);
+      scrollToElement(`[data-qa-component-on-screen-id="${onScreenId}"]`,
+        { offset: -100,
+          ease: 'in-out-expo', // https://github.com/component/ease#aliases
+          duration: 1500,
+        },
+      );
+    }
   }
 
   handleOnScreenToggleClick = () => {
@@ -81,7 +86,8 @@ class ComponentItem extends Component {
   }
 
   renderContextMenu = (isSelected) => {
-    if (!isSelected) { return null; }
+    const { isMovingWidget } = this.props;
+    if (!isSelected || isMovingWidget) { return null; }
     return (
       <ComponentControlMenu
         onScreenId={this.props.onScreenId}
@@ -123,12 +129,14 @@ class ComponentItem extends Component {
       classes,
       nestLevel,
       isOpened,
+      isDisabled,
       type,
     } = this.props;
     const isSelected = selectedComponentId === onScreenId;
 
     return (
       <ListItem
+        disabled={isDisabled}
         classes={{
           root: classes.listItemRoot,
           secondaryAction: classes.listItemSecondaryAction,
@@ -148,7 +156,7 @@ class ComponentItem extends Component {
           }
         </ListItemIcon>
         <ListItemText
-          primary={this.renderPrimaryText(type, properties)}
+          primary={this.renderPrimaryText(type, properties, isDisabled)}
           // secondary={this.renderSecondaryText(type, properties)}
           classes={{ text: classes.listItemText }}
         />
@@ -171,6 +179,8 @@ class ComponentItem extends Component {
       classes,
       isOpened,
       maxNestLevel,
+      isMovingWidget,
+      onMovingWidgetSelectTargetZone,
     } = this.props;
     let subtree = null;
 
@@ -189,6 +199,9 @@ class ComponentItem extends Component {
           classes={classes}
           nestLevel={child.nestLevel}
           maxNestLevel={maxNestLevel}
+          isDisabled={child.isDisabled}
+          isMovingWidget={isMovingWidget}
+          onMovingWidgetSelectTargetZone={onMovingWidgetSelectTargetZone}
           // showListItem={showListItem}
         >
           {child.children}
@@ -229,6 +242,9 @@ ComponentItem.propTypes = {
   classes: PropTypes.object.isRequired,
   nestLevel: PropTypes.number.isRequired,
   maxNestLevel: PropTypes.number.isRequired,
+  isMovingWidget: PropTypes.bool.isRequired,
+  isDisabled: PropTypes.bool.isRequired,
+  onMovingWidgetSelectTargetZone: PropTypes.func.isRequired,
   // showListItem: PropTypes.bool.isRequired,
 };
 

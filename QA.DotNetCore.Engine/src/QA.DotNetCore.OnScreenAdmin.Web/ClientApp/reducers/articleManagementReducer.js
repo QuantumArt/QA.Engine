@@ -11,6 +11,11 @@ const initialState = {
     zoneOnScreenId: null,
     selectedWidgetId: null,
   },
+  moveWidget: {
+    isActive: false,
+    onScreenId: null,
+    targetZoneId: null,
+  },
   needReload: false,
   qpFormOpened: false,
 };
@@ -74,6 +79,32 @@ export default function articleManagementReducer(state = initialState, action) {
       return {
         ...state,
         qpFormOpened: true,
+      };
+    case EDIT_WIDGET_ACTIONS.MOVE_WIDGET:
+      return {
+        ...state,
+        moveWidget: {
+          ...state.moveWidget,
+          isActive: true,
+          onScreenId: action.onScreenId,
+        },
+      };
+    case EDIT_WIDGET_ACTIONS.MOVING_WIDGET_SELECT_TARGET_ZONE:
+      return {
+        ...state,
+        moveWidget: {
+          ...state.moveWidget,
+          targetZoneId: action.id,
+        },
+      };
+    case EDIT_WIDGET_ACTIONS.FINISH_MOVING_WIDGET:
+      return {
+        ...state,
+        moveWidget: {
+          isActive: false,
+          onScreenId: null,
+          targetZoneId: null,
+        },
       };
     default:
       return state;

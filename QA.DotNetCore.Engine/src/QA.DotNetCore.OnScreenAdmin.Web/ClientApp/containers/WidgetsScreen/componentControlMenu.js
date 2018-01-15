@@ -3,6 +3,7 @@ import _ from 'lodash';
 import {
   editWidget,
   addWidgetToZone,
+  moveWidget,
 } from '../../actions/componentControlMenuActions';
 
 import ComponentControlMenu from '../../Components/WidgetsScreen/ComponentTreeScreen/ComponentControlMenu';
@@ -21,6 +22,9 @@ const mapDispatchToProps = dispatch => ({
   },
   onAddWidget: (id) => {
     dispatch(addWidgetToZone(id));
+  },
+  onMoveWidget: (id) => {
+    dispatch(moveWidget(id));
   },
 });
 

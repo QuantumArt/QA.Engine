@@ -12,15 +12,19 @@ const findChildComponents = (currentComponent, allComponents, allOpened) => {
   return directChildren;
 };
 
-const buildTree = (componentsList, allOpened = false) => {
+const buildTree = (componentsList, disabledComponents = [], allOpened = false) => {
   const tree = [];
   const componentsClone = _.cloneDeep(componentsList);
+  _.forEach(componentsClone, (component) => {
+    component.isDisabled = _.indexOf(disabledComponents, component.onScreenId) !== -1;
+  });
   const rootComponents = _.filter(componentsClone, c => c.parentOnScreenId === 'page');
   _.forEach(rootComponents, (component) => {
     component.children = findChildComponents(component, componentsClone, allOpened);
     if (allOpened && _.size(component.children) > 0) {
       component.isOpened = true;
     }
+
     tree.push(component);
   });
 

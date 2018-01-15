@@ -71,7 +71,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
             }
         }
 
-        [HttpGet("moveWidget")]
+        [HttpPost("moveWidget")]
         public ApiResult MoveWidget(int widgetId, int newParentId, string zoneName)
         {
             try

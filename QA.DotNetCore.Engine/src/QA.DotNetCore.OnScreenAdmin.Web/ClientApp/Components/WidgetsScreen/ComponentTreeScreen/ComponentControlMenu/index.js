@@ -35,6 +35,12 @@ class ComponentControlMenu extends Component {
     onAddWidget(onScreenId);
   }
 
+  handleMoveWidget = () => {
+    const { onMoveWidget, onScreenId } = this.props;
+    this.handleRequestClose();
+    onMoveWidget(onScreenId);
+  }
+
   renderZoneMenu = () => {
     const { classes } = this.props;
     const open = Boolean(this.state.anchorEl);
@@ -100,11 +106,11 @@ class ComponentControlMenu extends Component {
             Edit
           </MenuItem>
           <MenuItem
-            key="dummyMenuItem"
-            onClick={this.handleRequestClose}
+            key="moveWidget"
+            onClick={this.handleMoveWidget}
             classes={{ root: classes.menuItem }}
           >
-            Some other widget action
+            Move
           </MenuItem>
         </Menu>
       </Fragment>
@@ -128,6 +134,7 @@ class ComponentControlMenu extends Component {
 ComponentControlMenu.propTypes = {
   onEditWidget: PropTypes.func.isRequired,
   onAddWidget: PropTypes.func.isRequired,
+  onMoveWidget: PropTypes.func.isRequired,
   type: PropTypes.string.isRequired,
   onScreenId: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,

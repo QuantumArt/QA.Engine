@@ -70,6 +70,7 @@ namespace DemoWebApplication
             {
                 options.Settings.AdminSiteBaseUrl = Configuration.GetSection("OnScreen").Get<OnScreenSettings>().AdminSiteBaseUrl;
                 options.Settings.SiteId = qpSettings.SiteId;
+                options.Settings.IsStage = qpSettings.IsStage;
                 options.Settings.AvailableFeatures = qpSettings.IsStage ? OnScreenFeatures.Widgets | OnScreenFeatures.AbTests : OnScreenFeatures.AbTests;
                 options.DbConnectorSettings = new DbConnectorSettings
                 {

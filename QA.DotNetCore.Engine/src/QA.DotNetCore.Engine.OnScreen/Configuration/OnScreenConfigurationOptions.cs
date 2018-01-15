@@ -19,7 +19,8 @@ namespace QA.DotNetCore.Engine.OnScreen.Configuration
             AuthCookieLifetime = TimeSpan.FromMinutes(60),
             BackendSidQueryKey = "backend_sid",
             AuthCookieName = "qa_onscreen_token",
-            AvailableFeatures = OnScreenFeatures.Widgets
+            AvailableFeatures = OnScreenFeatures.Widgets,
+            OverrideAbTestStageModeCookieName = "qa_onscreen_abtests_stage"
         };
     }
 }

@@ -33,8 +33,10 @@ namespace QA.DotNetCore.Engine.OnScreen
                     window.currentPageId='{ai?.Id}';
                     window.startPageId='{startPage?.Id}';
                     window.siteId='{_onScreenSettings.SiteId}';
+                    window.isStage={_onScreenSettings.IsStage.ToString().ToLower()};
                     window.onScreenFeatures = '{ctx.Features}';
                     window.onScreenTokenCookieName = '{_onScreenSettings.AuthCookieName}';
+                    window.onScreenOverrideAbTestStageModeCookieName = '{_onScreenSettings.OverrideAbTestStageModeCookieName}';
                  </script>
                 <script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/pmrpc.js' defer></script>
                 <script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/onScreenLoader.js' defer></script>");

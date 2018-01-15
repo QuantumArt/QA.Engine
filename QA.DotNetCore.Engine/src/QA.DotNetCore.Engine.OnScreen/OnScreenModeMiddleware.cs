@@ -64,6 +64,20 @@ namespace QA.DotNetCore.Engine.OnScreen
                     context.Features = OnScreenFeatures.None;
             }
 
+            if (context.HasFeature(OnScreenFeatures.AbTests))
+            {
+                //возможно АБ-тесты нужно получать в режиме live\stage отличном от остального сайта
+                //за это отвечает спец кука, которой можно управлять через клиентское приложение onscreen
+                var overridedIsStage = httpContext.Request.Cookies[onScreenSettings.OverrideAbTestStageModeCookieName];
+                if (overridedIsStage != null && Int32.TryParse(overridedIsStage, out int overridedIsStageNumeric))
+                {
+                    if (overridedIsStageNumeric == 0 || overridedIsStageNumeric == 1)
+                    {
+                        context.AbtestsIsStageOverrided = overridedIsStageNumeric == 1;
+                    }
+                }
+            }
+
             if (!httpContext.Items.ContainsKey(OnScreenModeKeys.OnScreenContext))
             {
                 httpContext.Items.Add(OnScreenModeKeys.OnScreenContext, context);

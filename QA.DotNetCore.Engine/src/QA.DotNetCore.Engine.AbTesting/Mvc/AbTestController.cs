@@ -129,14 +129,26 @@ namespace QA.DotNetCore.Engine.AbTesting.Mvc
     ");
                     }
                 }
+                else
+                {
+                    //если тест выключен всё равно нужно сообщить в js объект abTestingContext информацию о контейнерах в тесте
+                    if (test.ClientRedirectContainer != null)
+                    {
+                        //контейнер клиентских редиректов блокирующий, если он есть, то другие контейнеры срабатывать не будут
+                        sb.Append($@"window.abTestingContext['{AbTestChoiceResolver.CookieNamePrefix + test.Test.Id}'].cids.push({test.ClientRedirectContainer.Id});");
+                    }
+                    else
+                    {
+                        sb.Append($@"window.abTestingContext['{AbTestChoiceResolver.CookieNamePrefix + test.Test.Id}'].cids.push({String.Join(",", test.ScriptContainers.Select(sc => sc.Id))});");
+                    }
+                }
             }
             return sb.ToString();
         }
 
         private string JsCodeForAbTestContext(AbTestPersistentData test, int? resolvedChoice)
         {
-            return $@"window.abTestingContext['{AbTestChoiceResolver.CookieNamePrefix + test.Id}'] = {{ choice: {(resolvedChoice.HasValue ? resolvedChoice.Value.ToString() : "null")}, cids:[], targetedCids:[] }};
-";
+            return $@"window.abTestingContext['{AbTestChoiceResolver.CookieNamePrefix + test.Id}'] = {{ choice: {(resolvedChoice.HasValue ? resolvedChoice.Value.ToString() : "null")}, cids:[], targetedCids:[] }};";
         }
 
         private string JsStringifyObject(object obj)

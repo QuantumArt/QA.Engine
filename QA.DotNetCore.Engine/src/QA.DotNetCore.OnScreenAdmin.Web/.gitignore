@@ -1,2 +1,4 @@
 wwwroot/
-!wwwroot/dist/libs/
+!wwwroot/dist/pmrpc.js
+!wwwroot/dist/onScreenAbTestApi.js
+!wwwroot/dist/pmrpc.js

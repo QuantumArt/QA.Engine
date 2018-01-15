@@ -114,7 +114,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
             }
         }
 
-        [HttpGet("abtests/switch")]
+        [HttpPost("abtests/switch")]
         public ApiResult SwitchAbTest(int testId, bool value)
         {
             try

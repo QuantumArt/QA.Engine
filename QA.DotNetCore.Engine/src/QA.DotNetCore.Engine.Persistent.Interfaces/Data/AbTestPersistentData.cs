@@ -31,6 +31,11 @@ namespace QA.DotNetCore.Engine.Persistent.Interfaces.Data
         }
 
         /// <summary>
+        /// Включен ли тест
+        /// </summary>
+        public bool Enabled { get; set; }
+
+        /// <summary>
         /// Строковое представление поля <see cref="Percentage"/>
         /// </summary>
         public string PercentageStr { get; set; }

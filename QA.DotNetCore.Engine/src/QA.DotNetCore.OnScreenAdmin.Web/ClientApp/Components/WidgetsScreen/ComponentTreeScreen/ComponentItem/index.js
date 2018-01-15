@@ -15,14 +15,13 @@ import PanoramaHorizontal from 'material-ui-icons/PanoramaHorizontal';
 import IconButton from 'material-ui/IconButton';
 import Collapse from 'material-ui/transitions/Collapse';
 import { deepPurple } from 'material-ui/colors';
-import ComponentControlMenu from '../../../../containers/WidgetsScreen/componentControlMenu';
+import ComponentControlMenu from 'containers/WidgetsScreen/componentControlMenu';
 
 const styles = (theme) => {
   console.log(theme);
   return {
     listItem: {
-      height: theme.spacing.unit * 7.5,
-      minWidth: 350,
+      height: theme.typography.pxToRem(76.8),
     },
     listItemText: {
       fontSize: theme.typography.fontSize,
@@ -34,8 +33,8 @@ const styles = (theme) => {
       paddingRight: 80,
     },
     expandNodeIcon: {
-      width: theme.spacing.unit * 3,
-      height: theme.spacing.unit * 3,
+      // width: theme.spacing.unit * 3,
+      // height: theme.spacing.unit * 3,
     },
     expandNodeRoot: {
       verticalAlign: 'bottom',
@@ -138,7 +137,7 @@ class ComponentItem extends Component {
       <ListItem
         disabled={isDisabled}
         classes={{
-          root: classes.listItemRoot,
+          root: classes.listItem,
           secondaryAction: classes.listItemSecondaryAction,
         }}
         style={{ paddingLeft: nestLevel > 1 ? `${nestLevel * 0.8}em` : '16px' }}

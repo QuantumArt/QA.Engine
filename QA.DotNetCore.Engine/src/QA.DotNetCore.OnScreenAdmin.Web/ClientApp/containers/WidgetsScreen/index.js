@@ -1,6 +1,9 @@
 import { connect } from 'react-redux';
-import { getShowComponentTree, getShowAvailableWidgets } from '../../selectors/widgetsScreen';
-import WidgetsScreen from '../../Components/WidgetsScreen';
+import {
+  getShowComponentTree,
+  getShowAvailableWidgets,
+} from 'selectors/widgetsScreen';
+import WidgetsScreen from 'Components/WidgetsScreen';
 
 const mapStateToProps = state => ({
   showComponentTree: getShowComponentTree(state),

@@ -95,6 +95,7 @@ module.exports = {
   },
   plugins: [
     new WebpackNotifierPlugin(),
+    new webpack.NamedModulesPlugin(),
     // new CleanWebpackPlugin(['dist/build']),
 
     // HtmlWebpackPluginConfig,

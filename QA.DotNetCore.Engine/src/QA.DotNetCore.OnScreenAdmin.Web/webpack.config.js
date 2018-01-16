@@ -26,7 +26,7 @@ module.exports = {
     path: path.resolve(__dirname, 'wwwroot/dist'),
     filename: '[name].js',
     publicPath: '/dist/',
-    // devtoolModuleFilenameTemplate: info => path.resolve(info.absoluteResourcePath).replace(/\\/g, '/'),
+    devtoolModuleFilenameTemplate: info => path.resolve(info.absoluteResourcePath).replace(/\\/g, '/'),
   },
   resolve: {
     extensions: ['.js', '.jsx'],
@@ -35,7 +35,7 @@ module.exports = {
       path.resolve(__dirname, 'ClientApp'),
     ],
   },
-  // devtool: 'cheap-module-source-map',
+  devtool: 'cheap-module-source-map',
   module: {
     rules: [{
       enforce: 'pre',
@@ -117,11 +117,11 @@ module.exports = {
         return context && context.indexOf('node_modules') >= 0;
       },
     }),
-    new webpack.SourceMapDevToolPlugin({
-      filename: '[name].js.map',
-      moduleFilenameTemplate: info => path.resolve(info.absoluteResourcePath).replace(/\\/g, '/'),
-      exclude: ['vendor.js'],
-    }),
+    // new webpack.SourceMapDevToolPlugin({
+    //   filename: '[name].js.map',
+    //   moduleFilenameTemplate: info => path.resolve(info.absoluteResourcePath).replace(/\\/g, '/'),
+    //   exclude: ['vendor.js'],
+    // }),
 
 
   ],

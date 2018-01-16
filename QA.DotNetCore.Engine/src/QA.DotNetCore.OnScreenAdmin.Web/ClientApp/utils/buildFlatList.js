@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'lodash/core';
 import { getSubtreeState } from './componentTreeStateStorage';
 /* eslint-disable no-param-reassign */
 

@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect';
-import _ from 'lodash';
+import _ from 'lodash/core';
 
 const getSearchTextSelector = state => state.availableWidgets.searchText;
 const availableWidgetsSelector = state => state.metaInfo.availableWidgets;

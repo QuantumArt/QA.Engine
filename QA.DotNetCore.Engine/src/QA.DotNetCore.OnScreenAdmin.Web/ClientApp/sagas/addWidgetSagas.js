@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'lodash/core';
 import { select, put, takeEvery, all } from 'redux-saga/effects';
 import { ADD_WIDGET_ACTIONS, CONTENT_META_INFO_ACTION, WIDGETS_SCREEN_MODE_ACTIONS } from '../actions/actionTypes';
 import { qpFormCallback } from './qpFormSagas';

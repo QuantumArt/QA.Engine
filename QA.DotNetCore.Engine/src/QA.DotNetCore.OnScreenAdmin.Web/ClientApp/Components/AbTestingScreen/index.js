@@ -14,7 +14,7 @@ import Button from 'material-ui/Button';
 import IconButton from 'material-ui/IconButton';
 import Tooltip from 'material-ui/Tooltip';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
-import Playarrow from 'material-ui-icons/Playarrow';
+import PlayArrow from 'material-ui-icons/PlayArrow';
 import Pause from 'material-ui-icons/Pause';
 import Stop from 'material-ui-icons/Stop';
 import TestDetails from './TestDetails';

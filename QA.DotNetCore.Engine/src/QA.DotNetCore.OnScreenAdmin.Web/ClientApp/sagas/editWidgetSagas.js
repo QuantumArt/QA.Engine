@@ -1,5 +1,5 @@
 import { select, put, takeEvery, all } from 'redux-saga/effects';
-import _ from 'lodash';
+import _ from 'lodash/core';
 import { EDIT_WIDGET_ACTIONS, CONTENT_META_INFO_ACTION } from '../actions/actionTypes';
 import { qpFormCallback } from './qpFormSagas';
 

@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'lodash/core';
 import { showQPForm } from '../qpInteraction';
 
 const fieldNameResolver = (contentMetaInfo, columnName) => {

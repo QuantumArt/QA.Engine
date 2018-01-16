@@ -25,7 +25,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'wwwroot/dist'),
     filename: '[name].js',
-    publicPath: '/dist',
+    publicPath: '/dist/',
     // devtoolModuleFilenameTemplate: info => path.resolve(info.absoluteResourcePath).replace(/\\/g, '/'),
   },
   resolve: {

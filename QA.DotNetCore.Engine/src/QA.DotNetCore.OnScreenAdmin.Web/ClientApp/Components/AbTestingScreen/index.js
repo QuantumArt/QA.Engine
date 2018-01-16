@@ -94,7 +94,7 @@ const AbTestingScreen = ({ classes, tests }) => (
               classes={{tooltip: classes.actionTooltip}}
             >
               <IconButton color="primary" classes={{label: classes.actionButton}}>
-                <Playarrow className={classes.actionIcon} />
+                <PlayArrow className={classes.actionIcon} />
               </IconButton>
             </Tooltip>
           </ExpansionPanelActions>

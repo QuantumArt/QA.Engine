@@ -11,6 +11,7 @@ import ExpansionPanel, {
 } from 'material-ui/ExpansionPanel';
 import Typography from 'material-ui/Typography';
 import Button from 'material-ui/Button';
+import IconButton from 'material-ui/IconButton';
 import Tooltip from 'material-ui/Tooltip';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
 import PlayArrow from 'material-ui-icons/PlayArrow';
@@ -46,8 +47,8 @@ const styles = theme => ({
     marginRight: 3,
   },
   actionIcon: {
-    // width: 15,
-    // height: 15,
+    width: 23,
+    height: 23,
   },
   actionTooltip: {
     fontSize: '11px',
@@ -72,9 +73,9 @@ const AbTestingScreen = ({ classes, tests }) => (
               title="Stop test entirely"
               classes={{tooltip: classes.actionTooltip}}
             >
-              <Button color="accent" raised fab mini classes={{label: classes.actionButton}}>
+              <IconButton color="accent" classes={{label: classes.actionButton}}>
                 <Stop className={classes.actionIcon} />
-              </Button>
+              </IconButton>
             </Tooltip>
             <Tooltip
               id="pauseTest"
@@ -82,9 +83,9 @@ const AbTestingScreen = ({ classes, tests }) => (
               title="Stop test for session"
               classes={{tooltip: classes.actionTooltip}}
             >
-              <Button color="primary" raised fab mini classes={{label: classes.actionButton}}>
+              <IconButton color="primary" classes={{label: classes.actionButton}}>
                 <Pause className={classes.actionIcon} />
-              </Button>
+              </IconButton>
             </Tooltip>
             <Tooltip
               id="runTest"
@@ -92,9 +93,9 @@ const AbTestingScreen = ({ classes, tests }) => (
               title="Launch test for session"
               classes={{tooltip: classes.actionTooltip}}
             >
-              <Button color="primary"  fab mini classes={{label: classes.actionButton}}>
-                <PlayArrow className={classes.actionIcon} />
-              </Button>
+              <IconButton color="primary" classes={{label: classes.actionButton}}>
+                <Playarrow className={classes.actionIcon} />
+              </IconButton>
             </Tooltip>
           </ExpansionPanelActions>
         </ExpansionPanel>

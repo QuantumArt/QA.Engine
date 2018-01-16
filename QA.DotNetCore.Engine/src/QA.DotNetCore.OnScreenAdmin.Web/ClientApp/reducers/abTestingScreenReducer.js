@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'lodash/core';
 import {
   GET_AVALAIBLE_TESTS,
   API_GET_TESTS_DATA,

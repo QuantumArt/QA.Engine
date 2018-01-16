@@ -13,7 +13,7 @@ import Typography from 'material-ui/Typography';
 import Button from 'material-ui/Button';
 import Tooltip from 'material-ui/Tooltip';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
-import Playarrow from 'material-ui-icons/Playarrow';
+import PlayArrow from 'material-ui-icons/PlayArrow';
 import Pause from 'material-ui-icons/Pause';
 import Stop from 'material-ui-icons/Stop';
 import TestDetails from './TestDetails';
@@ -93,7 +93,7 @@ const AbTestingScreen = ({ classes, tests }) => (
               classes={{tooltip: classes.actionTooltip}}
             >
               <Button color="primary"  fab mini classes={{label: classes.actionButton}}>
-                <Playarrow className={classes.actionIcon} />
+                <PlayArrow className={classes.actionIcon} />
               </Button>
             </Tooltip>
           </ExpansionPanelActions>

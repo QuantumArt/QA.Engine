@@ -1,5 +1,5 @@
 import { createSelector, createSelectorCreator } from 'reselect';
-import _ from 'lodash';
+import _ from 'lodash/core';
 import buildTree from '../utils/buildTree';
 
 

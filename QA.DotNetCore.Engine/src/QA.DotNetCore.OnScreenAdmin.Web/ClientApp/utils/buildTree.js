@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'lodash/core';
 
 const findChildComponents = (currentComponent, allComponents, allOpened) => {
   const directChildren = _.filter(allComponents, c => c.parentOnScreenId === currentComponent.onScreenId);

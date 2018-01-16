@@ -38,9 +38,9 @@ namespace QA.DotNetCore.Engine.OnScreen
                     window.onScreenTokenCookieName = '{_onScreenSettings.AuthCookieName}';
                     window.onScreenOverrideAbTestStageModeCookieName = '{_onScreenSettings.OverrideAbTestStageModeCookieName}';
                  </script>
-                <script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/pmrpc.js' defer></script>
-                <script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/onScreenLoader.js' defer></script>");
-
+                <script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/pmrpc.js'></script>
+                <script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/vendor.js'></script><script src='{ _onScreenSettings.AdminSiteBaseUrl}/dist/main.js'></script>");
+                
                 if (ctx.HasFeature(OnScreenFeatures.AbTests))
                 {
                     markup.AppendLine($"<script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/cookies.js' defer></script>");

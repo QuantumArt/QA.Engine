@@ -1,5 +1,5 @@
 import MutationSummary from 'mutation-summary';
-import _ from 'lodash/core';
+import _ from 'lodash';
 import { loadedComponentTree } from './actions/componentTreeActions';
 import buildTree from './componentTreeBuilder';
 

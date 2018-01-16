@@ -41,29 +41,27 @@ const styles = theme => ({
   },
 });
 
-class TestDetails extends Component {
+const TestDetails = (props) => {
+  const { classes, comment, variants, choice } = props;
+  const variantIsActive = (i) => i === choice;
 
-  render() {
-    const { classes, comment, variants, choice } = this.props;
-    const isActive = (i) => i === choice;
-
-    return (
-      <Fragment>
-        <Typography className={classes.commentRoot} component="div">
-          <p className={classes.commentInner}>{comment}</p>
-        </Typography>
-        <List className={classes.list}>
-          {variants.map((variant, i) => (
-            <TestCaseDetails
-              key={variant.percent}
-              data={variant}
-              index={i}
-              active={isActive(i)}
-            />
-          ))}
-        </List>
-      </Fragment>);
-  }
+  return (
+    <Fragment>
+      <Typography className={classes.commentRoot} gutterBottom>
+        {comment}
+      </Typography>
+      <List className={classes.list}>
+        {variants.map((variant, i) => (
+          <TestCaseDetails
+            key={variant.percent}
+            data={variant}
+            index={i}
+            active={variantIsActive(i)}
+          />
+        ))}
+      </List>
+    </Fragment>
+  );
 };
 
 TestDetails.propTypes = {

@@ -17,6 +17,16 @@ const fake = {
       targetedCids: [629728, 629734],
     },
     'abt-629728': {
+      choice: 1,
+      cids: [],
+      targetedCids: [],
+    },
+    'abt-629729': {
+      choice: null,
+      cids: [],
+      targetedCids: [],
+    },
+    'abt-629730': {
       choice: null,
       cids: [],
       targetedCids: [],
@@ -60,9 +70,79 @@ const fake = {
     },
     {
       id: 629728,
-      enabled: true,
+      enabled: false,
       title: 'Второй тест',
       comment: 'Второй пробный тест',
+      startDate: null,
+      endDate: '2018-01-31T19:04:00',
+      variants: [{
+        choice: 0,
+        percent: 75.0,
+        containers: [{
+          cid: 629728,
+          containerDescription: 'Пустышка, пишет в консоль',
+          variantDescription: 'console.log ab test choice 0',
+          variantId: 629730,
+          type: 'Script',
+        }, {
+          cid: 629734,
+          containerDescription: 'Смена цвета шапки',
+          variantDescription: 'делаем красной шапку',
+          variantId: 629736,
+          type: 'Script',
+        }],
+      }, {
+        choice: 1,
+        percent: 25.0,
+        containers: [{
+          cid: 629728,
+          containerDescription: 'Пустышка, пишет в консоль',
+          variantDescription: 'console.log ab test choice 1',
+          variantId: 629731,
+          type: 'Script',
+        }],
+      }],
+    },
+    {
+      id: 629729,
+      enabled: true,
+      title: 'Третий тест',
+      comment: 'Третий пробный тест',
+      startDate: null,
+      endDate: '2018-01-31T19:04:00',
+      variants: [{
+        choice: 0,
+        percent: 75.0,
+        containers: [{
+          cid: 629728,
+          containerDescription: 'Пустышка, пишет в консоль',
+          variantDescription: 'console.log ab test choice 0',
+          variantId: 629730,
+          type: 'Script',
+        }, {
+          cid: 629734,
+          containerDescription: 'Смена цвета шапки',
+          variantDescription: 'делаем красной шапку',
+          variantId: 629736,
+          type: 'Script',
+        }],
+      }, {
+        choice: 1,
+        percent: 25.0,
+        containers: [{
+          cid: 629728,
+          containerDescription: 'Пустышка, пишет в консоль',
+          variantDescription: 'console.log ab test choice 1',
+          variantId: 629731,
+          type: 'Script',
+        }],
+      }],
+    },
+    {
+      id: 629730,
+      enabled: false,
+      title: 'Четвертый тест',
+      comment: 'Четвертый пробный тест',
       startDate: null,
       endDate: '2018-01-31T19:04:00',
       variants: [{

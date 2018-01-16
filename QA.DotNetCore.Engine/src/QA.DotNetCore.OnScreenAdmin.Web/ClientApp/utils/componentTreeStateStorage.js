@@ -1,5 +1,5 @@
 import store from 'store';
-import _ from 'lodash/core';
+import _ from 'lodash';
 
 export const setSubtreeState = (components) => {
   const currentPageId = window.currentPageId;

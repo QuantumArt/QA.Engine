@@ -1,4 +1,4 @@
-import _ from 'lodash/core';
+import _ from 'lodash';
 import { select, put, take, takeEvery, all } from 'redux-saga/effects';
 import { channel } from 'redux-saga';
 import { QP_FORM_ACTIONS } from '../actions/actionTypes';

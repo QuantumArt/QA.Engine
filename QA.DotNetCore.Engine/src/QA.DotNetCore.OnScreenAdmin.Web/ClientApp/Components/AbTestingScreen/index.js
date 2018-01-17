@@ -27,6 +27,9 @@ const styles = theme => ({
   paper: {
     width: '100%',
   },
+  headingPaper: {
+    marginLeft: 40,
+  },
   heading: {
     fontSize: 16,
     fontWeight: theme.typography.fontWeightMedium,
@@ -38,10 +41,12 @@ const styles = theme => ({
     fontStyle: 'italic',
   },
   statusIcon: {
-    width: 18,
-    height: 18,
-    marginRight: 24,
-    marginTop: 9,
+    width: 24,
+    height: 24,
+    position: 'absolute',
+    top: '50%',
+    marginTop: -12,
+    left: 19,
   },
   panelDetails: {
     flexDirection: 'column',

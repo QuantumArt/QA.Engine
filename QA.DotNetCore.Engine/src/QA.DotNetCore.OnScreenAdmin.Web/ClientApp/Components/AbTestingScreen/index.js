@@ -33,16 +33,17 @@ const styles = theme => ({
     fontSize: 16,
     fontWeight: theme.typography.fontWeightMedium,
   },
-  headingDetails: {
-    fontSize: 14,
-    fontWeight: theme.typography.fontWeightMedium,
-    marginLeft: 16,
-    lineHeight: 1.4,
+  subHeading: {
+    fontSize: 11,
+    marginLeft: 1,
+    marginTop: 3,
+    fontStyle: 'italic',
   },
   statusIcon: {
-    width: 16,
-    height: 16,
+    width: 18,
+    height: 18,
     marginRight: 24,
+    marginTop: 9,
   },
   panelDetails: {
     flexDirection: 'column',
@@ -71,12 +72,14 @@ const styles = theme => ({
 
 const AbTestingScreen = (props) => {
   const {classes, tests} = props;
-  const renderPauseButton = () => (
+
+  const renderPauseButton = (key) => (
     <Tooltip
       id="pauseTest"
       placement="top"
       title="Stop test for session"
       classes={{tooltip: classes.actionTooltip}}
+      key={key}
     >
       <IconButton
         color="primary"
@@ -89,24 +92,26 @@ const AbTestingScreen = (props) => {
       </IconButton>
     </Tooltip>
   );
-  const renderStopButton = () => (
+  const renderStopButton = (key) => (
     <Tooltip
       id="stopTest"
       placement="top"
       title="Stop test entirely"
       classes={{tooltip: classes.actionTooltip}}
+      key={key}
     >
       <IconButton color="accent" classes={{label: classes.actionButton}}>
         <Stop className={classes.actionIcon} />
       </IconButton>
     </Tooltip>
   );
-  const renderGlobalLaunchButton = () => (
+  const renderGlobalLaunchButton = (key) => (
     <Tooltip
       id="runTestforSession"
       placement="top"
       title="Launch test"
       classes={{tooltip: classes.actionTooltip}}
+      key={key}
     >
       <IconButton
         color="primary"
@@ -116,12 +121,13 @@ const AbTestingScreen = (props) => {
       </IconButton>
     </Tooltip>
   );
-  const renderSessionLaunchButton = () => (
+  const renderSessionLaunchButton = (key) => (
     <Tooltip
       id="runTest"
       placement="top"
       title="Launch test for session"
       classes={{tooltip: classes.actionTooltip}}
+      key={key}
     >
       <IconButton
         color="primary"
@@ -134,12 +140,20 @@ const AbTestingScreen = (props) => {
       </IconButton>
     </Tooltip>
   );
-  console.log(tests);
+  const renderSummaryText = (test) => {
+    if (test.choice !== null ) {
+      if (test.globalActive) return `Test active, case # ${test.choice}`;
+      if (test.sessionActive) return `Test active for session, case # ${test.choice}`;
+    } else {
+      if (test.paused) return 'Test paused';
+      if (test.stoped) return 'Test stoped';
+    }
+  };
 
   return (
     <Toolbar className={classes.toolBar}>
       <Paper className={classes.paper} elevation={0}>
-        {tests.map(test => (
+        {tests.map((test, i) => (
           <ExpansionPanel key={test.id} className={classes.panel}>
             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
               {test.globalActive &&
@@ -154,10 +168,12 @@ const AbTestingScreen = (props) => {
               {test.stoped &&
                 <Stop color="accent" className={classes.statusIcon} />
               }
-              <Typography type="title" className={classes.heading} >{test.title}</Typography>
-              <Typography type="title" className={classes.headingDetails}>
-                {test.choice !== null ? `# ${test.choice}` : ''}
-              </Typography>
+              <Paper className={classes.headingPaper} elevation={0}>
+                <Typography type="title" className={classes.heading}>{test.title}</Typography>
+                <Typography type="subheading" className={classes.subHeading}>
+                  {renderSummaryText(test)}
+                </Typography>
+              </Paper>
             </ExpansionPanelSummary>
             <ExpansionPanelDetails className={classes.panelDetails}>
               <TestDetails {...test} />
@@ -165,23 +181,23 @@ const AbTestingScreen = (props) => {
             <ExpansionPanelActions>
               <Paper elevation={0}>
                 {test.globalActive && [
-                  renderStopButton(),
-                  renderPauseButton(),
-                  renderSessionLaunchButton(),
+                  renderStopButton(1),
+                  renderPauseButton(2),
+                  renderSessionLaunchButton(3),
                 ]}
                 {test.sessionActive && [
-                  renderStopButton(),
-                  renderPauseButton(),
-                  renderGlobalLaunchButton(),
+                  renderStopButton(1),
+                  renderPauseButton(2),
+                  renderGlobalLaunchButton(3),
                 ]}
                 {test.paused && [
-                  renderStopButton(),
-                  renderSessionLaunchButton(),
-                  renderGlobalLaunchButton(),
+                  renderStopButton(1),
+                  renderSessionLaunchButton(2),
+                  renderGlobalLaunchButton(3),
                 ]}
                 {test.stoped && [
-                  renderSessionLaunchButton(),
-                  renderGlobalLaunchButton(),
+                  renderSessionLaunchButton(1),
+                  renderGlobalLaunchButton(2),
                 ]}
               </Paper>
             </ExpansionPanelActions>

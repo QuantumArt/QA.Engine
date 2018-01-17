@@ -15,7 +15,6 @@ import {
   PAUSE_TEST,
 } from 'actions/actionTypes';
 
-let testControls;
 function reload() {
   window.location.reload();
 }
@@ -197,7 +196,6 @@ function* loadTestsData() {
 
   try {
     const testsInfo = yield call(getTestsData, cids);
-    testControls = window.QA.OnScreen.AbTesting;
 
     yield put({ type: GET_AVALAIBLE_TESTS, payload: avalaibleTests });
     yield put({ type: API_GET_TESTS_DATA_SUCCESS, payload: testsInfo.data.data });
@@ -208,12 +206,12 @@ function* loadTestsData() {
 }
 
 function* launchSessionTest({ testId }) {
-  yield call(testControls.enableTestForMe, testId);
+  yield call(window.QA.OnScreen.AbTesting.enableTestForMe, testId);
   reload();
 }
 
 function* pauseTest({ testId }) {
-  yield call(testControls.disableTestForMe, testId);
+  yield call(window.QA.OnScreen.AbTesting.disableTestForMe, testId);
   reload();
 }
 

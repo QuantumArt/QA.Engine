@@ -56,7 +56,6 @@ namespace DemoWebApplication
                 options.QpSettings = qpSettings;
                 options.QpSiteStructureSettings = Configuration.GetSection("QpSiteStructureSettings").Get<QpSiteStructureSettings>();
                 options.TypeFinder.RegisterFromAssemblyContaining<RootPage, IAbstractItem>();
-                //options.QpSiteStructureSettings.LoadAbstractItemFieldsToDetailsCollection = false;
             });
 
             services.AddAbTestServices(options => {

@@ -21,6 +21,8 @@
   </environment>
 
   @await Component.InvokeAsync("AbTest")
+
+  @await Component.WidgetZone(Html, "Meta")
 </head>
 <body>
   <div class="navbar navbar-inverse navbar-fixed-top">

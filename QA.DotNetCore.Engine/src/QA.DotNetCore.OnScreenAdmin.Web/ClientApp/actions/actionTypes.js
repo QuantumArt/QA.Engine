@@ -1,3 +1,7 @@
+// initial
+export const APP_STARTED = 'APP_STARTED';
+
+
 // sidebar
 export const TOGGLE_OPEN_STATE = 'TOGGLE_OPEN_STATE';
 export const TOGGLE_LEFT_POSITION = 'TOGGLE_LEFT_POSITION';
@@ -55,7 +59,12 @@ export const WIDGETS_SCREEN_MODE_ACTIONS = {
 
 // ab-tests
 export const GET_AVALAIBLE_TESTS = 'GET_AVALAIBLE_TESTS';
-export const API_GET_TESTS_DATA = 'API_GET_TESTS_DATA';
+export const API_GET_TESTS_DATA_SUCCESS = 'API_GET_TESTS_DATA_SUCCESS';
+export const API_GET_TESTS_DATA_ERROR = 'API_GET_TESTS_DATA_ERROR';
+export const LAUNCH_TEST = 'LAUNCH_TEST';
+export const LAUNCH_SESSION_TEST = 'LAUNCH_SESSION_TEST';
+export const PAUSE_TEST = 'PAUSE_TEST';
+export const STOP_TEST = 'STOP_TEST';
 
 
 // qp integration

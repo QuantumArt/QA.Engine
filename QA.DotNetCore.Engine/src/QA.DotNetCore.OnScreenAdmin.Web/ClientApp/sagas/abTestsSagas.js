@@ -1,14 +1,18 @@
+import _ from 'lodash';
+import { getTestsData } from 'api';
 import {
   put,
   takeEvery,
-  all,
+  call,
 } from 'redux-saga/effects';
 import {
+  APP_STARTED,
   GET_AVALAIBLE_TESTS,
-  API_GET_TESTS_DATA,
-  TOGGLE_TAB,
+  API_GET_TESTS_DATA_SUCCESS,
+  API_GET_TESTS_DATA_ERROR,
 } from 'actions/actionTypes';
 
+/* eslint-disable no-unused-vars */
 const fake = {
   window: {
     'abt-629727': {
@@ -23,12 +27,12 @@ const fake = {
     },
     'abt-629729': {
       choice: null,
-      cids: [],
+      cids: [629700, 629745],
       targetedCids: [],
     },
     'abt-629730': {
       choice: null,
-      cids: [],
+      cids: [629710, 629749],
       targetedCids: [],
     },
   },
@@ -175,23 +179,29 @@ const fake = {
     },
   ],
 };
+/* eslint-enable no-unused-vars */
 
 // worker
-function* loadTestsData(targetIndex, { value }) {
-  if (targetIndex === value) {
-    // yield put({ type: GET_AVALAIBLE_TESTS, payload: window.abTestingContext });
-    yield put({ type: GET_AVALAIBLE_TESTS, payload: fake.window });
-    yield put({ type: API_GET_TESTS_DATA, payload: fake.api });
+function* loadTestsData() {
+  const avalaibleTests = window.abTestingContext;
+  // const avalaibleTests = fake.window;
+  const cids = _.reduce(avalaibleTests, (result, value) => (result.concat(value.cids)), []);
+
+  try {
+    const testsInfo = yield call(getTestsData, cids);
+
+    yield put({ type: GET_AVALAIBLE_TESTS, payload: avalaibleTests });
+    yield put({ type: API_GET_TESTS_DATA_SUCCESS, payload: testsInfo.data.data });
+  } catch (error) {
+    yield put({ type: API_GET_TESTS_DATA_ERROR, payload: error });
   }
 }
 
 // watcher
-function* watchTab(targetIndex) {
-  yield takeEvery(TOGGLE_TAB, loadTestsData, targetIndex);
+function* watchStart() {
+  yield takeEvery(APP_STARTED, loadTestsData);
 }
 
 export default function* watchAbTests() {
-  yield all([
-    watchTab(1),
-  ]);
+  yield watchStart();
 }

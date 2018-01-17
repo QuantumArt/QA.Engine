@@ -35,3 +35,12 @@ export const moveWidget = (options) => {
   },
   ));
 };
+
+export const getTestsData = cids => axiosInstance().get('/abtests/info', {
+  params: {
+    siteId,
+    isStage: false,
+    cids,
+  },
+  paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' }),
+});

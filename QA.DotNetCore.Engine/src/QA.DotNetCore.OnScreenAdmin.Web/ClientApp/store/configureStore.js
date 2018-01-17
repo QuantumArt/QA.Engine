@@ -1,5 +1,6 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import createSagaMiddleware from 'redux-saga';
+import { APP_STARTED } from 'actions/actionTypes';
 import rootReducer from '../reducers';
 import rootSaga from '../sagas';
 
@@ -16,14 +17,16 @@ export default function configureStore() {
     ),
   );
 
+  sagaMiddleware.run(rootSaga);
+
+  store.dispatch({ type: APP_STARTED });
+
   if (module.hot) {
     module.hot.accept('../reducers', () => {
       const nextGlobalReducer = require('../reducers').default;
       store.replaceReducer(nextGlobalReducer);
     });
   }
-
-  sagaMiddleware.run(rootSaga);
 
   return store;
 }

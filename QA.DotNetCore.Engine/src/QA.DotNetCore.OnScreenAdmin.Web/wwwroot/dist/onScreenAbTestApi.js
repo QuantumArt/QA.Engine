@@ -1,38 +1,37 @@
 var QA = QA || {};
 QA.OnScreen = QA.OnScreen || {};
-QA.OnScreen.AbTesting = (function(cookies){
-  var valueCookiePrefix = "abt-";
-  var forceCookiePrefix = "force-abt-";
-  var abTestCookiePath = "/abtest/inlinescript";
+QA.OnScreen.AbTesting = (function (cookies) {
+  const valueCookiePrefix = 'abt-';
+  const forceCookiePrefix = 'force-abt-';
+  const abTestCookiePath = '/abtest/inlinescript';
 
   return {
-    setChoice: function(testId, value){
+    setChoice(testId, value) {
       cookies.set(valueCookiePrefix + testId, value, { path: abTestCookiePath });
     },
-    enableTestForMe: function(testId){
+    enableTestForMe(testId) {
       cookies.set(forceCookiePrefix + testId, 1, { path: abTestCookiePath });
     },
-    disableTestForMe: function(testId){
+    disableTestForMe(testId) {
       cookies.set(forceCookiePrefix + testId, 0, { path: abTestCookiePath });
     },
-    getIsStageModeValue: function () {
+    getIsStageModeValue() {
       if (window.onScreenOverrideAbTestStageModeCookieName) {
-        var cookieOverride = cookies.get(window.onScreenOverrideAbTestStageModeCookieName);
-        if (cookieOverride === "0" || cookieOverride === "1") {
-          return cookieOverride === "1";
+        const cookieOverride = cookies.get(window.onScreenOverrideAbTestStageModeCookieName);
+        if (cookieOverride === '0' || cookieOverride === '1') {
+          return cookieOverride === '1';
         }
       }
       return window.isStage;
     },
-    setIsStageModeValue: function (value) {
+    setIsStageModeValue(value) {
       if (window.onScreenOverrideAbTestStageModeCookieName) {
-        if (window.hasOwnProperty("isStage") && value === window.isStage) {
+        if (window.hasOwnProperty('isStage') && value === window.isStage) {
           cookies.expire(window.onScreenOverrideAbTestStageModeCookieName);
-        }
-        else {
+        } else {
           cookies.set(window.onScreenOverrideAbTestStageModeCookieName, value ? 1 : 0);
         }
       }
-    }
+    },
   };
-})(Cookies);
+}(Cookies));

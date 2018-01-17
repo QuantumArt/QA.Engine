@@ -1,22 +1,8 @@
-/* eslint-disable */
-import React, { Component, Fragment } from 'react';
-import { findDOMNode } from 'react-dom';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
+import List from 'material-ui/List';
 import Typography from 'material-ui/Typography';
-import Radio, { RadioGroup } from 'material-ui/Radio';
-import List, {
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  ListItemSecondaryAction
-} from 'material-ui/List';
-import Popover from 'material-ui/Popover';
-import Tooltip from 'material-ui/Tooltip';
-import IconButton from 'material-ui/IconButton';
-import Button from 'material-ui/Button';
-import MoreHoriz from 'material-ui-icons/MoreHoriz';
-import PlayArrow from 'material-ui-icons/PlayArrow';
 import TestCaseDetails from '../TestCaseDetails';
 
 const styles = theme => ({
@@ -42,8 +28,8 @@ const styles = theme => ({
 });
 
 const TestDetails = (props) => {
-  const { classes, comment, variants, choice } = props;
-  const variantIsActive = (i) => i === choice;
+  const { classes, comment, variants, choice, stoped, paused } = props;
+  const variantIsActive = i => i === choice;
 
   return (
     <Fragment>
@@ -57,6 +43,8 @@ const TestDetails = (props) => {
             data={variant}
             index={i}
             active={variantIsActive(i)}
+            paused={paused}
+            stoped={stoped}
           />
         ))}
       </List>
@@ -69,6 +57,8 @@ TestDetails.propTypes = {
   comment: PropTypes.string.isRequired,
   variants: PropTypes.array.isRequired,
   choice: PropTypes.number,
+  stoped: PropTypes.bool.isRequired,
+  paused: PropTypes.bool.isRequired,
 };
 
 TestDetails.defaultProps = {

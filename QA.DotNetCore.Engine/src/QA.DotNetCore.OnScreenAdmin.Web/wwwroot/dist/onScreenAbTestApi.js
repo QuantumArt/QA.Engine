@@ -1,9 +1,9 @@
 var QA = QA || {};
 QA.OnScreen = QA.OnScreen || {};
 QA.OnScreen.AbTesting = (function (cookies) {
-  const valueCookiePrefix = 'abt-';
-  const forceCookiePrefix = 'force-abt-';
-  const abTestCookiePath = '/abtest/inlinescript';
+  var valueCookiePrefix = 'abt-';
+  var forceCookiePrefix = 'force-abt-';
+  var abTestCookiePath = '/abtest/inlinescript';
 
   return {
     setChoice(testId, value) {
@@ -17,7 +17,7 @@ QA.OnScreen.AbTesting = (function (cookies) {
     },
     getIsStageModeValue() {
       if (window.onScreenOverrideAbTestStageModeCookieName) {
-        const cookieOverride = cookies.get(window.onScreenOverrideAbTestStageModeCookieName);
+        var cookieOverride = cookies.get(window.onScreenOverrideAbTestStageModeCookieName);
         if (cookieOverride === '0' || cookieOverride === '1') {
           return cookieOverride === '1';
         }

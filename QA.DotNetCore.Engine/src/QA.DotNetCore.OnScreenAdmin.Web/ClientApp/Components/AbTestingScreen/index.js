@@ -1,5 +1,4 @@
-/* eslint-disable */
-import React, { Fragment } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import Toolbar from 'material-ui/Toolbar';
@@ -10,16 +9,15 @@ import ExpansionPanel, {
   ExpansionPanelActions,
 } from 'material-ui/ExpansionPanel';
 import Typography from 'material-ui/Typography';
-import Button from 'material-ui/Button';
+// import Button from 'material-ui/Button';
 import IconButton from 'material-ui/IconButton';
 import Tooltip from 'material-ui/Tooltip';
-import Icon from 'material-ui/Icon';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
 import PlayArrow from 'material-ui-icons/PlayArrow';
 import Pause from 'material-ui-icons/Pause';
 import Stop from 'material-ui-icons/Stop';
-import TestDetails from './TestDetails';
 import { green } from 'material-ui/colors';
+import TestDetails from './TestDetails';
 
 const styles = theme => ({
   toolBar: {
@@ -67,18 +65,23 @@ const styles = theme => ({
   },
   sessionColor: {
     color: green[400],
-  }
+  },
 });
 
 const AbTestingScreen = (props) => {
-  const {classes, tests} = props;
+  const {
+    classes,
+    tests,
+    launchSessionTest,
+    pauseTest,
+  } = props;
 
-  const renderPauseButton = (key) => (
+  const renderPauseButton = (testId, key) => (
     <Tooltip
       id="pauseTest"
       placement="top"
       title="Stop test for session"
-      classes={{tooltip: classes.actionTooltip}}
+      classes={{ tooltip: classes.actionTooltip }}
       key={key}
     >
       <IconButton
@@ -87,46 +90,47 @@ const AbTestingScreen = (props) => {
           label: classes.actionButton,
           colorPrimary: classes.sessionColor,
         }}
+        onClick={() => { pauseTest(testId); }}
       >
         <Pause className={classes.actionIcon} />
       </IconButton>
     </Tooltip>
   );
-  const renderStopButton = (key) => (
+  const renderStopButton = (testId, key) => (
     <Tooltip
       id="stopTest"
       placement="top"
       title="Stop test entirely"
-      classes={{tooltip: classes.actionTooltip}}
+      classes={{ tooltip: classes.actionTooltip }}
       key={key}
     >
-      <IconButton color="accent" classes={{label: classes.actionButton}}>
+      <IconButton color="accent" classes={{ label: classes.actionButton }}>
         <Stop className={classes.actionIcon} />
       </IconButton>
     </Tooltip>
   );
-  const renderGlobalLaunchButton = (key) => (
+  const renderGlobalLaunchButton = (testId, key) => (
     <Tooltip
       id="runTestforSession"
       placement="top"
       title="Launch test"
-      classes={{tooltip: classes.actionTooltip}}
+      classes={{ tooltip: classes.actionTooltip }}
       key={key}
     >
       <IconButton
         color="primary"
-        classes={{label: classes.actionButton}}
+        classes={{ label: classes.actionButton }}
       >
         <PlayArrow className={classes.actionIcon} />
       </IconButton>
     </Tooltip>
   );
-  const renderSessionLaunchButton = (key) => (
+  const renderSessionLaunchButton = (testId, key) => (
     <Tooltip
       id="runTest"
       placement="top"
       title="Launch test for session"
-      classes={{tooltip: classes.actionTooltip}}
+      classes={{ tooltip: classes.actionTooltip }}
       key={key}
     >
       <IconButton
@@ -135,35 +139,38 @@ const AbTestingScreen = (props) => {
           label: classes.actionButton,
           colorPrimary: classes.sessionColor,
         }}
+        onClick={() => { launchSessionTest(testId); }}
       >
         <PlayArrow className={classes.actionIcon} />
       </IconButton>
     </Tooltip>
   );
   const renderSummaryText = (test) => {
-    if (test.choice !== null ) {
+    if (test.choice !== null) {
       if (test.globalActive) return `Test active, case # ${test.choice}`;
       if (test.sessionActive) return `Test active for session, case # ${test.choice}`;
     } else {
       if (test.paused) return 'Test paused';
       if (test.stoped) return 'Test stoped';
     }
+
+    return '';
   };
 
   return (
     <Toolbar className={classes.toolBar}>
       <Paper className={classes.paper} elevation={0}>
-        {tests.map((test, i) => (
+        {tests.map(test => (
           <ExpansionPanel key={test.id} className={classes.panel}>
             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
               {test.globalActive &&
                 <PlayArrow color="primary" className={classes.statusIcon} />
               }
               {test.sessionActive &&
-                <PlayArrow style={{color: green[400]}} className={classes.statusIcon} />
+                <PlayArrow style={{ color: green[400] }} className={classes.statusIcon} />
               }
               {test.paused &&
-                <Pause style={{color: green[400]}} className={classes.statusIcon} />
+                <Pause style={{ color: green[400] }} className={classes.statusIcon} />
               }
               {test.stoped &&
                 <Stop color="accent" className={classes.statusIcon} />
@@ -181,23 +188,22 @@ const AbTestingScreen = (props) => {
             <ExpansionPanelActions>
               <Paper elevation={0}>
                 {test.globalActive && [
-                  renderStopButton(1),
-                  renderPauseButton(2),
-                  renderSessionLaunchButton(3),
+                  renderStopButton(test.id, 1),
+                  renderPauseButton(test.id, 2),
                 ]}
                 {test.sessionActive && [
-                  renderStopButton(1),
-                  renderPauseButton(2),
-                  renderGlobalLaunchButton(3),
+                  renderStopButton(test.id, 1),
+                  renderPauseButton(test.id, 2),
+                  renderGlobalLaunchButton(test.id, 3),
                 ]}
                 {test.paused && [
-                  renderStopButton(1),
-                  renderSessionLaunchButton(2),
-                  renderGlobalLaunchButton(3),
+                  renderStopButton(test.id, 1),
+                  renderSessionLaunchButton(test.id, 2),
+                  renderGlobalLaunchButton(test.id, 3),
                 ]}
                 {test.stoped && [
-                  renderSessionLaunchButton(1),
-                  renderGlobalLaunchButton(2),
+                  renderSessionLaunchButton(test.id, 1),
+                  renderGlobalLaunchButton(test.id, 2),
                 ]}
               </Paper>
             </ExpansionPanelActions>
@@ -205,11 +211,14 @@ const AbTestingScreen = (props) => {
         ))}
       </Paper>
     </Toolbar>
-  )
+  );
 };
 
 AbTestingScreen.propTypes = {
+  classes: PropTypes.object.isRequired,
   tests: PropTypes.array.isRequired,
+  launchSessionTest: PropTypes.func.isRequired,
+  pauseTest: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(AbTestingScreen);

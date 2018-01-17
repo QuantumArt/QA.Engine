@@ -4,13 +4,21 @@ import {
   put,
   takeEvery,
   call,
+  all,
 } from 'redux-saga/effects';
 import {
   APP_STARTED,
   GET_AVALAIBLE_TESTS,
   API_GET_TESTS_DATA_SUCCESS,
   API_GET_TESTS_DATA_ERROR,
+  LAUNCH_SESSION_TEST,
+  PAUSE_TEST,
 } from 'actions/actionTypes';
+
+let testControls;
+function reload() {
+  window.location.reload();
+}
 
 /* eslint-disable no-unused-vars */
 const fake = {
@@ -181,7 +189,7 @@ const fake = {
 };
 /* eslint-enable no-unused-vars */
 
-// worker
+// workers
 function* loadTestsData() {
   const avalaibleTests = window.abTestingContext;
   // const avalaibleTests = fake.window;
@@ -189,19 +197,43 @@ function* loadTestsData() {
 
   try {
     const testsInfo = yield call(getTestsData, cids);
+    testControls = window.QA.OnScreen.AbTesting;
 
     yield put({ type: GET_AVALAIBLE_TESTS, payload: avalaibleTests });
     yield put({ type: API_GET_TESTS_DATA_SUCCESS, payload: testsInfo.data.data });
   } catch (error) {
+    console.log(error);
     yield put({ type: API_GET_TESTS_DATA_ERROR, payload: error });
   }
 }
 
-// watcher
+function* launchSessionTest({ testId }) {
+  yield call(testControls.enableTestForMe, testId);
+  reload();
+}
+
+function* pauseTest({ testId }) {
+  yield call(testControls.disableTestForMe, testId);
+  reload();
+}
+
+// watchers
 function* watchStart() {
   yield takeEvery(APP_STARTED, loadTestsData);
 }
 
+function* watchSessionLaunch() {
+  yield takeEvery(LAUNCH_SESSION_TEST, launchSessionTest);
+}
+
+function* watchPause() {
+  yield takeEvery(PAUSE_TEST, pauseTest);
+}
+
 export default function* watchAbTests() {
-  yield watchStart();
+  yield all([
+    watchStart(),
+    watchSessionLaunch(),
+    watchPause(),
+  ]);
 }

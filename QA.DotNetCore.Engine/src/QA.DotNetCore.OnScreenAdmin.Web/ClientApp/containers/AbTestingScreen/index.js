@@ -1,4 +1,8 @@
 import { connect } from 'react-redux';
+import {
+  launchSessionTest,
+  pauseTest,
+} from 'actions/abTestingScreenActions';
 import AbtestingScreen from 'Components/AbTestingScreen';
 
 const mapStateToProps = ({ abTestingScreen }) => {
@@ -22,9 +26,18 @@ const mapStateToProps = ({ abTestingScreen }) => {
   return { tests: [] };
 };
 
+const mapDispatchToProps = dispatch => ({
+  launchSessionTest: (testId) => {
+    dispatch(launchSessionTest(testId));
+  },
+  pauseTest: (testId) => {
+    dispatch(pauseTest(testId));
+  },
+});
+
 const AbtestingScreenContainer = connect(
   mapStateToProps,
-  null,
+  mapDispatchToProps,
 )(AbtestingScreen);
 
 export default AbtestingScreenContainer;

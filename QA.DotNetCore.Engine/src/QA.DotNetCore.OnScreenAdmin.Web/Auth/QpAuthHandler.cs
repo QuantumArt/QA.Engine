@@ -47,7 +47,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Auth
 
         private string GetAccessToken()
         {
-            return Request.Query["token"];
+            return Request.Headers["X-QP8-Access-Token"];
         }
 
         private ClaimsPrincipal CreatePrincipal(int userId, DateTime expiration)

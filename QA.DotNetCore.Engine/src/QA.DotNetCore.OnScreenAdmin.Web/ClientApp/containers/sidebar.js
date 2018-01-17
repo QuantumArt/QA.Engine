@@ -4,9 +4,9 @@ import {
   toggleLeftPosition,
   toggleRightPosition,
   toggleTab,
-} from '../actions/sidebarActions';
+} from 'actions/sidebarActions';
+import { getShowAllZones, getShowAllWidgets } from 'selectors/componentsHighlight';
 import Sidebar from '../Components/Sidebar';
-import { getShowAllZones, getShowAllWidgets } from '../selectors/componentsHighlight';
 
 const mapStateToProps = state => ({
   opened: state.sidebar.opened,

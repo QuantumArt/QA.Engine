@@ -3,6 +3,7 @@ import React, {Component} from 'react';
 import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
+import Typography from 'material-ui/Typography';
 import List, {
   ListItem,
   ListItemIcon,
@@ -36,8 +37,21 @@ const styles = theme => ({
   },
   containersList: {
   },
- containersListText: {
+  containersTitle: {
+    fontSize: 18,
+    textAlign: 'center',
+    paddingTop: 15,
+  },
+  containersListText: {
     fontSize: 15
+  },
+  containersListTextRoot: {
+    '&:first-child': {
+      paddingLeft: 'inherit',
+    }
+  },
+  popover: {
+    width: 302,
   }
 });
 
@@ -82,18 +96,26 @@ class TestCaseDetails extends Component {
         <Popover
           anchorEl={anchorEl}
           anchorReference="anchorEl"
-          anchorOrigin={{vertical: 'center', horizontal: 'center'}}
+          anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
           transformOrigin={{vertical: 'top', horizontal: 'center'}}
           open={open}
+          marginThreshold={8}
+          classes={{paper: classes.popover}}
           onClose={e => {console.log(e);}}
         >
+          <Typography type="title" className={classes.containersTitle} >
+            Active actions
+          </Typography>
           <List className={classes.containersList}>
             {data.containers.map(container => (
               <ListItem key={container.cid}>
                 <ListItemText
-                  primary={container.containerDescription}
-                  secondary={container.variantDescription}
-                  classes={{text: classes.containersListText}}
+                  primary={container.variantDescription}
+                  secondary={container.containerDescription}
+                  classes={{
+                    text: classes.containersListText,
+                    root: classes.containersListTextRoot,
+                  }}
                 />
               </ListItem>
             ))}

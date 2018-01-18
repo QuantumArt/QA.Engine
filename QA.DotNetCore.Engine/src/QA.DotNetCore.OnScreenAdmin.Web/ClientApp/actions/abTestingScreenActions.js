@@ -1,6 +1,6 @@
 import {
   GET_AVALAIBLE_TESTS,
-  API_GET_TESTS_DATA,
+  API_GET_TESTS_DATA_SUCCESS,
   LAUNCH_SESSION_TEST,
   PAUSE_TEST,
   SET_TEST_CASE,
@@ -11,7 +11,7 @@ export function getAvalaibleTests(payload) {
 }
 
 export function apiGetTestsData(payload) {
-  return { type: API_GET_TESTS_DATA, payload };
+  return { type: API_GET_TESTS_DATA_SUCCESS, payload };
 }
 
 export function launchSessionTest(testId) {

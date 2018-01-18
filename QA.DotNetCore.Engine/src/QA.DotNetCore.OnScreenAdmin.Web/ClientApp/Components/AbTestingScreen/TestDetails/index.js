@@ -28,7 +28,16 @@ const styles = theme => ({
 });
 
 const TestDetails = (props) => {
-  const { classes, comment, variants, choice, stoped, paused } = props;
+  const {
+    classes,
+    comment,
+    variants,
+    choice,
+    setTestCase,
+    stoped,
+    paused,
+    id,
+  } = props;
   const variantIsActive = i => i === choice;
 
   return (
@@ -42,9 +51,11 @@ const TestDetails = (props) => {
             key={variant.percent}
             data={variant}
             index={i}
+            id={id}
             active={variantIsActive(i)}
             paused={paused}
             stoped={stoped}
+            setTestCase={setTestCase}
           />
         ))}
       </List>
@@ -59,6 +70,8 @@ TestDetails.propTypes = {
   choice: PropTypes.number,
   stoped: PropTypes.bool.isRequired,
   paused: PropTypes.bool.isRequired,
+  setTestCase: PropTypes.func.isRequired,
+  id: PropTypes.number.isRequired,
 };
 
 TestDetails.defaultProps = {

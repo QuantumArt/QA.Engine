@@ -79,6 +79,7 @@ const AbTestingScreen = (props) => {
     tests,
     launchSessionTest,
     pauseTest,
+    setTestCase,
   } = props;
 
   const renderPauseButton = (testId, key) => (
@@ -188,7 +189,10 @@ const AbTestingScreen = (props) => {
               </Paper>
             </ExpansionPanelSummary>
             <ExpansionPanelDetails className={classes.panelDetails}>
-              <TestDetails {...test} />
+              <TestDetails
+                setTestCase={setTestCase}
+                {...test}
+              />
             </ExpansionPanelDetails>
             <ExpansionPanelActions>
               <Paper elevation={0}>
@@ -224,6 +228,7 @@ AbTestingScreen.propTypes = {
   tests: PropTypes.array.isRequired,
   launchSessionTest: PropTypes.func.isRequired,
   pauseTest: PropTypes.func.isRequired,
+  setTestCase: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(AbTestingScreen);

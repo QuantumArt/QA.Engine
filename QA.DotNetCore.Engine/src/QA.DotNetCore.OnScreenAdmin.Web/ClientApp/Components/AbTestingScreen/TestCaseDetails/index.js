@@ -62,6 +62,8 @@ class TestCaseDetails extends Component {
     paused: PropTypes.bool.isRequired,
     stoped: PropTypes.bool.isRequired,
     index: PropTypes.number.isRequired,
+    setTestCase: PropTypes.func.isRequired,
+    id: PropTypes.number.isRequired,
   }
 
   static defaultProps = {
@@ -81,7 +83,16 @@ class TestCaseDetails extends Component {
   }
 
   render() {
-    const { classes, data, active, paused, stoped, index } = this.props;
+    const {
+      classes,
+      data,
+      active,
+      paused,
+      stoped,
+      index,
+      id,
+      setTestCase,
+    } = this.props;
     const { open, anchorEl } = this.state;
 
     return (
@@ -133,7 +144,7 @@ class TestCaseDetails extends Component {
               title="Turn this case"
               classes={{ tooltip: classes.actionTooltip }}
             >
-              <IconButton>
+              <IconButton onClick={() => { setTestCase(id, index); }}>
                 <PlayArrow />
               </IconButton>
             </Tooltip>

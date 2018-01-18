@@ -2,6 +2,7 @@ import { connect } from 'react-redux';
 import {
   launchSessionTest,
   pauseTest,
+  setTestCase,
 } from 'actions/abTestingScreenActions';
 import AbtestingScreen from 'Components/AbTestingScreen';
 
@@ -32,6 +33,9 @@ const mapDispatchToProps = dispatch => ({
   },
   pauseTest: (testId) => {
     dispatch(pauseTest(testId));
+  },
+  setTestCase: (testId, value) => {
+    dispatch(setTestCase(testId, value));
   },
 });
 

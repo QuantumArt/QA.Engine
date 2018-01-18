@@ -106,6 +106,7 @@ export default function articleManagementReducer(state = initialState, action) {
           targetZoneId: null,
         },
       };
+
     default:
       return state;
   }

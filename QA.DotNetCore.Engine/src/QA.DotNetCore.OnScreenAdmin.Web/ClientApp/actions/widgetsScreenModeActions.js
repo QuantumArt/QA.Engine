@@ -7,3 +7,4 @@ export function hideAvailableWidgets() {
 export function showAvailableWidgets() {
   return { type: WIDGETS_SCREEN_MODE_ACTIONS.SHOW_AVAILABLE_WIDGETS };
 }
+

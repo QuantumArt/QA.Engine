@@ -58,7 +58,7 @@ class ComponentControlMenu extends Component {
           id="long-menu"
           anchorEl={this.state.anchorEl}
           open={open}
-          onRequestClose={this.handleRequestClose}
+          onClose={this.handleRequestClose}
         >
           <MenuItem
             key="addWidget"
@@ -96,7 +96,7 @@ class ComponentControlMenu extends Component {
           id="long-menu"
           anchorEl={this.state.anchorEl}
           open={open}
-          onRequestClose={this.handleRequestClose}
+          onClose={this.handleRequestClose}
         >
           <MenuItem
             key="editWidget"

@@ -13,6 +13,7 @@ import {
   API_GET_TESTS_DATA_ERROR,
   LAUNCH_SESSION_TEST,
   PAUSE_TEST,
+  SET_TEST_CASE,
 } from 'actions/actionTypes';
 
 function reload() {
@@ -215,6 +216,13 @@ function* pauseTest({ testId }) {
   reload();
 }
 
+function* setTestCase({ payload: { testId, value } }) {
+  yield call(window.QA.OnScreen.AbTesting.enableTestForMe, testId);
+  yield call(window.QA.OnScreen.AbTesting.setChoice, testId, value);
+  reload();
+}
+
+
 // watchers
 function* watchStart() {
   yield takeEvery(APP_STARTED, loadTestsData);
@@ -228,10 +236,15 @@ function* watchPause() {
   yield takeEvery(PAUSE_TEST, pauseTest);
 }
 
+function* watchCaseChange() {
+  yield takeEvery(SET_TEST_CASE, setTestCase);
+}
+
 export default function* watchAbTests() {
   yield all([
     watchStart(),
     watchSessionLaunch(),
     watchPause(),
+    watchCaseChange(),
   ]);
 }

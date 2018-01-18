@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { getTestsData } from 'api';
+import { delay } from 'redux-saga';
 import {
   put,
   takeEvery,
@@ -207,16 +208,19 @@ function* loadTestsData() {
 }
 
 function* launchSessionTest({ testId }) {
+  yield delay(400); // for button animation
   yield call(window.QA.OnScreen.AbTesting.enableTestForMe, testId);
   reload();
 }
 
 function* pauseTest({ testId }) {
+  yield delay(400);
   yield call(window.QA.OnScreen.AbTesting.disableTestForMe, testId);
   reload();
 }
 
 function* setTestCase({ payload: { testId, value } }) {
+  yield delay(400);
   yield call(window.QA.OnScreen.AbTesting.enableTestForMe, testId);
   yield call(window.QA.OnScreen.AbTesting.setChoice, testId, value);
   reload();

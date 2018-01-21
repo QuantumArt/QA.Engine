@@ -2,20 +2,26 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import EditComponentTree from 'containers/WidgetsScreen/editComponentTree';
 import MoveWidgetScreen from 'containers/WidgetsScreen/moveWidgetsScreen';
+import WidgetCreationWizard from 'containers/WidgetsScreen/widgetCreationWizard';
 import ComponentHighlightToolbar from 'containers/WidgetsScreen/componentHighlightToolbar';
 import ComponentTreeScreen from './ComponentTreeScreen';
-import AvailableWidgetsScreen from './AvailableWidgetsScreen';
+
+// import AvailableWidgetsScreen from './AvailableWidgetsScreen';
 
 
-const WidgetsScreen = ({ showComponentTree, showAvailableWidgets, showMoveWidgetScreen }) => (
+const WidgetsScreen = ({ showComponentTree, showWidgetCreationWizard, showMoveWidgetScreen }) => (
   <Fragment>
-    <ComponentHighlightToolbar />
     {showComponentTree
-      ? (<ComponentTreeScreen />)
+      ? (
+        <Fragment>
+          <ComponentHighlightToolbar />
+          <ComponentTreeScreen />
+        </Fragment>
+      )
       : null
     }
-    {showAvailableWidgets
-      ? (<AvailableWidgetsScreen />)
+    {showWidgetCreationWizard
+      ? (<WidgetCreationWizard />)
       : null
     }
     {showMoveWidgetScreen
@@ -28,7 +34,7 @@ const WidgetsScreen = ({ showComponentTree, showAvailableWidgets, showMoveWidget
 
 WidgetsScreen.propTypes = {
   showComponentTree: PropTypes.bool.isRequired,
-  showAvailableWidgets: PropTypes.bool.isRequired,
+  showWidgetCreationWizard: PropTypes.bool.isRequired,
   showMoveWidgetScreen: PropTypes.bool.isRequired,
 };
 

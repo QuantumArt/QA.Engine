@@ -5,6 +5,7 @@ import {
   SELECT_TARGET_ZONE,
   SELECT_WIDGET_TYPE,
   GO_TO_PREV_STEP,
+  CHANGE_ZONES_LIST_SEARCH_TEXT,
   // SHOW_QP_FORM,
 } from 'actions/widgetCreation/actionTypes';
 import { WIDGET_CREATION_MODE, WIDGET_CREATION_STEPS } from 'constants/widgetCreation';
@@ -17,6 +18,7 @@ const initialState = {
   isCustomTargetZone: false, // Добавляем в кастомную зону
   selectedWidgetId: null, // айди выбранного типа виджета для добавления
   availableWidgetsLoaded: false, // получили ли инфу о доступных для добавления виджетах
+  zonesListSearchText: '',
   currentStep: WIDGET_CREATION_STEPS.INACTIVE,
 };
 
@@ -44,18 +46,20 @@ const getDisabledSteps = (creationMode, isCustomZone) => {
 
 const getEffectiveSteps = (creationMode, isCustomZone) => {
   const disabledSteps = getDisabledSteps(creationMode, isCustomZone);
-  return _.filter(steps, disabledSteps);
+  return _.difference(steps, disabledSteps);
 };
 
 const getPreviousStep = (currentState) => {
   const effectiveSteps = getEffectiveSteps(currentState.creationMode, currentState.isCustomTargetZone);
-  const currentStepIndex = _.findIndex(effectiveSteps, currentState.currentStep);
+  const currentStepIndex = _.indexOf(effectiveSteps, currentState.currentStep);
   return effectiveSteps[currentStepIndex - 1];
 };
 
 const getNextStep = (creationMode, isCustomZone, currentStep) => {
   const effectiveSteps = getEffectiveSteps(creationMode, isCustomZone);
-  const currentStepIndex = _.findIndex(effectiveSteps, currentStep);
+  const currentStepIndex = _.indexOf(effectiveSteps, currentStep);
+  console.log('effective steps', effectiveSteps);
+  console.log('current step index', currentStepIndex);
   return effectiveSteps[currentStepIndex + 1];
 };
 
@@ -100,8 +104,9 @@ export default function widgetCreationWizardReducer(state = initialState, action
         ...state,
         isActive: true,
         creationMode: action.payload.creationMode,
-        parentOnScreenId: action.payload.creationMode,
+        parentOnScreenId: action.payload.parentOnScreenId,
         targetZoneName: action.payload.targetZoneName,
+        zonesListSearchText: initialState.zonesListSearchText,
         currentStep: getNextStep(action.payload.creationMode, false, WIDGET_CREATION_STEPS.INACTIVE),
       };
     case SELECT_CUSTOM_ZONE:
@@ -120,9 +125,18 @@ export default function widgetCreationWizardReducer(state = initialState, action
       return {
         ...state,
         selectedWidgetId: action.payload.selectedWidgetId,
-        // currentStep: getNextStep(state.creationMode, state.isCustomTargetZone, WIDGET_CREATION_STEPS.SHOW_AVAILABLE_WIDGETS),
+        currentStep: getNextStep(
+          state.creationMode,
+          state.isCustomTargetZone,
+          WIDGET_CREATION_STEPS.SHOW_AVAILABLE_WIDGETS),
       };
-
+    case GO_TO_PREV_STEP:
+      return goToPrevStep(state);
+    case CHANGE_ZONES_LIST_SEARCH_TEXT:
+      return {
+        ...state,
+        zonesListSearchText: action.payload.newValue,
+      };
 
     default:
       return state;

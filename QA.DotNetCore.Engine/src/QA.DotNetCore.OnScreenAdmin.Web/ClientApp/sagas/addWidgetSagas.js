@@ -30,7 +30,7 @@ function* widgetSelected() {
   const zoneToAdd = yield select(zoneToAddSelector);
   const widgetToAdd = yield select(widgetToAddSelector);
   const abstractItemInfo = yield select(abstractItemMetaInfoSelector);
-  yield put({ type: WIDGETS_SCREEN_MODE_ACTIONS.HIDE_AVAILABLE_WIDGETS });
+  yield put({ type: WIDGETS_SCREEN_MODE_ACTIONS.HIDE_WIDGET_CREATION_WIZARD });
   addWidgetQpForm(widgetToAdd, zoneToAdd, abstractItemInfo, qpFormCallback);
   yield put({ type: ADD_WIDGET_ACTIONS.SHOW_QP_FORM });
   console.log(zoneToAdd, widgetToAdd, abstractItemInfo);
@@ -38,7 +38,7 @@ function* widgetSelected() {
 
 function* showAvailableWidgets(action) {
   if (action.source !== selfSource) { return; }
-  yield put({ type: WIDGETS_SCREEN_MODE_ACTIONS.SHOW_AVAILABLE_WIDGETS });
+  yield put({ type: WIDGETS_SCREEN_MODE_ACTIONS.SHOW_WIDGET_CREATION_WIZARD });
 }
 
 function* watchAddWidget() {

@@ -2,7 +2,7 @@ import { createSelector } from 'reselect';
 import { MODES } from '../reducers/widgetsScreenReducer';
 
 const getShowComponentTreeSelector = state => state.widgetsScreen.mode === MODES.SHOW_COMPONENT_TREE;
-const getShowAvailableWidgetsSelector = state => state.widgetsScreen.mode === MODES.SHOW_AVAILABLE_WIDGETS;
+const getShowWidgetsCreationWizardSelector = state => state.widgetsScreen.mode === MODES.SHOW_WIDGET_CREATION_WIZARD;
 const getShowMoveWidgetScreenSelector = state => state.widgetsScreen.mode === MODES.SHOW_MOVE_WIDGET;
 
 export const getShowComponentTree = createSelector(
@@ -10,9 +10,9 @@ export const getShowComponentTree = createSelector(
   showComponentTree => showComponentTree,
 );
 
-export const getShowAvailableWidgets = createSelector(
-  [getShowAvailableWidgetsSelector],
-  showAvailableWidgets => showAvailableWidgets,
+export const getShowWidgetsCreationWizard = createSelector(
+  [getShowWidgetsCreationWizardSelector],
+  showWidgetsCreationWizard => showWidgetsCreationWizard,
 );
 
 export const getShowMoveWidgetScreen = createSelector(

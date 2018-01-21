@@ -1,14 +1,14 @@
 import { connect } from 'react-redux';
 import {
   getShowComponentTree,
-  getShowAvailableWidgets,
+  getShowWidgetsCreationWizard,
   getShowMoveWidgetScreen,
 } from 'selectors/widgetsScreen';
 import WidgetsScreen from 'Components/WidgetsScreen';
 
 const mapStateToProps = state => ({
   showComponentTree: getShowComponentTree(state),
-  showAvailableWidgets: getShowAvailableWidgets(state),
+  showWidgetCreationWizard: getShowWidgetsCreationWizard(state),
   showMoveWidgetScreen: getShowMoveWidgetScreen(state),
 });
 

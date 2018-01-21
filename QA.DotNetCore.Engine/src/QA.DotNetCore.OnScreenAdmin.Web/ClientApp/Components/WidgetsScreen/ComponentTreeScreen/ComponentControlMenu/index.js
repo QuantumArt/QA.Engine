@@ -29,10 +29,16 @@ class ComponentControlMenu extends Component {
     onEditWidget(onScreenId);
   }
 
-  handleAddWidget = () => {
-    const { onAddWidget, onScreenId } = this.props;
+  handleAddWidgetToZone = () => {
+    const { onAddWidgetToZone, onScreenId, zoneName } = this.props;
     this.handleRequestClose();
-    onAddWidget(onScreenId);
+    onAddWidgetToZone(onScreenId, zoneName);
+  }
+
+  handleAddChildWidget = () => {
+    const { onAddChildWidget, onScreenId } = this.props;
+    this.handleRequestClose();
+    onAddChildWidget(onScreenId);
   }
 
   handleMoveWidget = () => {
@@ -62,7 +68,7 @@ class ComponentControlMenu extends Component {
         >
           <MenuItem
             key="addWidget"
-            onClick={this.handleAddWidget}
+            onClick={this.handleAddWidgetToZone}
             classes={{ root: classes.menuItem }}
           >
             Add widget
@@ -106,6 +112,13 @@ class ComponentControlMenu extends Component {
             Edit
           </MenuItem>
           <MenuItem
+            key="addChildWidget"
+            onClick={this.handleAddChildWidget}
+            classes={{ root: classes.menuItem }}
+          >
+            Add child widget
+          </MenuItem>
+          <MenuItem
             key="moveWidget"
             onClick={this.handleMoveWidget}
             classes={{ root: classes.menuItem }}
@@ -133,9 +146,11 @@ class ComponentControlMenu extends Component {
 
 ComponentControlMenu.propTypes = {
   onEditWidget: PropTypes.func.isRequired,
-  onAddWidget: PropTypes.func.isRequired,
+  onAddWidgetToZone: PropTypes.func.isRequired,
+  onAddChildWidget: PropTypes.func.isRequired,
   onMoveWidget: PropTypes.func.isRequired,
   type: PropTypes.string.isRequired,
+  zoneName: PropTypes.string.isRequired,
   onScreenId: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
 };

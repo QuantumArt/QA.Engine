@@ -1,11 +1,10 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import List from 'material-ui/List';
-import Button from 'material-ui/Button';
 import Typography from 'material-ui/Typography';
 import AvailableWidget from '../AvailableWidget';
 
-const AvailableWidgetsList = ({ availableWidgets, onSelectWidget, onCancel }) => (
+const AvailableWidgetsList = ({ availableWidgets, onSelectWidget }) => (
   <Fragment>
     <Typography type="headline" align="center">
     Select widget to add
@@ -19,7 +18,6 @@ const AvailableWidgetsList = ({ availableWidgets, onSelectWidget, onCancel }) =>
         />
       ))}
     </List>
-    <Button raised onClick={onCancel}>Cancel</Button>
   </Fragment>
 );
 
@@ -37,7 +35,6 @@ AvailableWidgetsList.propTypes = {
     }).isRequired,
   ),
   onSelectWidget: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired,
 };
 
 AvailableWidgetsList.defaultProps = {

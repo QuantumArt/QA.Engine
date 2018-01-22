@@ -12,6 +12,8 @@ const qpFormActionsNeedReload = [
   'move_to_archive_article',
   'remove_article',
   'save_article',
+  'save_article_and_up',
+
 ];
 
 export function qpFormCallback(eventType, details) {

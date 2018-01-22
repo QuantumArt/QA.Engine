@@ -1,4 +1,12 @@
-import { BEGIN_WIDGET_CREATION, SELECT_TARGET_ZONE, SELECT_CUSTOM_ZONE, GO_TO_PREV_STEP, CHANGE_ZONES_LIST_SEARCH_TEXT } from './actionTypes';
+import {
+  BEGIN_WIDGET_CREATION,
+  SELECT_TARGET_ZONE,
+  SELECT_CUSTOM_ZONE,
+  GO_TO_PREV_STEP,
+  CHANGE_ZONES_LIST_SEARCH_TEXT,
+  CHANGE_CUSTOM_ZONE_NAME,
+  SELECT_WIDGET_TYPE,
+} from './actionTypes';
 
 export function selectTargetZone(targetZoneName) {
   return {
@@ -12,6 +20,15 @@ export function selectTargetZone(targetZoneName) {
 export function selectCustomZone() {
   return {
     type: SELECT_CUSTOM_ZONE,
+  };
+}
+
+export function selectWidget(id) {
+  return {
+    type: SELECT_WIDGET_TYPE,
+    payload: {
+      selectedWidgetId: id,
+    },
   };
 }
 
@@ -31,6 +48,15 @@ export function changeZonesListSearchText(newValue) {
     type: CHANGE_ZONES_LIST_SEARCH_TEXT,
     payload: {
       newValue,
+    },
+  };
+}
+
+export function changeCustomZoneName(newValue) {
+  return {
+    type: CHANGE_CUSTOM_ZONE_NAME,
+    payload: {
+      customZoneName: newValue,
     },
   };
 }

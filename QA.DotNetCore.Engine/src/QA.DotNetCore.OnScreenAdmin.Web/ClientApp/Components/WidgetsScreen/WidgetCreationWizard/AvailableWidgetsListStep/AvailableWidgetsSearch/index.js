@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import SearchToolBar from '../../../../Components/SearchToolBar';
+import SearchToolBar from 'Components/SearchToolBar';
 
 const AvailableWidgetsSearch = ({ searchText, changeSearchText }) => (
   <SearchToolBar

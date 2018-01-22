@@ -6,6 +6,9 @@ import {
   SELECT_WIDGET_TYPE,
   GO_TO_PREV_STEP,
   CHANGE_ZONES_LIST_SEARCH_TEXT,
+  CHANGE_CUSTOM_ZONE_NAME,
+  AVAILABLE_WIDGETS_LOADED,
+  FINISH_WIDGET_CREATION,
   // SHOW_QP_FORM,
 } from 'actions/widgetCreation/actionTypes';
 import { WIDGET_CREATION_MODE, WIDGET_CREATION_STEPS } from 'constants/widgetCreation';
@@ -13,9 +16,10 @@ import { WIDGET_CREATION_MODE, WIDGET_CREATION_STEPS } from 'constants/widgetCre
 const initialState = {
   isActive: false,
   creationMode: null, // WIDGET_CREATION_MODE
-  parentOnScreenId: null, // 'page' || widgetOnScreenId || widgetOnScreenId (если добавляем в конкретную зону - находим ее парента (страница/виджет))
+  parentOnScreenId: null, // 'page' || widgetOnScreenId || widgetOnScreenId (если добавляем в конкретную зону - находим ее парента (страница/виджет))    
   targetZoneName: null, // название зоны
   isCustomTargetZone: false, // Добавляем в кастомную зону
+  customZoneName: '',
   selectedWidgetId: null, // айди выбранного типа виджета для добавления
   availableWidgetsLoaded: false, // получили ли инфу о доступных для добавления виджетах
   zonesListSearchText: '',
@@ -75,6 +79,7 @@ const goToPrevStep = (currentState) => {
         selectedWidgetId: initialState.selectedWidgetId,
         isCustomTargetZone: initialState.isCustomTargetZone,
         targetZoneName: initialState.targetZoneName,
+        customZoneName: initialState.customZoneName,
         currentStep: WIDGET_CREATION_STEPS.ZONES_LIST,
       };
     case WIDGET_CREATION_STEPS.CUSTOM_ZONE_NAME_ENTER:
@@ -137,6 +142,19 @@ export default function widgetCreationWizardReducer(state = initialState, action
         ...state,
         zonesListSearchText: action.payload.newValue,
       };
+    case CHANGE_CUSTOM_ZONE_NAME:
+      return {
+        ...state,
+        customZoneName: action.payload.customZoneName,
+      };
+
+    case AVAILABLE_WIDGETS_LOADED:
+      return {
+        ...state,
+        availableWidgetsLoaded: true,
+      };
+    case FINISH_WIDGET_CREATION:
+      return initialState;
 
     default:
       return state;

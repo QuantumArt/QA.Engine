@@ -50,7 +50,7 @@ class AvailableWidget extends Component {
         <ListItemText
           primary={title}
           secondary={description}
-          classes={{ text: classes.listItemText }}
+          classes={{ primary: classes.listItemText }}
         />
       </ListItem>
 

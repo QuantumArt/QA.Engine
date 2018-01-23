@@ -32,6 +32,7 @@
     "scroll-to-element": "^2.0.0",
     "store": "^2.0.12",
     "typeface-roboto": "0.0.43",
+    "uuid": "^3.2.1",
     "webpack-bundle-analyzer": "^2.9.2"
   },
   "devDependencies": {

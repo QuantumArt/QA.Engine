@@ -1,28 +1,22 @@
-/* eslint-disable no-unused-vars */
-import React, { Component, Fragment } from 'react';
-import { findDOMNode } from 'react-dom';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import Typography from 'material-ui/Typography';
 import List, {
   ListItem,
   ListItemText,
-  ListItemSecondaryAction,
 } from 'material-ui/List';
 import ExpansionPanel, {
   ExpansionPanelSummary,
   ExpansionPanelDetails,
   ExpansionPanelActions,
 } from 'material-ui/ExpansionPanel';
-import Avatar from 'material-ui/Avatar';
 import Button from 'material-ui/Button';
-import Radio from 'material-ui/Radio';
 import IconButton from 'material-ui/IconButton';
 import PlayArrow from 'material-ui-icons/PlayArrow';
-import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
-import { blue, teal, red } from 'material-ui/colors';
+import { blue, teal, deepPurple } from 'material-ui/colors';
 
-const styles = theme => ({
+const styles = {
   panel: {
     'boxShadow': 'none',
     'borderTop': '1px solid',
@@ -70,32 +64,25 @@ const styles = theme => ({
     },
   },
   panelActions: {
-    // justifyContent: 'center',
     paddintTop: 0,
   },
   caseInfo: {
     fontSize: 16,
   },
   caseFrequency: {
-    'fontSize': 14,
-    'marginLeft': 15,
-    'marginTop': 3,
-    '&:last-child': {
-      paddingRight: 0,
-    },
+    fontSize: 14,
+    marginLeft: 15,
+    marginTop: 3,
   },
   caseDescription: {
-    'fontSize': 12,
-    'marginLeft': 13,
-    'whiteSpace': 'nowrap',
-    'overflow': 'hidden',
-    'textOverflow': 'ellipsis',
-    'maxWidth': 165,
-    'minWidth': 165,
-    'marginTop': 4,
-    '&:last-child': {
-      paddingRight: 5,
-    },
+    fontSize: 12,
+    marginLeft: 13,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxWidth: 165,
+    minWidth: 165,
+    marginTop: 4,
   },
   containersListItem: {
     paddingTop: 6,
@@ -116,20 +103,24 @@ const styles = theme => ({
     fontSize: 13,
   },
   actionButton: {
-    position: 'absolute',
-    right: 0,
-    top: '50%',
-    marginTop: -24,
+    'position': 'absolute',
+    'right': 0,
+    'top': '50%',
+    'marginTop': -24,
+    'color': deepPurple[400],
+    '&:hover': {
+      color: deepPurple[700],
+    },
   },
-});
+};
 
 const TestCaseDetails = (props) => {
   const {
     classes,
     data,
     active,
-    paused,
-    stoped,
+    // paused,
+    // stoped,
     index,
     id,
     setTestCase,
@@ -156,9 +147,11 @@ const TestCaseDetails = (props) => {
         <Typography className={classes.caseInfo}>{`#${index}`}</Typography>
         <Typography className={classes.caseDescription}>{renderDescription()}</Typography>
         <Typography className={classes.caseFrequency}>{`${data.percent}%`}</Typography>
-        <IconButton onClick={handleStartClick} className={classes.actionButton} color="primary">
-          <PlayArrow />
-        </IconButton>
+        {!active &&
+          <IconButton onClick={handleStartClick} className={classes.actionButton}>
+            <PlayArrow />
+          </IconButton>
+        }
       </ExpansionPanelSummary>
       <ExpansionPanelDetails className={classes.panelDetails}>
         {data.containers.length === 0 &&
@@ -184,7 +177,7 @@ const TestCaseDetails = (props) => {
         <Button
           raised
           dense
-          color="primary"
+          style={{ backgroundColor: teal[500], color: 'white' }}
         >
           Some future action
         </Button>
@@ -197,8 +190,8 @@ TestCaseDetails.propTypes = {
   classes: PropTypes.object.isRequired,
   data: PropTypes.object.isRequired,
   active: PropTypes.bool,
-  paused: PropTypes.bool.isRequired,
-  stoped: PropTypes.bool.isRequired,
+  // paused: PropTypes.bool.isRequired,
+  // stoped: PropTypes.bool.isRequired,
   index: PropTypes.number.isRequired,
   setTestCase: PropTypes.func.isRequired,
   id: PropTypes.number.isRequired,

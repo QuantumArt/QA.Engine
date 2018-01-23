@@ -46,14 +46,27 @@ const styles = theme => ({
   },
   panelSummary: {
     paddingRight: 0,
-    paddingLeft: 10,
+    paddingLeft: 15,
   },
   panelSummaryActive: {
     'paddingRight': 0,
-    'paddingLeft': 10,
+    'paddingLeft': 15,
     'backgroundColor': blue['100'],
     '&:hover': {
       backgroundColor: blue['200'],
+    },
+  },
+  panelSummaryContent: {
+    '& > :last-child': {
+      paddingRight: 0,
+    },
+  },
+  panelSummaryContentActive: {
+    '& > :last-child': {
+      paddingRight: 0,
+    },
+    '& > p': {
+      fontWeight: 'bold',
     },
   },
   panelActions: {
@@ -65,7 +78,7 @@ const styles = theme => ({
   },
   caseFrequency: {
     'fontSize': 14,
-    'marginLeft': 7,
+    'marginLeft': 15,
     'marginTop': 3,
     '&:last-child': {
       paddingRight: 0,
@@ -77,8 +90,8 @@ const styles = theme => ({
     'whiteSpace': 'nowrap',
     'overflow': 'hidden',
     'textOverflow': 'ellipsis',
-    'maxWidth': 194,
-    'minWidth': 194,
+    'maxWidth': 165,
+    'minWidth': 165,
     'marginTop': 4,
     '&:last-child': {
       paddingRight: 5,
@@ -102,6 +115,12 @@ const styles = theme => ({
   containersListSecondary: {
     fontSize: 13,
   },
+  actionButton: {
+    position: 'absolute',
+    right: 0,
+    top: '50%',
+    marginTop: -24,
+  },
 });
 
 const TestCaseDetails = (props) => {
@@ -115,16 +134,31 @@ const TestCaseDetails = (props) => {
     id,
     setTestCase,
   } = props;
+  const handleStartClick = (e) => {
+    e.stopPropagation();
+    setTestCase(id, index);
+  };
   const renderDescription = () => data.containers.map(el => el.variantDescription).toString().replace(',', '; ');
 
   return (
-    <ExpansionPanel classes={{ root: classes.panel, expanded: classes.panelExpanded }}>
+    <ExpansionPanel
+      classes={{
+        root: classes.panel,
+        expanded: classes.panelExpanded,
+      }}
+    >
       <ExpansionPanelSummary
         className={active ? classes.panelSummaryActive : classes.panelSummary}
+        classes={{
+          content: active ? classes.panelSummaryContentActive : classes.panelSummaryContent,
+        }}
       >
         <Typography className={classes.caseInfo}>{`#${index}`}</Typography>
         <Typography className={classes.caseDescription}>{renderDescription()}</Typography>
         <Typography className={classes.caseFrequency}>{`${data.percent}%`}</Typography>
+        <IconButton onClick={handleStartClick} className={classes.actionButton} color="primary">
+          <PlayArrow />
+        </IconButton>
       </ExpansionPanelSummary>
       <ExpansionPanelDetails className={classes.panelDetails}>
         {data.containers.length === 0 &&
@@ -146,17 +180,15 @@ const TestCaseDetails = (props) => {
           ))}
         </List>
       </ExpansionPanelDetails>
-      {!active &&
-        <ExpansionPanelActions className={classes.panelActions}>
-          <Button
-            raised
-            dense
-            color="primary"
-            onClick={() => { setTestCase(id, index); }}
-          >
-            Launch case
-          </Button>
-        </ExpansionPanelActions>}
+      <ExpansionPanelActions className={classes.panelActions}>
+        <Button
+          raised
+          dense
+          color="primary"
+        >
+          Some future action
+        </Button>
+      </ExpansionPanelActions>
     </ExpansionPanel>
   );
 };

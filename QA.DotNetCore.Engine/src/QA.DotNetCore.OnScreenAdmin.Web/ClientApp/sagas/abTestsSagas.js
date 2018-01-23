@@ -161,19 +161,7 @@ const fake = {
       variants: [{
         choice: 0,
         percent: 75.0,
-        containers: [{
-          cid: 629728,
-          containerDescription: 'Пустышка, пишет в консоль',
-          variantDescription: 'console.log ab test choice 0',
-          variantId: 629730,
-          type: 'Script',
-        }, {
-          cid: 629734,
-          containerDescription: 'Смена цвета шапки',
-          variantDescription: 'делаем красной шапку',
-          variantId: 629736,
-          type: 'Script',
-        }],
+        containers: [],
       }, {
         choice: 1,
         percent: 25.0,

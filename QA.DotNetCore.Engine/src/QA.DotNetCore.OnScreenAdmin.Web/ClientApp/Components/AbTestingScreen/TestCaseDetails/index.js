@@ -92,10 +92,6 @@ const styles = {
     fontSize: 11,
     width: 90,
   },
-  containersTitle: {
-    fontSize: 18,
-    textAlign: 'center',
-  },
   containersListPrimary: {
     fontSize: 15,
   },
@@ -129,7 +125,13 @@ const TestCaseDetails = (props) => {
     e.stopPropagation();
     setTestCase(id, index);
   };
-  const renderDescription = () => data.containers.map(el => el.variantDescription).toString().replace(',', '; ');
+  const renderDescription = () => {
+    if (data.containers.length === 0) {
+      return 'No active actions';
+    }
+
+    return data.containers.map(el => el.variantDescription).toString().replace(',', '; ');
+  };
 
   return (
     <ExpansionPanel
@@ -154,10 +156,6 @@ const TestCaseDetails = (props) => {
         }
       </ExpansionPanelSummary>
       <ExpansionPanelDetails className={classes.panelDetails}>
-        {data.containers.length === 0 &&
-          <Typography type="title" className={classes.containersTitle} >
-            No active actions
-          </Typography>}
         <List className={classes.containersList}>
           {data.containers.map(container => (
             <ListItem key={container.cid} className={classes.containersListItem}>

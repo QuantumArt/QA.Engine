@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
-import List from 'material-ui/List';
+// import List from 'material-ui/List';
 import Typography from 'material-ui/Typography';
 import TestCaseDetails from '../TestCaseDetails';
 
@@ -10,20 +10,7 @@ const styles = theme => ({
     fontSize: theme.typography.fontSize,
     display: 'flex',
     alignItems: 'center',
-  },
-  commentInner: {
-    margin: 0,
-  },
-  formControl: {
-    fontSize: theme.typography.fontSize,
-  },
-  itemLabel: {
-    fontSize: theme.typography.fontSize,
-    marginTop: 1,
-  },
-  list: {
-    marginTop: 15,
-    padding: 0,
+    marginBottom: 20,
   },
 });
 
@@ -45,20 +32,18 @@ const TestDetails = (props) => {
       <Typography className={classes.commentRoot} gutterBottom>
         {comment}
       </Typography>
-      <List className={classes.list}>
-        {variants.map((variant, i) => (
-          <TestCaseDetails
-            key={variant.percent}
-            data={variant}
-            index={i}
-            id={id}
-            active={variantIsActive(i)}
-            paused={paused}
-            stoped={stoped}
-            setTestCase={setTestCase}
-          />
-        ))}
-      </List>
+      {variants.map((variant, i) => (
+        <TestCaseDetails
+          key={variant.percent}
+          data={variant}
+          index={i}
+          id={id}
+          active={variantIsActive(i)}
+          paused={paused}
+          stoped={stoped}
+          setTestCase={setTestCase}
+        />
+      ))}
     </Fragment>
   );
 };

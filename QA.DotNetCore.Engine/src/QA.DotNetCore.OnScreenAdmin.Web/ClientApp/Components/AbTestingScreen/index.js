@@ -201,14 +201,12 @@ const AbTestingScreen = (props) => {
                   renderPauseButton(test.id, 2),
                 ]}
                 {test.sessionActive && [
-                  renderStopButton(test.id, 1),
-                  renderPauseButton(test.id, 2),
-                  renderGlobalLaunchButton(test.id, 3),
+                  renderPauseButton(test.id, 1),
+                  renderGlobalLaunchButton(test.id, 2),
                 ]}
                 {test.paused && [
-                  renderStopButton(test.id, 1),
-                  renderSessionLaunchButton(test.id, 2),
-                  renderGlobalLaunchButton(test.id, 3),
+                  renderSessionLaunchButton(test.id, 1),
+                  renderGlobalLaunchButton(test.id, 2),
                 ]}
                 {test.stoped && [
                   renderSessionLaunchButton(test.id, 1),

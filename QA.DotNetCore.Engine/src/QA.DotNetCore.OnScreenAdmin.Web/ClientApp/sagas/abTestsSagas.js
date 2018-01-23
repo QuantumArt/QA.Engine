@@ -192,15 +192,18 @@ const fake = {
 
 // workers
 function* loadTestsData() {
-  const avalaibleTests = window.abTestingContext;
-  // const avalaibleTests = fake.window;
-  const cids = _.reduce(avalaibleTests, (result, value) => (result.concat(value.cids)), []);
+  const fakeEnv = process.env.NODE_ENV !== 'production' && window.location.port === '5000';
+  const avalaibleTests = fakeEnv ? fake.window : window.abTestingContext;
 
   try {
-    const testsInfo = yield call(getTestsData, cids);
-
     yield put({ type: GET_AVALAIBLE_TESTS, payload: avalaibleTests });
-    yield put({ type: API_GET_TESTS_DATA_SUCCESS, payload: testsInfo.data.data });
+    if (fakeEnv) {
+      yield put({ type: API_GET_TESTS_DATA_SUCCESS, payload: fake.api });
+    } else {
+      const cids = _.reduce(avalaibleTests, (result, value) => (result.concat(value.cids)), []);
+      const testsInfo = yield call(getTestsData, cids);
+      yield put({ type: API_GET_TESTS_DATA_SUCCESS, payload: testsInfo.data.data });
+    }
   } catch (error) {
     console.log(error);
     yield put({ type: API_GET_TESTS_DATA_ERROR, payload: error });

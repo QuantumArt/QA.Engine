@@ -21,10 +21,10 @@ export const editWidget = (widgetId, callback, abstractItemMetaInfo) => {
   showQPForm(options);
 };
 
-export const addWidget = (widgetToAdd, zoneToAdd, abstractItemMetaInfo, callback) => {
+export const addWidget = (widgetToAdd, zoneName, parentAbstractItemId, abstractItemMetaInfo, callback) => {
   const fieldsToSet = [
-    { fieldName: fieldNameResolver(abstractItemMetaInfo, 'Parent'), value: zoneToAdd.properties.parentPageId },
-    { fieldName: fieldNameResolver(abstractItemMetaInfo, 'ZoneName'), value: zoneToAdd.properties.zoneName },
+    { fieldName: fieldNameResolver(abstractItemMetaInfo, 'Parent'), value: parentAbstractItemId },
+    { fieldName: fieldNameResolver(abstractItemMetaInfo, 'ZoneName'), value: zoneName },
     { fieldName: fieldNameResolver(abstractItemMetaInfo, 'Discriminator'), value: widgetToAdd.id },
     { fieldName: fieldNameResolver(abstractItemMetaInfo, 'ExtensionId'), value: widgetToAdd.preferredContentId },
     { fieldName: fieldNameResolver(abstractItemMetaInfo, 'IsPage'), value: false },

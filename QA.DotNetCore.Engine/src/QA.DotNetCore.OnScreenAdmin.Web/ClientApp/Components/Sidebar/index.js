@@ -1,23 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import SwipeableViews from 'react-swipeable-views';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { withStyles } from 'material-ui/styles';
 import Drawer from 'material-ui/Drawer';
-import Tabs, { Tab } from 'material-ui/Tabs';
 import Divider from 'material-ui/Divider';
 import Toolbar from 'material-ui/Toolbar';
 import IconButton from 'material-ui/IconButton';
 import ExitToApp from 'material-ui-icons/ExitToApp';
 import BorderLeft from 'material-ui-icons/BorderLeft';
 import BorderRight from 'material-ui-icons/BorderRight';
-import DeveloperBoard from 'material-ui-icons/DeveloperBoard';
-import Kitchen from 'material-ui-icons/Kitchen';
-import Tune from 'material-ui-icons/Tune';
 import 'typeface-roboto/index.css';
-import WidgetsScreen from 'containers/WidgetsScreen';
-import AbTestingScreen from 'containers/AbTestingScreen';
 import OpenControl from '../OpenControl';
+import TabsToolbar from './TabsToolbar';
+import Screens from './Screens';
 
 const styles = theme => ({
   sidebar: {
@@ -41,15 +36,9 @@ const styles = theme => ({
     width: theme.spacing.unit * 2.8,
     height: theme.spacing.unit * 2.8,
   },
-  tabsToolbar: {
-    padding: '10px 0 0',
-  },
   closeButton: {
     width: theme.spacing.unit * 2.8,
     height: theme.spacing.unit * 2.8,
-  },
-  tabRoot: {
-    minWidth: 120,
   },
 });
 
@@ -63,7 +52,11 @@ const Sidebar = (props) => {
     toggleRight,
     toggleTab,
     classes,
+    showTabs,
+    widgetTabAvailable,
+    abTestsTabAvailable,
   } = props;
+
 
   return (
     <div className={classes.sidebar}>
@@ -105,35 +98,18 @@ const Sidebar = (props) => {
             </IconButton>
           </Toolbar>
           <Divider />
-          <Toolbar classes={{ root: classes.tabsToolbar }}>
-            <Tabs
-              value={activeTab}
-              onChange={(e, value) => { toggleTab(value); }}
-              indicatorColor="primary"
-              textColor="primary"
-            >
-              <Tab
-                icon={<DeveloperBoard />}
-                label="WIDGETS"
-                classes={{ root: classes.tabRoot }}
-              />
-              <Tab
-                icon={<Tune />}
-                label="A/B TESTS"
-                classes={{ root: classes.tabRoot }}
-              />
-              <Tab
-                icon={<Kitchen />}
-                label="ELSE"
-                classes={{ root: classes.tabRoot }}
-                disabled
-              />
-            </Tabs>
-          </Toolbar>
-          <SwipeableViews axis="x" index={activeTab}>
-            <WidgetsScreen />
-            <AbTestingScreen />
-          </SwipeableViews>
+          <TabsToolbar
+            showTabs={showTabs}
+            widgetTabAvailable={widgetTabAvailable}
+            abTestsTabAvailable={abTestsTabAvailable}
+            toggleTab={toggleTab}
+            activeTab={activeTab}
+          />
+          <Screens
+            widgetTabAvailable={widgetTabAvailable}
+            abTestsTabAvailable={abTestsTabAvailable}
+            activeTab={activeTab}
+          />
         </Scrollbars>
       </Drawer>
     </div>
@@ -148,6 +124,9 @@ Sidebar.propTypes = {
   toggleLeft: PropTypes.func.isRequired,
   toggleRight: PropTypes.func.isRequired,
   toggleTab: PropTypes.func.isRequired,
+  showTabs: PropTypes.bool.isRequired,
+  widgetTabAvailable: PropTypes.bool.isRequired,
+  abTestsTabAvailable: PropTypes.bool.isRequired,
   classes: PropTypes.object.isRequired,
 };
 

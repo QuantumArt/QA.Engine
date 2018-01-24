@@ -11,19 +11,12 @@ import ComponentHighlightToolbar from 'containers/WidgetsScreen/componentHighlig
 import ComponentTreeScreen from './ComponentTreeScreen';
 
 
-// import AvailableWidgetsScreen from './AvailableWidgetsScreen';
-const styles = {
-  root: {
-    width: '100%',
-  },
-  flex: {
-    flex: 1,
-  },
+const styles = () => ({
   menuButton: {
     marginLeft: -12,
     marginRight: 20,
   },
-};
+});
 
 const WidgetsScreen = ({
   showComponentTree,
@@ -38,7 +31,7 @@ const WidgetsScreen = ({
         <Fragment>
           <ComponentHighlightToolbar />
           <Toolbar>
-            <Button raised onClick={addWidgetToPage} classes={classes.menuButton}>Add widget</Button>
+            <Button raised onClick={addWidgetToPage} className={classes.menuButton}>Add widget</Button>
           </Toolbar>
           <ComponentTreeScreen />
         </Fragment>

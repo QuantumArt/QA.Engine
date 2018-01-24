@@ -68,7 +68,7 @@ export const API_GET_TESTS_DATA_ERROR = 'API_GET_TESTS_DATA_ERROR';
 export const SET_TEST_CASE = 'SET_TEST_CASE';
 export const LAUNCH_TEST = 'LAUNCH_TEST';
 export const LAUNCH_SESSION_TEST = 'LAUNCH_SESSION_TEST';
-export const PAUSE_TEST = 'PAUSE_TEST';
+export const STOP_SESSION_TEST = 'STOP_SESSION_TEST';
 export const STOP_TEST = 'STOP_TEST';
 
 

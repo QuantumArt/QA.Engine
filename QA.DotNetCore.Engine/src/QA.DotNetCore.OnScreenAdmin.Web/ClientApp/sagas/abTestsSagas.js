@@ -15,7 +15,7 @@ import {
   LAUNCH_TEST,
   LAUNCH_SESSION_TEST,
   STOP_TEST,
-  PAUSE_TEST,
+  STOP_SESSION_TEST,
   SET_TEST_CASE,
 } from 'actions/actionTypes';
 
@@ -232,7 +232,7 @@ function* stopTest({ testId }) {
   }
 }
 
-function* pauseTest({ testId }) {
+function* stopSessionTest({ testId }) {
   yield delay(400);
   yield call(window.QA.OnScreen.AbTesting.disableTestForMe, testId);
   reload();
@@ -263,8 +263,8 @@ function* watchTestStop() {
   yield takeEvery(STOP_TEST, stopTest);
 }
 
-function* watchTestPause() {
-  yield takeEvery(PAUSE_TEST, pauseTest);
+function* watchSessionTestStop() {
+  yield takeEvery(STOP_SESSION_TEST, stopSessionTest);
 }
 
 function* watchCaseChange() {
@@ -277,7 +277,7 @@ export default function* watchAbTests() {
     watchTestLaunch(),
     watchSessionTestLaunch(),
     watchTestStop(),
-    watchTestPause(),
+    watchSessionTestStop(),
     watchCaseChange(),
   ]);
 }

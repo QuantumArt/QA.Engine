@@ -3,7 +3,7 @@ import {
   launchTest,
   launchSessionTest,
   stopTest,
-  pauseTest,
+  stopSessionTest,
   setTestCase,
 } from 'actions/abTestingScreenActions';
 import AbtestingScreen from 'Components/AbTestingScreen';
@@ -17,7 +17,7 @@ const mapStateToProps = ({ abTestingScreen }) => {
         globalActive: el.choice !== null && testsData[i].enabled,
         sessionActive: el.choice !== null && !testsData[i].enabled,
         paused: el.choice === null && testsData[i].enabled,
-        stoped: el.choice === null && !testsData[i].enabled,
+        stopped: el.choice === null && !testsData[i].enabled,
       };
 
       return { ...el, ...testsData[i], ...states };
@@ -39,8 +39,8 @@ const mapDispatchToProps = dispatch => ({
   stopTest: (testId) => {
     dispatch(stopTest(testId));
   },
-  pauseTest: (testId) => {
-    dispatch(pauseTest(testId));
+  stopSessionTest: (testId) => {
+    dispatch(stopSessionTest(testId));
   },
   setTestCase: (testId, value) => {
     dispatch(setTestCase(testId, value));

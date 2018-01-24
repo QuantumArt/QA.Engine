@@ -20,7 +20,7 @@ const TestDetails = (props) => {
     variants,
     choice,
     setTestCase,
-    stoped,
+    stopped,
     paused,
     id,
   } = props;
@@ -39,7 +39,7 @@ const TestDetails = (props) => {
           id={id}
           active={variantIsActive(i)}
           paused={paused}
-          stoped={stoped}
+          stopped={stopped}
           setTestCase={setTestCase}
         />
       ))}
@@ -52,7 +52,7 @@ TestDetails.propTypes = {
   comment: PropTypes.string.isRequired,
   variants: PropTypes.array.isRequired,
   choice: PropTypes.number,
-  stoped: PropTypes.bool.isRequired,
+  stopped: PropTypes.bool.isRequired,
   paused: PropTypes.bool.isRequired,
   setTestCase: PropTypes.func.isRequired,
   id: PropTypes.number.isRequired,

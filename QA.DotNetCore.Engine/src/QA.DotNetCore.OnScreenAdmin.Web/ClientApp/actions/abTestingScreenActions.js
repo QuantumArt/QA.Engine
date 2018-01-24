@@ -4,7 +4,7 @@ import {
   LAUNCH_TEST,
   LAUNCH_SESSION_TEST,
   STOP_TEST,
-  PAUSE_TEST,
+  STOP_SESSION_TEST,
   SET_TEST_CASE,
 } from './actionTypes';
 
@@ -28,8 +28,8 @@ export function stopTest(testId) {
   return { type: STOP_TEST, testId };
 }
 
-export function pauseTest(testId) {
-  return { type: PAUSE_TEST, testId };
+export function stopSessionTest(testId) {
+  return { type: STOP_SESSION_TEST, testId };
 }
 
 export function setTestCase(testId, value) {

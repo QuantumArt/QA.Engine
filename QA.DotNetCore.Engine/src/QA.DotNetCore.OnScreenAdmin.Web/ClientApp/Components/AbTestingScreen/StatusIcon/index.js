@@ -22,11 +22,11 @@ const StatusIcon = (props) => {
     globalActive,
     sessionActive,
     paused,
-    stoped,
+    stopped,
   } = props;
   const getColor = () => {
     if (globalActive || sessionActive) return green[500];
-    if (stoped || paused) return red[500];
+    if (stopped || paused) return red[500];
 
     return 'transparent';
   };
@@ -46,7 +46,7 @@ StatusIcon.propTypes = {
   globalActive: PropTypes.bool.isRequired,
   sessionActive: PropTypes.bool.isRequired,
   paused: PropTypes.bool.isRequired,
-  stoped: PropTypes.bool.isRequired,
+  stopped: PropTypes.bool.isRequired,
 };
 
 export default withStyles(styles)(StatusIcon);

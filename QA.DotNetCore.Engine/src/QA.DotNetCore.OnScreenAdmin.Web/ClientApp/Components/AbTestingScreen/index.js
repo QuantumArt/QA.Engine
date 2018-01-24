@@ -13,7 +13,6 @@ import Typography from 'material-ui/Typography';
 import Button from 'material-ui/Button';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
 import PlayArrow from 'material-ui-icons/PlayArrow';
-// import Pause from 'material-ui-icons/Pause';
 import Person from 'material-ui-icons/Person';
 import Stop from 'material-ui-icons/Stop';
 import { green } from 'material-ui/colors';
@@ -70,7 +69,7 @@ const AbTestingScreen = (props) => {
     launchTest,
     launchSessionTest,
     stopTest,
-    pauseTest,
+    stopSessionTest,
     setTestCase,
   } = props;
 
@@ -106,7 +105,7 @@ const AbTestingScreen = (props) => {
       <Person className={classes.actionIcon} />
     </Button>
   );
-  const renderStopButton = testId => (
+  const renderGlobalStopButton = testId => (
     <Button
       raised
       dense
@@ -119,7 +118,7 @@ const AbTestingScreen = (props) => {
       <Stop className={classes.actionIcon} />
     </Button>
   );
-  const renderPauseButton = testId => (
+  const renderSessionStopButton = testId => (
     <Button
       raised
       dense
@@ -128,7 +127,7 @@ const AbTestingScreen = (props) => {
       classes={{
         label: classes.actionButton,
       }}
-      onClick={() => { pauseTest(testId); }}
+      onClick={() => { stopSessionTest(testId); }}
     >
       Stop test for session
       <Person className={classes.actionIcon} />
@@ -139,8 +138,8 @@ const AbTestingScreen = (props) => {
       if (test.globalActive) return `Test active, case # ${test.choice}`;
       if (test.sessionActive) return `Test active for session, case # ${test.choice}`;
     } else {
-      if (test.paused) return 'Test paused';
-      if (test.stoped) return 'Test stoped';
+      if (test.paused) return 'Test stopped for session';
+      if (test.stopped) return 'Test stopped';
     }
 
     return '';
@@ -168,18 +167,18 @@ const AbTestingScreen = (props) => {
             </ExpansionPanelDetails>
             <ExpansionPanelActions className={classes.panelActions}>
               {test.globalActive && [
-                renderPauseButton(test.id),
-                renderStopButton(test.id),
+                renderSessionStopButton(test.id),
+                renderGlobalStopButton(test.id),
               ]}
               {test.sessionActive && [
-                renderPauseButton(test.id),
+                renderSessionStopButton(test.id),
                 renderGlobalLaunchButton(test.id),
               ]}
               {test.paused && [
-                renderStopButton(test.id),
+                renderGlobalStopButton(test.id),
                 renderSessionLaunchButton(test.id),
               ]}
-              {test.stoped && [
+              {test.stopped && [
                 renderSessionLaunchButton(test.id),
                 renderGlobalLaunchButton(test.id),
               ]}
@@ -197,7 +196,7 @@ AbTestingScreen.propTypes = {
   launchTest: PropTypes.func.isRequired,
   launchSessionTest: PropTypes.func.isRequired,
   stopTest: PropTypes.func.isRequired,
-  pauseTest: PropTypes.func.isRequired,
+  stopSessionTest: PropTypes.func.isRequired,
   setTestCase: PropTypes.func.isRequired,
 };
 

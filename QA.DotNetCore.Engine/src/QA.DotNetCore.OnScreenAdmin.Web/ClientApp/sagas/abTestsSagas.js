@@ -157,7 +157,7 @@ const fake = {
       id: 629730,
       enabled: false,
       title: 'Четвертый тест',
-      comment: 'Четвертый пробный тест',
+      comment: null,
       startDate: null,
       endDate: '2018-01-31T19:04:00',
       variants: [{

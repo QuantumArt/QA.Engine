@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react';
+import { v4 } from 'uuid';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import Typography from 'material-ui/Typography';
@@ -28,12 +29,14 @@ const TestDetails = (props) => {
 
   return (
     <Fragment>
-      <Typography className={classes.commentRoot} gutterBottom>
-        {comment}
-      </Typography>
+      {comment &&
+        <Typography className={classes.commentRoot} gutterBottom>
+          {comment}
+        </Typography>
+      }
       {variants.map((variant, i) => (
         <TestCaseDetails
-          key={variant.percent}
+          key={v4()}
           data={variant}
           index={i}
           id={id}

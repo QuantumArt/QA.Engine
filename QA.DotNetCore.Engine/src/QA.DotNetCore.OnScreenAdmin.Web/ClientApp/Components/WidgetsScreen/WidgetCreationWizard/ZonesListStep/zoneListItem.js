@@ -45,7 +45,7 @@ class ZoneListItem extends Component {
           </ListItemIcon>
           <ListItemText
             primary={zoneName}
-            classes={{ text: classes.listItemText }}
+            classes={{ primary: classes.listItemText }}
           />
         </ListItem>
       </Fragment>

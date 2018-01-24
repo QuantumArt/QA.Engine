@@ -32,7 +32,7 @@ const styles = theme => ({
   },
   heading: {
     fontSize: 16,
-    fontWeight: theme.typography.fontWeightMedium,
+    fontWeight: theme.typography.fontWeightRegular,
   },
   subHeading: {
     fontSize: 11,
@@ -138,8 +138,8 @@ const AbTestingScreen = (props) => {
       if (test.globalActive) return `Test active, case # ${test.choice}`;
       if (test.sessionActive) return `Test active for session, case # ${test.choice}`;
     } else {
-      if (test.paused) return 'Test stopped for session';
-      if (test.stopped) return 'Test stopped';
+      if (test.sessionStopped) return 'Test stopped for session';
+      if (test.globalStopped) return 'Test stopped';
     }
 
     return '';
@@ -174,11 +174,11 @@ const AbTestingScreen = (props) => {
                 renderSessionStopButton(test.id),
                 renderGlobalLaunchButton(test.id),
               ]}
-              {test.paused && [
+              {test.sessionStopped && [
                 renderGlobalStopButton(test.id),
                 renderSessionLaunchButton(test.id),
               ]}
-              {test.stopped && [
+              {test.globalStopped && [
                 renderSessionLaunchButton(test.id),
                 renderGlobalLaunchButton(test.id),
               ]}

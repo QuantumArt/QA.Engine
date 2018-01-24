@@ -16,7 +16,6 @@ const styles = () => ({
 });
 
 const TabsToolbar = ({ classes, toggleTab, showTabs, widgetTabAvailable, abTestsTabAvailable, activeTab }) => (
-
   !showTabs
     ? null
     : (
@@ -27,25 +26,18 @@ const TabsToolbar = ({ classes, toggleTab, showTabs, widgetTabAvailable, abTests
           indicatorColor="primary"
           textColor="primary"
         >
-          {!widgetTabAvailable
-            ? null
-            : (
-              <Tab
-                icon={<DeveloperBoard />}
-                label="WIDGETS"
-                classes={{ root: classes.tabRoot }}
-              />
-            )}
-          {!abTestsTabAvailable
-            ? null
-            : (
-              <Tab
-                icon={<Tune />}
-                label="A/B TESTS"
-                classes={{ root: classes.tabRoot }}
-              />
-            )
-          }
+          {widgetTabAvailable &&
+            <Tab
+              icon={<DeveloperBoard />}
+              label="WIDGETS"
+              classes={{ root: classes.tabRoot }}
+            />}
+          {abTestsTabAvailable &&
+            <Tab
+              icon={<Tune />}
+              label="A/B TESTS"
+              classes={{ root: classes.tabRoot }}
+            />}
         </Tabs>
       </Toolbar>
     ));

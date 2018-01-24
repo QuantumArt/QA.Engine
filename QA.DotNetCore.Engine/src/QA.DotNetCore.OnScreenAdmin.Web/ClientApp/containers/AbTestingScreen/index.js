@@ -16,8 +16,8 @@ const mapStateToProps = ({ abTestingScreen }) => {
       const states = {
         globalActive: el.choice !== null && testsData[i].enabled,
         sessionActive: el.choice !== null && !testsData[i].enabled,
-        paused: el.choice === null && testsData[i].enabled,
-        stopped: el.choice === null && !testsData[i].enabled,
+        globalStopped: el.choice === null && !testsData[i].enabled,
+        sessionStopped: el.choice === null && testsData[i].enabled,
       };
 
       return { ...el, ...testsData[i], ...states };

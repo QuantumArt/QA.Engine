@@ -1,24 +1,27 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
+import Paper from 'material-ui/Paper';
 import Typography from 'material-ui/Typography';
 import { withStyles } from 'material-ui/styles';
 // import IconButton from 'material-ui/IconButton';
 // import ArrowBack from 'material-ui-icons/ArrowBack';
 
 const styles = () => ({
-  text: {
-    fontStyle: 'italic',
+  wrap: {
+    padding: '0 16px',
   },
-
+  text: {
+    // fontStyle: 'italic',
+    marginTop: 16,
+  },
 });
 
 const WizardSubHeader = ({ text, classes }) => (
-  <Fragment>
-    <Typography type="title" className={classes.text}>
-
+  <Paper className={classes.wrap} elevation={0}>
+    <Typography type="title" align="center" className={classes.text}>
       { text }
     </Typography>
-  </Fragment>
+  </Paper>
 );
 
 

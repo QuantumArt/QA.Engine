@@ -24,7 +24,7 @@ const styles = (theme) => {
       height: theme.typography.pxToRem(76.8),
     },
     listItemText: {
-      fontSize: theme.typography.fontSize,
+      fontSize: 14,
     },
     listItemIconSelected: {
       color: deepPurple[500],
@@ -87,11 +87,8 @@ class ComponentItem extends Component {
   renderContextMenu = (isSelected) => {
     const { isMovingWidget } = this.props;
     if (!isSelected || isMovingWidget) { return null; }
-    return (
-      <ComponentControlMenu
-        onScreenId={this.props.onScreenId}
-      />
-    );
+
+    return (<ComponentControlMenu onScreenId={this.props.onScreenId} />);
   }
 
   renderSubtree = (isOpened, subtree) => {
@@ -157,7 +154,7 @@ class ComponentItem extends Component {
         <ListItemText
           primary={this.renderPrimaryText(type, properties, isDisabled)}
           // secondary={this.renderSecondaryText(type, properties)}
-          classes={{ primary: classes.listItemText }}
+          classes={{ dense: classes.listItemText }}
         />
         <ListItemSecondaryAction>
           { this.renderContextMenu(isSelected) }

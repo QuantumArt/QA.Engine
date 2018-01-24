@@ -14,7 +14,7 @@ import ExpansionPanel, {
 import Button from 'material-ui/Button';
 import IconButton from 'material-ui/IconButton';
 import PlayArrow from 'material-ui-icons/PlayArrow';
-import { blue, teal, deepPurple } from 'material-ui/colors';
+import { blue, teal, green } from 'material-ui/colors';
 
 const styles = {
   panel: {
@@ -103,9 +103,9 @@ const styles = {
     'right': 0,
     'top': '50%',
     'marginTop': -24,
-    'color': deepPurple[400],
+    'color': green[700],
     '&:hover': {
-      color: deepPurple[700],
+      color: green[900],
     },
   },
 };
@@ -121,12 +121,13 @@ const TestCaseDetails = (props) => {
     id,
     setTestCase,
   } = props;
+  const noActions = data.containers.length === 0;
   const handleStartClick = (e) => {
     e.stopPropagation();
     setTestCase(id, index);
   };
   const renderDescription = () => {
-    if (data.containers.length === 0) {
+    if (noActions) {
       return 'No active actions';
     }
 
@@ -155,22 +156,24 @@ const TestCaseDetails = (props) => {
           </IconButton>
         }
       </ExpansionPanelSummary>
-      <ExpansionPanelDetails className={classes.panelDetails}>
-        <List className={classes.containersList}>
-          {data.containers.map(container => (
-            <ListItem key={container.cid} className={classes.containersListItem}>
-              <ListItemText
-                primary={container.variantDescription}
-                secondary={container.containerDescription}
-                classes={{
-                  primary: classes.containersListPrimary,
-                  secondary: classes.containersListSecondary,
-                }}
-              />
-            </ListItem>
-          ))}
-        </List>
-      </ExpansionPanelDetails>
+      {!noActions &&
+        <ExpansionPanelDetails className={classes.panelDetails}>
+          <List className={classes.containersList}>
+            {data.containers.map(container => (
+              <ListItem key={container.cid} className={classes.containersListItem}>
+                <ListItemText
+                  primary={container.variantDescription}
+                  secondary={container.containerDescription}
+                  classes={{
+                    primary: classes.containersListPrimary,
+                    secondary: classes.containersListSecondary,
+                  }}
+                />
+              </ListItem>
+            ))}
+          </List>
+        </ExpansionPanelDetails>
+      }
       <ExpansionPanelActions className={classes.panelActions}>
         <Button
           raised

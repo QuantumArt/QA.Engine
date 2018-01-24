@@ -13,8 +13,10 @@ import Typography from 'material-ui/Typography';
 import Button from 'material-ui/Button';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
 import PlayArrow from 'material-ui-icons/PlayArrow';
-import Pause from 'material-ui-icons/Pause';
+// import Pause from 'material-ui-icons/Pause';
+import Person from 'material-ui-icons/Person';
 import Stop from 'material-ui-icons/Stop';
+import { green } from 'material-ui/colors';
 import StatusIcon from './StatusIcon';
 import TestDetails from './TestDetails';
 
@@ -53,6 +55,12 @@ const styles = theme => ({
     height: 15,
     marginLeft: 5,
   },
+  activeButtonColor: {
+    'backgroundColor': green[500],
+    '&:hover': {
+      backgroundColor: green[700],
+    },
+  },
 });
 
 const AbTestingScreen = (props) => {
@@ -69,14 +77,14 @@ const AbTestingScreen = (props) => {
       raised
       dense
       key={v4()}
-      color="primary"
+      color="secondary"
       classes={{
         label: classes.actionButton,
       }}
       onClick={() => { pauseTest(testId); }}
     >
       Stop test for session
-      <Pause className={classes.actionIcon} />
+      <Person className={classes.actionIcon} />
     </Button>
   );
   const renderStopButton = testId => (
@@ -98,7 +106,10 @@ const AbTestingScreen = (props) => {
       dense
       key={v4()}
       color="primary"
-      classes={{ label: classes.actionButton }}
+      classes={{
+        label: classes.actionButton,
+        raisedPrimary: classes.activeButtonColor,
+      }}
       onClick={() => { console.log(testId); }}
     >
         Start test
@@ -113,11 +124,12 @@ const AbTestingScreen = (props) => {
       color="primary"
       classes={{
         label: classes.actionButton,
+        raisedPrimary: classes.activeButtonColor,
       }}
       onClick={() => { launchSessionTest(testId); }}
     >
         Start test for session
-      <PlayArrow className={classes.actionIcon} />
+      <Person className={classes.actionIcon} />
     </Button>
   );
   const renderSummaryText = (test) => {
@@ -154,8 +166,8 @@ const AbTestingScreen = (props) => {
             </ExpansionPanelDetails>
             <ExpansionPanelActions className={classes.panelActions}>
               {test.globalActive && [
-                renderStopButton(test.id),
                 renderPauseButton(test.id),
+                renderStopButton(test.id),
               ]}
               {test.sessionActive && [
                 renderPauseButton(test.id),

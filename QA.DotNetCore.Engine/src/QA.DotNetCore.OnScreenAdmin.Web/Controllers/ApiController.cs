@@ -42,7 +42,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
             }
             catch (Exception ex)
             {
-                return ApiResult.Error(ex.Message);
+                return ApiResult.Error(Response, ex.Message);
             }
         }
 
@@ -53,7 +53,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
             {
                 var content = _metaInfoRepository.GetContent("QPDiscriminator", siteId);
                 if (content == null)
-                    return ApiResult.Error($"Not found QPDiscriminator content in site {siteId}");
+                    return ApiResult.Error(Response, $"Not found QPDiscriminator content in site {siteId}");
                 var baseIconUrl = _qpUrlResolver.UrlForImage(siteId, content.ContentId, "IconUrl");
 
                 var widgetDefinitions = _itemDefinitionRepository
@@ -69,7 +69,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
             }
             catch (Exception ex)
             {
-                return ApiResult.Error(ex.Message);
+                return ApiResult.Error(Response, ex.Message);
             }
         }
 
@@ -82,16 +82,16 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
                 var contentId = _dbConnector.GetContentIdForItem(widgetId);
 
                 if (contentId == 0)
-                    return ApiResult.Error($"Not found content with article {widgetId}");
+                    return ApiResult.Error(Response, $"Not found content with article {widgetId}");
 
                 //получим названия полей Parent и ZoneName в найденном контенте, чтобы использовать их для метода MassUpdate
                 //на разных базах эти названия в теории могут отличаться, инвариант - это NetName
                 var parentField = _metaInfoRepository.GetContentAttributeByNetName(contentId, "Parent");
                 if (parentField == null)
-                    return ApiResult.Error($"Field with netname 'Parent' not found in content {contentId}");
+                    return ApiResult.Error(Response, $"Field with netname 'Parent' not found in content {contentId}");
                 var zoneNameField = _metaInfoRepository.GetContentAttributeByNetName(contentId, "ZoneName");
                 if (zoneNameField == null)
-                    return ApiResult.Error($"Field with netname 'ZoneName' not found in content {contentId}");
+                    return ApiResult.Error(Response, $"Field with netname 'ZoneName' not found in content {contentId}");
 
                 var widgetUpdates = new Dictionary<string, string>
                 {
@@ -106,7 +106,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
             }
             catch (Exception ex)
             {
-                return ApiResult.Error(ex.Message);
+                return ApiResult.Error(Response, ex.Message);
             }
         }
 
@@ -127,7 +127,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
             }
             catch (Exception ex)
             {
-                return ApiResult.Error(ex.Message);
+                return ApiResult.Error(Response, ex.Message);
             }
         }
 
@@ -140,13 +140,13 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
                 var contentId = _dbConnector.GetContentIdForItem(testId);
 
                 if (contentId == 0)
-                    return ApiResult.Error($"Not found content with article {testId}");
+                    return ApiResult.Error(Response, $"Not found content with article {testId}");
 
                 //получим название поля Enabled в найденном контенте, чтобы использовать для метода MassUpdate
                 //на разных базах эти названия в теории могут отличаться, инвариант - это NetName
                 var enabledField = _metaInfoRepository.GetContentAttributeByNetName(contentId, "Enabled");
                 if (enabledField == null)
-                    return ApiResult.Error($"Field with netname 'Enabled' not found in content {contentId}");
+                    return ApiResult.Error(Response, $"Field with netname 'Enabled' not found in content {contentId}");
 
                 var widgetUpdates = new Dictionary<string, string>
                 {
@@ -160,7 +160,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
             }
             catch (Exception ex)
             {
-                return ApiResult.Error(ex.Message);
+                return ApiResult.Error(Response, ex.Message);
             }
         }
 

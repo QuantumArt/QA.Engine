@@ -86,7 +86,7 @@ const fake = {
     {
       id: 629728,
       enabled: false,
-      title: 'Второй тест',
+      title: 'Т126. B2C. Вертикальные карточки ВСЁ!',
       comment: 'Второй пробный тест',
       startDate: null,
       endDate: '2018-01-31T19:04:00',
@@ -121,7 +121,7 @@ const fake = {
     {
       id: 629729,
       enabled: true,
-      title: 'Третий тест',
+      title: 'CAPSLOCK',
       comment: 'Третий пробный тест',
       startDate: null,
       endDate: '2018-01-31T19:04:00',
@@ -156,7 +156,7 @@ const fake = {
     {
       id: 629730,
       enabled: false,
-      title: 'Четвертый тест',
+      title: 'English text',
       comment: null,
       startDate: null,
       endDate: '2018-01-31T19:04:00',
@@ -166,7 +166,7 @@ const fake = {
         containers: [],
       }, {
         choice: 1,
-        percent: 25.0,
+        percent: 33.33,
         containers: [{
           cid: 629728,
           containerDescription: 'Пустышка, пишет в консоль',

@@ -31,7 +31,7 @@ const WidgetsScreen = ({
         <Fragment>
           <ComponentHighlightToolbar />
           <Toolbar>
-            <Button raised onClick={addWidgetToPage} className={classes.menuButton}>Add widget</Button>
+            <Button raised color="primary" onClick={addWidgetToPage} className={classes.menuButton}>Add widget</Button>
           </Toolbar>
           <ComponentTreeScreen />
         </Fragment>

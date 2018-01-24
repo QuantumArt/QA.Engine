@@ -21,8 +21,8 @@ const TestDetails = (props) => {
     variants,
     choice,
     setTestCase,
-    stopped,
-    paused,
+    globalStopped,
+    sessionStopped,
     id,
   } = props;
   const variantIsActive = i => i === choice;
@@ -41,8 +41,8 @@ const TestDetails = (props) => {
           index={i}
           id={id}
           active={variantIsActive(i)}
-          paused={paused}
-          stopped={stopped}
+          sessionStopped={sessionStopped}
+          globalStopped={globalStopped}
           setTestCase={setTestCase}
         />
       ))}
@@ -52,17 +52,18 @@ const TestDetails = (props) => {
 
 TestDetails.propTypes = {
   classes: PropTypes.object.isRequired,
-  comment: PropTypes.string.isRequired,
+  comment: PropTypes.string,
   variants: PropTypes.array.isRequired,
   choice: PropTypes.number,
-  stopped: PropTypes.bool.isRequired,
-  paused: PropTypes.bool.isRequired,
+  globalStopped: PropTypes.bool.isRequired,
+  sessionStopped: PropTypes.bool.isRequired,
   setTestCase: PropTypes.func.isRequired,
   id: PropTypes.number.isRequired,
 };
 
 TestDetails.defaultProps = {
   choice: null,
+  comment: null,
 };
 
 export default withStyles(styles)(TestDetails);

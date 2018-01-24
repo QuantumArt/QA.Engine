@@ -76,12 +76,12 @@ const styles = {
   },
   caseDescription: {
     fontSize: 12,
-    marginLeft: 13,
+    marginLeft: 7,
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    maxWidth: 165,
-    minWidth: 165,
+    maxWidth: 160,
+    minWidth: 160,
     marginTop: 4,
   },
   containersListItem: {
@@ -100,7 +100,7 @@ const styles = {
   },
   actionButton: {
     'position': 'absolute',
-    'right': 0,
+    'right': -10,
     'top': '50%',
     'marginTop': -24,
     'color': green[700],

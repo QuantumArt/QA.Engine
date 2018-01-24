@@ -5,14 +5,9 @@ import {
   // addWidgetToZone,
   moveWidget,
 } from 'actions/componentControlMenuActions';
-
 import { WIDGET_CREATION_MODE } from 'constants/widgetCreation';
-
-import {
-  beginWidgetCreation,
-} from 'actions/widgetCreation/actions';
-
-import ComponentControlMenu from '../../Components/WidgetsScreen/ComponentTreeScreen/ComponentControlMenu';
+import { beginWidgetCreation } from 'actions/widgetCreation/actions';
+import ComponentControlMenu from 'Components/WidgetsScreen/ComponentTreeScreen/ComponentControlMenu';
 
 const mapStateToProps = (state, ownProps) => {
   const component = _.find(state.componentTree.components, { onScreenId: ownProps.onScreenId });

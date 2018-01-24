@@ -1,158 +1,202 @@
-/* eslint-disable no-unused-vars */
-import React, { Component } from 'react';
-import { findDOMNode } from 'react-dom';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import Typography from 'material-ui/Typography';
 import List, {
   ListItem,
   ListItemText,
-  ListItemSecondaryAction,
 } from 'material-ui/List';
-import Popover from 'material-ui/Popover';
-import Tooltip from 'material-ui/Tooltip';
+import ExpansionPanel, {
+  ExpansionPanelSummary,
+  ExpansionPanelDetails,
+  ExpansionPanelActions,
+} from 'material-ui/ExpansionPanel';
+import Button from 'material-ui/Button';
 import IconButton from 'material-ui/IconButton';
 import PlayArrow from 'material-ui-icons/PlayArrow';
-import { deepPurple } from 'material-ui/colors';
+import { blue, teal, deepPurple } from 'material-ui/colors';
 
-const styles = theme => ({
-  lisItemActive: {
-    'backgroundColor': deepPurple['500'],
-    '&:hover': {
-      backgroundColor: deepPurple['800'],
+const styles = {
+  panel: {
+    'boxShadow': 'none',
+    'borderTop': '1px solid',
+    'borderColor': teal[50],
+    '&:before': {
+      backgroundColor: 'transparent',
+    },
+    '&:last-child': {
+      borderBottom: '1px solid',
+      borderBottomColor: teal[50],
     },
   },
-  listText: {
-    fontSize: theme.typography.fontSize,
+  panelExpanded: {
+    margin: 0,
   },
-  listTextActive: {
-    fontSize: theme.typography.fontSize,
-    fontWeight: 'bold',
-    color: 'white',
+  panelDetails: {
+    flexDirection: 'column',
+    paddingTop: 0,
+    paddingBottom: 8,
+    paddingLeft: 8,
+  },
+  panelSummary: {
+    paddingRight: 0,
+    paddingLeft: 15,
+  },
+  panelSummaryActive: {
+    'paddingRight': 0,
+    'paddingLeft': 15,
+    'backgroundColor': blue['100'],
+    '&:hover': {
+      backgroundColor: blue['200'],
+    },
+  },
+  panelSummaryContent: {
+    '& > :last-child': {
+      paddingRight: 0,
+    },
+  },
+  panelSummaryContentActive: {
+    '& > :last-child': {
+      paddingRight: 0,
+    },
+    '& > p': {
+      fontWeight: 'bold',
+    },
+  },
+  panelActions: {
+    paddintTop: 0,
+  },
+  caseInfo: {
+    fontSize: 16,
+  },
+  caseFrequency: {
+    fontSize: 14,
+    marginLeft: 15,
+    marginTop: 3,
+  },
+  caseDescription: {
+    fontSize: 12,
+    marginLeft: 13,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxWidth: 165,
+    minWidth: 165,
+    marginTop: 4,
+  },
+  containersListItem: {
+    paddingTop: 6,
+    paddingBottom: 6,
   },
   actionTooltip: {
     fontSize: 11,
     width: 90,
   },
-  containersList: {
-  },
-  containersTitle: {
-    fontSize: 18,
-    textAlign: 'center',
-    paddingTop: 15,
-  },
-  containersListText: {
+  containersListPrimary: {
     fontSize: 15,
   },
-  containersListTextRoot: {
-    '&:first-child': {
-      paddingLeft: 'inherit',
+  containersListSecondary: {
+    fontSize: 13,
+  },
+  actionButton: {
+    'position': 'absolute',
+    'right': 0,
+    'top': '50%',
+    'marginTop': -24,
+    'color': deepPurple[400],
+    '&:hover': {
+      color: deepPurple[700],
     },
   },
-  popover: {
-    width: 302,
-  },
-});
+};
 
-class TestCaseDetails extends Component {
-  static propTypes = {
-    classes: PropTypes.object.isRequired,
-    data: PropTypes.object.isRequired,
-    active: PropTypes.bool,
-    paused: PropTypes.bool.isRequired,
-    stoped: PropTypes.bool.isRequired,
-    index: PropTypes.number.isRequired,
-    setTestCase: PropTypes.func.isRequired,
-    id: PropTypes.number.isRequired,
-  }
+const TestCaseDetails = (props) => {
+  const {
+    classes,
+    data,
+    active,
+    // paused,
+    // stoped,
+    index,
+    id,
+    setTestCase,
+  } = props;
+  const handleStartClick = (e) => {
+    e.stopPropagation();
+    setTestCase(id, index);
+  };
+  const renderDescription = () => {
+    if (data.containers.length === 0) {
+      return 'No active actions';
+    }
 
-  static defaultProps = {
-    active: false,
-  }
+    return data.containers.map(el => el.variantDescription).toString().replace(',', '; ');
+  };
 
-  state = {
-    open: false,
-    anchorEl: null,
-  }
-
-  handleCaseInfoClick = (e) => {
-    this.setState({
-      anchorEl: findDOMNode(e.currentTarget),
-      open: !this.state.open,
-    });
-  }
-
-  render() {
-    const {
-      classes,
-      data,
-      active,
-      paused,
-      stoped,
-      index,
-      id,
-      setTestCase,
-    } = this.props;
-    const { open, anchorEl } = this.state;
-
-    return (
-      <ListItem
-        button
-        className={active ? classes.lisItemActive : ''}
-        ref={(node) => { this.node = node; }}
-        onClick={this.handleCaseInfoClick}
+  return (
+    <ExpansionPanel
+      classes={{
+        root: classes.panel,
+        expanded: classes.panelExpanded,
+      }}
+    >
+      <ExpansionPanelSummary
+        className={active ? classes.panelSummaryActive : classes.panelSummary}
+        classes={{
+          content: active ? classes.panelSummaryContentActive : classes.panelSummaryContent,
+        }}
       >
-        <ListItemText
-          primary={`# ${index} - ${data.percent}%`}
-          classes={{ text: active ? classes.listTextActive : classes.listText }}
-        />
-        <Popover
-          anchorEl={anchorEl}
-          anchorReference="anchorEl"
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-          transformOrigin={{ vertical: 'top', horizontal: 'center' }}
-          open={open}
-          marginThreshold={8}
-          classes={{ paper: classes.popover }}
-          onClose={(e) => { console.log(e); }}
-        >
-          <Typography type="title" className={classes.containersTitle} >
-            {data.containers.length > 0
-              ? 'Active actions'
-              : 'No active actions'}
-          </Typography>
-          <List className={classes.containersList}>
-            {data.containers.map(container => (
-              <ListItem key={container.cid}>
-                <ListItemText
-                  primary={container.variantDescription}
-                  secondary={container.containerDescription}
-                  classes={{
-                    text: classes.containersListText,
-                    root: classes.containersListTextRoot,
-                  }}
-                />
-              </ListItem>
-            ))}
-          </List>
-        </Popover>
+        <Typography className={classes.caseInfo}>{`#${index}`}</Typography>
+        <Typography className={classes.caseDescription}>{renderDescription()}</Typography>
+        <Typography className={classes.caseFrequency}>{`${data.percent}%`}</Typography>
         {!active &&
-          <ListItemSecondaryAction>
-            <Tooltip
-              id="runCase"
-              placement="left"
-              title="Turn this case"
-              classes={{ tooltip: classes.actionTooltip }}
-            >
-              <IconButton onClick={() => { setTestCase(id, index); }}>
-                <PlayArrow />
-              </IconButton>
-            </Tooltip>
-          </ListItemSecondaryAction>
+          <IconButton onClick={handleStartClick} className={classes.actionButton}>
+            <PlayArrow />
+          </IconButton>
         }
-      </ListItem>
-    );
-  }
-}
+      </ExpansionPanelSummary>
+      <ExpansionPanelDetails className={classes.panelDetails}>
+        <List className={classes.containersList}>
+          {data.containers.map(container => (
+            <ListItem key={container.cid} className={classes.containersListItem}>
+              <ListItemText
+                primary={container.variantDescription}
+                secondary={container.containerDescription}
+                classes={{
+                  primary: classes.containersListPrimary,
+                  secondary: classes.containersListSecondary,
+                }}
+              />
+            </ListItem>
+          ))}
+        </List>
+      </ExpansionPanelDetails>
+      <ExpansionPanelActions className={classes.panelActions}>
+        <Button
+          raised
+          dense
+          style={{ backgroundColor: teal[500], color: 'white' }}
+        >
+          Some future action
+        </Button>
+      </ExpansionPanelActions>
+    </ExpansionPanel>
+  );
+};
+
+TestCaseDetails.propTypes = {
+  classes: PropTypes.object.isRequired,
+  data: PropTypes.object.isRequired,
+  active: PropTypes.bool,
+  // paused: PropTypes.bool.isRequired,
+  // stoped: PropTypes.bool.isRequired,
+  index: PropTypes.number.isRequired,
+  setTestCase: PropTypes.func.isRequired,
+  id: PropTypes.number.isRequired,
+};
+
+TestCaseDetails.defaultProps = {
+  active: false,
+};
 
 export default withStyles(styles)(TestCaseDetails);

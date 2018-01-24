@@ -161,19 +161,7 @@ const fake = {
       variants: [{
         choice: 0,
         percent: 75.0,
-        containers: [{
-          cid: 629728,
-          containerDescription: 'Пустышка, пишет в консоль',
-          variantDescription: 'console.log ab test choice 0',
-          variantId: 629730,
-          type: 'Script',
-        }, {
-          cid: 629734,
-          containerDescription: 'Смена цвета шапки',
-          variantDescription: 'делаем красной шапку',
-          variantId: 629736,
-          type: 'Script',
-        }],
+        containers: [],
       }, {
         choice: 1,
         percent: 25.0,
@@ -192,15 +180,18 @@ const fake = {
 
 // workers
 function* loadTestsData() {
-  const avalaibleTests = window.abTestingContext;
-  // const avalaibleTests = fake.window;
-  const cids = _.reduce(avalaibleTests, (result, value) => (result.concat(value.cids)), []);
+  const fakeEnv = process.env.NODE_ENV !== 'production' && window.location.port === '5000';
+  const avalaibleTests = fakeEnv ? fake.window : window.abTestingContext;
 
   try {
-    const testsInfo = yield call(getTestsData, cids);
-
     yield put({ type: GET_AVALAIBLE_TESTS, payload: avalaibleTests });
-    yield put({ type: API_GET_TESTS_DATA_SUCCESS, payload: testsInfo.data.data });
+    if (fakeEnv) {
+      yield put({ type: API_GET_TESTS_DATA_SUCCESS, payload: fake.api });
+    } else {
+      const cids = _.reduce(avalaibleTests, (result, value) => (result.concat(value.cids)), []);
+      const testsInfo = yield call(getTestsData, cids);
+      yield put({ type: API_GET_TESTS_DATA_SUCCESS, payload: testsInfo.data.data });
+    }
   } catch (error) {
     console.log(error);
     yield put({ type: API_GET_TESTS_DATA_ERROR, payload: error });

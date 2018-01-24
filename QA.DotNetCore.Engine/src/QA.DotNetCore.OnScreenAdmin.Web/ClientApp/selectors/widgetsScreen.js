@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect';
-import { MODES } from '../reducers/widgetsScreenReducer';
+import { MODES } from 'reducers/widgetsScreenReducer';
 
 const getShowComponentTreeSelector = state => state.widgetsScreen.mode === MODES.SHOW_COMPONENT_TREE;
 const getShowWidgetsCreationWizardSelector = state => state.widgetsScreen.mode === MODES.SHOW_WIDGET_CREATION_WIZARD;

@@ -157,7 +157,7 @@ class ComponentItem extends Component {
         <ListItemText
           primary={this.renderPrimaryText(type, properties, isDisabled)}
           // secondary={this.renderSecondaryText(type, properties)}
-          classes={{ text: classes.listItemText }}
+          classes={{ primary: classes.listItemText }}
         />
         <ListItemSecondaryAction>
           { this.renderContextMenu(isSelected) }

@@ -67,39 +67,13 @@ const AbTestingScreen = (props) => {
   const {
     classes,
     tests,
+    launchTest,
     launchSessionTest,
+    stopTest,
     pauseTest,
     setTestCase,
   } = props;
 
-  const renderPauseButton = testId => (
-    <Button
-      raised
-      dense
-      key={v4()}
-      color="secondary"
-      classes={{
-        label: classes.actionButton,
-      }}
-      onClick={() => { pauseTest(testId); }}
-    >
-      Stop test for session
-      <Person className={classes.actionIcon} />
-    </Button>
-  );
-  const renderStopButton = testId => (
-    <Button
-      raised
-      dense
-      key={v4()}
-      color="secondary"
-      classes={{ label: classes.actionButton }}
-      onClick={() => { console.log(testId); }}
-    >
-        Stop test
-      <Stop className={classes.actionIcon} />
-    </Button>
-  );
   const renderGlobalLaunchButton = testId => (
     <Button
       raised
@@ -110,7 +84,7 @@ const AbTestingScreen = (props) => {
         label: classes.actionButton,
         raisedPrimary: classes.activeButtonColor,
       }}
-      onClick={() => { console.log(testId); }}
+      onClick={() => { launchTest(testId); }}
     >
         Start test
       <PlayArrow className={classes.actionIcon} />
@@ -129,6 +103,34 @@ const AbTestingScreen = (props) => {
       onClick={() => { launchSessionTest(testId); }}
     >
         Start test for session
+      <Person className={classes.actionIcon} />
+    </Button>
+  );
+  const renderStopButton = testId => (
+    <Button
+      raised
+      dense
+      key={v4()}
+      color="secondary"
+      classes={{ label: classes.actionButton }}
+      onClick={() => { stopTest(testId); }}
+    >
+        Stop test
+      <Stop className={classes.actionIcon} />
+    </Button>
+  );
+  const renderPauseButton = testId => (
+    <Button
+      raised
+      dense
+      key={v4()}
+      color="secondary"
+      classes={{
+        label: classes.actionButton,
+      }}
+      onClick={() => { pauseTest(testId); }}
+    >
+      Stop test for session
       <Person className={classes.actionIcon} />
     </Button>
   );
@@ -174,8 +176,8 @@ const AbTestingScreen = (props) => {
                 renderGlobalLaunchButton(test.id),
               ]}
               {test.paused && [
+                renderStopButton(test.id),
                 renderSessionLaunchButton(test.id),
-                renderGlobalLaunchButton(test.id),
               ]}
               {test.stoped && [
                 renderSessionLaunchButton(test.id),
@@ -192,7 +194,9 @@ const AbTestingScreen = (props) => {
 AbTestingScreen.propTypes = {
   classes: PropTypes.object.isRequired,
   tests: PropTypes.array.isRequired,
+  launchTest: PropTypes.func.isRequired,
   launchSessionTest: PropTypes.func.isRequired,
+  stopTest: PropTypes.func.isRequired,
   pauseTest: PropTypes.func.isRequired,
   setTestCase: PropTypes.func.isRequired,
 };

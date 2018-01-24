@@ -1,6 +1,8 @@
 import { connect } from 'react-redux';
 import {
+  launchTest,
   launchSessionTest,
+  stopTest,
   pauseTest,
   setTestCase,
 } from 'actions/abTestingScreenActions';
@@ -30,6 +32,12 @@ const mapStateToProps = ({ abTestingScreen }) => {
 const mapDispatchToProps = dispatch => ({
   launchSessionTest: (testId) => {
     dispatch(launchSessionTest(testId));
+  },
+  launchTest: (testId) => {
+    dispatch(launchTest(testId));
+  },
+  stopTest: (testId) => {
+    dispatch(stopTest(testId));
   },
   pauseTest: (testId) => {
     dispatch(pauseTest(testId));

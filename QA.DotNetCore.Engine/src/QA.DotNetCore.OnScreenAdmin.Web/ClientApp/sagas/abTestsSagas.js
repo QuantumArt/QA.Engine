@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { getTestsData } from 'api';
+import { getTestsData, setGlobalTestState } from 'api';
 import { delay } from 'redux-saga';
 import {
   put,
@@ -12,7 +12,9 @@ import {
   GET_AVALAIBLE_TESTS,
   API_GET_TESTS_DATA_SUCCESS,
   API_GET_TESTS_DATA_ERROR,
+  LAUNCH_TEST,
   LAUNCH_SESSION_TEST,
+  STOP_TEST,
   PAUSE_TEST,
   SET_TEST_CASE,
 } from 'actions/actionTypes';
@@ -198,10 +200,36 @@ function* loadTestsData() {
   }
 }
 
+function* launchTest({ testId }) {
+  try {
+    const response = yield call(setGlobalTestState, testId, true);
+    if (response.status === 200) {
+      reload();
+    } else {
+      throw new Error(response.data.errorText);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 function* launchSessionTest({ testId }) {
   yield delay(400); // for button animation
   yield call(window.QA.OnScreen.AbTesting.enableTestForMe, testId);
   reload();
+}
+
+function* stopTest({ testId }) {
+  try {
+    const response = yield call(setGlobalTestState, testId, false);
+    if (response.status === 200) {
+      reload();
+    } else {
+      throw new Error(response.data.errorText);
+    }
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 function* pauseTest({ testId }) {
@@ -223,11 +251,19 @@ function* watchStart() {
   yield takeEvery(APP_STARTED, loadTestsData);
 }
 
-function* watchSessionLaunch() {
+function* watchTestLaunch() {
+  yield takeEvery(LAUNCH_TEST, launchTest);
+}
+
+function* watchSessionTestLaunch() {
   yield takeEvery(LAUNCH_SESSION_TEST, launchSessionTest);
 }
 
-function* watchPause() {
+function* watchTestStop() {
+  yield takeEvery(STOP_TEST, stopTest);
+}
+
+function* watchTestPause() {
   yield takeEvery(PAUSE_TEST, pauseTest);
 }
 
@@ -238,8 +274,10 @@ function* watchCaseChange() {
 export default function* watchAbTests() {
   yield all([
     watchStart(),
-    watchSessionLaunch(),
-    watchPause(),
+    watchTestLaunch(),
+    watchSessionTestLaunch(),
+    watchTestStop(),
+    watchTestPause(),
     watchCaseChange(),
   ]);
 }

@@ -44,3 +44,7 @@ export const getTestsData = cids => axiosInstance().get('/abtests/info', {
   },
   paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' }),
 });
+
+export const setGlobalTestState = (testId, value) => axiosInstance().post('/abtests/switch', qs.stringify({
+  testId, value,
+}));

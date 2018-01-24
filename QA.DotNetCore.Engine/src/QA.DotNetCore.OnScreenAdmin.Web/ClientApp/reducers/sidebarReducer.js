@@ -1,3 +1,7 @@
+import _ from 'lodash';
+import { getAvailableFeatures } from 'utils/features';
+import { ONSCREEN_FEATURES } from 'constants/features';
+
 import {
   TOGGLE_OPEN_STATE,
   TOGGLE_LEFT_POSITION,
@@ -5,10 +9,14 @@ import {
   TOGGLE_TAB,
 } from '../actions/actionTypes';
 
+const availableFeatures = getAvailableFeatures();
+let activeTab = 0;
+if (_.indexOf(availableFeatures, ONSCREEN_FEATURES.WIDGETS_MANAGEMENT) === -1) { activeTab = 1; }
+
 const initialState = {
   opened: false,
   side: 'left',
-  activeTab: 0,
+  activeTab,
   widgetScreenSearchText: '',
 };
 

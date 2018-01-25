@@ -1,15 +1,16 @@
 import MutationSummary from 'mutation-summary';
 import _ from 'lodash';
-import { loadedComponentTree } from './actions/componentTreeActions';
-import buildTree from './componentTreeBuilder';
+import { updateComponents } from 'actions/componentTreeActions';
+import buildFlatList from 'utils/buildFlatList';
 
 function MutationWatcher(store) {
   const mutationCallback = (summaries) => {
     console.log('mutation callback fired', summaries);
-    const newComponentTree = buildTree();
-    store.dispatch(loadedComponentTree(newComponentTree));
+    const newComponentTree = buildFlatList();
+    store.dispatch(updateComponents(newComponentTree));
   };
 
+  /* eslint-disable no-new */
   new MutationSummary({
     callback: _.debounce(mutationCallback, 1000),
     queries: [{

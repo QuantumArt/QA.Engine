@@ -5,6 +5,7 @@ import createSagaMiddleware from 'redux-saga';
 import { APP_STARTED } from 'actions/actionTypes';
 import rootReducer from 'reducers';
 import rootSaga from 'sagas';
+import mutationWatcher from 'utils/mutationWatcher';
 
 const sagaMiddleware = createSagaMiddleware();
 /* eslint-disable no-underscore-dangle, global-require */
@@ -26,6 +27,7 @@ export default function configureStore() {
       applyMiddleware(sagaMiddleware),
     ),
   );
+  mutationWatcher(store);
 
   sagaMiddleware.run(rootSaga);
 

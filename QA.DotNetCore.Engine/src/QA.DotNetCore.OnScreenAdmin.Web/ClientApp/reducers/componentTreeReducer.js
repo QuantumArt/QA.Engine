@@ -3,20 +3,30 @@ import {
   TOGGLE_SUBTREE,
   TOGGLE_FULL_SUBTREE,
   CHANGE_COMPONENT_TREE_SEARCH_TEXT,
+  UPDATE_COMPONENTS,
 } from '../actions/actionTypes';
 import buildFlatList from '../utils/buildFlatList';
 
 
 const components = buildFlatList();
+
+const getMaxNestLevel = comps => comps.map(c => c.nestLevel).reduce((max, cur) => Math.max(max, cur));
+
 const initialState = {
   selectedComponentId: '',
   components,
-  maxNestLevel: components.map(c => c.nestLevel).reduce((max, cur) => Math.max(max, cur)),
+  maxNestLevel: getMaxNestLevel(components),
   searchText: '',
 };
 
 export default function componentTreeReducer(state = initialState, action) {
   switch (action.type) {
+    case UPDATE_COMPONENTS:
+      return {
+        ...state,
+        components: action.components,
+        maxNestLevel: getMaxNestLevel(action.components),
+      };
     case TOGGLE_COMPONENT:
       return {
         ...state,

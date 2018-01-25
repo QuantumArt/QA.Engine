@@ -3,6 +3,7 @@ import {
   TOGGLE_SUBTREE,
   TOGGLE_FULL_SUBTREE,
   CHANGE_COMPONENT_TREE_SEARCH_TEXT,
+  UPDATE_COMPONENTS,
   EDIT_WIDGET_ACTIONS,
 } from './actionTypes';
 
@@ -28,4 +29,9 @@ export function finishMovingWidget(id) {
 
 export function movingWidgetSelectTargetZone(id) {
   return { type: EDIT_WIDGET_ACTIONS.MOVING_WIDGET_SELECT_TARGET_ZONE, id };
+}
+
+
+export function updateComponents(components) {
+  return { type: UPDATE_COMPONENTS, components };
 }

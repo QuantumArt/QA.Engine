@@ -9,16 +9,16 @@ import {
 import { getShowAllZones, getShowAllWidgets } from 'selectors/componentsHighlight';
 import { ONSCREEN_FEATURES } from 'constants/features';
 import { getAvailableFeatures } from 'utils/features';
-import Sidebar from '../Components/Sidebar';
+import Sidebar from 'Components/Sidebar';
 
 
 const availableFeatures = getAvailableFeatures();
 
 const getShowTabs = availableFeatures && availableFeatures.length > 1;
-const getWidgetsTabAvailable =
-  availableFeatures && _.indexOf(availableFeatures, ONSCREEN_FEATURES.WIDGETS_MANAGEMENT) !== -1;
-const getAbTestsTabAvailable =
-availableFeatures && _.indexOf(availableFeatures, ONSCREEN_FEATURES.ABTESTS) !== -1;
+const getWidgetsTabAvailable = availableFeatures &&
+  _.indexOf(availableFeatures, ONSCREEN_FEATURES.WIDGETS_MANAGEMENT) !== -1;
+const getAbTestsTabAvailable = availableFeatures &&
+  _.indexOf(availableFeatures, ONSCREEN_FEATURES.ABTESTS) !== -1;
 
 console.log('availableFeatures', availableFeatures);
 
@@ -30,6 +30,7 @@ const mapStateToProps = state => ({
   activeTab: state.sidebar.activeTab,
   widgetScreenSearchText: state.sidebar.widgetScreenSearchText,
   showTabs: getShowTabs,
+  featuresCount: availableFeatures.length,
   widgetTabAvailable: getWidgetsTabAvailable,
   abTestsTabAvailable: getAbTestsTabAvailable,
 });

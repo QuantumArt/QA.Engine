@@ -9,6 +9,7 @@ import IconButton from 'material-ui/IconButton';
 import ExitToApp from 'material-ui-icons/ExitToApp';
 import BorderLeft from 'material-ui-icons/BorderLeft';
 import BorderRight from 'material-ui-icons/BorderRight';
+import { DRAWER_WIDTH } from 'constants/general';
 import 'typeface-roboto/index.css';
 import OpenControl from '../OpenControl';
 import TabsToolbar from './TabsToolbar';
@@ -19,7 +20,7 @@ const styles = theme => ({
 
   },
   drawer: {
-    width: 361,
+    width: DRAWER_WIDTH,
   },
   controlToolbar: {
     minHeight: 40,
@@ -55,6 +56,7 @@ const Sidebar = (props) => {
     showTabs,
     widgetTabAvailable,
     abTestsTabAvailable,
+    featuresCount,
   } = props;
 
 
@@ -98,13 +100,15 @@ const Sidebar = (props) => {
             </IconButton>
           </Toolbar>
           <Divider />
-          <TabsToolbar
-            showTabs={showTabs}
-            widgetTabAvailable={widgetTabAvailable}
-            abTestsTabAvailable={abTestsTabAvailable}
-            toggleTab={toggleTab}
-            activeTab={activeTab}
-          />
+          {showTabs &&
+            <TabsToolbar
+              widgetTabAvailable={widgetTabAvailable}
+              abTestsTabAvailable={abTestsTabAvailable}
+              featuresCount={featuresCount}
+              toggleTab={toggleTab}
+              activeTab={activeTab}
+            />
+          }
           <Screens
             widgetTabAvailable={widgetTabAvailable}
             abTestsTabAvailable={abTestsTabAvailable}
@@ -127,6 +131,7 @@ Sidebar.propTypes = {
   showTabs: PropTypes.bool.isRequired,
   widgetTabAvailable: PropTypes.bool.isRequired,
   abTestsTabAvailable: PropTypes.bool.isRequired,
+  featuresCount: PropTypes.number.isRequired,
   classes: PropTypes.object.isRequired,
 };
 

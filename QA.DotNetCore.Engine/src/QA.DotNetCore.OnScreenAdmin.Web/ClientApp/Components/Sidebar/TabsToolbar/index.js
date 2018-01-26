@@ -10,44 +10,56 @@ const styles = () => ({
   tabsToolbar: {
     padding: '10px 0 0',
   },
-  tabRoot: {
-    minWidth: 120,
+  tabsRoot: {
+    width: '100%',
   },
 });
 
-const TabsToolbar = ({ classes, toggleTab, showTabs, widgetTabAvailable, abTestsTabAvailable, activeTab }) => (
-  !showTabs
-    ? null
-    : (
-      <Toolbar classes={{ root: classes.tabsToolbar }}>
-        <Tabs
-          value={activeTab}
-          onChange={(e, value) => { toggleTab(value); }}
-          indicatorColor="primary"
-          textColor="primary"
-        >
-          {widgetTabAvailable &&
-            <Tab
-              icon={<DeveloperBoard />}
-              label="WIDGETS"
-              classes={{ root: classes.tabRoot }}
-            />}
-          {abTestsTabAvailable &&
-            <Tab
-              icon={<Tune />}
-              label="A/B TESTS"
-              classes={{ root: classes.tabRoot }}
-            />}
-        </Tabs>
-      </Toolbar>
-    ));
+const TabsToolbar = (props) => {
+  const {
+    classes,
+    toggleTab,
+    widgetTabAvailable,
+    abTestsTabAvailable,
+    featuresCount,
+    activeTab,
+  } = props;
+  const tabWidth = `${100 / featuresCount}%`;
+
+  return (
+    <Toolbar classes={{ root: classes.tabsToolbar }}>
+      <Tabs
+        value={activeTab}
+        onChange={(e, value) => { toggleTab(value); }}
+        indicatorColor="primary"
+        textColor="primary"
+        classes={{ root: classes.tabsRoot }}
+      >
+        {widgetTabAvailable &&
+          <Tab
+            icon={<DeveloperBoard />}
+            label="WIDGETS"
+            style={{ width: tabWidth }}
+          />
+        }
+        {abTestsTabAvailable &&
+          <Tab
+            icon={<Tune />}
+            label="A/B TESTS"
+            style={{ width: tabWidth }}
+          />
+        }
+      </Tabs>
+    </Toolbar>
+  );
+};
 
 TabsToolbar.propTypes = {
   toggleTab: PropTypes.func.isRequired,
-  showTabs: PropTypes.bool.isRequired,
   widgetTabAvailable: PropTypes.bool.isRequired,
   abTestsTabAvailable: PropTypes.bool.isRequired,
   activeTab: PropTypes.number.isRequired,
+  featuresCount: PropTypes.number.isRequired,
   classes: PropTypes.object.isRequired,
 };
 

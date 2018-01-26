@@ -1,18 +1,38 @@
 import { connect } from 'react-redux';
+import _ from 'lodash';
 import {
   toggleState,
   toggleLeftPosition,
   toggleRightPosition,
-  toggleAllZones,
   toggleTab,
-} from '../actions/sidebarActions';
-import Sidebar from '../Components/Sidebar';
+} from 'actions/sidebarActions';
+import { getShowAllZones, getShowAllWidgets } from 'selectors/componentsHighlight';
+import { ONSCREEN_FEATURES } from 'constants/features';
+import { getAvailableFeatures } from 'utils/features';
+import Sidebar from 'Components/Sidebar';
+
+
+const availableFeatures = getAvailableFeatures();
+
+const getShowTabs = availableFeatures && availableFeatures.length > 1;
+const getWidgetsTabAvailable = availableFeatures &&
+  _.indexOf(availableFeatures, ONSCREEN_FEATURES.WIDGETS_MANAGEMENT) !== -1;
+const getAbTestsTabAvailable = availableFeatures &&
+  _.indexOf(availableFeatures, ONSCREEN_FEATURES.ABTESTS) !== -1;
+
+console.log('availableFeatures', availableFeatures);
 
 const mapStateToProps = state => ({
   opened: state.sidebar.opened,
   side: state.sidebar.side,
-  showAllZones: state.sidebar.showAllZones,
+  showAllZones: getShowAllZones(state),
+  showAllWidgets: getShowAllWidgets(state),
   activeTab: state.sidebar.activeTab,
+  widgetScreenSearchText: state.sidebar.widgetScreenSearchText,
+  showTabs: getShowTabs,
+  featuresCount: availableFeatures.length,
+  widgetTabAvailable: getWidgetsTabAvailable,
+  abTestsTabAvailable: getAbTestsTabAvailable,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -25,12 +45,10 @@ const mapDispatchToProps = dispatch => ({
   toggleRight: () => {
     dispatch(toggleRightPosition());
   },
-  toggleAllZones: () => {
-    dispatch(toggleAllZones());
-  },
   toggleTab: (value) => {
     dispatch(toggleTab(value));
   },
+
 });
 
 const SidebarContainer = connect(

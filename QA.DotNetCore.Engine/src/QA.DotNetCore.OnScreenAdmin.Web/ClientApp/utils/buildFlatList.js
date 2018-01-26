@@ -14,13 +14,23 @@ const findParentComponent = (component) => {
   return null;
 };
 
+const getZoneParentPageId = (zoneData) => {
+  const isGlobal = JSON.parse(zoneData.qaZoneIsGlobal);
+  const zoneParentPageId = isGlobal ? window.startPageId : window.currentPageId;
+  return zoneParentPageId;
+};
+
 const mapComponentProperties = (domElement) => {
   const data = domElement.dataset;
   if (data.qaComponentType === 'zone') {
+    const isGlobal = JSON.parse(data.qaZoneIsGlobal);
+    const zoneParentPageId = getZoneParentPageId;
     return {
       zoneName: data.qaZoneName,
       isRecursive: JSON.parse(data.qaZoneIsRecursive),
-      isGlobal: JSON.parse(data.qaZoneIsGlobal),
+      isGlobal,
+      parentPageId: zoneParentPageId,
+      parentAbstractItemId: data.qaComponentParentAbstractItemId,
     };
   }
 
@@ -46,7 +56,9 @@ const mapComponent = domElement => ({
   parentOnScreenId: domElement.dataset.qaComponentParentOnScreenId === '-1'
     ? null
     : domElement.dataset.qaComponentParentOnScreenId,
+  nestLevel: domElement.dataset.qaComponentOnScreenId.split(';').length - 1,
   properties: mapComponentProperties(domElement),
+  isDisabled: false,
 });
 
 
@@ -71,11 +83,31 @@ const getComponentOnScreenId = (component, parentComponent) => {
   return parentComponentOnScreenId + thisComponentPart;
 };
 
+// const getComponentParentAbstractItemId = () => '';
+
+const getComponentParentAbstractItemId = (component) => {
+  const data = component.dataset;
+  let parentComponent = findParentComponent(component);
+  if (data.qaComponentType === 'zone') {
+    while (parentComponent && parentComponent.dataset.qaComponentType !== 'widget') {
+      parentComponent = findParentComponent(parentComponent);
+    }
+    if (!parentComponent) { // зона от страницы
+      return getZoneParentPageId(data);
+    }
+    // нашли виджет
+    return parentComponent.dataset.qaWidgetId;
+  }
+  // пока возвращаем только для зон, при необходимости - допилить
+  return '';
+};
+
 const setComponentIds = (component) => {
   if (component.dataset.qaComponentOnScreenId && component.dataset.qaComponentParentOnScreenId) {
     return;
   }
   const parentComponent = findParentComponent(component);
+  component.dataset.qaComponentParentAbstractItemId = getComponentParentAbstractItemId(component);
   if (!parentComponent) {
     component.dataset.qaComponentParentOnScreenId = 'page';
     component.dataset.qaComponentOnScreenId = getComponentOnScreenId(component, null);

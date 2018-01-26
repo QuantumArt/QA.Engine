@@ -109,7 +109,7 @@ namespace QA.DotNetCore.Engine.QpData
                                 if (details[key] is string stringValue)
                                 {
                                     //1) надо заменить плейсхолдер <%=upload_url%> на реальный урл
-                                    details.Set(key, stringValue.Replace(_settings.UploadUrlPlaceholder, _qpUrlResolver.UploadUrl()));
+                                    details.Set(key, stringValue.Replace(_settings.UploadUrlPlaceholder, _qpUrlResolver.UploadUrl(_qpSettings.SiteId)));
 
                                     //2) если поле помечено атрибутом интерфейса ILoaderOption, то нужно преобразовать значение этого поля согласно внутренней логике атрибута
                                     //пример: атрибут LibraryUrl значит, что поле является файлом в библиотеке сайта, нужно чтобы в значении этого поля был полный урл до этого файла

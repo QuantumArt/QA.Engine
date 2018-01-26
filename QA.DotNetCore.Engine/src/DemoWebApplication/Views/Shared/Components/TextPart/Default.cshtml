@@ -1,10 +1,6 @@
 ﻿@using QA.DotNetCore.Engine.Widgets
 
 @model DemoWebSite.PagesAndWidgets.Widgets.TextPart
- 
-@Html.Raw(Model.Text)
-<!--content-->
-@await Component.WidgetZone(Html, "Content")
 
-<!--subcontent-->
-@await Component.WidgetZone(Html, "SubContent")
+@await Component.RenderZonesInText(Html, Model.Text)
+

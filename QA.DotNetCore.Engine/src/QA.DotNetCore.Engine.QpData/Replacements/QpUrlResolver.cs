@@ -15,34 +15,31 @@ namespace QA.DotNetCore.Engine.QpData.Replacements
     {
         ICacheProvider _cacheProvider;
         IMetaInfoRepository _metaInfoRepository;
-        QpSettings _qpSettings;
         QpSchemeCacheSettings _qpSchemeSettings;
 
         public QpUrlResolver(
             ICacheProvider cacheProvider,
             IMetaInfoRepository metaInfoRepository,
-            QpSettings qpSettings,
             QpSchemeCacheSettings qpSchemeSettings)
         {
             _cacheProvider = cacheProvider;
             _metaInfoRepository = metaInfoRepository;
-            _qpSettings = qpSettings;
             _qpSchemeSettings = qpSchemeSettings;
         }
 
-        public string UploadUrl(bool removeScheme = false)
+        public string UploadUrl(int siteId, bool removeScheme = false)
         {
-            return LibraryUrl(removeScheme).TrimEnd('/') + "/images";
+            return LibraryUrl(siteId, removeScheme).TrimEnd('/') + "/images";
         }
 
-        public string UrlForImage(int contentId, string fieldName, bool removeScheme = false)
+        public string UrlForImage(int siteId, int contentId, string fieldName, bool removeScheme = false)
         {
             var attr = GetContentAttribute(contentId, fieldName);
             if (attr == null)
                 return null;
 
             var baseUrl = new StringBuilder();
-            baseUrl.Append(LibraryUrl(removeScheme));
+            baseUrl.Append(LibraryUrl(siteId, removeScheme));
             if (!attr.UseSiteLibrary)
             {
                 if (baseUrl[baseUrl.Length - 1] != '/')
@@ -56,9 +53,9 @@ namespace QA.DotNetCore.Engine.QpData.Replacements
             return CombineWithoutDoubleSlashes(baseUrl.ToString(), attr.SubFolder?.Replace(@"\", @"/"));
         }
 
-        private string LibraryUrl(bool removeScheme)
+        private string LibraryUrl(int siteId, bool removeScheme)
         {
-            var site = GetSite();
+            var site = GetSite(siteId);
             if (site == null)
                 return null;
 
@@ -83,9 +80,9 @@ namespace QA.DotNetCore.Engine.QpData.Replacements
             return sb.ToString();
         }
 
-        private QpSitePersistentData GetSite()
+        private QpSitePersistentData GetSite(int siteId)
         {
-            return _cacheProvider.GetOrAdd("QpUrlResolver.GetSite", _qpSchemeSettings.CachePeriod, () => _metaInfoRepository.GetSite(_qpSettings.SiteId));
+            return _cacheProvider.GetOrAdd($"QpUrlResolver.GetSite{siteId}", _qpSchemeSettings.CachePeriod, () => _metaInfoRepository.GetSite(siteId));
         }
 
         private ContentAttributePersistentData GetContentAttribute(int contentId, string fieldName)
@@ -110,7 +107,7 @@ namespace QA.DotNetCore.Engine.QpData.Replacements
             }
 
             var sb = new StringBuilder();
-            sb.Append(first.Replace(@":/", @"://").TrimEnd('/'));
+            sb.Append(first.TrimEnd('/'));
             sb.Append("/");
             sb.Append(second.Replace("//", "/").TrimStart('/'));
 

@@ -93,6 +93,7 @@ namespace QA.DotNetCore.Engine.AbTesting.Mvc
                     sb.Append(JsCodeForSetCookies(test.Test, choice));
                     if (test.ClientRedirectContainer != null)
                     {
+                        sb.Append($"window.abTestingContext['{AbTestChoiceResolver.CookieNamePrefix + test.Test.Id}'].cids.push({test.ClientRedirectContainer.Id});");
                         var redirect = test.ClientRedirectContainer.Redirects.FirstOrDefault(r => r.VersionNumber == choice && !String.IsNullOrWhiteSpace(r.RedirectUrl));
                         if (redirect != null)
                         {
@@ -103,7 +104,6 @@ namespace QA.DotNetCore.Engine.AbTesting.Mvc
                             }
                             sb.Append($@"
     (function(ctx, window){{
-        window.abTestingContext['{AbTestChoiceResolver.CookieNamePrefix + test.Test.Id}'].cids.push({test.ClientRedirectContainer.Id});
         if(ctx && !({precondition})) return;
         window.location = '{redirect.RedirectUrl}';
     }})(ctx, window);
@@ -112,8 +112,12 @@ namespace QA.DotNetCore.Engine.AbTesting.Mvc
                         }
                     }
 
-                    foreach (var container in test.ScriptContainers.Where(c => c.Scripts.Any(s => s.VersionNumber == choice)))
+                    foreach (var container in test.ScriptContainers)
                     {
+                        sb.Append($"window.abTestingContext['{AbTestChoiceResolver.CookieNamePrefix + test.Test.Id}'].cids.push({container.Id});");
+                        var script = container.Scripts.FirstOrDefault(_ => _.VersionNumber == choice);
+                        if (script != null)
+                        { 
                         var precondition = container.Precondition;
                         if (String.IsNullOrWhiteSpace(precondition))
                         {
@@ -121,12 +125,12 @@ namespace QA.DotNetCore.Engine.AbTesting.Mvc
                         }
                         sb.Append($@"
     (function(ctx, window){{
-        window.abTestingContext['{AbTestChoiceResolver.CookieNamePrefix + test.Test.Id}'].cids.push({container.Id});
         if(ctx && !({precondition})) return;
         window.abTestingContext['{AbTestChoiceResolver.CookieNamePrefix + test.Test.Id}'].targetedCids.push({container.Id});
-        {container.Scripts.First(_ => _.VersionNumber == choice).ScriptText}
+        {script.ScriptText}
     }})(ctx, window);
     ");
+                        }
                     }
                 }
                 else

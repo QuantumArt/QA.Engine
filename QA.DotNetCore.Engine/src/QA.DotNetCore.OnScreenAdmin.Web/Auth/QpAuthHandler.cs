@@ -36,6 +36,10 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Auth
             try
             {
                 var authToken = _authenticationService.Authenticate(new Guid(accessToken), Options.Settings.ApplicationNameInQp);
+                if (authToken == null)
+                {
+                    return AuthenticateResult.NoResult();
+                }
                 var principal = CreatePrincipal(authToken.UserId, authToken.ExpirationDate);
                 return AuthenticateResult.Success(new AuthenticationTicket(principal, QpAuthDefaults.AuthenticationScheme));
             }
@@ -47,7 +51,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Auth
 
         private string GetAccessToken()
         {
-            return Request.Query["token"];
+            return Request.Headers["X-QP8-Access-Token"];
         }
 
         private ClaimsPrincipal CreatePrincipal(int userId, DateTime expiration)

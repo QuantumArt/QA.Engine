@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Http;
+
 namespace QA.DotNetCore.OnScreenAdmin.Web.Models
 {
     public class ApiResult<T> : ApiResult
@@ -33,13 +35,15 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Models
             return new ApiResult<TData>(data, ResultStatus.OK, null);
         }
 
-        public static ApiResult Error(string errorText)
+        public static ApiResult Error(HttpResponse response, string errorText)
         {
+            response.StatusCode = 500;
             return new ApiResult(ResultStatus.Error, errorText);
         }
 
-        public static ApiResult<TData> Error<TData>(TData data, string errorText)
+        public static ApiResult<TData> Error<TData>(HttpResponse response, TData data, string errorText)
         {
+            response.StatusCode = 500;
             return new ApiResult<TData>(data, ResultStatus.Error, errorText);
         }
     }

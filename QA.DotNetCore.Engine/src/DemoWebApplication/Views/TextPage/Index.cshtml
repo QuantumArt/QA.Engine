@@ -5,26 +5,17 @@
 
 <h2>@Model.Title (@Model.Alias - @Model.Id) </h2>
 
-@if (Model.RegionIds.Any())
+@*@if (Model.RegionIds.Any())
 {
   <h3>Регионы @String.Join(",", Model.RegionIds)</h3>
 }
 @if (Model.CultureId.HasValue)
 {
   <h3>Культура @Model.CultureId.Value</h3>
-}
+}*@
 
 @await Component.RenderZonesInText(Html, Model.Text)
 
-<div>
-      @*Ссылка -
-@Html.ActionLink("link do details", "details", new { id = "some-alias", page = 2, r = 4 })*@
-    @if (!String.IsNullOrWhiteSpace(Model.Picture))
-    {
-      <img src="@Model.Picture" alt="picture"/>
-    }
- </div>
-
-@await Component.WidgetZone(Html, "Content", new { customParameter = 12 })
+@await Component.WidgetZone(Html, "Content")
 
 

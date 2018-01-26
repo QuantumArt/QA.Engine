@@ -7,13 +7,13 @@ import './qpInteraction/QP8BackendApi.Interaction';
 import init from './init';
 
 
-const store = configureStore();
+const { store, persistor } = configureStore();
 init();
 
 const render = (Root) => {
   ReactDOM.render(
     <AppContainer>
-      <Root store={store} />
+      <Root store={store} persistor={persistor} />
     </AppContainer>,
     document.getElementById('sidebarplaceholder'),
   );

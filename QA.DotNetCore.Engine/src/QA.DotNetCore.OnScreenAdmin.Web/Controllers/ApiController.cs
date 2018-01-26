@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using QA.DotNetCore.OnScreenAdmin.Web.Auth;
+using QA.DotNetCore.Engine.QpData.Replacements;
 using QA.DotNetCore.OnScreenAdmin.Web.Models;
 using QA.DotNetCore.OnScreenAdmin.Web.Models.AbTests;
 using Quantumart.QPublishing.Database;
@@ -21,12 +22,14 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
         IItemDefinitionRepository _itemDefinitionRepository;
         IAbTestRepository _abTestRepository;
         DBConnector _dbConnector;
+        IQpUrlResolver _qpUrlResolver;
 
-        public ApiController(IMetaInfoRepository metaInfoRepository, IItemDefinitionRepository itemDefinitionRepository, IAbTestRepository abTestRepository, DBConnector dbConnector)
+        public ApiController(IMetaInfoRepository metaInfoRepository, IItemDefinitionRepository itemDefinitionRepository, DBConnector dbConnector, IAbTestRepository abTestRepository, IQpUrlResolver qpUrlResolver)
         {
             _metaInfoRepository = metaInfoRepository;
             _itemDefinitionRepository = itemDefinitionRepository;
             _dbConnector = dbConnector;
+            _qpUrlResolver = qpUrlResolver;
             _abTestRepository = abTestRepository;
         }
 
@@ -39,7 +42,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
             }
             catch (Exception ex)
             {
-                return ApiResult.Error(ex.Message);
+                return ApiResult.Error(Response, ex.Message);
             }
         }
 
@@ -48,11 +51,25 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
         {
             try
             {
-                return ApiResult.Success<IEnumerable<ItemDefinitionPersistentData>>(_itemDefinitionRepository.GetAllItemDefinitions(siteId, true).Where(d => !d.IsPage).ToList());
+                var content = _metaInfoRepository.GetContent("QPDiscriminator", siteId);
+                if (content == null)
+                    return ApiResult.Error(Response, $"Not found QPDiscriminator content in site {siteId}");
+                var baseIconUrl = _qpUrlResolver.UrlForImage(siteId, content.ContentId, "IconUrl");
+
+                var widgetDefinitions = _itemDefinitionRepository
+                    .GetAllItemDefinitions(siteId, true)
+                    .Where(d => !d.IsPage);
+
+                foreach (var w in widgetDefinitions)
+                {
+                    w.IconUrl = (baseIconUrl ?? "") + "/" + w.IconUrl;
+                }
+
+                return ApiResult.Success<IEnumerable<ItemDefinitionPersistentData>>(widgetDefinitions.ToList());
             }
             catch (Exception ex)
             {
-                return ApiResult.Error(ex.Message);
+                return ApiResult.Error(Response, ex.Message);
             }
         }
 
@@ -65,16 +82,16 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
                 var contentId = _dbConnector.GetContentIdForItem(widgetId);
 
                 if (contentId == 0)
-                    return ApiResult.Error($"Not found content with article {widgetId}");
+                    return ApiResult.Error(Response, $"Not found content with article {widgetId}");
 
                 //получим названия полей Parent и ZoneName в найденном контенте, чтобы использовать их для метода MassUpdate
                 //на разных базах эти названия в теории могут отличаться, инвариант - это NetName
                 var parentField = _metaInfoRepository.GetContentAttributeByNetName(contentId, "Parent");
                 if (parentField == null)
-                    return ApiResult.Error($"Field with netname 'Parent' not found in content {contentId}");
+                    return ApiResult.Error(Response, $"Field with netname 'Parent' not found in content {contentId}");
                 var zoneNameField = _metaInfoRepository.GetContentAttributeByNetName(contentId, "ZoneName");
                 if (zoneNameField == null)
-                    return ApiResult.Error($"Field with netname 'ZoneName' not found in content {contentId}");
+                    return ApiResult.Error(Response, $"Field with netname 'ZoneName' not found in content {contentId}");
 
                 var widgetUpdates = new Dictionary<string, string>
                 {
@@ -89,7 +106,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
             }
             catch (Exception ex)
             {
-                return ApiResult.Error(ex.Message);
+                return ApiResult.Error(Response, ex.Message);
             }
         }
 
@@ -110,7 +127,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
             }
             catch (Exception ex)
             {
-                return ApiResult.Error(ex.Message);
+                return ApiResult.Error(Response, ex.Message);
             }
         }
 
@@ -123,13 +140,13 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
                 var contentId = _dbConnector.GetContentIdForItem(testId);
 
                 if (contentId == 0)
-                    return ApiResult.Error($"Not found content with article {testId}");
+                    return ApiResult.Error(Response, $"Not found content with article {testId}");
 
                 //получим название поля Enabled в найденном контенте, чтобы использовать для метода MassUpdate
                 //на разных базах эти названия в теории могут отличаться, инвариант - это NetName
                 var enabledField = _metaInfoRepository.GetContentAttributeByNetName(contentId, "Enabled");
                 if (enabledField == null)
-                    return ApiResult.Error($"Field with netname 'Enabled' not found in content {contentId}");
+                    return ApiResult.Error(Response, $"Field with netname 'Enabled' not found in content {contentId}");
 
                 var widgetUpdates = new Dictionary<string, string>
                 {
@@ -143,7 +160,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
             }
             catch (Exception ex)
             {
-                return ApiResult.Error(ex.Message);
+                return ApiResult.Error(Response, ex.Message);
             }
         }
 

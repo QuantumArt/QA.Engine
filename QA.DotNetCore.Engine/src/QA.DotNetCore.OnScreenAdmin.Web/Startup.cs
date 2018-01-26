@@ -12,6 +12,10 @@ using QA.DotNetCore.OnScreenAdmin.Web.Auth;
 using Quantumart.QPublishing.Authentication;
 using Quantumart.QPublishing.Database;
 using System.Collections.Generic;
+using QA.DotNetCore.Caching;
+using QA.DotNetCore.Engine.QpData.Replacements;
+using QA.DotNetCore.Engine.QpData.Settings;
+using System;
 
 namespace QA.DotNetCore.OnScreenAdmin.Web
 {
@@ -30,6 +34,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
             services.AddMvc();
 
             services.AddMemoryCache();
+            services.AddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             var dbConnectorSettings = Configuration.GetSection("DbConnectorSettings").Get<DbConnectorSettings>();
@@ -45,6 +50,9 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
             services.AddScoped<IItemDefinitionRepository, ItemDefinitionRepository>();
             services.AddScoped<IAbTestRepository, AbTestRepository>();
 
+            var qpUrlResolverCacheSettings = new QpSchemeCacheSettings { CachePeriod = new TimeSpan(0, 1, 0) };
+            services.AddSingleton(typeof(QpSchemeCacheSettings), qpUrlResolverCacheSettings);
+            services.AddScoped<IQpUrlResolver, QpUrlResolver>();
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = QpAuthDefaults.AuthenticationScheme;

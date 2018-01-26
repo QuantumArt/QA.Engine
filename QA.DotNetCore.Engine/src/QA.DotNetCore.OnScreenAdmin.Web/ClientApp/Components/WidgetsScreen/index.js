@@ -1,68 +1,60 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
+import Button from 'material-ui/Button';
 import Toolbar from 'material-ui/Toolbar';
-import TextField from 'material-ui/TextField';
-import { FormControlLabel } from 'material-ui/Form';
-import Switch from 'material-ui/Switch';
-import ComponentTree from '../../containers/componentTree';
+import EditComponentTree from 'containers/WidgetsScreen/editComponentTree';
+import MoveWidgetScreen from 'containers/WidgetsScreen/moveWidgetsScreen';
+import WidgetCreationWizard from 'containers/WidgetsScreen/widgetCreationWizard';
+import ComponentHighlightToolbar from 'containers/WidgetsScreen/componentHighlightToolbar';
 
-const styles = theme => ({
-  searchField: {
-    marginLeft: theme.spacing.unit * 2,
-    marginRight: theme.spacing.unit * 2,
-    fontSize: theme.spacing.unit * 2,
-  },
-  searchInput: {
-    fontSize: theme.spacing.unit * 2,
-  },
-  searchFieldLabel: {
-    fontWeight: 'normal',
-    fontSize: theme.spacing.unit * 2,
-  },
-  switchLabel: {
-    fontSize: theme.spacing.unit * 1.8,
+import ComponentTreeScreen from './ComponentTreeScreen';
+
+
+const styles = () => ({
+  menuButton: {
+    marginLeft: -12,
+    marginRight: 20,
   },
 });
 
-const WidgetsScreen = ({ classes, showAllZones, toggleAllZones }) => (
+const WidgetsScreen = ({
+  showComponentTree,
+  showWidgetCreationWizard,
+  showMoveWidgetScreen,
+  addWidgetToPage,
+  classes,
+}) => (
   <Fragment>
-    <Toolbar disableGutters>
-      <TextField
-        id="search"
-        label="Search items"
-        type="text"
-        margin="normal"
-        fullWidth
-        className={classes.searchField}
-        InputLabelProps={{
-          className: classes.searchFieldLabel,
-        }}
-        InputProps={{
-          className: classes.searchInput,
-        }}
-      />
-    </Toolbar>
-    <Toolbar>
-      <FormControlLabel
-        control={
-          <Switch
-            checked={showAllZones}
-            onChange={toggleAllZones}
-            aria-label="AllZonesChecked"
-          />
-        }
-        label="Toggle all zones mode"
-        classes={{ label: classes.switchLabel }}
-      />
-    </Toolbar>
-    <ComponentTree />
+    {showComponentTree
+      ? (
+        <Fragment>
+          <ComponentHighlightToolbar />
+          <Toolbar>
+            <Button raised color="primary" onClick={addWidgetToPage} className={classes.menuButton}>Add widget</Button>
+          </Toolbar>
+          <ComponentTreeScreen />
+        </Fragment>
+      )
+      : null
+    }
+    {showWidgetCreationWizard
+      ? (<WidgetCreationWizard />)
+      : null
+    }
+    {showMoveWidgetScreen
+      ? (<MoveWidgetScreen />)
+      : null
+    }
+    <EditComponentTree />
   </Fragment>
 );
 
 WidgetsScreen.propTypes = {
-  showAllZones: PropTypes.bool.isRequired,
-  toggleAllZones: PropTypes.func.isRequired,
+  showComponentTree: PropTypes.bool.isRequired,
+  showWidgetCreationWizard: PropTypes.bool.isRequired,
+  showMoveWidgetScreen: PropTypes.bool.isRequired,
+  addWidgetToPage: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired,
 };
 

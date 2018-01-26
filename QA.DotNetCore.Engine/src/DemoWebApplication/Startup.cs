@@ -56,7 +56,6 @@ namespace DemoWebApplication
                 options.QpSettings = qpSettings;
                 options.QpSiteStructureSettings = Configuration.GetSection("QpSiteStructureSettings").Get<QpSiteStructureSettings>();
                 options.TypeFinder.RegisterFromAssemblyContaining<RootPage, IAbstractItem>();
-                //options.QpSiteStructureSettings.LoadAbstractItemFieldsToDetailsCollection = false;
             });
 
             services.AddAbTestServices(options => {
@@ -70,6 +69,7 @@ namespace DemoWebApplication
             {
                 options.Settings.AdminSiteBaseUrl = Configuration.GetSection("OnScreen").Get<OnScreenSettings>().AdminSiteBaseUrl;
                 options.Settings.SiteId = qpSettings.SiteId;
+                options.Settings.IsStage = qpSettings.IsStage;
                 options.Settings.AvailableFeatures = qpSettings.IsStage ? OnScreenFeatures.Widgets | OnScreenFeatures.AbTests : OnScreenFeatures.AbTests;
                 options.DbConnectorSettings = new DbConnectorSettings
                 {

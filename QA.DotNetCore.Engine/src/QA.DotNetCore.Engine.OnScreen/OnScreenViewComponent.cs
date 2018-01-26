@@ -23,24 +23,28 @@ namespace QA.DotNetCore.Engine.OnScreen
             if (ctx == null)
                 throw new InvalidOperationException("OnScreen context not found.");
 
-            var ai = ViewContext.GetCurrentItem();
             if (ctx.Enabled)
             {
+                var startPage = ViewContext.GetStartPage();
+                var ai = ViewContext.GetCurrentItem();
                 var markup = new StringBuilder($@"<div id='sidebarplaceholder'></div>
                 <script type='text/javascript'>
                     window.onScreenAdminBaseUrl = '{_onScreenSettings.AdminSiteBaseUrl}';
                     window.currentPageId='{ai?.Id}';
+                    window.startPageId='{startPage?.Id}';
                     window.siteId='{_onScreenSettings.SiteId}';
+                    window.isStage={_onScreenSettings.IsStage.ToString().ToLower()};
                     window.onScreenFeatures = '{ctx.Features}';
                     window.onScreenTokenCookieName = '{_onScreenSettings.AuthCookieName}';
+                    window.onScreenOverrideAbTestStageModeCookieName = '{_onScreenSettings.OverrideAbTestStageModeCookieName}';
                  </script>
-                <script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/libs/pmrpc.js' defer></script>
-                <script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/onScreenLoader.js' defer></script>");
-
+                <script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/pmrpc.js'></script>
+                <script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/vendor.js'></script><script src='{ _onScreenSettings.AdminSiteBaseUrl}/dist/main.js'></script>");
+                
                 if (ctx.HasFeature(OnScreenFeatures.AbTests))
                 {
-                    markup.AppendLine($"<script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/libs/cookies.js' defer></script>");
-                    markup.AppendLine($"<script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/libs/onScreenAbTestApi.js' defer></script>");
+                    markup.AppendLine($"<script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/cookies.js' defer></script>");
+                    markup.AppendLine($"<script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/onScreenAbTestApi.js' defer></script>");
                 }
 
                 return new HtmlString(markup.ToString());

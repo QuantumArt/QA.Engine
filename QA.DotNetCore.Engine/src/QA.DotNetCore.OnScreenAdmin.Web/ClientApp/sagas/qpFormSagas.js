@@ -4,19 +4,22 @@ import { channel } from 'redux-saga';
 import { QP_FORM_ACTIONS } from '../actions/actionTypes';
 
 
-const getNeedReload = state => state.componentTree.needReload;
+const getNeedReload = state => state.articleManagement.needReload;
 const qpFormChannel = channel();
 const qpFormActionsNeedReload = [
   'update_article',
   'update_article_and_up',
   'move_to_archive_article',
   'remove_article',
+  'save_article',
+  'save_article_and_up',
+
 ];
 
 export function qpFormCallback(eventType, details) {
   console.log('qpFormCallback', eventType, details);
   if (eventType === 1) { // host unbinded
-    if (details.reason === 'closed') { // closed 
+    if (details.reason === 'closed') { // closed
       qpFormChannel.put({ type: QP_FORM_ACTIONS.CLOSE_QP_FORM, eventType, details });
     }
   }

@@ -6,5 +6,7 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces
     public interface IItemDefinitionRepository
     {
         IEnumerable<ItemDefinitionPersistentData> GetAllItemDefinitions(int siteId, bool isStage);
+
+        string ItemDefinitionNetName { get; }
     }
 }

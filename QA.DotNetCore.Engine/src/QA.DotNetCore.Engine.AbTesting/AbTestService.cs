@@ -1,11 +1,10 @@
-using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
-using QA.DotNetCore.Engine.Persistent.Interfaces;
-using QA.DotNetCore.Caching;
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using QA.DotNetCore.Engine.AbTesting.Data;
+using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions.OnScreen;
+using QA.DotNetCore.Engine.AbTesting.Data;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace QA.DotNetCore.Engine.AbTesting
 {
@@ -15,26 +14,45 @@ namespace QA.DotNetCore.Engine.AbTesting
         private readonly ICacheProvider _cacheProvider;
         private readonly AbTestingSettings _abTestingSettings;
         private readonly IOnScreenContextProvider _onScreenContextProvider;
+        private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
 
-        public AbTestService(IAbTestRepository abTestRepository, ICacheProvider cacheProvider, AbTestingSettings abTestingSettings, IOnScreenContextProvider onScreenContextProvider)
+        public AbTestService(IAbTestRepository abTestRepository,
+            ICacheProvider cacheProvider,
+            AbTestingSettings abTestingSettings,
+            IOnScreenContextProvider onScreenContextProvider,
+            IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider)
         {
             _abTestRepository = abTestRepository;
             _cacheProvider = cacheProvider;
             _abTestingSettings = abTestingSettings;
             _onScreenContextProvider = onScreenContextProvider;
+            _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
         }
 
         private Dictionary<int, AbTestPersistentData> GetCachedTests()
         {
             var isStage = _onScreenContextProvider.GetContext()?.AbtestsIsStageOverrided ?? _abTestingSettings.IsStage;
-            return _cacheProvider.GetOrAdd($"AbTestService.GetCachedTests_{_abTestingSettings.SiteId}_{isStage}", _abTestingSettings.TestsCachePeriod,
+            var cacheTags = new string[1] { _qpContentCacheTagNamingProvider.GetByNetName(_abTestRepository.AbTestNetName, _abTestingSettings.SiteId, isStage) };
+            return _cacheProvider.GetOrAdd($"AbTestService.GetCachedTests_{_abTestingSettings.SiteId}_{isStage}",
+                cacheTags,
+                _abTestingSettings.TestsCachePeriod,
                 () => _abTestRepository.GetActiveTests(_abTestingSettings.SiteId, isStage).ToDictionary(_ => _.Id));
         }
 
         private AbTestContainersByPaths GetCachedContainers()
         {
             var isStage = _onScreenContextProvider.GetContext()?.AbtestsIsStageOverrided ?? _abTestingSettings.IsStage;
-            return _cacheProvider.GetOrAdd($"AbTestService.GetCachedContainers_{_abTestingSettings.SiteId}_{isStage}", _abTestingSettings.ContainersCachePeriod,
+            var cacheTags = new string[4] {
+                _abTestRepository.AbTestNetName,
+                _abTestRepository.AbTestContainerNetName,
+                _abTestRepository.AbTestScriptNetName,
+                _abTestRepository.AbTestRedirectNetName
+            }.Select(c => _qpContentCacheTagNamingProvider.Get(c, _abTestingSettings.SiteId, isStage))
+            .ToArray();
+
+            return _cacheProvider.GetOrAdd($"AbTestService.GetCachedContainers_{_abTestingSettings.SiteId}_{isStage}",
+                cacheTags,
+                _abTestingSettings.ContainersCachePeriod,
                 () => new AbTestContainersByPaths(_abTestRepository.GetActiveTestsContainers(_abTestingSettings.SiteId, isStage)));
         }
 

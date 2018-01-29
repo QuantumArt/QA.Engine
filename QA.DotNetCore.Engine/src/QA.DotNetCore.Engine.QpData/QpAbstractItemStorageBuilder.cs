@@ -16,13 +16,14 @@ namespace QA.DotNetCore.Engine.QpData
     /// </summary>
     public class QpAbstractItemStorageBuilder : IAbstractItemStorageBuilder
     {
-        IServiceProvider _serviceProvider;
-        IAbstractItemFactory _itemFactory;
-        IQpUrlResolver _qpUrlResolver;
-        IAbstractItemRepository _abstractItemRepository;
-        IMetaInfoRepository _metaInfoRepository;
-        QpSiteStructureSettings _settings;
-        QpSettings _qpSettings;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly IAbstractItemFactory _itemFactory;
+        private readonly IQpUrlResolver _qpUrlResolver;
+        private readonly IAbstractItemRepository _abstractItemRepository;
+        private readonly IMetaInfoRepository _metaInfoRepository;
+        private readonly QpSiteStructureSettings _settings;
+        private readonly QpSettings _qpSettings;
+        private readonly string[] _usedContentNetNames;
 
         public QpAbstractItemStorageBuilder(
             IServiceProvider serviceProvider,
@@ -30,6 +31,7 @@ namespace QA.DotNetCore.Engine.QpData
             IQpUrlResolver qpUrlResolver,
             IAbstractItemRepository abstractItemRepository,
             IMetaInfoRepository metaInfoRepository,
+            IItemDefinitionRepository itemDefinitionRepository,
             QpSiteStructureSettings settings,
             QpSettings qpSettings)
         {
@@ -40,6 +42,7 @@ namespace QA.DotNetCore.Engine.QpData
             _metaInfoRepository = metaInfoRepository;
             _settings = settings;
             _qpSettings = qpSettings;
+            _usedContentNetNames = new string[2] { abstractItemRepository.AbstractItemNetName, itemDefinitionRepository.ItemDefinitionNetName };
         }
 
         public AbstractItemStorage Build()
@@ -176,6 +179,11 @@ namespace QA.DotNetCore.Engine.QpData
             }
         }
 
+        public string[] UsedContentNetNames
+        {
+            get { return _usedContentNetNames; }
+        }
+
         private readonly ConcurrentDictionary<Type, IReadOnlyList<ILoaderOption>> _loadOptions = new ConcurrentDictionary<Type, IReadOnlyList<ILoaderOption>>();
 
         /// <summary>
@@ -208,6 +216,7 @@ namespace QA.DotNetCore.Engine.QpData
         }
 
         private readonly ConcurrentDictionary<Type, bool> _m2mOptions = new ConcurrentDictionary<Type, bool>();
+
         /// <summary>
         /// Нужно ли грузить M2M для экстеншна, соответствующего типу
         /// </summary>

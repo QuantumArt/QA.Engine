@@ -21,6 +21,7 @@ using Quantumart.QPublishing.Database;
 using Quantumart.QPublishing.Authentication;
 using QA.DotNetCore.Engine.OnScreen.Configuration;
 using QA.DotNetCore.Engine.Abstractions.OnScreen;
+using QA.DotNetCore.Caching.Interfaces;
 
 namespace DemoWebApplication
 {

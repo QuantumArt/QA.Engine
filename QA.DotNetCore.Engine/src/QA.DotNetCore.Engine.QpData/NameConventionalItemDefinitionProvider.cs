@@ -1,7 +1,7 @@
-using QA.DotNetCore.Caching;
+using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions;
-using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
+using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Settings;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +16,7 @@ namespace QA.DotNetCore.Engine.QpData
         readonly ITypeFinder _typeFinder;
         readonly IItemDefinitionRepository _repository;
         readonly ICacheProvider _cacheProvider;
+        readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         readonly QpSettings _qpSettings;
         readonly ItemDefinitionCacheSettings _itemDefinitionCacheSettings;
 
@@ -23,12 +24,14 @@ namespace QA.DotNetCore.Engine.QpData
             ITypeFinder typeFinder,
             IItemDefinitionRepository repository,
             ICacheProvider cacheProvider,
+            IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
             QpSettings qpSettings,
             ItemDefinitionCacheSettings itemDefinitionCacheSettings)
         {
             _typeFinder = typeFinder;
             _repository = repository;
             _cacheProvider = cacheProvider;
+            _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
             _qpSettings = qpSettings;
             _itemDefinitionCacheSettings = itemDefinitionCacheSettings;
         }
@@ -46,7 +49,11 @@ namespace QA.DotNetCore.Engine.QpData
 
         private Dictionary<string, ItemDefinition> GetCached()
         {
-            return _cacheProvider.GetOrAdd("NameConventionalItemDefinitionProvider.BuildItemDefinitions", _itemDefinitionCacheSettings.CachePeriod, BuildItemDefinitions);
+            var cacheTags = new string[1] { _qpContentCacheTagNamingProvider.GetByNetName(_repository.ItemDefinitionNetName, _qpSettings.SiteId, _qpSettings.IsStage) };
+            return _cacheProvider.GetOrAdd("NameConventionalItemDefinitionProvider.BuildItemDefinitions",
+                cacheTags,
+                _itemDefinitionCacheSettings.CachePeriod,
+                BuildItemDefinitions);
         }
 
         private Dictionary<string, ItemDefinition> BuildItemDefinitions()

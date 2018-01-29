@@ -16,6 +16,7 @@ using QA.DotNetCore.Caching;
 using QA.DotNetCore.Engine.QpData.Replacements;
 using QA.DotNetCore.Engine.QpData.Settings;
 using System;
+using QA.DotNetCore.Caching.Interfaces;
 
 namespace QA.DotNetCore.OnScreenAdmin.Web
 {

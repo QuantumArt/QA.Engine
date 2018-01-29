@@ -1,0 +1,37 @@
+using QA.DotNetCore.Caching;
+using QA.DotNetCore.Caching.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using System.Collections.Generic;
+
+namespace QA.DotNetCore.Engine.QpData
+{
+    public class QpContentCacheTracker : ICacheTagTracker
+    {
+        private readonly IContentModificationRepository _contentModificationRepository;
+        private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
+
+        public QpContentCacheTracker(IContentModificationRepository contentModificationRepository,
+            IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider)
+        {
+            _contentModificationRepository = contentModificationRepository;
+            _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
+        }
+
+        public IEnumerable<CacheTagModification> TrackChanges()
+        {
+            var result = new List<CacheTagModification>();
+            foreach (var modification in _contentModificationRepository.GetAll())
+            {
+                result.Add(new CacheTagModification { Name = CacheTagName(modification, isStage: true), Modified = modification.StageModified });
+                result.Add(new CacheTagModification { Name = CacheTagName(modification, isStage: false), Modified = modification.LiveModified });
+            }
+            return result;
+        }
+
+        private string CacheTagName(QpContentModificationPersistentData modification, bool isStage)
+        {
+            return _qpContentCacheTagNamingProvider.Get(modification.ContentName, modification.ContentId, isStage);
+        }
+    }
+}

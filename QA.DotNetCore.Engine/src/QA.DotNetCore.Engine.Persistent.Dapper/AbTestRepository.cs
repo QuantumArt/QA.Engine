@@ -69,6 +69,14 @@ FROM [|AbTestClientRedirect|] r
 JOIN [|AbTestClientRedirectContainer|] rcont on rcont.content_item_id = r.[|AbTestClientRedirect.Container|]
 ";
 
+        public string AbTestNetName => "AbTestScript";
+
+        public string AbTestContainerNetName => "AbTestScriptContainer";
+
+        public string AbTestScriptNetName => "AbTestScript";
+
+        public string AbTestRedirectNetName => "AbTestClientRedirect";
+
         public IEnumerable<AbTestPersistentData> GetActiveTests(int siteId, bool isStage)
         {
             var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetActiveTests, siteId, isStage);

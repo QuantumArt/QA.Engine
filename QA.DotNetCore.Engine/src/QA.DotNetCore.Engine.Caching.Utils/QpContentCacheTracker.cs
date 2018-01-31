@@ -1,11 +1,15 @@
 using QA.DotNetCore.Caching;
 using QA.DotNetCore.Caching.Interfaces;
+using QA.DotNetCore.Engine.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using System.Collections.Generic;
 
-namespace QA.DotNetCore.Engine.QpData
+namespace QA.DotNetCore.Engine.Caching.Utils
 {
+    /// <summary>
+    /// Реализация ICacheTagTracker для контентов QP. 
+    /// </summary>
     public class QpContentCacheTracker : ICacheTagTracker
     {
         private readonly IContentModificationRepository _contentModificationRepository;

@@ -1,17 +1,22 @@
 using QA.DotNetCore.Caching.Interfaces;
+using QA.DotNetCore.Engine.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using System;
 
-namespace QA.DotNetCore.Caching
+namespace QA.DotNetCore.Engine.Caching.Utils
 {
-    public class QpContentCacheTagNamingProvider : IQpContentCacheTagNamingProvider
+    /// <summary>
+    /// Инкапсулирует стандартное правило наименования кештегов для контентов QP. {ContentName}_{ContentId}_{Stage/Live}.
+    /// </summary>
+    public class DefaultQpContentCacheTagNamingProvider : IQpContentCacheTagNamingProvider
     {
         private readonly IMetaInfoRepository _metaInfoRepository;
         private readonly ICacheProvider _cacheProvider;
 
-        public QpContentCacheTagNamingProvider(IMetaInfoRepository metaInfoRepository)
+        public DefaultQpContentCacheTagNamingProvider(IMetaInfoRepository metaInfoRepository, ICacheProvider cacheProvider)
         {
             _metaInfoRepository = metaInfoRepository;
+            _cacheProvider = cacheProvider;
         }
 
         public string Get(string contentName, int contentId, bool isStage)

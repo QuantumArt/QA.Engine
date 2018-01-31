@@ -1,4 +1,4 @@
-namespace QA.DotNetCore.Caching.Interfaces
+namespace QA.DotNetCore.Engine.Interfaces
 {
     /// <summary>
     /// Интерфейс, задающий правила именования кештегов для контентов qp

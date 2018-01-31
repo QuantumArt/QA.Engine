@@ -8,20 +8,21 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Caching;
+using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.Abstractions.OnScreen;
 using QA.DotNetCore.Engine.AbTesting.Configuration;
+using QA.DotNetCore.Engine.Caching.Utils;
+using QA.DotNetCore.Engine.Interfaces;
+using QA.DotNetCore.Engine.OnScreen.Configuration;
+using QA.DotNetCore.Engine.Persistent.Dapper;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Configuration;
 using QA.DotNetCore.Engine.QpData.Settings;
 using QA.DotNetCore.Engine.Routing.Configuration;
 using QA.DotNetCore.Engine.Targeting.Configuration;
-using QA.DotNetCore.Engine.AbTesting;
-using QA.DotNetCore.Engine.Persistent.Interfaces;
-using QA.DotNetCore.Engine.Persistent.Dapper;
 using Quantumart.QPublishing.Database;
-using Quantumart.QPublishing.Authentication;
-using QA.DotNetCore.Engine.OnScreen.Configuration;
-using QA.DotNetCore.Engine.Abstractions.OnScreen;
-using QA.DotNetCore.Caching.Interfaces;
+using QA.DotNetCore.Engine.Caching.Utils.Configuration;
 
 namespace DemoWebApplication
 {
@@ -79,6 +80,8 @@ namespace DemoWebApplication
                 };
             });
 
+            services.AddCacheTagServices();
+
             services.AddSingleton(typeof(DemoRegionTargetingProvider));
             services.AddSingleton(typeof(DemoCultureTargetingProvider));
             services.AddSingleton(typeof(DemoRegionFilter));
@@ -105,6 +108,12 @@ namespace DemoWebApplication
 
             app.UseStaticFiles();
 
+            app.UseCacheTagsInvalidation(invalidation =>
+            {
+                invalidation.ByMiddleware(@"^.*\/[a-zA-Z0-9]+\.[a-zA-Z0-9]+$");
+                invalidation.AddTracker<QpContentCacheTracker>();
+            });
+
             app.UseSiteStructure();
 
             app.UseTargeting(targeting =>
@@ -130,9 +139,9 @@ namespace DemoWebApplication
 
                 routes.MapContentRoute("default", "{controller}/{action=Index}/{id?}");
 
-                routes.MapGreedyContentRoute("blog bage with tail", "{controller}",
-                    defaults: new { controller = "blogpagetype", action = "Index" },
-                    constraints: new { controller = "blogpagetype" });
+                //routes.MapGreedyContentRoute("blog bage with tail", "{controller}",
+                //    defaults: new { controller = "blogpagetype", action = "Index" },
+                //    constraints: new { controller = "blogpagetype" });
 
                 routes.MapRoute("static controllers route", "{controller}/{action=Index}/{id?}");
             });

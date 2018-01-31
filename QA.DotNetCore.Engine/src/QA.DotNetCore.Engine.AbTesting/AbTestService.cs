@@ -1,6 +1,7 @@
 using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions.OnScreen;
 using QA.DotNetCore.Engine.AbTesting.Data;
+using QA.DotNetCore.Engine.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using System.Collections.Generic;

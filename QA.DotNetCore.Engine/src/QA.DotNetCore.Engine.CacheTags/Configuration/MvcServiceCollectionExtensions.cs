@@ -1,16 +1,13 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using QA.DotNetCore.Caching;
 using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Dapper;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace QA.DotNetCore.Engine.Caching.Utils.Configuration
+namespace QA.DotNetCore.Engine.CacheTags.Configuration
 {
     public static class MvcServiceCollectionExtensions
     {
@@ -18,14 +15,24 @@ namespace QA.DotNetCore.Engine.Caching.Utils.Configuration
         /// Добавление сервисов для работы кештегов в IServiceCollection
         /// </summary>
         /// <param name="services">коллекция сервисов</param>
-        public static void AddCacheTagServices(this IServiceCollection services)
+        /// <param name="setupAction">конфигуратор настроек</param>
+        public static void AddCacheTagServices(this IServiceCollection services, Action<CacheTagsRegistrationConfigurator> setupAction)
         {
+            var cfg = new CacheTagsRegistrationConfigurator();
+            setupAction?.Invoke(cfg);
+            services.AddSingleton(cfg);
+
             services.AddSingleton<ICacheTagWatcher, CacheTagWatcher>();
             services.AddSingleton<IQpContentCacheTagNamingProvider, DefaultQpContentCacheTagNamingProvider>();
             services.AddScoped<QpContentCacheTracker>();
             services.AddScoped<IContentModificationRepository, ContentModificationRepository>();
             services.AddSingleton<ICacheTrackersAccessor, CacheTrackersAccessor>();
-            services.AddSingleton<CacheTagsInvalidationConfigurator>();
+            services.AddSingleton<CacheTagsTrackersConfigurator>();
+
+            if (cfg.UseTimer)
+            {
+                services.AddSingleton<IHostedService, CacheInvalidationBackgroundService>();
+            }
         }
     }
 }

@@ -3,7 +3,7 @@ using QA.DotNetCore.Caching.Interfaces;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace QA.DotNetCore.Engine.Caching.Utils
+namespace QA.DotNetCore.Engine.CacheTags
 {
     /// <summary>
     /// Мидлвара для stage-режима, чтобы при каждом запросе отслеживать изменения по кештегам

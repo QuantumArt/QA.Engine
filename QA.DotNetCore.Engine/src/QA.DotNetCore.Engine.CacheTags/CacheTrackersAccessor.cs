@@ -1,14 +1,14 @@
 using QA.DotNetCore.Caching.Interfaces;
-using QA.DotNetCore.Engine.Caching.Utils.Configuration;
+using QA.DotNetCore.Engine.CacheTags.Configuration;
 using System.Collections.Generic;
 
-namespace QA.DotNetCore.Engine.Caching.Utils
+namespace QA.DotNetCore.Engine.CacheTags
 {
     public class CacheTrackersAccessor : ICacheTrackersAccessor
     {
-        private readonly CacheTagsInvalidationConfigurator _cfg;
+        private readonly CacheTagsTrackersConfigurator _cfg;
 
-        public CacheTrackersAccessor(CacheTagsInvalidationConfigurator cfg)
+        public CacheTrackersAccessor(CacheTagsTrackersConfigurator cfg)
         {
             _cfg = cfg;
         }

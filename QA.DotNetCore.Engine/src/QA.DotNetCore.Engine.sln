@@ -35,7 +35,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.AbTest
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.OnScreen", "QA.DotNetCore.Engine.OnScreen\QA.DotNetCore.Engine.OnScreen.csproj", "{BC0E0FB5-198F-4C40-9AAB-4EB0599F32A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QA.DotNetCore.Engine.Caching.Utils", "QA.DotNetCore.Engine.Caching.Utils\QA.DotNetCore.Engine.Caching.Utils.csproj", "{2A925092-6064-476C-AA55-A4F4DC5C3025}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QA.DotNetCore.Engine.CacheTags", "QA.DotNetCore.Engine.CacheTags\QA.DotNetCore.Engine.CacheTags.csproj", "{2A925092-6064-476C-AA55-A4F4DC5C3025}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

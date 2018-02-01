@@ -5,7 +5,7 @@ using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using System.Collections.Generic;
 
-namespace QA.DotNetCore.Engine.Caching.Utils
+namespace QA.DotNetCore.Engine.CacheTags
 {
     /// <summary>
     /// Реализация ICacheTagTracker для контентов QP. 

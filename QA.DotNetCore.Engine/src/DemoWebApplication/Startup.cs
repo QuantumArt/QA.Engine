@@ -12,7 +12,7 @@ using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.OnScreen;
 using QA.DotNetCore.Engine.AbTesting.Configuration;
-using QA.DotNetCore.Engine.Caching.Utils;
+using QA.DotNetCore.Engine.CacheTags;
 using QA.DotNetCore.Engine.Interfaces;
 using QA.DotNetCore.Engine.OnScreen.Configuration;
 using QA.DotNetCore.Engine.Persistent.Dapper;
@@ -22,7 +22,8 @@ using QA.DotNetCore.Engine.QpData.Settings;
 using QA.DotNetCore.Engine.Routing.Configuration;
 using QA.DotNetCore.Engine.Targeting.Configuration;
 using Quantumart.QPublishing.Database;
-using QA.DotNetCore.Engine.Caching.Utils.Configuration;
+using QA.DotNetCore.Engine.CacheTags.Configuration;
+using System;
 
 namespace DemoWebApplication
 {
@@ -45,8 +46,9 @@ namespace DemoWebApplication
         {
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddMvc();
+            services.AddLogging();
             services.AddMemoryCache();
-
+            
             services.AddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
 
             var qpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
@@ -80,7 +82,16 @@ namespace DemoWebApplication
                 };
             });
 
-            services.AddCacheTagServices();
+            services.AddCacheTagServices(options => {
+                if (qpSettings.IsStage)
+                {
+                    options.InvalidateByMiddleware(@"^.*\/.+\.[a-zA-Z0-9]+$");//отсекаем левые запросы для статики (для каждого сайта может настраиваться индивидуально)
+                }
+                else
+                {
+                    options.InvalidateByTimer(TimeSpan.FromSeconds(30));
+                }
+            });
 
             services.AddSingleton(typeof(DemoRegionTargetingProvider));
             services.AddSingleton(typeof(DemoCultureTargetingProvider));
@@ -105,12 +116,11 @@ namespace DemoWebApplication
             {
                 app.UseExceptionHandler("/Home/Error");
             }
-
+            
             app.UseStaticFiles();
 
             app.UseCacheTagsInvalidation(invalidation =>
             {
-                invalidation.ByMiddleware(@"^.*\/[a-zA-Z0-9]+\.[a-zA-Z0-9]+$");
                 invalidation.AddTracker<QpContentCacheTracker>();
             });
 
@@ -122,10 +132,10 @@ namespace DemoWebApplication
                 targeting.Add<DemoRegionTargetingProvider>();
             });
 
-            app.UseSiteSctructureFilters(cfg =>
+            app.UseSiteSctructureFilters(filters =>
             {
-                cfg.Add<DemoRegionFilter>();
-                cfg.Add<DemoCultureFilter>();
+                filters.Add<DemoRegionFilter>();
+                filters.Add<DemoCultureFilter>();
             });
 
             app.UseOnScreenMode();

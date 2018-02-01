@@ -3,7 +3,7 @@ using QA.DotNetCore.Engine.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using System;
 
-namespace QA.DotNetCore.Engine.Caching.Utils
+namespace QA.DotNetCore.Engine.CacheTags
 {
     /// <summary>
     /// Инкапсулирует стандартное правило наименования кештегов для контентов QP. {ContentName}_{ContentId}_{Stage/Live}.

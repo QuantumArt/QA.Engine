@@ -5,16 +5,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.0.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.0.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.2" />
     <PackageReference Include="Quantumart.AspNetCore" Version="3.1.2-beta" />
   </ItemGroup>
 
@@ -24,7 +24,7 @@
     <ProjectReference Include="..\QA.DotNetCore.Engine.Abstractions\QA.DotNetCore.Engine.Abstractions.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.AbTesting.Configuration\QA.DotNetCore.Engine.AbTesting.Configuration.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.AbTesting\QA.DotNetCore.Engine.AbTesting.csproj" />
-    <ProjectReference Include="..\QA.DotNetCore.Engine.Caching.Utils\QA.DotNetCore.Engine.Caching.Utils.csproj" />
+    <ProjectReference Include="..\QA.DotNetCore.Engine.CacheTags\QA.DotNetCore.Engine.CacheTags.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.OnScreen\QA.DotNetCore.Engine.OnScreen.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Persistent.Dapper\QA.DotNetCore.Engine.Persistent.Dapper.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Persistent.Interfaces\QA.DotNetCore.Engine.Persistent.Interfaces.csproj" />

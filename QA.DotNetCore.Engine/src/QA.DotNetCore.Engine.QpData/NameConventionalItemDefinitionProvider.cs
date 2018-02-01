@@ -50,7 +50,9 @@ namespace QA.DotNetCore.Engine.QpData
 
         private Dictionary<string, ItemDefinition> GetCached()
         {
-            var cacheTags = new string[1] { _qpContentCacheTagNamingProvider.GetByNetName(_repository.ItemDefinitionNetName, _qpSettings.SiteId, _qpSettings.IsStage) };
+            var cacheTags = new string[1] { _qpContentCacheTagNamingProvider.GetByNetName(_repository.ItemDefinitionNetName, _qpSettings.SiteId, _qpSettings.IsStage) }
+                .Where(t => t != null)
+                .ToArray();
             return _cacheProvider.GetOrAdd("NameConventionalItemDefinitionProvider.BuildItemDefinitions",
                 cacheTags,
                 _itemDefinitionCacheSettings.CachePeriod,

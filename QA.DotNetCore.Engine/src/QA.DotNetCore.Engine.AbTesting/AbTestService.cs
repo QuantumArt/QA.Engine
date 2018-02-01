@@ -33,7 +33,9 @@ namespace QA.DotNetCore.Engine.AbTesting
         private Dictionary<int, AbTestPersistentData> GetCachedTests()
         {
             var isStage = _onScreenContextProvider.GetContext()?.AbtestsIsStageOverrided ?? _abTestingSettings.IsStage;
-            var cacheTags = new string[1] { _qpContentCacheTagNamingProvider.GetByNetName(_abTestRepository.AbTestNetName, _abTestingSettings.SiteId, isStage) };
+            var cacheTags = new string[1] { _qpContentCacheTagNamingProvider.GetByNetName(_abTestRepository.AbTestNetName, _abTestingSettings.SiteId, isStage) }
+                .Where(t => t != null)
+                .ToArray();
             return _cacheProvider.GetOrAdd($"AbTestService.GetCachedTests_{_abTestingSettings.SiteId}_{isStage}",
                 cacheTags,
                 _abTestingSettings.TestsCachePeriod,
@@ -49,6 +51,7 @@ namespace QA.DotNetCore.Engine.AbTesting
                 _abTestRepository.AbTestScriptNetName,
                 _abTestRepository.AbTestRedirectNetName
             }.Select(c => _qpContentCacheTagNamingProvider.Get(c, _abTestingSettings.SiteId, isStage))
+            .Where(t => t != null)
             .ToArray();
 
             return _cacheProvider.GetOrAdd($"AbTestService.GetCachedContainers_{_abTestingSettings.SiteId}_{isStage}",

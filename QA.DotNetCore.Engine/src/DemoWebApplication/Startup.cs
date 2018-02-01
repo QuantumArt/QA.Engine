@@ -48,8 +48,6 @@ namespace DemoWebApplication
             services.AddMvc();
             services.AddLogging();
             services.AddMemoryCache();
-            
-            services.AddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
 
             var qpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
             var qpConnection = Configuration.GetConnectionString("QpConnection");
@@ -82,7 +80,8 @@ namespace DemoWebApplication
                 };
             });
 
-            services.AddCacheTagServices(options => {
+            services.AddCacheTagServices(options =>
+            {
                 if (qpSettings.IsStage)
                 {
                     options.InvalidateByMiddleware(@"^.*\/.+\.[a-zA-Z0-9]+$");//отсекаем левые запросы для статики (для каждого сайта может настраиваться индивидуально)

@@ -24,6 +24,7 @@ using QA.DotNetCore.Engine.Targeting.Configuration;
 using Quantumart.QPublishing.Database;
 using QA.DotNetCore.Engine.CacheTags.Configuration;
 using System;
+using DemoWebApplication.Templates;
 
 namespace DemoWebApplication
 {
@@ -91,6 +92,8 @@ namespace DemoWebApplication
                     options.InvalidateByTimer(TimeSpan.FromSeconds(30));
                 }
             });
+
+            services.AddSingleton<CacheTagUtilities>();
 
             services.AddSingleton(typeof(DemoRegionTargetingProvider));
             services.AddSingleton(typeof(DemoCultureTargetingProvider));

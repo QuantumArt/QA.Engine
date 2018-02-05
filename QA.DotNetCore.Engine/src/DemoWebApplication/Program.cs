@@ -16,7 +16,7 @@ namespace DemoWebApplication
                 .UseUrls("http://*:9092;http://localhost:5000/")
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseIISIntegration()
-                .UseStartup<Startup>()                
+                .UseStartup<Startup>()
                 .Build();
 
             host.Run();

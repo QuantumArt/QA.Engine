@@ -42,6 +42,8 @@ INNER JOIN [|QPDiscriminator|] def on ai.[|QPAbstractItem.Discriminator|] = def.
         private const string CmdGetExtension = @"[qa_extend_items]";
         private const string CmdGetManyToMany = @"[qa_extend_items_m2m]";
 
+        public string AbstractItemNetName => "QPAbstractItem";
+
         public IEnumerable<AbstractItemPersistentData> GetPlainAllAbstractItems(int siteId, bool isStage)
         {
             var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAbstractItem, siteId, isStage);

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Primitives;
+using QA.DotNetCore.Caching.Interfaces;
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
@@ -27,7 +28,7 @@ namespace QA.DotNetCore.Caching
         /// <returns></returns>
         public virtual object Get(string key)
         {
-            return _cache.Get(key);
+            return string.IsNullOrEmpty(key) ? null : _cache.Get(key);
         }
 
         /// <summary>
@@ -38,17 +39,7 @@ namespace QA.DotNetCore.Caching
         /// <param name="cacheTime">Время кеширования в секундах</param>
         public virtual void Set(string key, object data, int cacheTime)
         {
-            if (string.IsNullOrEmpty(key))
-            {
-                return;
-            }
-
-            var policy = new MemoryCacheEntryOptions
-            {
-                AbsoluteExpiration = DateTime.Now + TimeSpan.FromSeconds(cacheTime)
-            };
-
-            _cache.Set(key, data, policy);
+            Set(key, data, TimeSpan.FromSeconds(cacheTime));
         }
 
         /// <summary>
@@ -89,6 +80,11 @@ namespace QA.DotNetCore.Caching
 
         public virtual T GetOrAdd<T>(string cacheKey, TimeSpan expiration, Func<T> getData, TimeSpan monitorTimeout = default(TimeSpan))
         {
+            return GetOrAdd(cacheKey, null, expiration, getData, monitorTimeout);
+        }
+
+        public virtual T GetOrAdd<T>(string cacheKey, string[] tags, TimeSpan expiration, Func<T> getData, TimeSpan monitorTimeout = default(TimeSpan))
+        {
             var deprecatedCacheKey = GetDeprecatedCacheKey(cacheKey);
             var result = Convert<T>(Get(cacheKey));
             if (result == null)
@@ -122,8 +118,8 @@ namespace QA.DotNetCore.Caching
                             result = getData();
                             if (result != null)
                             {
-                                Set(cacheKey, result, expiration);
-                                Set(deprecatedCacheKey, result, TimeSpan.FromTicks(expiration.Ticks * 2));
+                                Add(result, cacheKey, tags, expiration);
+                                Add(result, deprecatedCacheKey, null, TimeSpan.FromTicks(expiration.Ticks * 2));
                             }
                         }
                     }
@@ -214,13 +210,19 @@ namespace QA.DotNetCore.Caching
 
         private CancellationTokenSource AddTag(DateTime tagExpiration, string item)
         {
-            return _cache.GetOrCreate(item, entry =>
+            var result = _cache.Get(item) as CancellationTokenSource;
+            if (result == null)
             {
-                entry.Priority = CacheItemPriority.NeverRemove;
-                entry.AbsoluteExpiration = tagExpiration;
-                entry.RegisterPostEvictionCallback(callback: EvictionTagCallback, state: this);
-                return new CancellationTokenSource();
-            });
+                result = new CancellationTokenSource();
+                var options = new MemoryCacheEntryOptions()
+                {
+                    Priority = CacheItemPriority.NeverRemove,
+                    AbsoluteExpiration = tagExpiration,
+                };
+                options.RegisterPostEvictionCallback(EvictionTagCallback, this);
+                _cache.Set(item, result, options);
+            }
+            return result;
         }
 
         private static string GetDeprecatedCacheKey(string originalKey)

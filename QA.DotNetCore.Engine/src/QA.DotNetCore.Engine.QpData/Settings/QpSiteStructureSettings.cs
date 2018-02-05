@@ -8,10 +8,6 @@ namespace QA.DotNetCore.Engine.QpData.Settings
     public class QpSiteStructureSettings
     {
         /// <summary>
-        /// Кешировать ли структуру сайта
-        /// </summary>
-        public bool UseCache { get; set; }
-        /// <summary>
         /// Период хранения структуры сайта в кеше
         /// </summary>
         public TimeSpan CachePeriod { get; set; }

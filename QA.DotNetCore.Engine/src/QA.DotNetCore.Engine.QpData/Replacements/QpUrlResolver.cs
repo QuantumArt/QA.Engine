@@ -1,10 +1,9 @@
-using QA.DotNetCore.Caching;
-using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
-using System;
-using Microsoft.Extensions.Options;
-using System.Text;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using QA.DotNetCore.Engine.QpData.Settings;
+using System;
+using System.Text;
 
 namespace QA.DotNetCore.Engine.QpData.Replacements
 {

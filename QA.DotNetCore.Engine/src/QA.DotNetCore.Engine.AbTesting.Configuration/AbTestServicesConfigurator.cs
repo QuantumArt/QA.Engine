@@ -1,4 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
+using QA.DotNetCore.Caching;
+using QA.DotNetCore.Caching.Interfaces;
+using QA.DotNetCore.Engine.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Dapper;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
@@ -24,6 +27,8 @@ namespace QA.DotNetCore.Engine.AbTesting.Configuration
             services.AddScoped<AbTestChoiceResolver>();
             services.AddScoped<IAbTestRepository, AbTestRepository>();
             services.AddScoped<IAbTestService, AbTestService>();
+            services.AddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
+            services.AddSingleton<IQpContentCacheTagNamingProvider, NullQpContentCacheTagNamingProvider>();
         }
     }
 }

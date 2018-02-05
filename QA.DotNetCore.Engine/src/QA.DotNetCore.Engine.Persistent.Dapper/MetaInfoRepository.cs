@@ -50,6 +50,7 @@ WHERE CONTENT_ID={0} AND NET_ATTRIBUTE_NAME='{1}'
 
         private const string CmdGetContent = @"
 SELECT
+    c.CONTENT_NAME as ContentName,
     ca.ATTRIBUTE_ID as Id,
     ca.CONTENT_ID as ContentId,
     ca.ATTRIBUTE_NAME as ColumnName,
@@ -85,6 +86,7 @@ WHERE c.[SITE_ID]={0} AND c.[NET_CONTENT_NAME]='{1}'
             return new ContentPersistentData
             {
                 ContentId = contentAttributes.First().ContentId,
+                ContentName = contentAttributes.First().ContentName,
                 ContentNetName = contentNetName,
                 ContentAttributes = contentAttributes
             };

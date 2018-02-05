@@ -5,26 +5,33 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using QA.DotNetCore.Caching;
+using QA.DotNetCore.Caching.Interfaces;
+using QA.DotNetCore.Engine.CacheTags;
+using QA.DotNetCore.Engine.CacheTags.Configuration;
 using QA.DotNetCore.Engine.Persistent.Dapper;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
+using QA.DotNetCore.Engine.QpData.Replacements;
+using QA.DotNetCore.Engine.QpData.Settings;
 using QA.DotNetCore.OnScreenAdmin.Web.Auth;
 using Quantumart.QPublishing.Authentication;
 using Quantumart.QPublishing.Database;
-using System.Collections.Generic;
-using QA.DotNetCore.Caching;
-using QA.DotNetCore.Engine.QpData.Replacements;
-using QA.DotNetCore.Engine.QpData.Settings;
 using System;
-using QA.DotNetCore.Caching.Interfaces;
+using System.Collections.Generic;
 
 namespace QA.DotNetCore.OnScreenAdmin.Web
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IHostingEnvironment env)
         {
-            Configuration = configuration;
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddEnvironmentVariables();
+            Configuration = builder.Build();
         }
 
         public IConfiguration Configuration { get; }
@@ -72,6 +79,8 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
                     },
                     new[] { QpAuthDefaults.AuthenticationScheme });
             });
+
+            services.AddCacheTagServices(options => options.InvalidateByMiddleware(@"^(?!\/api\/).+$"));//инвалидировать только если запрос начинается с /api/
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -102,15 +111,16 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
 
             app.UseAuthentication();
 
+            app.UseCacheTagsInvalidation(invalidation =>
+            {
+                invalidation.AddTracker<QpContentCacheTracker>();
+            });
+
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
-
-                routes.MapSpaFallbackRoute(
-                   name: "spa-fallback",
-                   defaults: new { controller = "Home", action = "Index" });
             });
         }
     }

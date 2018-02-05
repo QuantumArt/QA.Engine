@@ -11,6 +11,7 @@ using Quantumart.QPublishing.Info;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using QA.DotNetCore.Caching.Interfaces;
 
 namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
 {
@@ -23,14 +24,24 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
         IAbTestRepository _abTestRepository;
         DBConnector _dbConnector;
         IQpUrlResolver _qpUrlResolver;
+        ICacheProvider _cacheProvider;
+        IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
 
-        public ApiController(IMetaInfoRepository metaInfoRepository, IItemDefinitionRepository itemDefinitionRepository, DBConnector dbConnector, IAbTestRepository abTestRepository, IQpUrlResolver qpUrlResolver)
+        public ApiController(IMetaInfoRepository metaInfoRepository,
+            IItemDefinitionRepository itemDefinitionRepository,
+            DBConnector dbConnector,
+            IAbTestRepository abTestRepository,
+            IQpUrlResolver qpUrlResolver,
+            ICacheProvider cacheProvider,
+            IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider)
         {
             _metaInfoRepository = metaInfoRepository;
             _itemDefinitionRepository = itemDefinitionRepository;
             _dbConnector = dbConnector;
             _qpUrlResolver = qpUrlResolver;
             _abTestRepository = abTestRepository;
+            _cacheProvider = cacheProvider;
+            _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
         }
 
         [HttpGet("meta")]
@@ -47,7 +58,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
         }
 
         [HttpGet("availableWidgets")]
-        public ApiResult AvailableWidgets(int siteId)
+        public ApiResult AvailableWidgets(int siteId, bool isStage = true)
         {
             try
             {
@@ -56,9 +67,13 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
                     return ApiResult.Error(Response, $"Not found QPDiscriminator content in site {siteId}");
                 var baseIconUrl = _qpUrlResolver.UrlForImage(siteId, content.ContentId, "IconUrl");
 
-                var widgetDefinitions = _itemDefinitionRepository
-                    .GetAllItemDefinitions(siteId, true)
-                    .Where(d => !d.IsPage);
+                var cacheTag = new string[1] { _qpContentCacheTagNamingProvider.Get(content.ContentName, content.ContentId, isStage) };
+
+                var widgetDefinitions = _cacheProvider.GetOrAdd($"AvailableWidgets_{siteId}_{isStage}", cacheTag, TimeSpan.FromHours(1), () => {
+                    return _itemDefinitionRepository
+                        .GetAllItemDefinitions(siteId, isStage)
+                        .Where(d => !d.IsPage);
+                });
 
                 foreach (var w in widgetDefinitions)
                 {
@@ -115,8 +130,26 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
         {
             try
             {
-                var tests = _abTestRepository.GetActiveTests(siteId, isStage);
-                var result = _abTestRepository.GetActiveTestsContainers(siteId, isStage)
+                var cacheTag = new string[1] { _qpContentCacheTagNamingProvider.GetByNetName(_abTestRepository.AbTestNetName, siteId, isStage) };
+                var tests = _cacheProvider.GetOrAdd($"ActiveTests_{siteId}_{isStage}", cacheTag, TimeSpan.FromHours(1), () =>
+                {
+                    return _abTestRepository.GetActiveTests(siteId, isStage); ;
+                });
+                
+                var containersCacheTags = new string[4] {
+                    _abTestRepository.AbTestNetName,
+                    _abTestRepository.AbTestContainerNetName,
+                    _abTestRepository.AbTestScriptNetName,
+                    _abTestRepository.AbTestRedirectNetName
+                }.Select(c => _qpContentCacheTagNamingProvider.GetByNetName(c, siteId, isStage))
+                .Where(t => t != null)
+                .ToArray();
+                var containers = _cacheProvider.GetOrAdd($"ActiveTestContainers_{siteId}_{isStage}", containersCacheTags, TimeSpan.FromHours(1), () =>
+                {
+                    return _abTestRepository.GetActiveTestsContainers(siteId, isStage);
+                });
+
+                var result = containers
                     .Where(c => cids.Contains(c.Id))
                     .GroupBy(c => c.TestId)
                     .Select(g => new AbTestInfo(tests.FirstOrDefault(t => t.Id == g.Key), g))

@@ -1,7 +1,6 @@
 using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions.OnScreen;
 using QA.DotNetCore.Engine.AbTesting.Data;
-using QA.DotNetCore.Engine.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using System.Collections.Generic;
@@ -50,7 +49,7 @@ namespace QA.DotNetCore.Engine.AbTesting
                 _abTestRepository.AbTestContainerNetName,
                 _abTestRepository.AbTestScriptNetName,
                 _abTestRepository.AbTestRedirectNetName
-            }.Select(c => _qpContentCacheTagNamingProvider.Get(c, _abTestingSettings.SiteId, isStage))
+            }.Select(c => _qpContentCacheTagNamingProvider.GetByNetName(c, _abTestingSettings.SiteId, isStage))
             .Where(t => t != null)
             .ToArray();
 

@@ -1,4 +1,4 @@
-using QA.DotNetCore.Engine.Interfaces;
+using QA.DotNetCore.Caching.Interfaces;
 
 namespace QA.DotNetCore.Caching
 {

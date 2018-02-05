@@ -13,7 +13,7 @@ using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.OnScreen;
 using QA.DotNetCore.Engine.AbTesting.Configuration;
 using QA.DotNetCore.Engine.CacheTags;
-using QA.DotNetCore.Engine.Interfaces;
+using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.OnScreen.Configuration;
 using QA.DotNetCore.Engine.Persistent.Dapper;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
@@ -93,7 +93,7 @@ namespace DemoWebApplication
                 }
             });
 
-            services.AddSingleton<CacheTagUtilities>();
+            services.AddScoped<CacheTagUtilities>();
 
             services.AddSingleton(typeof(DemoRegionTargetingProvider));
             services.AddSingleton(typeof(DemoCultureTargetingProvider));

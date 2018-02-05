@@ -1,5 +1,4 @@
 using QA.DotNetCore.Caching.Interfaces;
-using QA.DotNetCore.Engine.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using System;
 

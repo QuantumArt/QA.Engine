@@ -31,6 +31,10 @@ const buildTree = (componentsList, disabledComponents = [], allOpened = false) =
   return tree;
 };
 
+// const buildWidgetTree = (componentsList, disabledComponents = [], allOpened = false) => {
+//   const fullTree = buildTree(componentsList, disabledComponents, allOpened);
+// };
+
 
 export default buildTree;
 

@@ -8,21 +8,19 @@ class ComponentTree extends Component {
   renderComponentsList = () => {
     const {
       components,
-      maxNestLevel,
       selectedComponentId,
       onToggleComponent,
       onToggleSubtree,
       onToggleFullSubtree,
       isMovingWidget,
       onMovingWidgetSelectTargetZone,
+      showOnlyWidgets,
     } = this.props;
-    console.log(components);
     return (
       <List dense >
         {components.map(component => (
           <ComponentItem
             {...component}
-            maxNestLevel={maxNestLevel}
             selectedComponentId={selectedComponentId}
             isOpened={component.isOpened}
             key={component.onScreenId}
@@ -31,7 +29,8 @@ class ComponentTree extends Component {
             onToggleFullSubtree={onToggleFullSubtree}
             isMovingWidget={isMovingWidget}
             onMovingWidgetSelectTargetZone={onMovingWidgetSelectTargetZone}
-
+            showOnlyWidgets={showOnlyWidgets}
+            itemLevel={1}
           />))}
       </List>
     );
@@ -57,7 +56,6 @@ ComponentTree.propTypes = {
       children: PropTypes.array.isRequired,
     }).isRequired,
   ).isRequired,
-  maxNestLevel: PropTypes.number.isRequired,
   selectedComponentId: PropTypes.string.isRequired,
   onToggleComponent: PropTypes.func.isRequired,
   onToggleSubtree: PropTypes.func.isRequired,
@@ -65,6 +63,7 @@ ComponentTree.propTypes = {
   disabledComponents: PropTypes.array.isRequired,
   isMovingWidget: PropTypes.bool.isRequired,
   onMovingWidgetSelectTargetZone: PropTypes.func.isRequired,
+  showOnlyWidgets: PropTypes.bool.isRequired,
 };
 
 export default ComponentTree;

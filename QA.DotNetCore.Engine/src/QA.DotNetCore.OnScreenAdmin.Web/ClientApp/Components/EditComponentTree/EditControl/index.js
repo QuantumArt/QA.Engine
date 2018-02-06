@@ -67,7 +67,7 @@ class EditControl extends Component {
     const { isHovered } = this.state;
     const reversedNestLevel = maxNestLevel - nestLevel;
 
-    if (type === 'zone' && showAllZones) {
+    if (type === 'zone' && (showAllZones || isSelected)) {
       return (
         <div
           className={
@@ -118,7 +118,7 @@ class EditControl extends Component {
       );
     }
 
-    if (type === 'widget' && showAllWidgets) {
+    if (type === 'widget' && (showAllWidgets || isSelected)) {
       return (
         <div
           className={

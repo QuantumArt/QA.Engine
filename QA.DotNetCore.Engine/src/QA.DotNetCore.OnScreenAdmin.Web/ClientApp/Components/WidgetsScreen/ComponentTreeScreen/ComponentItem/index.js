@@ -123,12 +123,14 @@ class ComponentItem extends Component {
       properties,
       selectedComponentId,
       classes,
-      nestLevel,
+      itemLevel,
       isOpened,
       isDisabled,
       type,
+      showOnlyWidgets,
     } = this.props;
     const isSelected = selectedComponentId === onScreenId;
+    if (showOnlyWidgets && type === 'zone') { return null; }
 
     return (
       <ListItem
@@ -137,7 +139,7 @@ class ComponentItem extends Component {
           root: classes.listItem,
           secondaryAction: classes.listItemSecondaryAction,
         }}
-        style={{ paddingLeft: nestLevel > 1 ? `${nestLevel * 0.8}em` : '16px' }}
+        style={{ paddingLeft: itemLevel > 1 ? `${itemLevel * 0.8}em` : '16px' }}
         onClick={this.handleToggleClick}
         button
       >
@@ -174,11 +176,18 @@ class ComponentItem extends Component {
       children,
       classes,
       isOpened,
-      maxNestLevel,
+      // maxNestLevel,
       isMovingWidget,
       onMovingWidgetSelectTargetZone,
+      showOnlyWidgets,
+      type,
+      itemLevel,
     } = this.props;
     let subtree = null;
+
+    const renderItem = !(showOnlyWidgets && type === 'zone');
+    const childNestLevel = renderItem ? itemLevel + 1 : itemLevel;
+
 
     if (children.length > 0) {
       subtree = children.map(child => (
@@ -193,12 +202,11 @@ class ComponentItem extends Component {
           onToggleFullSubtree={onToggleFullSubtree}
           selectedComponentId={selectedComponentId}
           classes={classes}
-          nestLevel={child.nestLevel}
-          maxNestLevel={maxNestLevel}
           isDisabled={child.isDisabled}
           isMovingWidget={isMovingWidget}
           onMovingWidgetSelectTargetZone={onMovingWidgetSelectTargetZone}
-          // showListItem={showListItem}
+          showOnlyWidgets={showOnlyWidgets}
+          itemLevel={childNestLevel}
         >
           {child.children}
         </ComponentItem>
@@ -207,7 +215,7 @@ class ComponentItem extends Component {
 
     return (
       <Fragment>
-        { this.renderListItem(subtree) }
+        { renderItem && this.renderListItem(subtree) }
         { this.renderSubtree(isOpened, subtree) }
       </Fragment>
     );
@@ -236,11 +244,12 @@ ComponentItem.propTypes = {
   ]).isRequired,
   children: PropTypes.arrayOf(PropTypes.object).isRequired,
   classes: PropTypes.object.isRequired,
-  nestLevel: PropTypes.number.isRequired,
-  maxNestLevel: PropTypes.number.isRequired,
+  itemLevel: PropTypes.number.isRequired,
+  // maxNestLevel: PropTypes.number.isRequired,
   isMovingWidget: PropTypes.bool.isRequired,
   isDisabled: PropTypes.bool.isRequired,
   onMovingWidgetSelectTargetZone: PropTypes.func.isRequired,
+  showOnlyWidgets: PropTypes.bool.isRequired,
   // showListItem: PropTypes.bool.isRequired,
 };
 

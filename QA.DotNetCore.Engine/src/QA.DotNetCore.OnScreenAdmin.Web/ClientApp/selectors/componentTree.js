@@ -9,6 +9,7 @@ const getMaxNestLevelSelector = state => state.componentTree.maxNestLevel;
 const getSelectedComponentIdSelector = state => state.componentTree.selectedComponentId;
 const getSearchTextSelector = state => state.componentTree.searchText;
 const getMovingWidgetSelector = state => state.articleManagement.moveWidget;
+const getShowOnlyWidgetsSelector = state => state.componentTree.showOnlyWidgets;
 
 
 const hashFn = (...args) => args.reduce(
@@ -31,13 +32,14 @@ const getParentComponents = (allComponents, component) => {
   return parentIds;
 };
 
-const filterFunction = (componentsFlat, keyword, disabledComponents) => {
+const filterFunction = (componentsFlat, keyword, disabledComponents, showOnlyWidgets) => {
+  console.log('showOnlyWidgets', showOnlyWidgets);
   if (keyword === '') { return buildTree(componentsFlat, disabledComponents); }
   const searchText = _.toLower(keyword);
   const searchResults = _.filter(componentsFlat, (c) => {
     switch (c.type) {
       case 'zone':
-        return _.includes(_.toLower(c.properties.zoneName), searchText);
+        return !showOnlyWidgets && _.includes(_.toLower(c.properties.zoneName), searchText);
       case 'widget':
         return _.includes(_.toLower(c.properties.alias), searchText)
         || _.includes(_.toLower(c.properties.title), searchText);
@@ -55,17 +57,19 @@ const filterFunction = (componentsFlat, keyword, disabledComponents) => {
   const uniqResults = _.uniq(_.concat(searchResultIds, parentComponentIds));
 
 
-  console.log('uniqResults', uniqResults);
+  // console.log('uniqResults', uniqResults);
 
 
   const filteredFlatComponents = _.filter(componentsFlat, c =>
     _.some(uniqResults, componentId => componentId === c.onScreenId),
   );
 
-  console.log(keyword, filteredFlatComponents);
+  // console.log(keyword, filteredFlatComponents);
 
   return buildTree(filteredFlatComponents, disabledComponents, true);
 };
+
+const isMoving = movingWidget => !(movingWidget == null || !movingWidget.isActive || !movingWidget.onScreenId);
 
 
 export const getComponentTree = createSelector(
@@ -91,13 +95,18 @@ export const getSearchText = createSelector(
 
 export const getIsMovingWidget = createSelector(
   [getMovingWidgetSelector],
-  movingWidget => !(movingWidget == null || !movingWidget.isActive || !movingWidget.onScreenId),
+  movingWidget => isMoving(movingWidget),
+);
+
+export const getShowOnlyWidgets = createSelector(
+  [getShowOnlyWidgetsSelector, getMovingWidgetSelector],
+  (showOnlyWidgets, movingWidget) => showOnlyWidgets && !isMoving(movingWidget),
 );
 
 export const getDisabledComponents = createSelector(
   [getFlatComponentsSelector, getMovingWidgetSelector],
   (componentsFlat, movingWidget) => {
-    if (movingWidget == null || !movingWidget.isActive || !movingWidget.onScreenId) { return []; }
+    if (!isMoving(movingWidget)) { return []; }
 
     const movingWidgetParentZoneId = _.find(componentsFlat, { onScreenId: movingWidget.onScreenId }).parentOnScreenId;
     // дочерние элементы самого виджета - тут основано на методе генерации onScreenId, если что - нужно будет поменять
@@ -112,16 +121,20 @@ export const getDisabledComponents = createSelector(
 );
 
 export const filteredComponentTree = createJSONEqualSelector(
-  [getSearchTextSelector, getFlatComponentsSelector, getDisabledComponents],
-  (searchText, componentsFlat, disabledComponents) => filterFunction(componentsFlat, searchText, disabledComponents),
+  [
+    getSearchTextSelector,
+    getFlatComponentsSelector,
+    getDisabledComponents,
+    getShowOnlyWidgetsSelector,
+    getMovingWidgetSelector],
+  (searchText, componentsFlat, disabledComponents, showOnlyWidgets, movingWidget) =>
+    filterFunction(componentsFlat, searchText, disabledComponents, showOnlyWidgets && !isMoving(movingWidget)),
 );
 
 export const getMovingWidgetTargetZoneSelector = createSelector(
   [getFlatComponentsSelector, getMovingWidgetSelector],
   (componentsFlat, movingWidget) => {
-    if (movingWidget == null
-      || !movingWidget.isActive
-      || !movingWidget.onScreenId
+    if (!isMoving(movingWidget)
       || !movingWidget.targetZoneId) {
       return null;
     }
@@ -132,9 +145,7 @@ export const getMovingWidgetTargetZoneSelector = createSelector(
 export const movingWidgetSelector = createSelector(
   [getFlatComponentsSelector, getMovingWidgetSelector],
   (componentsFlat, movingWidget) => {
-    if (movingWidget == null
-      || !movingWidget.isActive
-      || !movingWidget.onScreenId) {
+    if (!isMoving(movingWidget)) {
       return null;
     }
     return _.find(componentsFlat, { onScreenId: movingWidget.onScreenId });

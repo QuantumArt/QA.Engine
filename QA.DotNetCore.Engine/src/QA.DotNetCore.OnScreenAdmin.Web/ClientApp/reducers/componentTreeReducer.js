@@ -17,6 +17,7 @@ const initialState = {
   components,
   maxNestLevel: getMaxNestLevel(components),
   searchText: '',
+  showOnlyWidgets: false,
 };
 
 export default function componentTreeReducer(state = initialState, action) {

@@ -5,15 +5,18 @@ import { withStyles } from 'material-ui/styles';
 import Drawer from 'material-ui/Drawer';
 import Divider from 'material-ui/Divider';
 import Toolbar from 'material-ui/Toolbar';
+// import Button from 'material-ui/Button';
 import IconButton from 'material-ui/IconButton';
 import ExitToApp from 'material-ui-icons/ExitToApp';
 import BorderLeft from 'material-ui-icons/BorderLeft';
 import BorderRight from 'material-ui-icons/BorderRight';
 import { DRAWER_WIDTH } from 'constants/general';
+import GlobalActions from 'containers/globalActions';
 import 'typeface-roboto/index.css';
 import OpenControl from '../OpenControl';
 import TabsToolbar from './TabsToolbar';
 import Screens from './Screens';
+
 
 const styles = theme => ({
   sidebar: {
@@ -21,6 +24,23 @@ const styles = theme => ({
   },
   drawer: {
     width: DRAWER_WIDTH,
+  },
+  topToolbar: {
+    justifyContent: 'space-between',
+  },
+  topLeftRoot: {
+    minHeight: 40,
+    marginTop: 10,
+    marginBottom: 10,
+    marginLeft: 6,
+    justifyContent: 'flex-start',
+
+  },
+  topLeftBarButtonRoot: {
+    width: theme.spacing.unit * 5,
+    height: theme.spacing.unit,
+    minWidth: theme.spacing.unit * 5,
+    fontSize: theme.typography.pxToRem(20),
   },
   controlToolbar: {
     minHeight: 40,
@@ -75,29 +95,38 @@ const Sidebar = (props) => {
         anchor={side}
       >
         <Scrollbars autoHide>
-          <Toolbar disableGutters classes={{ root: classes.controlToolbar }}>
-            <IconButton
-              color="primary"
-              classes={{ icon: classes.controlButtonIcon, root: classes.controlButtonRoot }}
-              onClick={toggleLeft}
-            >
-              <BorderLeft />
-            </IconButton>
-            <IconButton
-              color="primary"
-              classes={{ icon: classes.controlButtonIcon, root: classes.controlButtonRoot }}
-              onClick={toggleRight}
-            >
-              <BorderRight />
-            </IconButton>
-            <IconButton
-              color="primary"
-              onClick={toggleSidebar}
-              classes={{ icon: classes.closeButton }}
-              style={{ transform: side === 'left' ? 'rotate(180deg)' : '' }}
-            >
-              <ExitToApp />
-            </IconButton>
+          <Toolbar disableGutters classes={{ root: classes.topToolbar }} >
+            <div className={classes.topLeftRoot}>
+              <GlobalActions />
+              {/* <Button classes={{ root: classes.topLeftBarButtonRoot }} color="disabled">W</Button>
+              <Button classes={{ root: classes.topLeftBarButtonRoot }}>Z</Button> */}
+            </div>
+
+
+            <div className={classes.controlToolbar}>
+              <IconButton
+                color="primary"
+                classes={{ icon: classes.controlButtonIcon, root: classes.controlButtonRoot }}
+                onClick={toggleLeft}
+              >
+                <BorderLeft />
+              </IconButton>
+              <IconButton
+                color="primary"
+                classes={{ icon: classes.controlButtonIcon, root: classes.controlButtonRoot }}
+                onClick={toggleRight}
+              >
+                <BorderRight />
+              </IconButton>
+              <IconButton
+                color="primary"
+                onClick={toggleSidebar}
+                classes={{ icon: classes.closeButton }}
+                style={{ transform: side === 'left' ? 'rotate(180deg)' : '' }}
+              >
+                <ExitToApp />
+              </IconButton>
+            </div>
           </Toolbar>
           <Divider />
           {showTabs &&

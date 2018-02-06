@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import Menu, { MenuItem } from 'material-ui/Menu';
 import IconButton from 'material-ui/IconButton';
-import MoreVertIcon from 'material-ui-icons/MoreVert';
+import MenuIcon from 'material-ui-icons/Menu';
 import _ from 'lodash';
 import { ADD_WIDGET_TO_PAGE_KEY } from 'constants/globalContextMenu';
 
@@ -40,7 +40,6 @@ class GlobalContextMenu extends Component {
     } = this.props;
     const open = Boolean(this.state.anchorEl);
     console.log(enabledMenuKeys);
-    if (enabledMenuKeys.length === 0) { return null; }
     const showAddWidgetToPage = _.includes(enabledMenuKeys, ADD_WIDGET_TO_PAGE_KEY);
     return (
       <Fragment>
@@ -49,8 +48,9 @@ class GlobalContextMenu extends Component {
           aria-owns={open ? 'long-menu' : null}
           aria-haspopup="true"
           onClick={this.handleClick}
+          disabled={enabledMenuKeys.length === 0}
         >
-          <MoreVertIcon />
+          <MenuIcon />
         </IconButton>
         <Menu
           id="long-menu"

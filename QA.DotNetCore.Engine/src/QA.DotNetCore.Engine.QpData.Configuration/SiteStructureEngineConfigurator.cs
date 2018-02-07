@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.Extensions.DependencyInjection;
+using QA.DotNetCore.Caching;
+using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
-using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Replacements;
 using QA.DotNetCore.Engine.Routing.Mappers;
 using QA.DotNetCore.Engine.Widgets;
@@ -45,6 +48,8 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             services.AddScoped<IQpUrlResolver, QpUrlResolver>();
             services.AddScoped<IAbstractItemStorageBuilder, QpAbstractItemStorageBuilder>();
             services.AddScoped<IAbstractItemStorageProvider, SimpleAbstractItemStorageProvider>();
+            services.AddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
+            services.AddSingleton<IQpContentCacheTagNamingProvider, NullQpContentCacheTagNamingProvider>();
 
             //itypefinder
             services.Add(new ServiceDescriptor(typeof(ITypeFinder), provider => options.TypeFinder, ServiceLifetime.Singleton));

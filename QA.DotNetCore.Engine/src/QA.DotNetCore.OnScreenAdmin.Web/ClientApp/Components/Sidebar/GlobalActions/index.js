@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import ToggleButtons from './ToggleButtons';
@@ -13,8 +12,10 @@ const GlobalActions = (props) => {
     showAllZones,
     enabledMenuKeys,
     addWidgetToPage,
+    toggleShowOnlyWidgets,
+    showOnlyWidgets,
   } = props;
-  
+
   return (
     <Fragment>
       <ToggleButtons
@@ -26,6 +27,8 @@ const GlobalActions = (props) => {
       <GlobalContextMenu
         enabledMenuKeys={enabledMenuKeys}
         addWidgetToPage={addWidgetToPage}
+        toggleShowOnlyWidgets={toggleShowOnlyWidgets}
+        showOnlyWidgets={showOnlyWidgets}
       />
     </Fragment>
   );
@@ -38,6 +41,8 @@ GlobalActions.propTypes = {
   toggleAllWidgets: PropTypes.func.isRequired,
   enabledMenuKeys: PropTypes.array.isRequired,
   addWidgetToPage: PropTypes.func.isRequired,
+  toggleShowOnlyWidgets: PropTypes.func.isRequired,
+  showOnlyWidgets: PropTypes.bool.isRequired,
 };
 
 export default GlobalActions;

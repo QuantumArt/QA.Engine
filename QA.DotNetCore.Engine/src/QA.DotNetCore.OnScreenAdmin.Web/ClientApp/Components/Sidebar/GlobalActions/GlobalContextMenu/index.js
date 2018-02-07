@@ -5,7 +5,7 @@ import Menu, { MenuItem } from 'material-ui/Menu';
 import IconButton from 'material-ui/IconButton';
 import MenuIcon from 'material-ui-icons/Menu';
 import _ from 'lodash';
-import { ADD_WIDGET_TO_PAGE_KEY } from 'constants/globalContextMenu';
+import { ADD_WIDGET_TO_PAGE_KEY, TOGGLE_SHOW_ONLY_WIDGETS_KEY } from 'constants/globalContextMenu';
 
 
 const styles = theme => ({
@@ -32,15 +32,23 @@ class GlobalContextMenu extends Component {
     addWidgetToPage();
   }
 
+  handleToggleShowOnlyWidgets = () => {
+    const { toggleShowOnlyWidgets } = this.props;
+    this.handleRequestClose();
+    toggleShowOnlyWidgets();
+  }
+
   render() {
     const {
       classes,
       enabledMenuKeys,
+      showOnlyWidgets,
 
     } = this.props;
     const open = Boolean(this.state.anchorEl);
     console.log(enabledMenuKeys);
     const showAddWidgetToPage = _.includes(enabledMenuKeys, ADD_WIDGET_TO_PAGE_KEY);
+    const showToggleShowOnlyWidgets = _.includes(enabledMenuKeys, TOGGLE_SHOW_ONLY_WIDGETS_KEY);
     return (
       <Fragment>
         <IconButton
@@ -67,6 +75,15 @@ class GlobalContextMenu extends Component {
           Add widget
           </MenuItem>
           }
+          { showToggleShowOnlyWidgets &&
+          <MenuItem
+            key={TOGGLE_SHOW_ONLY_WIDGETS_KEY}
+            onClick={this.handleToggleShowOnlyWidgets}
+            classes={{ root: classes.menuItem }}
+          >
+            {showOnlyWidgets ? 'Show zones and widgets' : 'Show only widgets'}
+          </MenuItem>
+          }
         </Menu>
       </Fragment>
     );
@@ -76,8 +93,10 @@ class GlobalContextMenu extends Component {
 // 
 
 GlobalContextMenu.propTypes = {
-  addWidgetToPage: PropTypes.func.isRequired,
   enabledMenuKeys: PropTypes.array.isRequired,
+  toggleShowOnlyWidgets: PropTypes.func.isRequired,
+  addWidgetToPage: PropTypes.func.isRequired,
+  showOnlyWidgets: PropTypes.bool.isRequired,
   classes: PropTypes.object.isRequired,
 };
 

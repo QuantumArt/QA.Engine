@@ -5,6 +5,7 @@ import {
   CHANGE_COMPONENT_TREE_SEARCH_TEXT,
   UPDATE_COMPONENTS,
   EDIT_WIDGET_ACTIONS,
+  TOGGLE_SHOW_ONLY_WIDGETS,
 } from './actionTypes';
 
 export function toggleComponent(id) {
@@ -34,4 +35,8 @@ export function movingWidgetSelectTargetZone(id) {
 
 export function updateComponents(components) {
   return { type: UPDATE_COMPONENTS, components };
+}
+
+export function toggleShowOnlyWidgets() {
+  return { type: TOGGLE_SHOW_ONLY_WIDGETS };
 }

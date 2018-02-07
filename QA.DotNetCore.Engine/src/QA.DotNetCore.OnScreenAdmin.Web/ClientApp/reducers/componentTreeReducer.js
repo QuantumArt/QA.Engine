@@ -4,6 +4,7 @@ import {
   TOGGLE_FULL_SUBTREE,
   CHANGE_COMPONENT_TREE_SEARCH_TEXT,
   UPDATE_COMPONENTS,
+  TOGGLE_SHOW_ONLY_WIDGETS,
 } from '../actions/actionTypes';
 import buildFlatList from '../utils/buildFlatList';
 
@@ -93,6 +94,12 @@ export default function componentTreeReducer(state = initialState, action) {
       return {
         ...state,
         searchText: action.value,
+      };
+
+    case TOGGLE_SHOW_ONLY_WIDGETS:
+      return {
+        ...state,
+        showOnlyWidgets: !state.showOnlyWidgets,
       };
     default:
       return state;

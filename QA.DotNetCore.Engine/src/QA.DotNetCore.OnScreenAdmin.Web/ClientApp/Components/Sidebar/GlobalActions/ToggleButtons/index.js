@@ -2,9 +2,13 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import Button from 'material-ui/Button';
+import Tooltip from 'material-ui/Tooltip';
 import { lightBlue, green, grey } from 'material-ui/colors';
 
 const styles = theme => ({
+  tooltipRoot: {
+    fontSize: theme.typography.pxToRem(20),
+  },
   buttonRoot: {
     width: theme.spacing.unit * 5,
     height: theme.spacing.unit,
@@ -34,13 +38,16 @@ const ToggleButtons = (props) => {
 
   return (
     <Fragment>
-      <Button
-        classes={{ root: classes.buttonRoot }}
-        onClick={toggleAllWidgets}
-        className={showAllWidgets ? classes.widgetsButtonChecked : classes.buttonUnchecked}
-      >
+      <Tooltip id="widgetsTooltip" title="Highlight widgets" className={classes.tooltipRoot}>
+        <Button
+          classes={{ root: classes.buttonRoot }}
+          onClick={toggleAllWidgets}
+          className={showAllWidgets ? classes.widgetsButtonChecked : classes.buttonUnchecked}
+          aria-label="Widgets"
+        >
         W
-      </Button>
+        </Button>
+      </Tooltip>
       <Button
         classes={{ root: classes.buttonRoot }}
         onClick={toggleAllZones}

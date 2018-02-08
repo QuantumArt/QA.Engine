@@ -35,7 +35,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.AbTest
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.OnScreen", "QA.DotNetCore.Engine.OnScreen\QA.DotNetCore.Engine.OnScreen.csproj", "{BC0E0FB5-198F-4C40-9AAB-4EB0599F32A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QA.DotNetCore.Engine.CacheTags", "QA.DotNetCore.Engine.CacheTags\QA.DotNetCore.Engine.CacheTags.csproj", "{2A925092-6064-476C-AA55-A4F4DC5C3025}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.CacheTags", "QA.DotNetCore.Engine.CacheTags\QA.DotNetCore.Engine.CacheTags.csproj", "{2A925092-6064-476C-AA55-A4F4DC5C3025}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.Xml", "QA.DotNetCore.Engine.Xml\QA.DotNetCore.Engine.Xml.csproj", "{F521C271-5535-45DA-B45F-DAE0F4AF8C9D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QA.DotNetCore.Engine.Xml.Configuration", "QA.DotNetCore.Engine.Xml.Configuration\QA.DotNetCore.Engine.Xml.Configuration.csproj", "{A5A5CE3C-EF3F-475F-8EA1-130603970766}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -111,6 +115,14 @@ Global
 		{2A925092-6064-476C-AA55-A4F4DC5C3025}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A925092-6064-476C-AA55-A4F4DC5C3025}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A925092-6064-476C-AA55-A4F4DC5C3025}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F521C271-5535-45DA-B45F-DAE0F4AF8C9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F521C271-5535-45DA-B45F-DAE0F4AF8C9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F521C271-5535-45DA-B45F-DAE0F4AF8C9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F521C271-5535-45DA-B45F-DAE0F4AF8C9D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5A5CE3C-EF3F-475F-8EA1-130603970766}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5A5CE3C-EF3F-475F-8EA1-130603970766}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5A5CE3C-EF3F-475F-8EA1-130603970766}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5A5CE3C-EF3F-475F-8EA1-130603970766}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

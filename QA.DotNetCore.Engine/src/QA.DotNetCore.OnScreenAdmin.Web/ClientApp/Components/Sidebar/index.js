@@ -6,6 +6,7 @@ import Drawer from 'material-ui/Drawer';
 import Divider from 'material-ui/Divider';
 import Toolbar from 'material-ui/Toolbar';
 // import Button from 'material-ui/Button';
+// import Icon from 'material-ui/Icon';
 import IconButton from 'material-ui/IconButton';
 import ExitToApp from 'material-ui-icons/ExitToApp';
 import BorderLeft from 'material-ui-icons/BorderLeft';
@@ -36,12 +37,6 @@ const styles = theme => ({
     justifyContent: 'flex-start',
 
   },
-  topLeftBarButtonRoot: {
-    width: theme.spacing.unit * 5,
-    height: theme.spacing.unit,
-    minWidth: theme.spacing.unit * 5,
-    fontSize: theme.typography.pxToRem(20),
-  },
   controlToolbar: {
     minHeight: 40,
     marginTop: 10,
@@ -54,6 +49,7 @@ const styles = theme => ({
     height: theme.spacing.unit * 5,
   },
   controlButtonIcon: {
+    // width: theme.spacing.unit * 2.8,
     width: theme.spacing.unit * 2.8,
     height: theme.spacing.unit * 2.8,
   },
@@ -89,7 +85,7 @@ const Sidebar = (props) => {
         drawerOpened={opened}
       />
       <Drawer
-        type="persistent"
+        variant="persistent"
         open={opened}
         classes={{ paper: classes.drawer }}
         anchor={side}
@@ -98,33 +94,32 @@ const Sidebar = (props) => {
           <Toolbar disableGutters classes={{ root: classes.topToolbar }} >
             <div className={classes.topLeftRoot}>
               <GlobalActions />
-              {/* <Button classes={{ root: classes.topLeftBarButtonRoot }} color="disabled">W</Button>
-              <Button classes={{ root: classes.topLeftBarButtonRoot }}>Z</Button> */}
             </div>
 
 
             <div className={classes.controlToolbar}>
               <IconButton
                 color="primary"
-                classes={{ icon: classes.controlButtonIcon, root: classes.controlButtonRoot }}
+                classes={{ root: classes.controlButtonRoot }}
                 onClick={toggleLeft}
               >
-                <BorderLeft />
+                <BorderLeft classes={{ root: classes.controlButtonIcon }} />
               </IconButton>
               <IconButton
                 color="primary"
-                classes={{ icon: classes.controlButtonIcon, root: classes.controlButtonRoot }}
+                classes={{ root: classes.controlButtonRoot }}
                 onClick={toggleRight}
               >
-                <BorderRight />
+                <BorderRight className={classes.controlButtonIcon} />
               </IconButton>
               <IconButton
                 color="primary"
                 onClick={toggleSidebar}
-                classes={{ icon: classes.closeButton }}
+                classes={{ root: classes.controlButtonRoot }}
                 style={{ transform: side === 'left' ? 'rotate(180deg)' : '' }}
               >
-                <ExitToApp />
+
+                <ExitToApp className={classes.closeButton} />
               </IconButton>
             </div>
           </Toolbar>

@@ -38,7 +38,7 @@ const ToggleButtons = (props) => {
 
   return (
     <Fragment>
-      <Tooltip id="widgetsTooltip" title="Highlight widgets" className={classes.tooltipRoot}>
+      <Tooltip id="widgetsTooltip" title="Highlight widgets" classes={{ tooltip: classes.tooltipRoot }} enterDelay={300}>
         <Button
           classes={{ root: classes.buttonRoot }}
           onClick={toggleAllWidgets}
@@ -48,13 +48,16 @@ const ToggleButtons = (props) => {
         W
         </Button>
       </Tooltip>
-      <Button
-        classes={{ root: classes.buttonRoot }}
-        onClick={toggleAllZones}
-        className={showAllZones ? classes.zonesButtonChecked : classes.buttonUnchecked}
-      >
+      <Tooltip id="zonesTooltip" title="Highlight zones" classes={{ tooltip: classes.tooltipRoot }} enterDelay={300}>
+        <Button
+          classes={{ root: classes.buttonRoot }}
+          onClick={toggleAllZones}
+          className={showAllZones ? classes.zonesButtonChecked : classes.buttonUnchecked}
+        >
         Z
-      </Button>
+        </Button>
+      </Tooltip>
+
     </Fragment>
   );
 };

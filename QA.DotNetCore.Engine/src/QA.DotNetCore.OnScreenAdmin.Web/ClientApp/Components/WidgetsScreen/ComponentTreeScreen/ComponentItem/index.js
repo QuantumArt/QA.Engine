@@ -13,6 +13,7 @@ import ExpandMore from 'material-ui-icons/ExpandMore';
 import Widgets from 'material-ui-icons/Widgets';
 import PanoramaHorizontal from 'material-ui-icons/PanoramaHorizontal';
 import IconButton from 'material-ui/IconButton';
+import Icon from 'material-ui/Icon';
 import Collapse from 'material-ui/transitions/Collapse';
 import { deepPurple } from 'material-ui/colors';
 import ComponentControlMenu from 'containers/WidgetsScreen/componentControlMenu';
@@ -110,9 +111,11 @@ class ComponentItem extends Component {
     return (
       <IconButton
         onClick={this.handleSubtreeClick}
-        classes={{ icon: classes.expandNodeIcon, root: classes.expandNodeRoot }}
+        classes={{ root: classes.expandNodeRoot }}
       >
-        {isOpened ? <ExpandLess /> : <ExpandMore />}
+        <Icon classes={{ root: classes.expandNodeIcon }}>
+          {isOpened ? <ExpandLess /> : <ExpandMore />}
+        </Icon>
       </IconButton>
     );
   }

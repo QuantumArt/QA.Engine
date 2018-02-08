@@ -64,7 +64,7 @@ class OpenControl extends Component {
       >
         <div className={classes.wrap} ref={(el) => { this.wrap = el; }}>
           <Button
-            fab
+            variant="fab"
             color="primary"
             onClick={canClick ? toggleSidebar : null}
             className={drawerOpened ? classes.buttonHidden : null}

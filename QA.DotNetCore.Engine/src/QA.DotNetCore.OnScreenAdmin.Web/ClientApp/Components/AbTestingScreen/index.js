@@ -75,8 +75,8 @@ const AbTestingScreen = (props) => {
 
   const renderGlobalLaunchButton = testId => (
     <Button
-      raised
-      dense
+      variant="raised"
+      dense="true"
       key={v4()}
       color="primary"
       classes={{
@@ -91,8 +91,8 @@ const AbTestingScreen = (props) => {
   );
   const renderSessionLaunchButton = testId => (
     <Button
-      raised
-      dense
+      variant="raised"
+      dense="true"
       key={v4()}
       color="primary"
       classes={{
@@ -107,8 +107,8 @@ const AbTestingScreen = (props) => {
   );
   const renderGlobalStopButton = testId => (
     <Button
-      raised
-      dense
+      variant="raised"
+      dense="true"
       key={v4()}
       color="secondary"
       classes={{ label: classes.actionButton }}
@@ -120,8 +120,8 @@ const AbTestingScreen = (props) => {
   );
   const renderSessionStopButton = testId => (
     <Button
-      raised
-      dense
+      variant="raised"
+      dense="true"
       key={v4()}
       color="secondary"
       classes={{

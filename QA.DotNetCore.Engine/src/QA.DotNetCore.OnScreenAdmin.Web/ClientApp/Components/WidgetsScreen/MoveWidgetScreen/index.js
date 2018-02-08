@@ -12,7 +12,10 @@ const MoveWidgetScreen = ({ onCancel }) => (
     <WizardSubheader text="Select target zone for widget" />
     <ComponentTreeSearch />
     <ComponentTree />
-    <Button raised onClick={onCancel}>Cancel</Button>
+    <Button
+      variant="raised"
+      onClick={onCancel}
+    >Cancel</Button>
   </Fragment>
 );
 

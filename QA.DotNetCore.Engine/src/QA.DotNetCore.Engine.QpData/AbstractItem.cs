@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.CompilerServices;
+using QA.DotNetCore.Engine.Abstractions.OnScreen;
 
 namespace QA.DotNetCore.Engine.QpData
 {
@@ -35,6 +36,8 @@ namespace QA.DotNetCore.Engine.QpData
             ExtensionId = persistentItem.ExtensionId;
             ParentId = persistentItem.ParentId;
             VersionOfId = persistentItem.VersionOfId;
+            Discriminator = persistentItem.Discriminator;
+            Published = persistentItem.Published;
         }
 
         internal virtual void MapVersionOf(AbstractItem main)
@@ -61,6 +64,8 @@ namespace QA.DotNetCore.Engine.QpData
         internal int? VersionOfId { get; set; }
         internal AbstractItemExtensionCollection Details { get; set; }
         internal M2mRelations M2mRelations { get; set; }
+        internal string Discriminator { get; set; }
+        internal bool Published { get; set; }
 
         public string GetUrl()
         {
@@ -130,18 +135,6 @@ namespace QA.DotNetCore.Engine.QpData
             return (T)value;
         }
 
-
-//#if NETFX_462 || NETFX_47 || NET462 || NET47
-//        /// <summary>
-//        /// Получение свойств расширения, названия которых совпадают с именем поля.
-//        /// </summary>
-//        public virtual T GetValue<T>(T defaultValue, [CallerMemberName] string name = "")
-//        {
-//            return GetDetail(name, defaultValue);
-//        }
-
-//#endif
-
         /// <summary>
         /// Получение ссылок m2m
         /// </summary>
@@ -171,7 +164,20 @@ namespace QA.DotNetCore.Engine.QpData
         /// <returns></returns>
         public virtual object GetTargetingValue(string targetingKey)
         {
-            return null; //пока AbstractItem не научили таргетироваться
+            return null;
+        }
+
+        public virtual object GetMetadata(string key)
+        {
+            switch (key)
+            {
+                case OnScreenWidgetMetadataKeys.Type:
+                    return Discriminator;
+                case OnScreenWidgetMetadataKeys.Published:
+                    return Published;
+                default:
+                    return null;
+            }
         }
 
         /// <summary>
@@ -183,7 +189,5 @@ namespace QA.DotNetCore.Engine.QpData
         /// Id культуры
         /// </summary>
         public virtual int? CultureId { get { return GetDetail("Culture", default(int?)); } }
-
-        
     }
 }

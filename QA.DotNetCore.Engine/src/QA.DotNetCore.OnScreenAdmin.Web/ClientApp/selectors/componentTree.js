@@ -10,6 +10,7 @@ const getSelectedComponentIdSelector = state => state.componentTree.selectedComp
 const getSearchTextSelector = state => state.componentTree.searchText;
 const getMovingWidgetSelector = state => state.articleManagement.moveWidget;
 const getShowOnlyWidgetsSelector = state => state.componentTree.showOnlyWidgets;
+const getShowSearchBoxSelector = state => state.componentTree.showSearchBox;
 
 
 const hashFn = (...args) => args.reduce(
@@ -90,6 +91,11 @@ export const getSelectedComponentId = createSelector(
 export const getSearchText = createSelector(
   [getSearchTextSelector],
   searchText => searchText,
+);
+
+export const getShowSearchBox = createSelector(
+  [getShowSearchBoxSelector],
+  show => show,
 );
 
 

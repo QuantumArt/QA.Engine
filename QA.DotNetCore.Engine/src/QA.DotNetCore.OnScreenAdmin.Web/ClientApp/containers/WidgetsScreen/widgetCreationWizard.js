@@ -1,30 +1,37 @@
 import { connect } from 'react-redux';
 import {
-  selectCustomZone,
+  selectCustomZoneType,
+  selectExistingZoneType,
   selectTargetZone,
   goToPrevStep,
   changeZonesListSearchText,
   changeCustomZoneName,
   selectWidget,
+  toggleZonesListSearchBox,
 } from 'actions/widgetCreation/actions';
 
 import {
   getShowZonesList,
+  getShowZoneTypeSelect,
   getZonesList,
   getShowAvailableWidgets,
   getZonesListSearchText,
   getShowEnterCustomZoneName,
   getCustomZoneName,
+  getShowZonesListSearchBox,
+
 } from 'selectors/widgetCreation';
 
 import WidgetCreationWizard from 'Components/WidgetsScreen/WidgetCreationWizard';
 
 const mapStateToProps = state => ({
+  showZoneTypeSelect: getShowZoneTypeSelect(state),
   showZonesList: getShowZonesList(state),
   zonesListSearchText: getZonesListSearchText(state),
   showEnterCustomZoneName: getShowEnterCustomZoneName(state),
   showAvailableWidgets: getShowAvailableWidgets(state),
   customZoneName: getCustomZoneName(state),
+  showZonesListSearchBox: getShowZonesListSearchBox(state),
   zones: getZonesList(state),
 });
 
@@ -34,8 +41,11 @@ const mapDispatchToProps = dispatch => ({
     console.log('onSelectZone');
     dispatch(selectTargetZone(targetZoneName));
   },
-  onSelectCustomZone: () => {
-    dispatch(selectCustomZone());
+  onSelectCustomZoneType: () => {
+    dispatch(selectCustomZoneType());
+  },
+  onSelectExistingZoneType: () => {
+    dispatch(selectExistingZoneType());
   },
   onClickBack: () => {
     dispatch(goToPrevStep());
@@ -48,6 +58,9 @@ const mapDispatchToProps = dispatch => ({
   },
   onSelectWidget: (id) => {
     dispatch(selectWidget(id));
+  },
+  onToggleZonesListSearchBoxVisibility: () => {
+    dispatch(toggleZonesListSearchBox());
   },
 
 

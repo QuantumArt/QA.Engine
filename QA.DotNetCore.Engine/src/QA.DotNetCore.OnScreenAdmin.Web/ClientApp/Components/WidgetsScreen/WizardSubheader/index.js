@@ -1,10 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Paper from 'material-ui/Paper';
+// import ToolBar from 'material-ui/Toolbar';
+import IconButton from 'material-ui/IconButton';
+import SearchIcon from 'material-ui-icons/Search';
 import Typography from 'material-ui/Typography';
 import { withStyles } from 'material-ui/styles';
-// import IconButton from 'material-ui/IconButton';
-// import ArrowBack from 'material-ui-icons/ArrowBack';
+
 
 const styles = () => ({
   wrap: {
@@ -14,20 +16,41 @@ const styles = () => ({
     // fontStyle: 'italic',
     marginTop: 16,
   },
+  toolbar: {
+    justifyContent: 'center',
+    padding: '0 40px',
+    // marginBottom: '0px',
+  },
 });
 
-const WizardSubHeader = ({ text, classes }) => (
-  <Paper className={classes.wrap} elevation={0}>
-    <Typography type="title" align="center" className={classes.text}>
+const WizardSubHeader = ({ text, classes, showSearchButton, searchButtonClick }) => (
+  // <Paper className={classes.wrap} elevation={0}>
+  <Paper className={classes.toolbar} elevation={0}>
+    <Typography variant="title" /* align="center" className={classes.text} */>
+      {showSearchButton &&
+      <IconButton
+        onClick={searchButtonClick}
+      >
+        <SearchIcon />
+      </IconButton>
+      }
       { text }
     </Typography>
   </Paper>
+  /* </Paper> */
 );
 
 
 WizardSubHeader.propTypes = {
   text: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
+  showSearchButton: PropTypes.bool,
+  searchButtonClick: PropTypes.func,
+};
+
+WizardSubHeader.defaultProps = {
+  searchButtonClick: null,
+  showSearchButton: false,
 };
 
 export default withStyles(styles)(WizardSubHeader);

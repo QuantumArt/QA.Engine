@@ -5,7 +5,7 @@ import MoveWidgetScreen from 'containers/WidgetsScreen/moveWidgetsScreen';
 import WidgetCreationWizard from 'containers/WidgetsScreen/widgetCreationWizard';
 // import ComponentHighlightToolbar from 'containers/WidgetsScreen/componentHighlightToolbar';
 
-import ComponentTreeScreen from './ComponentTreeScreen';
+import ComponentTreeScreen from 'containers/WidgetsScreen/ComponentTreeScreen';
 
 
 const WidgetsScreen = ({

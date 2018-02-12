@@ -14,9 +14,8 @@ import Sidebar from './containers/sidebar';
 const App = ({ store, persistor }) => (
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
-      <Reboot>
-        <Sidebar />
-      </Reboot>
+      <Reboot />
+      <Sidebar />
     </PersistGate>
   </Provider>
 );

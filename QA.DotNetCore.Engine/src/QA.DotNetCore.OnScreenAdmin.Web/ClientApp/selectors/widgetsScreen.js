@@ -5,6 +5,7 @@ const getShowComponentTreeSelector = state => state.widgetsScreen.mode === MODES
 const getShowWidgetsCreationWizardSelector = state => state.widgetsScreen.mode === MODES.SHOW_WIDGET_CREATION_WIZARD;
 const getShowMoveWidgetScreenSelector = state => state.widgetsScreen.mode === MODES.SHOW_MOVE_WIDGET;
 
+
 export const getShowComponentTree = createSelector(
   [getShowComponentTreeSelector],
   showComponentTree => showComponentTree,

@@ -1,26 +1,22 @@
 import { connect } from 'react-redux';
-import cancelMoveWidget from 'actions/moveWidgetActions';
-import { getShowSearchBox } from 'selectors/componentTree';
+import ComponentTreeScreen from 'Components/WidgetsScreen/ComponentTreeScreen';
+import { getShowSearchBox, getShowOnlyWidgets } from 'selectors/componentTree';
 import { toggleComponentTreeSearchBox } from 'actions/componentTreeActions';
-
-import MoveWidgetScreen from 'Components/WidgetsScreen/MoveWidgetScreen';
 
 const mapStateToProps = state => ({
   showSearchBox: getShowSearchBox(state),
+  showOnlyWidgets: getShowOnlyWidgets(state),
 });
 
 const mapDispatchToProps = dispatch => ({
-  onCancel: () => {
-    dispatch(cancelMoveWidget());
-  },
   toggleSearchBoxVisibility: () => {
     dispatch(toggleComponentTreeSearchBox());
   },
 });
 
-const MoveWidgetScreenContainer = connect(
+const ComponentTreeScreenContainer = connect(
   mapStateToProps,
   mapDispatchToProps,
-)(MoveWidgetScreen);
+)(ComponentTreeScreen);
 
-export default MoveWidgetScreenContainer;
+export default ComponentTreeScreenContainer;

@@ -5,6 +5,7 @@ import {
   CHANGE_COMPONENT_TREE_SEARCH_TEXT,
   UPDATE_COMPONENTS,
   TOGGLE_SHOW_ONLY_WIDGETS,
+  TOGGLE_COMPONENT_TREE_SEARCH_BOX,
 } from '../actions/actionTypes';
 import buildFlatList from '../utils/buildFlatList';
 
@@ -19,6 +20,7 @@ const initialState = {
   maxNestLevel: getMaxNestLevel(components),
   searchText: '',
   showOnlyWidgets: false,
+  showSearchBox: false,
 };
 
 export default function componentTreeReducer(state = initialState, action) {
@@ -100,6 +102,12 @@ export default function componentTreeReducer(state = initialState, action) {
       return {
         ...state,
         showOnlyWidgets: !state.showOnlyWidgets,
+      };
+    case TOGGLE_COMPONENT_TREE_SEARCH_BOX:
+      return {
+        ...state,
+        showSearchBox: !state.showSearchBox,
+        searchText: '',
       };
     default:
       return state;

@@ -6,6 +6,7 @@ import {
   UPDATE_COMPONENTS,
   EDIT_WIDGET_ACTIONS,
   TOGGLE_SHOW_ONLY_WIDGETS,
+  TOGGLE_COMPONENT_TREE_SEARCH_BOX,
 } from './actionTypes';
 
 export function toggleComponent(id) {
@@ -39,4 +40,8 @@ export function updateComponents(components) {
 
 export function toggleShowOnlyWidgets() {
   return { type: TOGGLE_SHOW_ONLY_WIDGETS };
+}
+
+export function toggleComponentTreeSearchBox() {
+  return { type: TOGGLE_COMPONENT_TREE_SEARCH_BOX };
 }

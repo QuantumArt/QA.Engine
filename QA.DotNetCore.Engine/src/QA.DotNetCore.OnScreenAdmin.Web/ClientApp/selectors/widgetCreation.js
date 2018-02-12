@@ -1,22 +1,17 @@
 import { createSelector } from 'reselect';
 import _ from 'lodash';
-import { WIDGET_CREATION_MODE } from 'constants/widgetCreation';
+import { WIDGET_CREATION_MODE, WIDGET_CREATION_STEPS } from 'constants/widgetCreation';
 
 const getIsActiveSelector = state => state.widgetCreation.isActive;
-const getIsTargetZoneDefinedSelector = state => _.isString(state.widgetCreation.targetZoneName)
-                                        && !_.isEmpty(state.widgetCreation.targetZoneName);
-
-const getIsCustomZoneSelector = state => state.widgetCreation.isCustomTargetZone;
+const getCurrentStepSelector = state => state.widgetCreation.currentStep;
 const getAvailableWidgetsLoadedSelector = state => state.widgetCreation.availableWidgetsLoaded;
-
 const getFlatComponentsSelector = state => state.componentTree.components;
 const getCreationModeSelector = state => state.widgetCreation.creationMode;
 const getParentOnScreenIdSelector = state => state.widgetCreation.parentOnScreenId;
 const getZonesListSearchTextSelector = state => state.widgetCreation.zonesListSearchText;
 const getCustomZoneNameSelector = state => state.widgetCreation.customZoneName;
-const getSelectedWidgetIdSelector = state => state.widgetCreation.selectedWidgetId;
-
 const getTargetZoneNameSelector = state => state.widgetCreation.targetZoneName;
+const getShowZonesListSearchBoxSelector = state => state.widgetCreation.showZonesListSearchBox;
 
 const getParentAbstractItemIdSelector = (state) => {
   const targetZoneName = state.widgetCreation.targetZoneName;
@@ -52,6 +47,11 @@ export const getZonesListSearchText = createSelector(
   searchText => searchText,
 );
 
+export const getShowZonesListSearchBox = createSelector(
+  [getShowZonesListSearchBoxSelector],
+  show => show,
+);
+
 export const getCustomZoneName = createSelector(
   [getCustomZoneNameSelector],
   customZoneName => customZoneName,
@@ -72,20 +72,25 @@ export const getParentAbstractItemId = createSelector(
   parentAbstractItemId => parentAbstractItemId,
 );
 
+export const getShowZoneTypeSelect = createSelector(
+  [getIsActiveSelector, getCurrentStepSelector],
+  (isActive, currentStep) => isActive && currentStep === WIDGET_CREATION_STEPS.ZONE_TYPE_SELECT,
+);
+
 export const getShowZonesList = createSelector(
-  [getIsActiveSelector, getIsTargetZoneDefinedSelector, getIsCustomZoneSelector],
-  (isActive, targetZoneDefined, isCustomZone) => isActive && !targetZoneDefined && !isCustomZone,
+  [getIsActiveSelector, getCurrentStepSelector],
+  (isActive, currentStep) => isActive && currentStep === WIDGET_CREATION_STEPS.ZONES_LIST,
 );
 
 export const getShowEnterCustomZoneName = createSelector(
-  [getIsActiveSelector, getIsTargetZoneDefinedSelector, getIsCustomZoneSelector],
-  (isActive, targetZoneDefined, isCustomZone) => isActive && !targetZoneDefined && isCustomZone,
+  [getIsActiveSelector, getCurrentStepSelector],
+  (isActive, currentStep) => isActive && currentStep === WIDGET_CREATION_STEPS.CUSTOM_ZONE_NAME_ENTER,
 );
 
 export const getShowAvailableWidgets = createSelector(
-  [getIsActiveSelector, getIsTargetZoneDefinedSelector, getAvailableWidgetsLoadedSelector, getSelectedWidgetIdSelector],
-  (isActive, targetZoneDefined, availableWidgetsLoaded, selectedWidgetId) =>
-    isActive && targetZoneDefined && availableWidgetsLoaded && (selectedWidgetId === null),
+  [getIsActiveSelector, getCurrentStepSelector, getAvailableWidgetsLoadedSelector],
+  (isActive, currentStep, availableWidgetsLoaded) =>
+    isActive && currentStep === WIDGET_CREATION_STEPS.SHOW_AVAILABLE_WIDGETS && availableWidgetsLoaded,
 );
 
 export const getZonesList = createSelector(

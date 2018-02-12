@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import scrollToElement from 'scroll-to-element';
@@ -8,6 +9,7 @@ import {
   ListItemIcon,
   ListItemSecondaryAction,
 } from 'material-ui/List';
+import Tooltip from 'material-ui/Tooltip';
 import ExpandLess from 'material-ui-icons/ExpandLess';
 import ExpandMore from 'material-ui-icons/ExpandMore';
 import Widgets from 'material-ui-icons/Widgets';
@@ -17,6 +19,7 @@ import Icon from 'material-ui/Icon';
 import Collapse from 'material-ui/transitions/Collapse';
 import { deepPurple } from 'material-ui/colors';
 import ComponentControlMenu from 'containers/WidgetsScreen/componentControlMenu';
+import { MAX_COMPONENT_PRIMARY_TEXT_LENGTH } from 'constants/general';
 
 const styles = (theme) => {
   console.log(theme);
@@ -24,8 +27,12 @@ const styles = (theme) => {
     listItem: {
       height: theme.typography.pxToRem(76.8),
     },
-    listItemText: {
+    listItemTextRoot: {
       fontSize: 14,
+      justifyContent: 'flex-start',
+    },
+    listItemTextSelected: {
+      fontWeight: 'bold',
     },
     listItemIconSelected: {
       color: deepPurple[500],
@@ -40,9 +47,12 @@ const styles = (theme) => {
     expandNodeRoot: {
       verticalAlign: 'bottom',
     },
+    tooltip: {
+      fontSize: theme.typography.pxToRem(20),
+    },
   };
 };
-
+/* eslint-disable react/sort-comp */
 class ComponentItem extends Component {
   handleToggleClick = () => {
     const { isMovingWidget, onScreenId, onToggleComponent, onMovingWidgetSelectTargetZone } = this.props;
@@ -69,10 +79,6 @@ class ComponentItem extends Component {
   }
 
 
-  renderPrimaryText = (type, properties) => (type === 'zone'
-    ? `${properties.zoneName}`
-    : `${properties.title}`);
-
   renderSecondaryText = (type, properties) => {
     if (type === 'zone') {
       let zoneSettings = '';
@@ -83,6 +89,34 @@ class ComponentItem extends Component {
     }
 
     return `${type}: ID - ${properties.widgetId}`;
+  }
+
+  renderListItemText = (primaryText, isSelected, classes) => (
+    <ListItemText
+      primary={primaryText}
+      classes={{ root: classes.listItemTextRoot, primary: isSelected ? classes.listItemTextSelected : classes.primary }}
+    />
+  )
+
+  renderListItemTextWrapper = (type, properties, isSelected, classes) => {
+    const primaryText = type === 'zone'
+      ? properties.zoneName
+      : `#${properties.widgetId} ${properties.title}`;
+    const isPrimaryTextTruncated = primaryText.length > MAX_COMPONENT_PRIMARY_TEXT_LENGTH;
+    const textToRender = isPrimaryTextTruncated
+      ? `${primaryText.substring(0, MAX_COMPONENT_PRIMARY_TEXT_LENGTH)}…`
+      : primaryText;
+    return (
+      <Tooltip
+        title={isPrimaryTextTruncated ? primaryText : ''}
+        classes={{ tooltip: classes.tooltip }}
+        disableTriggerFocus={!isPrimaryTextTruncated}
+        disableTriggerHover={!isPrimaryTextTruncated}
+        disableTriggerTouch={!isPrimaryTextTruncated}
+      >
+        {this.renderListItemText(textToRender, isSelected, classes)}
+      </Tooltip>
+    );
   }
 
   renderContextMenu = (isSelected) => {
@@ -104,10 +138,18 @@ class ComponentItem extends Component {
     );
   }
 
-  renderCollapseButton = (isOpened, subtree, classes) => {
+  hasChildWidgets = (children) => {
+    if (!children || children.length === 0) { return false; }
+
+    return _.some(children, c => c.type === 'widget' || this.hasChildWidgets(c.children));
+  }
+
+  renderCollapseButton = (isOpened, subtree, showOnlyWidgets, hasChildWidgets, classes) => {
     if (!subtree) {
       return null;
     }
+
+    if (showOnlyWidgets && !hasChildWidgets) { return null; }
     return (
       <IconButton
         onClick={this.handleSubtreeClick}
@@ -120,7 +162,7 @@ class ComponentItem extends Component {
     );
   }
 
-  renderListItem = (subtree) => {
+  renderListItem = (subtree, hasChildWidgets) => {
     const {
       onScreenId,
       properties,
@@ -145,6 +187,7 @@ class ComponentItem extends Component {
         style={{ paddingLeft: itemLevel > 1 ? `${itemLevel * 0.8}em` : '16px' }}
         onClick={this.handleToggleClick}
         button
+        itemlevel={itemLevel}
       >
         <ListItemIcon
           className={isSelected
@@ -156,14 +199,10 @@ class ComponentItem extends Component {
             : <Widgets />
           }
         </ListItemIcon>
-        <ListItemText
-          primary={this.renderPrimaryText(type, properties, isDisabled)}
-          // secondary={this.renderSecondaryText(type, properties)}
-          classes={{ dense: classes.listItemText }}
-        />
+        {this.renderListItemTextWrapper(type, properties, isSelected, classes)}
         <ListItemSecondaryAction>
           { this.renderContextMenu(isSelected) }
-          { this.renderCollapseButton(isOpened, subtree, classes) }
+          { this.renderCollapseButton(isOpened, subtree, showOnlyWidgets, hasChildWidgets, classes) }
         </ListItemSecondaryAction>
       </ListItem>
     );
@@ -179,7 +218,6 @@ class ComponentItem extends Component {
       children,
       classes,
       isOpened,
-      // maxNestLevel,
       isMovingWidget,
       onMovingWidgetSelectTargetZone,
       showOnlyWidgets,
@@ -190,6 +228,7 @@ class ComponentItem extends Component {
 
     const renderItem = !(showOnlyWidgets && type === 'zone');
     const childNestLevel = renderItem ? itemLevel + 1 : itemLevel;
+    const hasChildWidgets = this.hasChildWidgets(children);
 
 
     if (children.length > 0) {
@@ -218,7 +257,7 @@ class ComponentItem extends Component {
 
     return (
       <Fragment>
-        { renderItem && this.renderListItem(subtree) }
+        { renderItem && this.renderListItem(subtree, hasChildWidgets) }
         { this.renderSubtree(isOpened, subtree) }
       </Fragment>
     );

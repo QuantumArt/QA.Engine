@@ -16,6 +16,7 @@ class ComponentTree extends Component {
       onMovingWidgetSelectTargetZone,
       showOnlyWidgets,
     } = this.props;
+    console.log(components);
     return (
       <List dense >
         {components.map(component => (

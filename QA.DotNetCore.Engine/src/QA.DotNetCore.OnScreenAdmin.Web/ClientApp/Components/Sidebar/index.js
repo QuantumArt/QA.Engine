@@ -5,8 +5,6 @@ import { withStyles } from 'material-ui/styles';
 import Drawer from 'material-ui/Drawer';
 import Divider from 'material-ui/Divider';
 import Toolbar from 'material-ui/Toolbar';
-// import Button from 'material-ui/Button';
-// import Icon from 'material-ui/Icon';
 import IconButton from 'material-ui/IconButton';
 import ExitToApp from 'material-ui-icons/ExitToApp';
 import BorderLeft from 'material-ui-icons/BorderLeft';

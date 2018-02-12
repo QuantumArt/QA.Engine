@@ -6,33 +6,58 @@ import { withStyles } from 'material-ui/styles';
 import {
   ListItem,
   ListItemText,
-  ListItemIcon,
   ListItemSecondaryAction,
 } from 'material-ui/List';
+import Avatar from 'material-ui/Avatar';
 import Tooltip from 'material-ui/Tooltip';
 import ExpandLess from 'material-ui-icons/ExpandLess';
 import ExpandMore from 'material-ui-icons/ExpandMore';
 import Widgets from 'material-ui-icons/Widgets';
-import PanoramaHorizontal from 'material-ui-icons/PanoramaHorizontal';
+import NewWidget from 'material-ui-icons/NewReleases';
 import IconButton from 'material-ui/IconButton';
 import Icon from 'material-ui/Icon';
 import Collapse from 'material-ui/transitions/Collapse';
-import { deepPurple } from 'material-ui/colors';
+import { deepPurple, red } from 'material-ui/colors';
 import ComponentControlMenu from 'containers/WidgetsScreen/componentControlMenu';
 import { MAX_COMPONENT_PRIMARY_TEXT_LENGTH } from 'constants/general';
 
 const styles = (theme) => {
   console.log(theme);
   return {
+
+    componentAvatar: {
+      borderRadius: 0,
+      color: 'inherit',
+      backgroundColor: 'inherit',
+      width: theme.typography.pxToRem(30),
+      height: theme.typography.pxToRem(30),
+    },
+    componentAvatarSelected: {
+      borderRadius: 0,
+      color: deepPurple[500],
+      fontWeight: 'bold',
+      backgroundColor: 'inherit',
+      width: theme.typography.pxToRem(30),
+      height: theme.typography.pxToRem(30),
+    },
+    newWidgetOverlay: {
+      width: theme.typography.pxToRem(25),
+      height: theme.typography.pxToRem(25),
+      marginLeft: '-10px',
+      marginTop: '-20px',
+      color: red[500],
+    },
     listItem: {
       height: theme.typography.pxToRem(76.8),
     },
     listItemTextRoot: {
+      marginLeft: theme.spacing.unit * 2,
       fontSize: 14,
       justifyContent: 'flex-start',
     },
     listItemTextSelected: {
       fontWeight: 'bold',
+      color: deepPurple[500],
     },
     listItemIconSelected: {
       color: deepPurple[500],
@@ -162,6 +187,26 @@ class ComponentItem extends Component {
     );
   }
 
+  renderListItemIcon = (type, properties, isSelected, classes) => {
+    const className = isSelected ? classes.componentAvatarSelected : classes.componentAvatar;
+    if (type === 'zone') {
+      return (<Avatar className={className}>[Z]</Avatar>);
+    }
+
+    if (properties.widgetTypeIconSrc) {
+      return (
+        <Fragment>
+          {properties.widgetTypeIconSrc
+            ? (<Avatar className={className} src={properties.widgetTypeIconSrc} />)
+            : (<Avatar className={className}><Widgets /></Avatar>)
+          }
+          {!properties.published && (<NewWidget className={classes.newWidgetOverlay} />)}
+        </Fragment>
+      );
+    }
+    return (<Avatar className={className}><Widgets /></Avatar>);
+  }
+
   renderListItem = (subtree, hasChildWidgets) => {
     const {
       onScreenId,
@@ -176,7 +221,6 @@ class ComponentItem extends Component {
     } = this.props;
     const isSelected = selectedComponentId === onScreenId;
     if (showOnlyWidgets && type === 'zone') { return null; }
-
     return (
       <ListItem
         disabled={isDisabled}
@@ -184,21 +228,11 @@ class ComponentItem extends Component {
           root: classes.listItem,
           secondaryAction: classes.listItemSecondaryAction,
         }}
-        style={{ paddingLeft: itemLevel > 1 ? `${itemLevel * 0.8}em` : '16px' }}
+        style={{ paddingLeft: itemLevel > 1 ? `${itemLevel * 1}em` : '16px' }}
         onClick={this.handleToggleClick}
         button
-        itemlevel={itemLevel}
       >
-        <ListItemIcon
-          className={isSelected
-            ? classes.listItemIconSelected
-            : ''}
-        >
-          {type === 'zone'
-            ? <PanoramaHorizontal />
-            : <Widgets />
-          }
-        </ListItemIcon>
+        {this.renderListItemIcon(type, properties, isSelected, classes)}
         {this.renderListItemTextWrapper(type, properties, isSelected, classes)}
         <ListItemSecondaryAction>
           { this.renderContextMenu(isSelected) }

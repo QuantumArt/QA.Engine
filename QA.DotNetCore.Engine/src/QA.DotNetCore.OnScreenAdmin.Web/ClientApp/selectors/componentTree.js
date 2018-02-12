@@ -1,6 +1,7 @@
 import { createSelector, createSelectorCreator } from 'reselect';
 import _ from 'lodash';
 import buildTree from '../utils/buildTree';
+import { allAvailableWidgets as allAvailableWidgetsSelector } from './availableWidgets';
 
 
 const getComponentTreeSelector = state => buildTree(state.componentTree.components);
@@ -33,9 +34,9 @@ const getParentComponents = (allComponents, component) => {
   return parentIds;
 };
 
-const filterFunction = (componentsFlat, keyword, disabledComponents, showOnlyWidgets) => {
+const filterFunction = (componentsFlat, keyword, disabledComponents, showOnlyWidgets, availableWidgets) => {
   console.log('showOnlyWidgets', showOnlyWidgets);
-  if (keyword === '') { return buildTree(componentsFlat, disabledComponents); }
+  if (keyword === '') { return buildTree(componentsFlat, disabledComponents, false, availableWidgets); }
   const searchText = _.toLower(keyword);
   const searchResults = _.filter(componentsFlat, (c) => {
     switch (c.type) {
@@ -69,7 +70,7 @@ const filterFunction = (componentsFlat, keyword, disabledComponents, showOnlyWid
 
   // console.log(keyword, filteredFlatComponents);
 
-  return buildTree(filteredFlatComponents, disabledComponents, true);
+  return buildTree(filteredFlatComponents, disabledComponents, true, availableWidgets);
 };
 
 const isMoving = movingWidget => !(movingWidget == null || !movingWidget.isActive || !movingWidget.onScreenId);
@@ -134,9 +135,15 @@ export const filteredComponentTree = createJSONEqualSelector(
     getFlatComponentsSelector,
     getDisabledComponents,
     getShowOnlyWidgetsSelector,
-    getMovingWidgetSelector],
-  (searchText, componentsFlat, disabledComponents, showOnlyWidgets, movingWidget) =>
-    filterFunction(componentsFlat, searchText, disabledComponents, showOnlyWidgets && !isMoving(movingWidget)),
+    getMovingWidgetSelector,
+    allAvailableWidgetsSelector,
+  ],
+  (searchText, componentsFlat, disabledComponents, showOnlyWidgets, movingWidget, availableWidgets) =>
+    filterFunction(componentsFlat,
+      searchText,
+      disabledComponents,
+      showOnlyWidgets && !isMoving(movingWidget),
+      availableWidgets),
 );
 
 export const getMovingWidgetTargetZoneSelector = createSelector(

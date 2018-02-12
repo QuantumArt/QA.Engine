@@ -4,19 +4,26 @@ import { MODES } from 'reducers/widgetsScreenReducer';
 const getShowComponentTreeSelector = state => state.widgetsScreen.mode === MODES.SHOW_COMPONENT_TREE;
 const getShowWidgetsCreationWizardSelector = state => state.widgetsScreen.mode === MODES.SHOW_WIDGET_CREATION_WIZARD;
 const getShowMoveWidgetScreenSelector = state => state.widgetsScreen.mode === MODES.SHOW_MOVE_WIDGET;
+const getShowLoadingIndicatorSelector = state =>
+  !state.widgetsScreen.availableWidgetsInfoLoaded || state.metaInfo.isLoading;
 
 
 export const getShowComponentTree = createSelector(
-  [getShowComponentTreeSelector],
-  showComponentTree => showComponentTree,
+  [getShowComponentTreeSelector, getShowLoadingIndicatorSelector],
+  (showComponentTree, showLoading) => showComponentTree && !showLoading,
 );
 
 export const getShowWidgetsCreationWizard = createSelector(
-  [getShowWidgetsCreationWizardSelector],
-  showWidgetsCreationWizard => showWidgetsCreationWizard,
+  [getShowWidgetsCreationWizardSelector, getShowLoadingIndicatorSelector],
+  (showWidgetsCreationWizard, showLoading) => showWidgetsCreationWizard && !showLoading,
 );
 
 export const getShowMoveWidgetScreen = createSelector(
-  [getShowMoveWidgetScreenSelector],
-  showMoveWidget => showMoveWidget,
+  [getShowMoveWidgetScreenSelector, getShowLoadingIndicatorSelector],
+  (showMoveWidget, showLoading) => showMoveWidget && !showLoading,
+);
+
+export const getShowLoadingIndicator = createSelector(
+  [getShowLoadingIndicatorSelector],
+  show => show,
 );

@@ -24,6 +24,8 @@ const WidgetCreationWizard = ({
   onSelectExistingZoneType,
   showZonesListSearchBox,
   onToggleZonesListSearchBoxVisibility,
+  showAvailableWidgetsSearchBox,
+  onToggleAvailableWidgetsSearchBox,
 }) => (
   <Fragment>
     <WizardHeader
@@ -59,6 +61,8 @@ const WidgetCreationWizard = ({
     {showAvailableWidgets
       ? (<AvailableWidgetsListStep
         onSelectWidget={onSelectWidget}
+        showSearchBox={showAvailableWidgetsSearchBox}
+        onToggleSearchBox={onToggleAvailableWidgetsSearchBox}
       />)
       : null
     }
@@ -87,6 +91,8 @@ WidgetCreationWizard.propTypes = {
   onChangeCustomZoneName: PropTypes.func.isRequired,
   onSelectWidget: PropTypes.func.isRequired,
   customZoneName: PropTypes.string.isRequired,
+  showAvailableWidgetsSearchBox: PropTypes.bool.isRequired,
+  onToggleAvailableWidgetsSearchBox: PropTypes.func.isRequired,
 
 
 };

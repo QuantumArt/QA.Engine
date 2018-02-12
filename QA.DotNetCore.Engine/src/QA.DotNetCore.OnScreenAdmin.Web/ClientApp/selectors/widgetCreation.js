@@ -12,6 +12,7 @@ const getZonesListSearchTextSelector = state => state.widgetCreation.zonesListSe
 const getCustomZoneNameSelector = state => state.widgetCreation.customZoneName;
 const getTargetZoneNameSelector = state => state.widgetCreation.targetZoneName;
 const getShowZonesListSearchBoxSelector = state => state.widgetCreation.showZonesListSearchBox;
+const getShowAvailableWidgetsSearchBoxSelector = state => state.widgetCreation.showAvailableWidgetsSearchBox;
 
 const getParentAbstractItemIdSelector = (state) => {
   const targetZoneName = state.widgetCreation.targetZoneName;
@@ -49,6 +50,11 @@ export const getZonesListSearchText = createSelector(
 
 export const getShowZonesListSearchBox = createSelector(
   [getShowZonesListSearchBoxSelector],
+  show => show,
+);
+
+export const getShowAvailableWidgetsSearchBox = createSelector(
+  [getShowAvailableWidgetsSearchBoxSelector],
   show => show,
 );
 

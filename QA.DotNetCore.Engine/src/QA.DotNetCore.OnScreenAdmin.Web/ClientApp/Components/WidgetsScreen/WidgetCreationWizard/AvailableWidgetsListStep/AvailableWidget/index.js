@@ -70,9 +70,6 @@ class AvailableWidget extends Component {
 
 AvailableWidget.propTypes = {
   id: PropTypes.number.isRequired,
-  // Discriminator: PropTypes.string.isRequired,
-  // TypeName: PropTypes.string.isRequired,
-  // IsPage: PropTypes.bool.isRequired,
   title: PropTypes.string.isRequired,
   description: PropTypes.string,
   iconUrl: PropTypes.string.isRequired,

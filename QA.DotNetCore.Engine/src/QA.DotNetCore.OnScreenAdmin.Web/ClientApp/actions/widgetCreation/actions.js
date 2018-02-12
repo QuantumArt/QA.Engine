@@ -8,6 +8,7 @@ import {
   SELECT_ZONE_TYPE_EXISTING,
   SELECT_ZONE_TYPE_CUSTOM,
   TOGGLE_ZONES_LIST_SEARCH_BOX,
+  TOGGLE_AVAILABLE_WIDGETS_SEARCH_BOX,
 } from './actionTypes';
 
 export function selectTargetZone(targetZoneName) {
@@ -64,6 +65,12 @@ export function changeZonesListSearchText(newValue) {
 export function toggleZonesListSearchBox() {
   return {
     type: TOGGLE_ZONES_LIST_SEARCH_BOX,
+  };
+}
+
+export function toggleAvailableWidgetsSearchBox() {
+  return {
+    type: TOGGLE_AVAILABLE_WIDGETS_SEARCH_BOX,
   };
 }
 

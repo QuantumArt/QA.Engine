@@ -8,6 +8,7 @@ import {
   changeCustomZoneName,
   selectWidget,
   toggleZonesListSearchBox,
+  toggleAvailableWidgetsSearchBox,
 } from 'actions/widgetCreation/actions';
 
 import {
@@ -19,7 +20,7 @@ import {
   getShowEnterCustomZoneName,
   getCustomZoneName,
   getShowZonesListSearchBox,
-
+  getShowAvailableWidgetsSearchBox,
 } from 'selectors/widgetCreation';
 
 import WidgetCreationWizard from 'Components/WidgetsScreen/WidgetCreationWizard';
@@ -32,6 +33,7 @@ const mapStateToProps = state => ({
   showAvailableWidgets: getShowAvailableWidgets(state),
   customZoneName: getCustomZoneName(state),
   showZonesListSearchBox: getShowZonesListSearchBox(state),
+  showAvailableWidgetsSearchBox: getShowAvailableWidgetsSearchBox(state),
   zones: getZonesList(state),
 });
 
@@ -61,6 +63,9 @@ const mapDispatchToProps = dispatch => ({
   },
   onToggleZonesListSearchBoxVisibility: () => {
     dispatch(toggleZonesListSearchBox());
+  },
+  onToggleAvailableWidgetsSearchBox: () => {
+    dispatch(toggleAvailableWidgetsSearchBox());
   },
 
 

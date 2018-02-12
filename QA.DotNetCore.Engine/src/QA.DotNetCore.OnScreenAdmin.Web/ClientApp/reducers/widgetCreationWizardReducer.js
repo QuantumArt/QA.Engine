@@ -11,6 +11,7 @@ import {
   SELECT_ZONE_TYPE_EXISTING,
   SELECT_ZONE_TYPE_CUSTOM,
   TOGGLE_ZONES_LIST_SEARCH_BOX,
+  TOGGLE_AVAILABLE_WIDGETS_SEARCH_BOX,
 } from 'actions/widgetCreation/actionTypes';
 import { WIDGET_CREATION_MODE, WIDGET_CREATION_STEPS, ZONE_TYPE } from 'constants/widgetCreation';
 
@@ -26,6 +27,7 @@ const initialState = {
   availableWidgetsLoaded: false, // получили ли инфу о доступных для добавления виджетах
   zonesListSearchText: '',
   showZonesListSearchBox: false,
+  showAvailableWidgetsSearchBox: false,
   currentStep: WIDGET_CREATION_STEPS.INACTIVE,
 };
 
@@ -180,6 +182,12 @@ export default function widgetCreationWizardReducer(state = initialState, action
       return {
         ...state,
         availableWidgetsLoaded: true,
+      };
+
+    case TOGGLE_AVAILABLE_WIDGETS_SEARCH_BOX:
+      return {
+        ...state,
+        showAvailableWidgetsSearchBox: !state.showAvailableWidgetsSearchBox,
       };
     case FINISH_WIDGET_CREATION:
       return initialState;

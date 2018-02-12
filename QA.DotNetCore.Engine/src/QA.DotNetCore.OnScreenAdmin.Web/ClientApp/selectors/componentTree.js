@@ -43,7 +43,9 @@ const filterFunction = (componentsFlat, keyword, disabledComponents, showOnlyWid
         return !showOnlyWidgets && _.includes(_.toLower(c.properties.zoneName), searchText);
       case 'widget':
         return _.includes(_.toLower(c.properties.alias), searchText)
-        || _.includes(_.toLower(c.properties.title), searchText);
+        || _.includes(_.toLower(c.properties.title), searchText)
+        || _.includes(_.toLower(c.properties.widgetId), searchText);
+
       default:
         return false;
     }

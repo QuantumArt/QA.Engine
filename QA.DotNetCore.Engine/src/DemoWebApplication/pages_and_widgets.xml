@@ -1,0 +1,15 @@
+<XmlRootPage>
+	<XmlStartPage Alias="main">
+		<NotExistedPage />
+		<XmlTextPage Alias="page1" Title="page1" Text="page1 content" />
+		<XmlTextPage Alias="page2" Title="page2" Text="page2 content">
+			<XmlTextPart Alias="widget1" Title="widget1" Zone="Above" Text="widget1 content"/>
+		</XmlTextPage>
+		<NotExistedPage2 Alias="vddfregfr" Title="erfref">
+      <XmlTextPage Alias="page3" Title="page3" Text="page3 content"/>
+      <XmlTextPage Alias="page31" Title="page31" Text="page3 content"/>
+      <XmlTextPage Alias="page32" Title="page32" Text="page3 content"/>
+		</NotExistedPage2>
+    <XmlTextPage Alias="page44" Title="page4" Text="page4 content" />
+	</XmlStartPage>
+</XmlRootPage>

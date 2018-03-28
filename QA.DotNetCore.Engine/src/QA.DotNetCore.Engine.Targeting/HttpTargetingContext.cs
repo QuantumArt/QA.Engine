@@ -16,6 +16,11 @@ namespace QA.DotNetCore.Engine.Targeting
             _httpContextAccessor = httpContextAccessor;
         }
 
+        public object[] GetPossibleValues(string key)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public string[] GetTargetingKeys()
         {
             return _httpContextAccessor.HttpContext.Items[TargetingKeysContextKey] as string[];

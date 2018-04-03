@@ -7,8 +7,13 @@ namespace QA.DotNetCore.Engine.Routing
 {
     internal class PathFinder
     {
-        public PathData Find(string path, IAbstractItem root, ITargetingFilter targetingFilter)
+        public PathData Find(string path, IAbstractItem root, ITargetingFilter targetingFilter, ITargetingUrlResolver targetingUrlResolver)
         {
+            if (targetingUrlResolver != null)
+            {
+                path = targetingUrlResolver.SanitizeUrl(path);
+            }
+
             var tokens = path.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
 
             if (tokens.Length == 0)

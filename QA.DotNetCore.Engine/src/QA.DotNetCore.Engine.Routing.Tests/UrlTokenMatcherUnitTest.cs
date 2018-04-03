@@ -9,7 +9,7 @@ namespace QA.DotNetCore.Engine.Routing.Tests
     public class UrlTokenMatcherUnitTest
     {
         [TestMethod]
-        public void MatchTest()
+        public void Test_Match_SimpleTemplate()
         {
             var urlTokenMatcher = new UrlTokenMatcher(CreateUrlTokenConfig());
             var ctx = CreateFakeTargetingContext();
@@ -17,17 +17,36 @@ namespace QA.DotNetCore.Engine.Routing.Tests
 
             m = urlTokenMatcher.Match("http://test.somesite.com/moskva/test1/test2/test3/", ctx);
 
+            Assert.IsTrue(m.IsMatch);
             Assert.AreEqual(m.TokenValues.Count, 2);
             Assert.IsTrue(m.TokenValues.ContainsKey("culture"));
             Assert.AreEqual(m.TokenValues["culture"], "ru-ru");
             Assert.IsTrue(m.TokenValues.ContainsKey("region"));
             Assert.AreEqual(m.TokenValues["region"], "moskva");
             Assert.AreEqual(m.SanitizedUrl, "http://test.somesite.com/test1/test2/test3/");
-            
+
+            m = urlTokenMatcher.Match("http://test.somesite.com/en-us/moskva/a", ctx);
+            Assert.AreEqual(m.SanitizedUrl, "http://test.somesite.com/a");
+
+            m = urlTokenMatcher.Match("http://test.somesite.com/en-us/moskva/a/b", ctx);
+            Assert.AreEqual(m.SanitizedUrl, "http://test.somesite.com/a/b");
+
+            m = urlTokenMatcher.Match("http://test.somesite.com/en-us/moskva/a/b/c", ctx);
+            Assert.AreEqual(m.SanitizedUrl, "http://test.somesite.com/a/b/c");
+
+            m = urlTokenMatcher.Match("/en-us/moskva/test1/test2/test3/", ctx);
+
+            Assert.IsTrue(m.IsMatch);
+            Assert.AreEqual(m.TokenValues.Count, 2);
+            Assert.IsTrue(m.TokenValues.ContainsKey("culture"));
+            Assert.AreEqual(m.TokenValues["culture"], "en-us");
+            Assert.IsTrue(m.TokenValues.ContainsKey("region"));
+            Assert.AreEqual(m.TokenValues["region"], "moskva");
+            Assert.AreEqual(m.SanitizedUrl, "/test1/test2/test3");
         }
 
         [TestMethod]
-        public void ReplaceTokensTest()
+        public void Test_ReplaceTokens_SimpleTemplate()
         {
             var urlTokenMatcher = new UrlTokenMatcher(CreateUrlTokenConfig());
             var ctx = CreateFakeTargetingContext();
@@ -49,6 +68,9 @@ namespace QA.DotNetCore.Engine.Routing.Tests
 
             newUrl = urlTokenMatcher.ReplaceTokens("http://test.somesite.com/qwe", new Dictionary<string, string> { { "region", "moskva" }, { "culture", "en-us" } }, ctx);
             Assert.AreEqual(newUrl, "http://test.somesite.com/en-us/moskva/qwe");
+
+            newUrl = urlTokenMatcher.ReplaceTokens("/", new Dictionary<string, string> { { "region", "moskva" } }, ctx);
+            Assert.AreEqual(newUrl, "/moskva");
         }
 
         private ITargetingContext CreateFakeTargetingContext()
@@ -65,8 +87,8 @@ namespace QA.DotNetCore.Engine.Routing.Tests
             {
                 MatchingPatterns = new List<UrlMatchingPattern>
                 {
-                    new UrlMatchingPattern{ Value = "//test.somesite.com/{culture}/{region}"},
-                    new UrlMatchingPattern{ Value = "//test.somesite.com/{region}", Defaults = new KeyValuePair<string, string>[] { new KeyValuePair<string, string>("culture", "ru-ru") } }
+                    new UrlMatchingPattern{ Value = "/{culture}/{region}"},
+                    new UrlMatchingPattern{ Value = "/{region}", Defaults = new KeyValuePair<string, string>[] { new KeyValuePair<string, string>("culture", "ru-ru") } }
                 }
             };
         }

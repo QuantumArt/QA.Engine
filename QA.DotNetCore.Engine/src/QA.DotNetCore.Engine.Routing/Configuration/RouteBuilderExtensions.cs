@@ -27,8 +27,9 @@ namespace QA.DotNetCore.Engine.Routing.Configuration
             IInlineConstraintResolver requiredService = routes.ServiceProvider.GetRequiredService<IInlineConstraintResolver>();
             IControllerMapper controllerMapper = routes.ServiceProvider.GetRequiredService<IControllerMapper>();
             ITargetingFilterAccessor targetingAccessor = routes.ServiceProvider.GetService<ITargetingFilterAccessor>();
+            ITargetingUrlResolver urlResolver = routes.ServiceProvider.GetService<ITargetingUrlResolver>();
 
-            routes.Routes.Add(new ContentRoute(controllerMapper, targetingAccessor, routes.DefaultHandler, name, template,
+            routes.Routes.Add(new ContentRoute(controllerMapper, targetingAccessor, urlResolver, routes.DefaultHandler, name, template,
                     new RouteValueDictionary(defaults),
                     new RouteValueDictionary(constraints),
                     new RouteValueDictionary(dataTokens),

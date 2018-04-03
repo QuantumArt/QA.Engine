@@ -4,7 +4,9 @@ namespace QA.DotNetCore.Engine.Abstractions.Targeting
 {
     public interface ITargetingUrlResolver
     {
-        string AddTokensToUrl(string originalUrl);
+        string SanitizeUrl(string originalUrl);
+        string AddCurrentTargetingValuesToUrl(string originalUrl);
+        string AddTokensToUrl(string originalUrl, Dictionary<string, string> tokens);
         Dictionary<string, string> ResolveTargetingValuesFromUrl(string url);
     }
 }

@@ -92,7 +92,7 @@ namespace QA.DotNetCore.Engine.Abstractions
 
             if (Storage.UrlResolver != null)
             {
-                resultUrl = Storage.UrlResolver.AddTokensToUrl(resultUrl);
+                resultUrl = Storage.UrlResolver.AddCurrentTargetingValuesToUrl(resultUrl);
             }
 
             return resultUrl;

@@ -103,6 +103,7 @@ namespace DemoWebApplication
             services.AddSingleton(typeof(DemoCultureTargetingProvider));
             services.AddSingleton(typeof(DemoRegionFilter));
             services.AddSingleton(typeof(DemoCultureFilter));
+            services.AddSingleton(typeof(DemoCultureRegionPossibleValuesProvider));
 
             services.AddTargeting();
         }
@@ -136,6 +137,7 @@ namespace DemoWebApplication
             {
                 targeting.Add<DemoCultureTargetingProvider>();
                 targeting.Add<DemoRegionTargetingProvider>();
+                targeting.AddPossibleValues<DemoCultureRegionPossibleValuesProvider>();
             });
 
             app.UseSiteSctructureFilters(filters =>

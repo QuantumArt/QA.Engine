@@ -1,14 +1,17 @@
-using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace QA.DotNetCore.Engine.Routing
 {
+    public interface IUrlTokenMatcher
+    {
+        UrlMatchingResult Match(string originalUrl, ITargetingContext targetingContext);
+        string ReplaceTokens(string originalUrl, Dictionary<string, string> tokenValues, ITargetingContext targetingContext);
+    }
+
     public class UrlTokenMatcher
     {
         private readonly UrlTokenConfig _config;
@@ -33,7 +36,7 @@ namespace QA.DotNetCore.Engine.Routing
                     int tokenPosition = -1;
                     bool isInAuthority = false;
 
-                    if (pUrl.Authority.Contains(tokenName))
+                    if (pUrl.Authority != null && pUrl.Authority.Contains(tokenName))
                     {
                         var domains = GetReversedDomains(pUrl);
 
@@ -82,7 +85,7 @@ namespace QA.DotNetCore.Engine.Routing
 
                 result.IsMatch = true;
 
-                foreach (var token in pattern.Tokens)
+                foreach (var token in pattern.Tokens.OrderByDescending(t => t.Position))
                 {
                     string r = null;
 
@@ -158,7 +161,7 @@ namespace QA.DotNetCore.Engine.Routing
                 }
             }
 
-            //проверим соответствует ли адрес заданным паттернам
+            //проверим соответствует ли адрес заданным паттернам (в нём уже могут быть заданы токены)
             var m = Match(originalUrl, targetingContext);
             if (m.IsMatch)
             {
@@ -171,12 +174,6 @@ namespace QA.DotNetCore.Engine.Routing
                     if (!tokenValues.ContainsKey(t))
                         tokenValues[t] = m.TokenValues[t];
                 }
-            }
-            else
-            {
-                //не удалось наложить ни один шаблон на урл. 
-                //значит, с ним ничего не поделаешь
-                return url;
             }
 
             //для новых значений токенов определим наиболее подходящий шаблон

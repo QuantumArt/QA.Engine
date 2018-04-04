@@ -13,16 +13,7 @@ namespace QA.DotNetCore.Engine.Routing
 
         public UrlMatchingToken[] Tokens { get; set; }
 
-        public KeyValuePair<string, string>[] Defaults { get; set; }
-
-        //public int CultureTokenPosition;
-        //public int RegionTokenPosition;
-        //public bool ProcessCultureTokens { get; set; }
-        //public bool ProcessRegionTokens { get; set; }
-        //public string DefaultCultureToken { get; set; }
-        //public bool IsRegionInAuthority { get; set; }
-        //public bool UseForReplacing { get; set; }
-        //public bool IsCultureInAuthority { get; set; }
+        public Dictionary<string, string> Defaults { get; set; }
     }
 
     public class UrlMatchingToken

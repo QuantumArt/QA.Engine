@@ -12,7 +12,7 @@ namespace QA.DotNetCore.Engine.Routing
         string ReplaceTokens(string originalUrl, Dictionary<string, string> tokenValues, ITargetingContext targetingContext);
     }
 
-    public class UrlTokenMatcher
+    public class UrlTokenMatcher : IUrlTokenMatcher
     {
         private readonly UrlTokenConfig _config;
 
@@ -23,7 +23,7 @@ namespace QA.DotNetCore.Engine.Routing
             foreach (var pattern in _config.MatchingPatterns)
             {
                 if (pattern.Defaults == null)
-                    pattern.Defaults = new KeyValuePair<string, string>[0];
+                    pattern.Defaults = new Dictionary<string, string>();
 
                 Url pUrl = pattern.Value;
                 var pSegments = pUrl.GetSegments();

@@ -11,13 +11,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.OnScreen;
+using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.AbTesting.Configuration;
 using QA.DotNetCore.Engine.CacheTags;
 using QA.DotNetCore.Engine.CacheTags.Configuration;
 using QA.DotNetCore.Engine.OnScreen.Configuration;
 using QA.DotNetCore.Engine.QpData.Configuration;
 using QA.DotNetCore.Engine.QpData.Settings;
+using QA.DotNetCore.Engine.Routing;
 using QA.DotNetCore.Engine.Routing.Configuration;
+using QA.DotNetCore.Engine.Targeting;
 using QA.DotNetCore.Engine.Targeting.Configuration;
 using QA.DotNetCore.Engine.Xml;
 using QA.DotNetCore.Engine.Xml.Configuration;
@@ -99,13 +102,19 @@ namespace DemoWebApplication
 
             services.AddSingleton<CacheTagUtilities>();
 
-            services.AddSingleton(typeof(DemoRegionTargetingProvider));
-            services.AddSingleton(typeof(DemoCultureTargetingProvider));
+            //services.AddSingleton(typeof(DemoRegionTargetingProvider));
+            //services.AddSingleton(typeof(DemoCultureTargetingProvider));
             services.AddSingleton(typeof(DemoRegionFilter));
             services.AddSingleton(typeof(DemoCultureFilter));
-            services.AddSingleton(typeof(DemoCultureRegionPossibleValuesProvider));
 
             services.AddTargeting();
+
+            //сервисы для 116786 (встраивания таргетирования в урл)
+            services.AddSingleton<UrlTokenTargetingProvider>();
+            services.AddSingleton<DemoCultureRegionPossibleValuesProvider>();
+            services.AddSingleton<ITargetingUrlResolver, UrlTokenResolver>();
+            services.AddSingleton<IUrlTokenMatcher, UrlTokenMatcher>();
+            services.AddSingleton(Configuration.GetSection("UrlTokenConfig").Get<UrlTokenConfig>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -135,8 +144,9 @@ namespace DemoWebApplication
 
             app.UseTargeting(targeting =>
             {
-                targeting.Add<DemoCultureTargetingProvider>();
-                targeting.Add<DemoRegionTargetingProvider>();
+                //targeting.Add<DemoCultureTargetingProvider>();
+                //targeting.Add<DemoRegionTargetingProvider>();
+                targeting.Add<UrlTokenTargetingProvider>();
                 targeting.AddPossibleValues<DemoCultureRegionPossibleValuesProvider>();
             });
 

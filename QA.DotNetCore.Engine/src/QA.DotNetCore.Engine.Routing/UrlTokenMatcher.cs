@@ -63,6 +63,64 @@ namespace QA.DotNetCore.Engine.Routing
 
         public UrlMatchingResult Match(string originalUrl, ITargetingContext targetingContext)
         {
+            return MatchInternal(originalUrl, targetingContext, checkAuthorityTokensOnly: false);
+        }
+
+        public string ReplaceTokens(string originalUrl, Dictionary<string, string> tokenValues, ITargetingContext targetingContext)
+        {
+            Url url = originalUrl;
+
+            if (!_config.MatchingPatterns.Any())
+            {
+                return url;
+            }
+
+            //проверим, что все новые значения токенов являются допустимыми
+            foreach (var t in tokenValues.Keys)
+            {
+                //считаем, что название токена совпадает с ключом системы таргетирования
+                //по этому названию узнаем список возможных значений для токена (если список пуст - считаем что значение может быть любым)
+                var possibleValues = targetingContext.GetPossibleValues(t).Cast<string>().ToArray();
+
+                if (possibleValues.Any() && !possibleValues.Contains(tokenValues[t]))
+                {
+                    //не можем подставить токены в адрес, потому что среди них есть недопустимые
+                    return url;
+                }
+            }
+
+            //проверим соответствует ли адрес заданным паттернам (в нём уже могут быть заданы токены)
+            var m = MatchInternal(originalUrl, targetingContext, checkAuthorityTokensOnly: false);
+            if (m.IsMatch)
+            {
+                //адрес, очищенный от токенов
+                url = m.SanitizedUrl;
+
+                //добавим в tokenValues значения, полученные из originalUrl, по токенам, которых там не было
+                foreach (var t in m.TokenValues.Keys)
+                {
+                    if (!tokenValues.ContainsKey(t))
+                        tokenValues[t] = m.TokenValues[t];
+                }
+            }
+            else if (!MatchInternal(originalUrl, targetingContext, checkAuthorityTokensOnly: true).IsMatch)
+            {
+                //если адрес не соответсвует паттернам из-за домена
+                //пример: паттерн //{region}.test.ru/{culture} а адрес http://stage.test.ru/en-us
+                //в этом примере "stage" не является допустимым значением токена region
+                //подставлять токены в такой адрес мы не хотим
+                return url;
+            }
+
+            //для новых значений токенов определим наиболее подходящий шаблон
+            var pattern = GetSuitablePattern(_config.MatchingPatterns, tokenValues);
+
+            //добавим в урл значения токенов, согласно шаблону
+            return ReplaceByPattern(url, pattern, tokenValues);
+        }
+
+        private UrlMatchingResult MatchInternal(string originalUrl, ITargetingContext targetingContext, bool checkAuthorityTokensOnly)
+        {
             Url pUrl = originalUrl;
 
             var pSegments = pUrl.GetSegments();
@@ -74,7 +132,7 @@ namespace QA.DotNetCore.Engine.Routing
                 UrlMatchingResult result = new UrlMatchingResult();
                 Url sanitized = pUrl;
 
-                if (domains == null && pattern.Tokens.Any(t => t.IsInAuthority) /*pattern.IsRegionInAuthority || pattern.IsCultureInAuthority*/)
+                if (domains == null && pUrl.Authority != null && pattern.Tokens.Any(t => t.IsInAuthority) /*pattern.IsRegionInAuthority || pattern.IsCultureInAuthority*/)
                 {
                     domains = pUrl.Authority.Split('.')
                         .Select(w => w.Trim())
@@ -85,7 +143,9 @@ namespace QA.DotNetCore.Engine.Routing
 
                 result.IsMatch = true;
 
-                foreach (var token in pattern.Tokens.OrderByDescending(t => t.Position))
+                foreach (var token in pattern.Tokens
+                    .Where(t => !checkAuthorityTokensOnly || (checkAuthorityTokensOnly && t.IsInAuthority))
+                    .OrderByDescending(t => t.Position))
                 {
                     string r = null;
 
@@ -95,6 +155,9 @@ namespace QA.DotNetCore.Engine.Routing
 
                     if (token.IsInAuthority)
                     {
+                        if (domains == null)//если originalUrl без домена, а в шаблоне в домене есть токен - проигнорируем его
+                            continue;
+
                         var success = MatchToken(domains, token.Position, possibleValues, out r);
                         if (!success)
                         {
@@ -138,51 +201,6 @@ namespace QA.DotNetCore.Engine.Routing
             return UrlMatchingResult.Empty;
         }
 
-        public string ReplaceTokens(string originalUrl, Dictionary<string, string> tokenValues, ITargetingContext targetingContext)
-        {
-            Url url = originalUrl;
-
-            if (!_config.MatchingPatterns.Any())
-            {
-                return url;
-            }
-
-            //проверим, что все новые значения токенов являются допустимыми
-            foreach (var t in tokenValues.Keys)
-            {
-                //считаем, что название токена совпадает с ключом системы таргетирования
-                //по этому названию узнаем список возможных значений для токена (если список пуст - считаем что значение может быть любым)
-                var possibleValues = targetingContext.GetPossibleValues(t).Cast<string>().ToArray();
-
-                if (possibleValues.Any() && !possibleValues.Contains(tokenValues[t]))
-                {
-                    //не можем подставить токены в адрес, потому что среди них есть недопустимые
-                    return url;
-                }
-            }
-
-            //проверим соответствует ли адрес заданным паттернам (в нём уже могут быть заданы токены)
-            var m = Match(originalUrl, targetingContext);
-            if (m.IsMatch)
-            {
-                //адрес, очищенный от токенов
-                url = m.SanitizedUrl;
-
-                //добавим в tokenValues значения, полученные из originalUrl, по токенам, которых там не было
-                foreach (var t in m.TokenValues.Keys)
-                {
-                    if (!tokenValues.ContainsKey(t))
-                        tokenValues[t] = m.TokenValues[t];
-                }
-            }
-
-            //для новых значений токенов определим наиболее подходящий шаблон
-            var pattern = GetSuitablePattern(_config.MatchingPatterns, tokenValues);
-
-            //добавим в урл значения токенов, согласно шаблону
-            return ReplaceByPattern(url, pattern, tokenValues);
-        }
-
         private UrlMatchingPattern GetSuitablePattern(IEnumerable<UrlMatchingPattern> patterns, Dictionary<string, string> tokenValues)
         {
             var suitable = new List<UrlMatchingPattern>();
@@ -190,11 +208,11 @@ namespace QA.DotNetCore.Engine.Routing
             {
                 //все Defaults не должны противоречить tokenValues
                 if (pattern.Defaults.Any(defaultKvp => tokenValues.ContainsKey(defaultKvp.Key) && tokenValues[defaultKvp.Key] != defaultKvp.Value))
-                    break;
+                    continue;
 
                 //все tokenValues должны быть представлены в паттерне 
                 if (tokenValues.Keys.Any(token => !pattern.Tokens.Any(t => t.Name == token) && !pattern.Defaults.Any(kvp => kvp.Key == token)))
-                    break;
+                    continue;
 
                 suitable.Add(pattern);
             }

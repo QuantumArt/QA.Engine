@@ -43,6 +43,14 @@ namespace QA.DotNetCore.Engine.Routing.Tests
             Assert.IsTrue(m.TokenValues.ContainsKey("region"));
             Assert.AreEqual(m.TokenValues["region"], "moskva");
             Assert.AreEqual(m.SanitizedUrl, "/test1/test2/test3");
+
+            m = urlTokenMatcher.Match("/en-us/test1/test2/test3", ctx);
+            Assert.IsTrue(m.IsMatch);
+            Assert.IsFalse(m.AllTokenFound);
+            Assert.AreEqual(m.TokenValues.Count, 1);
+            Assert.IsTrue(m.TokenValues.ContainsKey("culture"));
+            Assert.AreEqual(m.TokenValues["culture"], "en-us");
+            Assert.AreEqual(m.SanitizedUrl, "/test1/test2/test3");
         }
 
         [TestMethod]
@@ -188,6 +196,15 @@ namespace QA.DotNetCore.Engine.Routing.Tests
             newUrl = urlTokenMatcher.ReplaceTokens("/", new Dictionary<string, string> { { "region", "moskva" } }, ctx);
             Assert.AreEqual(newUrl, "/moskva");
 
+            newUrl = urlTokenMatcher.ReplaceTokens("/moskva", new Dictionary<string, string> { { "culture", "kk-kz" } }, ctx);
+            Assert.AreEqual(newUrl, "/kk-kz/moskva");
+
+            newUrl = urlTokenMatcher.ReplaceTokens("/", new Dictionary<string, string> { { "culture", "kk-kz" } }, ctx);
+            Assert.AreEqual(newUrl, "/kk-kz");
+
+            newUrl = urlTokenMatcher.ReplaceTokens("/kk-kz", new Dictionary<string, string> { { "region", "spb" } }, ctx);
+            Assert.AreEqual(newUrl, "/kk-kz/spb");
+
             newUrl = urlTokenMatcher.ReplaceTokens("/", new Dictionary<string, string> { { "region", "moskva" }, { "culture", "kk-kz" } }, ctx);
             Assert.AreEqual(newUrl, "/kk-kz/moskva");
 
@@ -195,10 +212,10 @@ namespace QA.DotNetCore.Engine.Routing.Tests
             Assert.AreEqual(newUrl, "/kk-kz/spb/test1");
 
             newUrl = urlTokenMatcher.ReplaceTokens("/en-us/test1/test2", new Dictionary<string, string> { { "region", "spb" }, { "culture", "kk-kz" } }, ctx);
-            Assert.AreEqual(newUrl, "/kk-kz/spb/en-us/test1/test2");
+            Assert.AreEqual(newUrl, "/kk-kz/spb/test1/test2");
 
             newUrl = urlTokenMatcher.ReplaceTokens("/en-us", new Dictionary<string, string> { { "region", "spb" } }, ctx);
-            Assert.AreEqual(newUrl, "/spb/en-us");
+            Assert.AreEqual(newUrl, "/en-us/spb");
         }
 
         [TestMethod]

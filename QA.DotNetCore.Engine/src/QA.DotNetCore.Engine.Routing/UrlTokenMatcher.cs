@@ -61,11 +61,6 @@ namespace QA.DotNetCore.Engine.Routing
             
         }
 
-        public UrlMatchingResult Match(string originalUrl, ITargetingContext targetingContext)
-        {
-            return MatchInternal(originalUrl, targetingContext, checkAuthorityTokensOnly: false);
-        }
-
         public string ReplaceTokens(string originalUrl, Dictionary<string, string> tokenValues, ITargetingContext targetingContext)
         {
             Url url = originalUrl;
@@ -90,7 +85,7 @@ namespace QA.DotNetCore.Engine.Routing
             }
 
             //проверим соответствует ли адрес заданным паттернам (в нём уже могут быть заданы токены)
-            var m = MatchInternal(originalUrl, targetingContext, checkAuthorityTokensOnly: false);
+            var m = Match(originalUrl, targetingContext);
             if (m.IsMatch)
             {
                 //адрес, очищенный от токенов
@@ -103,7 +98,7 @@ namespace QA.DotNetCore.Engine.Routing
                         tokenValues[t] = m.TokenValues[t];
                 }
             }
-            else if (!MatchInternal(originalUrl, targetingContext, checkAuthorityTokensOnly: true).IsMatch)
+            else if (!m.IsMatchForAuthority)
             {
                 //если адрес не соответсвует паттернам из-за домена
                 //пример: паттерн //{region}.test.ru/{culture} а адрес http://stage.test.ru/en-us
@@ -119,18 +114,16 @@ namespace QA.DotNetCore.Engine.Routing
             return ReplaceByPattern(url, pattern, tokenValues);
         }
 
-        private UrlMatchingResult MatchInternal(string originalUrl, ITargetingContext targetingContext, bool checkAuthorityTokensOnly)
+        public UrlMatchingResult Match(string originalUrl, ITargetingContext targetingContext)
         {
             Url pUrl = originalUrl;
-
-            var pSegments = pUrl.GetSegments();
-
+            var suitableResults = new List<UrlMatchingResult>();
             string[] domains = null;
 
+            //сначала проверим токены в домене
             foreach (var pattern in _config.MatchingPatterns)
             {
                 UrlMatchingResult result = new UrlMatchingResult();
-                Url sanitized = pUrl;
 
                 if (domains == null && pUrl.Authority != null && pattern.Tokens.Any(t => t.IsInAuthority) /*pattern.IsRegionInAuthority || pattern.IsCultureInAuthority*/)
                 {
@@ -141,45 +134,72 @@ namespace QA.DotNetCore.Engine.Routing
                         .ToArray();
                 }
 
-                result.IsMatch = true;
+                result.IsMatchForAuthority = true;
 
                 foreach (var token in pattern.Tokens
-                    .Where(t => !checkAuthorityTokensOnly || (checkAuthorityTokensOnly && t.IsInAuthority))
+                    .Where(t => t.IsInAuthority)
                     .OrderByDescending(t => t.Position))
                 {
-                    string r = null;
+                    if (domains == null)//если originalUrl без домена, а в шаблоне в домене есть токен - проигнорируем его
+                        continue;
 
                     //считаем, что название токена совпадает с ключом системы таргетирования
                     //по этому названию узнаем список возможных значений для токена (если список пуст - считаем что значение может быть любым)
                     var possibleValues = targetingContext.GetPossibleValues(token.Name).Cast<string>().ToArray();
 
-                    if (token.IsInAuthority)
+                    var success = MatchToken(domains, token.Position, possibleValues, out string r);
+                    if (!success)
                     {
-                        if (domains == null)//если originalUrl без домена, а в шаблоне в домене есть токен - проигнорируем его
-                            continue;
+                        result.IsMatchForAuthority = false;
+                        break;
+                    }
+       
+                    if (!string.IsNullOrEmpty(r))
+                    {
+                        result.TokenValues[token.Name] = r;
+                    }
+                }
 
-                        var success = MatchToken(domains, token.Position, possibleValues, out r);
-                        if (!success)
-                        {
-                            result.IsMatch = false;
-                            break;
-                        }
+                if (!result.IsMatchForAuthority)
+                    continue;
+
+                result.Pattern = pattern;
+                suitableResults.Add(result);
+            }
+
+            var pSegments = pUrl.GetSegments();
+
+            //теперь проверим токены вне домена, подготовим очищенный от токенов урл (при этом домен не трогаем)
+            foreach (var result in suitableResults)
+            {
+                var pattern = result.Pattern;
+                Url sanitized = pUrl;
+
+                var tokens = pattern.Tokens
+                    .Where(t => !t.IsInAuthority)
+                    .OrderByDescending(t => t.Position);
+
+                if (!tokens.Any())
+                    result.IsMatch = true;
+
+                foreach (var token in tokens)
+                {
+                    //считаем, что название токена совпадает с ключом системы таргетирования
+                    //по этому названию узнаем список возможных значений для токена (если список пуст - считаем что значение может быть любым)
+                    var possibleValues = targetingContext.GetPossibleValues(token.Name).Cast<string>().ToArray();
+
+                    var success = MatchToken(pSegments, token.Position, possibleValues, out string r);
+                    if (success)
+                    {
+                        result.IsMatch = true;//нашли хотя бы 1 подходящий шаблону токен - считаем что шаблон подходящий
                     }
                     else
                     {
-                        var success = MatchToken(pSegments, token.Position, possibleValues, out r);
-                        if (!success)
-                        {
-                            result.IsMatch = false;
-                            break;
-                        }
-                        if (r != null)
-                        {
-                            sanitized = sanitized.RemoveSegment(token.Position);
-                        }
+                        continue;
                     }
                     if (!string.IsNullOrEmpty(r))
                     {
+                        sanitized = sanitized.RemoveSegment(token.Position);
                         result.TokenValues[token.Name] = r;
                     }
                 }
@@ -193,12 +213,25 @@ namespace QA.DotNetCore.Engine.Routing
                         result.TokenValues[kvp.Key] = kvp.Value;
                 }
 
-                result.Pattern = pattern;
                 result.SanitizedUrl = sanitized;
-                return result;
             }
 
-            return UrlMatchingResult.Empty;
+            //если suitableResults непуст, значит были шаблоны, подходящие по Authority (домену т.е)
+            var matchForAuthority = suitableResults.Any();
+
+            //теперь фильтруем suitableResults по тому, подходят ли они по токенам, которые вне домена
+            suitableResults = suitableResults.Where(r => r.IsMatch).ToList();
+
+            //из всех результатов в первый очередь выбираем тот, в котором мы смогли получить значения всех токенов из шаблона
+            if (suitableResults.Any(r => r.AllTokenFound))
+                return suitableResults.First(r => r.AllTokenFound);
+
+            //если такого не нашли, выберем результат с наибольшим кол-вом найденных значений токенов
+            if (suitableResults.Any())
+                return suitableResults.OrderByDescending(r => r.TokenValues.Count).First();
+
+            //ни один шаблон не подошёл (отдельно сообщим по какой причине: домен не подходит или нет)
+            return matchForAuthority ? UrlMatchingResult.MatchOnlyForAuthority : UrlMatchingResult.NotMatch;
         }
 
         private UrlMatchingPattern GetSuitablePattern(IEnumerable<UrlMatchingPattern> patterns, Dictionary<string, string> tokenValues)

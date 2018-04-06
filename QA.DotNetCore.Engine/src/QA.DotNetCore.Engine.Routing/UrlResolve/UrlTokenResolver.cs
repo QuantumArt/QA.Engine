@@ -2,7 +2,7 @@ using QA.DotNetCore.Engine.Abstractions.Targeting;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace QA.DotNetCore.Engine.Routing
+namespace QA.DotNetCore.Engine.Routing.UrlResolve
 {
     public class UrlTokenResolver : ITargetingUrlResolver
     {
@@ -16,7 +16,7 @@ namespace QA.DotNetCore.Engine.Routing
             _targetingContext = targetingContext;
         }
 
-        public string AddCurrentTargetingValuesToUrl(string originalUrl)
+        public virtual string AddCurrentTargetingValuesToUrl(string originalUrl)
         {
             var allCurrentTargetingTokens = _targetingContext.GetTargetingKeys().ToDictionary(k => k, k => _targetingContext.GetTargetingValue(k).ToString());
             return AddTokensToUrl(originalUrl, allCurrentTargetingTokens);

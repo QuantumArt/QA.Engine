@@ -7,8 +7,9 @@ namespace QA.DotNetCore.Engine.Routing
 {
     internal class PathFinder
     {
-        public PathData Find(string path, IAbstractItem root, ITargetingFilter targetingFilter, ITargetingUrlResolver targetingUrlResolver)
+        public PathData Find(string path, IStartPage root, ITargetingFilter targetingFilter)
         {
+            var targetingUrlResolver = root.GetUrlResolver();
             if (targetingUrlResolver != null)
             {
                 path = targetingUrlResolver.SanitizeUrl(path);

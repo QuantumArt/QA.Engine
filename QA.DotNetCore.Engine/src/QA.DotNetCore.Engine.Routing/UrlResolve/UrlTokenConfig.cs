@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace QA.DotNetCore.Engine.Routing
+namespace QA.DotNetCore.Engine.Routing.UrlResolve
 {
     public class UrlTokenConfig
     {

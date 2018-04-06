@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.Routing.Tests.Fakes;
+using QA.DotNetCore.Engine.Routing.UrlResolve;
 using System.Collections.Generic;
 
 namespace QA.DotNetCore.Engine.Routing.Tests

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace QA.DotNetCore.Engine.Routing
+namespace QA.DotNetCore.Engine.Routing.UrlResolve
 {
     public class UrlMatchingResult
     {

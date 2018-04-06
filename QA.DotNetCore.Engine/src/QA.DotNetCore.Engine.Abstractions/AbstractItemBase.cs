@@ -12,19 +12,14 @@ namespace QA.DotNetCore.Engine.Abstractions
     public abstract class AbstractItemBase : IAbstractItem
     {
         private string _trail;
+        private IStartPage _startPage;
 
         public virtual int Id { get; protected set; }
-
         public virtual IAbstractItem Parent { get; protected set; }
-
         public virtual string Alias { get; protected set; }
-
         public virtual string Title { get; protected set; }
-
         public virtual bool IsPage { get; protected set; }
-
         public virtual int SortOrder { get; protected set; }
-
         public virtual AbstractItemStorage Storage { get; set; }
 
         /// <summary>
@@ -89,13 +84,31 @@ namespace QA.DotNetCore.Engine.Abstractions
         public string GetUrl()
         {
             var resultUrl = GetTrail();
+            var startPage = GetStartPage();
+            var urlResolver = GetStartPage()?.GetUrlResolver();
 
-            if (Storage.UrlResolver != null)
+            if (urlResolver != null)
             {
-                resultUrl = Storage.UrlResolver.AddCurrentTargetingValuesToUrl(resultUrl);
+                resultUrl = urlResolver.AddCurrentTargetingValuesToUrl(resultUrl);
             }
 
             return resultUrl;
+        }
+
+        private IStartPage GetStartPage()
+        {
+            if (_startPage == null)
+            {
+                var item = (this as IAbstractItem);
+                while (item != null && !(item is IStartPage))
+                {
+                    item = item.Parent;
+                }
+
+                return (_startPage = item as IStartPage);
+            }
+
+            return _startPage;
         }
     }
 }

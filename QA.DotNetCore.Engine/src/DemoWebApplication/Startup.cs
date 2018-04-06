@@ -20,6 +20,7 @@ using QA.DotNetCore.Engine.QpData.Configuration;
 using QA.DotNetCore.Engine.QpData.Settings;
 using QA.DotNetCore.Engine.Routing;
 using QA.DotNetCore.Engine.Routing.Configuration;
+using QA.DotNetCore.Engine.Routing.UrlResolve;
 using QA.DotNetCore.Engine.Targeting;
 using QA.DotNetCore.Engine.Targeting.Configuration;
 using QA.DotNetCore.Engine.Xml;
@@ -109,11 +110,10 @@ namespace DemoWebApplication
 
             services.AddTargeting();
 
-            //сервисы для 116786 (встраивания таргетирования в урл)
+            
+            services.AddSingleton<UrlTokenResolverFactory>();
             services.AddSingleton<UrlTokenTargetingProvider>();
             services.AddSingleton<DemoCultureRegionPossibleValuesProvider>();
-            services.AddSingleton<ITargetingUrlResolver, UrlTokenResolver>();
-            services.AddSingleton<IUrlTokenMatcher, UrlTokenMatcher>();
             services.AddSingleton(Configuration.GetSection("UrlTokenConfig").Get<UrlTokenConfig>());
         }
 

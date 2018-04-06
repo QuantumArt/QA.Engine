@@ -4,7 +4,7 @@ using System.Collections.Specialized;
 using System.Net;
 using System.Web;
 
-namespace QA.DotNetCore.Engine.Routing
+namespace QA.DotNetCore.Engine.Routing.UrlResolve
 {
     /// <summary>
     /// Класс для работы с адресом (перетянуто из старой виджетной платформы)

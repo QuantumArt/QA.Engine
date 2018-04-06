@@ -9,10 +9,8 @@ namespace QA.DotNetCore.Engine.Abstractions
     public class AbstractItemStorage
     {
         private Dictionary<int, IAbstractItem> _items = new Dictionary<int, IAbstractItem>();
-        private IServiceProvider ServiceProvider { get; }
-
+        public IServiceProvider ServiceProvider { get; }
         public IAbstractItem Root { get; }
-        public ITargetingUrlResolver UrlResolver { get { return ServiceProvider.GetService<ITargetingUrlResolver>(); }  }
 
         public AbstractItemStorage(IAbstractItem root, IServiceProvider serviceProvider)
         {

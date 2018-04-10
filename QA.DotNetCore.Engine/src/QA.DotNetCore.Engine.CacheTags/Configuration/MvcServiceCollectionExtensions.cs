@@ -2,7 +2,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using QA.DotNetCore.Caching;
 using QA.DotNetCore.Caching.Interfaces;
-using QA.DotNetCore.Engine.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Dapper;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using System;
@@ -23,7 +22,7 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
             services.AddSingleton(cfg);
 
             services.AddSingleton<ICacheTagWatcher, CacheTagWatcher>();
-            services.AddSingleton<IQpContentCacheTagNamingProvider, DefaultQpContentCacheTagNamingProvider>();
+            services.AddScoped<IQpContentCacheTagNamingProvider, DefaultQpContentCacheTagNamingProvider>();
             services.AddScoped<QpContentCacheTracker>();
             services.AddScoped<IContentModificationRepository, ContentModificationRepository>();
             services.AddSingleton<ICacheTrackersAccessor, CacheTrackersAccessor>();

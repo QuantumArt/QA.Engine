@@ -1,7 +1,6 @@
 using DemoWebApplication.Templates;
 using DemoWebSite.PagesAndWidgets;
 using DemoWebSite.PagesAndWidgets.Pages;
-using DemoWebSite.PagesAndWidgets.Xml;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -19,8 +18,6 @@ using QA.DotNetCore.Engine.QpData.Configuration;
 using QA.DotNetCore.Engine.QpData.Settings;
 using QA.DotNetCore.Engine.Routing.Configuration;
 using QA.DotNetCore.Engine.Targeting.Configuration;
-using QA.DotNetCore.Engine.Xml;
-using QA.DotNetCore.Engine.Xml.Configuration;
 using Quantumart.QPublishing.Database;
 using System;
 
@@ -97,7 +94,7 @@ namespace DemoWebApplication
                 }
             });
 
-            services.AddSingleton<CacheTagUtilities>();
+            services.AddScoped<CacheTagUtilities>();
 
             services.AddSingleton(typeof(DemoRegionTargetingProvider));
             services.AddSingleton(typeof(DemoCultureTargetingProvider));

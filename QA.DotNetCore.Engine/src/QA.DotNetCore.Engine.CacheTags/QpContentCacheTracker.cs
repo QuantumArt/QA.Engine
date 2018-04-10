@@ -1,6 +1,5 @@
 using QA.DotNetCore.Caching;
 using QA.DotNetCore.Caching.Interfaces;
-using QA.DotNetCore.Engine.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using System.Collections.Generic;
@@ -35,7 +34,7 @@ namespace QA.DotNetCore.Engine.CacheTags
 
         private string CacheTagName(QpContentModificationPersistentData modification, bool isStage)
         {
-            return _qpContentCacheTagNamingProvider.Get(modification.ContentName, modification.ContentId, isStage);
+            return _qpContentCacheTagNamingProvider.Get(modification.ContentName, modification.SiteId, isStage);
         }
     }
 }

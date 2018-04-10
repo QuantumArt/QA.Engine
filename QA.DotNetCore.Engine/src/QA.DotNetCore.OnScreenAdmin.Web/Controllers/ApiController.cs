@@ -67,7 +67,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
                     return ApiResult.Error(Response, $"Not found QPDiscriminator content in site {siteId}");
                 var baseIconUrl = _qpUrlResolver.UrlForImage(siteId, content.ContentId, "IconUrl");
 
-                var cacheTag = new string[1] { _qpContentCacheTagNamingProvider.Get(content.ContentName, content.ContentId, isStage) };
+                var cacheTag = new string[1] { _qpContentCacheTagNamingProvider.Get(content.ContentName, siteId, isStage) };
 
                 var widgetDefinitions = _cacheProvider.GetOrAdd($"AvailableWidgets_{siteId}_{isStage}", cacheTag, TimeSpan.FromHours(1), () => {
                     return _itemDefinitionRepository

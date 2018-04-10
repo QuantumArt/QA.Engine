@@ -5,7 +5,7 @@ namespace QA.DotNetCore.Caching.Interfaces
     /// </summary>
     public interface IQpContentCacheTagNamingProvider
     {
-        string Get(string contentName, int contentId, bool isStage);
+        string Get(string contentName, int siteId, bool isStage);
         string GetByNetName(string contentNetName, int siteId, bool isStage);
     }
 }

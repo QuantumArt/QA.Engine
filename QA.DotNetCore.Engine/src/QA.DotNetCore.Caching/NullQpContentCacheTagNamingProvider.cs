@@ -7,7 +7,7 @@ namespace QA.DotNetCore.Caching
     /// </summary>
     public class NullQpContentCacheTagNamingProvider : IQpContentCacheTagNamingProvider
     {
-        public string Get(string contentName, int contentId, bool isStage)
+        public string Get(string contentName, int siteId, bool isStage)
         {
             return null;
         }

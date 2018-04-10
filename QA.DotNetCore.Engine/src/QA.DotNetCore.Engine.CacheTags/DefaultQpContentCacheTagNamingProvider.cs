@@ -18,10 +18,10 @@ namespace QA.DotNetCore.Engine.CacheTags
             _cacheProvider = cacheProvider;
         }
 
-        public string Get(string contentName, int contentId, bool isStage)
+        public string Get(string contentName, int siteId, bool isStage)
         {
-            //в кеш-тегах контентов использую ID контентов, т.к. в теории на одной базе может быть несколько сайтов, и названия контентов могут совпадать
-            return $"{contentName}_{contentId}_{(isStage ? "Stage" : "Live")}";
+            //к кеш-тегам добавляю siteId, т.к. в теории на одной базе может быть несколько сайтов, и названия контентов могут совпадать
+            return $"{contentName}_{siteId}_{(isStage ? "Stage" : "Live")}";
         }
 
         public string GetByNetName(string contentNetName, int siteId, bool isStage)
@@ -31,7 +31,7 @@ namespace QA.DotNetCore.Engine.CacheTags
             });
             if (contentInfo == null)
                 throw new ArgumentException($"Did not find content {contentNetName} in the site {siteId}");
-            return Get(contentInfo.ContentName, contentInfo.ContentId, isStage);
+            return Get(contentInfo.ContentName, siteId, isStage);
         }
     }
 }

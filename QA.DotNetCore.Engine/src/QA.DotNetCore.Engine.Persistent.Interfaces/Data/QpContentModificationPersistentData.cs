@@ -6,6 +6,7 @@ namespace QA.DotNetCore.Engine.Persistent.Interfaces.Data
     {
         public int ContentId { get; set; }
         public string ContentName { get; set; }
+        public int SiteId { get; set; }
         public DateTime LiveModified { get; set; }
         public DateTime StageModified { get; set; }
     }

@@ -1,6 +1,8 @@
 using QA.DotNetCore.Caching.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
+using System;
 
 namespace QA.DotNetCore.Caching
 {
@@ -8,17 +10,21 @@ namespace QA.DotNetCore.Caching
     {
         private readonly ICacheTrackersAccessor _trackersAccessor;
         private readonly ICacheProvider _cacheProvider;
+        private readonly ILogger<CacheTagWatcher> _logger;
         private Dictionary<string, CacheTagModification> _modifications = new Dictionary<string, CacheTagModification>();
 
         public CacheTagWatcher(ICacheTrackersAccessor trackersAccessor,
-            ICacheProvider cacheProvider)
+            ICacheProvider cacheProvider,
+            ILogger<CacheTagWatcher> logger)
         {
             _trackersAccessor = trackersAccessor;
             _cacheProvider = cacheProvider;
+            _logger = logger;
         }
 
         public void TrackChanges()
         {
+            _logger.LogInformation("Cache tags tracking started.");
             var trackers = _trackersAccessor.Get();
             if (trackers != null && trackers.Any())
             {
@@ -56,6 +62,7 @@ namespace QA.DotNetCore.Caching
                     //инвалидируем кеш по обновившимся тегам
                     if (cacheTagsToUpdate.Any())
                     {
+                        _logger.LogInformation("Invalidate tags: {0}", String.Join(";", cacheTagsToUpdate));
                         _cacheProvider.InvalidateByTags(cacheTagsToUpdate.ToArray());
                     }
                 }

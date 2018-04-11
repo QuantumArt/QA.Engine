@@ -8,6 +8,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace QA.DotNetCore.Engine.QpData
 {
@@ -23,6 +24,7 @@ namespace QA.DotNetCore.Engine.QpData
         private readonly IMetaInfoRepository _metaInfoRepository;
         private readonly QpSiteStructureSettings _settings;
         private readonly QpSettings _qpSettings;
+        private readonly ILogger<QpAbstractItemStorageBuilder> _logger;
         private readonly string[] _usedContentNetNames;
 
         public QpAbstractItemStorageBuilder(
@@ -33,7 +35,8 @@ namespace QA.DotNetCore.Engine.QpData
             IMetaInfoRepository metaInfoRepository,
             IItemDefinitionRepository itemDefinitionRepository,
             QpSiteStructureSettings settings,
-            QpSettings qpSettings)
+            QpSettings qpSettings,
+            ILogger<QpAbstractItemStorageBuilder> logger)
         {
             _serviceProvider = serviceProvider;
             _itemFactory = itemFactory;
@@ -42,14 +45,20 @@ namespace QA.DotNetCore.Engine.QpData
             _metaInfoRepository = metaInfoRepository;
             _settings = settings;
             _qpSettings = qpSettings;
+            _logger = logger;
             _usedContentNetNames = new string[2] { abstractItemRepository.AbstractItemNetName, itemDefinitionRepository.ItemDefinitionNetName };
         }
 
         public AbstractItemStorage Build()
         {
+            var logBuildId = Guid.NewGuid();
+            _logger.LogInformation("AbstractItemStorage build via QP started. Build id: {0}, SiteId: {0}, IsStage: {1}", logBuildId, _qpSettings.SiteId, _qpSettings.IsStage);
+
             var plainList = _abstractItemRepository.GetPlainAllAbstractItems(_qpSettings.SiteId, _qpSettings.IsStage);//плоский список dto
             var activated = new Dictionary<int, AbstractItem>();
             AbstractItem root = null;
+
+            _logger.LogInformation("Found abstract items: {0}. Build id: {1}", plainList.Count(), logBuildId);
 
             //первый проход списка - активируем, т.е. создаём AbsractItem-ы с правильным типом и набором заполненных полей, запоминаем root
             foreach (var persistentItem in plainList)
@@ -65,6 +74,8 @@ namespace QA.DotNetCore.Engine.QpData
                     root = activatedItem;
             }
 
+            _logger.LogInformation("Activated abstract items: {0}. Build id: {1}", activated.Count, logBuildId);
+
             if (root != null)
             {
                 //сгруппируем AbsractItem-ы по extensionId
@@ -78,12 +89,18 @@ namespace QA.DotNetCore.Engine.QpData
 
                 //получим инфу об основном контенте (AbstractItem), она нам пригодится. Мы зашиваемся на netName контента - это легально
                 var baseContent = _metaInfoRepository.GetContent("QPAbstractItem", _qpSettings.SiteId);
+                if (baseContent == null)
+                {
+                    _logger.LogWarning("Failed to obtain content definition for QPAbstractItem. Build id: {0}", logBuildId);
+                }
 
                 //догрузим доп поля
                 foreach (var group in groupsByExtensions)
                 {
                     var extensionId = group.Key;
                     var ids = group.Select(_ => _.Id).ToArray();
+
+                    _logger.LogInformation("Load data from extension table {0}. Build id: {1}", extensionId, logBuildId);
 
                     var extensions = _abstractItemRepository.GetAbstractItemExtensionData(extensionId, ids, _settings.LoadAbstractItemFieldsToDetailsCollection, _qpSettings.IsStage);
 
@@ -136,6 +153,7 @@ namespace QA.DotNetCore.Engine.QpData
                 //догрузим связи m2m в контентах расширений
                 if (needLoadM2mInExtensionDict.Any())
                 {
+                    _logger.LogInformation("Load data for many-to-many fields in extensions. Build id: {1}", logBuildId);
                     var m2mData = _abstractItemRepository.GetManyToManyData(needLoadM2mInExtensionDict.Keys.ToArray(), _qpSettings.IsStage);
                     foreach (var key in m2mData.Keys)
                     {
@@ -149,6 +167,7 @@ namespace QA.DotNetCore.Engine.QpData
                 //догрузим связи m2m в основном контенте
                 if (_settings.LoadM2mForAbstractItem)
                 {
+                    _logger.LogInformation("Load data for many-to-many fields in main content (QPAbstractItem). Build id: {1}", logBuildId);
                     var m2mData = _abstractItemRepository.GetManyToManyData(activated.Keys.ToArray(), _qpSettings.IsStage);
                     foreach (var key in m2mData.Keys)
                     {
@@ -175,6 +194,7 @@ namespace QA.DotNetCore.Engine.QpData
             }
             else
             {
+                _logger.LogWarning(@"Root was not found! Possible causes: 1) not found item with discriminator = {0} 2) not found item definition for root discriminator 3) not found .net class matching with root page item definition. Build id: {1}", _settings.RootPageDiscriminator, logBuildId);
                 return null;
             }
         }

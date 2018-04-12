@@ -10,13 +10,16 @@ namespace QA.DotNetCore.Engine.Xml
     {
         private readonly XmlStorageSettings _xmlStorageSettings;
         private readonly XmlAbstractItemFactory _abstractItemFactory;
+        private readonly IServiceProvider _serviceProvider;
         private readonly Lazy<AbstractItemStorage> _storage;
 
         public XmlAbstractItemStorageProvider(XmlStorageSettings xmlStorageSettings,
-            XmlAbstractItemFactory abstractItemFactory)
+            XmlAbstractItemFactory abstractItemFactory,
+            IServiceProvider serviceProvider)
         {
             _xmlStorageSettings = xmlStorageSettings;
             _abstractItemFactory = abstractItemFactory;
+            _serviceProvider = serviceProvider;
             _storage = new Lazy<AbstractItemStorage>(() => Build());
         }
 
@@ -108,7 +111,7 @@ namespace QA.DotNetCore.Engine.Xml
                         if (root == null)
                             throw new Exception("Site structure is empty.");
 
-                        return new AbstractItemStorage(root);
+                        return new AbstractItemStorage(root, _serviceProvider);
                     }
                 }
             }

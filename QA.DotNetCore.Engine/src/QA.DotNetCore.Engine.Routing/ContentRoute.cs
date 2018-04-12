@@ -48,7 +48,7 @@ namespace QA.DotNetCore.Engine.Routing
 
             EnsureLoggers(context.HttpContext);
 
-            var startPage = context.HttpContext.Items[RoutingKeys.StartPage] as IAbstractItem;//проставляется в RoutingMiddleware
+            var startPage = context.HttpContext.Items[RoutingKeys.StartPage] as IStartPage;//проставляется в RoutingMiddleware
             if (startPage == null)
             {
                 return Task.FromResult<int>(0);

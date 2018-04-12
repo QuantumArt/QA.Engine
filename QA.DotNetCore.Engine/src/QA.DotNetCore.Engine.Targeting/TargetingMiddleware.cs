@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace QA.DotNetCore.Engine.Targeting
 {
+    /// <summary>
+    /// Middleware, которая сохраняет в HttpContext текущие значения таргетирования
+    /// </summary>
     public class TargetingMiddleware
     {
         readonly ITargetingProvidersConfigurator _targetingConfigurationBuilder;

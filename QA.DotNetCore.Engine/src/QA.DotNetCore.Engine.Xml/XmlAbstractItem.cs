@@ -3,15 +3,24 @@ using QA.DotNetCore.Engine.Abstractions.Targeting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace QA.DotNetCore.Engine.Xml
 {
-    public abstract class XmlAbstractItem : IAbstractItem
+    public abstract class XmlAbstractItem : AbstractItemBase, IAbstractItem
     {
         public XmlAbstractItem()
         {
             Children = new HashSet<IAbstractItem>();
+        }
+
+        /// <summary>
+        /// Получение дочерних элементов
+        /// </summary>
+        /// <param name="filter">Опционально. Фильтр таргетирования</param>
+        /// <returns></returns>
+        public override IEnumerable<IAbstractItem> GetChildren(ITargetingFilter filter = null)
+        {
+            return filter == null ? Children : Children.Pipe(filter);
         }
 
         private const string AliasAttrKey = "Alias";
@@ -39,74 +48,6 @@ namespace QA.DotNetCore.Engine.Xml
 
         internal ICollection<IAbstractItem> Children { get; private set; }
         internal IDictionary<string, string> Attributes { get; private set; }
-
-        public int Id { get; private set; }
-        public IAbstractItem Parent { get; private set; }
-        public string Alias { get; private set; }
-        public string Title { get; private set; }
-        public abstract bool IsPage { get; }
-        public int SortOrder { get; private set; }
-
-        public string GetUrl()
-        {
-            return GetTrail();
-        }
-
-        private string _url;
-
-        public string GetTrail()
-        {
-            if (!IsPage)
-            {
-                return string.Empty;
-            }
-
-            if (_url == null)
-            {
-                var sb = new StringBuilder();
-                var item = (this as IAbstractItem);
-                while (item != null && !(item is IStartPage))
-                {
-                    sb.Insert(0, item.Alias + (Parent == null ? "" : "/"));
-                    item = item.Parent;
-                }
-
-                return (_url = $"/{sb.ToString().TrimEnd('/')}");
-            }
-
-            return _url;
-        }
-
-        /// <summary>
-        /// Получение дочерних элементов
-        /// </summary>
-        /// <param name="filter">Опционально. Фильтр таргетирования</param>
-        /// <returns></returns>
-        public IEnumerable<IAbstractItem> GetChildren(ITargetingFilter filter = null)
-        {
-            return filter == null ? Children : Children.Pipe(filter);
-        }
-
-        /// <summary>
-        /// Получение дочернего элемента по алиасу
-        /// </summary>
-        /// <param name="alias">Алиас искомого элемента</param>
-        /// <param name="filter">Опционально. Фильтр таргетирования</param>
-        /// <returns></returns>
-        public IAbstractItem Get(string alias, ITargetingFilter filter = null)
-        {
-            return GetChildren(filter).FirstOrDefault(x => string.Equals(x.Alias, alias, StringComparison.InvariantCultureIgnoreCase));
-        }
-
-        /// <summary>
-        /// Получить значение таргетирования по ключу (ключ определяет систему таргетирования, например, регион, культура итп)
-        /// </summary>
-        /// <param name="targetingKey"></param>
-        /// <returns></returns>
-        public virtual object GetTargetingValue(string targetingKey)
-        {
-            return null;
-        }
 
         /// <summary>
         /// Получение значений из атрибута
@@ -138,6 +79,10 @@ namespace QA.DotNetCore.Engine.Xml
             else if (type == typeof(double) || type == typeof(double?))
             {
                 return Convert.ToDouble(value);
+            }
+            else if (type == typeof(decimal) || type == typeof(decimal?))
+            {
+                return Convert.ToDecimal(value);
             }
             else if (type == typeof(int) || type == typeof(int?))
             {

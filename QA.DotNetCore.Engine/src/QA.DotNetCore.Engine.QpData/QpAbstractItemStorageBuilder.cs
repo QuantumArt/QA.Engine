@@ -190,7 +190,7 @@ namespace QA.DotNetCore.Engine.QpData
                         activated[item.ParentId.Value].AddChild(item);
                 }
 
-                return new AbstractItemStorage(root);
+                return new AbstractItemStorage(root, _serviceProvider);
             }
             else
             {

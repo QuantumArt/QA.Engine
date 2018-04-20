@@ -110,7 +110,7 @@ namespace DemoWebApplication
             
             services.AddSingleton<UrlTokenResolverFactory>();
             services.AddSingleton<UrlTokenTargetingProvider>();
-            services.AddSingleton<DemoCultureRegionPossibleValuesProvider>();
+            services.AddScoped<DemoCultureRegionPossibleValuesProvider>();
             services.AddSingleton(Configuration.GetSection("UrlTokenConfig").Get<UrlTokenConfig>());
         }
 

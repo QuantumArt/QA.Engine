@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
-using QA.DotNetCore.Engine.Targeting.Filters;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace QA.DotNetCore.Engine.Targeting.Configuration
 {
@@ -10,6 +10,7 @@ namespace QA.DotNetCore.Engine.Targeting.Configuration
     {
         readonly IServiceProvider _serviceProvider;
         readonly IList<ITargetingFilter> _filters = new List<ITargetingFilter>();
+        readonly IList<Type> _filterTypes = new List<Type>();
 
         public TargetingFiltersConfigurator(IServiceProvider serviceProvider)
         {
@@ -18,21 +19,22 @@ namespace QA.DotNetCore.Engine.Targeting.Configuration
 
         public IServiceProvider ServiceProvider => _serviceProvider;
 
-        public ITargetingFilter ResultFilter { get; private set; }
+        public ITargetingFilter ResultFilter
+        {
+            get
+            {
+                return new UnitedFilter(_filters.Concat(_filterTypes.Select(t => (ITargetingFilter)_serviceProvider.GetRequiredService(t))));
+            }
+        }
 
         public void Add<T>() where T : ITargetingFilter
         {
-            var filter = (T)_serviceProvider.GetRequiredService(typeof(T));
-            if (filter == null)
-                throw new Exception($"FiltersConfigurationBuilder: Type {typeof(T).Name} not found in IoC! ");
-            _filters.Add(filter);
-            ResultFilter = new UnitedFilter(_filters);
+            _filterTypes.Add(typeof(T));
         }
 
         public void Add(ITargetingFilter filter)
         {
             _filters.Add(filter);
-            ResultFilter = new UnitedFilter(_filters);
         }
     }
 }

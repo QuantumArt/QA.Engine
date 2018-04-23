@@ -5,7 +5,7 @@ using System;
 namespace QA.DotNetCore.Engine.CacheTags
 {
     /// <summary>
-    /// Инкапсулирует стандартное правило наименования кештегов для контентов QP. {ContentName}_{ContentId}_{Stage/Live}.
+    /// Инкапсулирует стандартное правило наименования кештегов для контентов QP. {ContentName}_{SiteId}_{Stage/Live}.
     /// </summary>
     public class DefaultQpContentCacheTagNamingProvider : IQpContentCacheTagNamingProvider
     {

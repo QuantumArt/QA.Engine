@@ -4,11 +4,26 @@ using QA.DotNetCore.Engine.QpData.Settings;
 
 namespace QA.DotNetCore.Engine.QpData.Replacements
 {
+    /// <summary>
+    /// Опция загрузки структуры сайта, заменяющая имя файла в библиотеке QP на полный путь (урл) до него
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
     public class LibraryUrlAttribute : Attribute, ILoaderOption
     {
+        public LibraryUrlAttribute()
+        {
+        }
+
+        public LibraryUrlAttribute(string qpPropertyName)
+        {
+            PropertyName = qpPropertyName;
+        }
+
         public Type Type { get; private set; }
 
+        /// <summary>
+        /// Название св-ва в QP
+        /// </summary>
         public string PropertyName { get; private set; }
 
         /// <summary>

@@ -206,7 +206,7 @@ namespace QA.DotNetCore.Engine.QpData
 
                     foreach (var attr in attrs)
                     {
-                        attr.AttachTo(t, prop.Name, contentId, baseContentId);
+                        attr.AttachTo(t, attr.PropertyName ?? prop.Name, contentId, baseContentId);
                         lst.Add(attr);
                     }
                 }

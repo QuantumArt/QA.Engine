@@ -28,6 +28,8 @@
     <ProjectReference Include="..\QA.DotNetCore.Engine.Routing\QA.DotNetCore.Engine.Routing.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Targeting\QA.DotNetCore.Engine.Targeting.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Widgets\QA.DotNetCore.Engine.Widgets.csproj" />
+    <ProjectReference Include="..\QA.DotNetCore.Engine.Xml.Configuration\QA.DotNetCore.Engine.Xml.Configuration.csproj" />
+    <ProjectReference Include="..\QA.DotNetCore.Engine.Xml\QA.DotNetCore.Engine.Xml.csproj" />
   </ItemGroup>
 
   <ItemGroup>

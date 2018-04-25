@@ -71,7 +71,7 @@
 namespace <#=namespaceName#>
 {
 	using System.Linq;
-    using QA.DotNetCore.Engine.Interfaces;
+    using QA.DotNetCore.Caching.Interfaces;
     using QA.DotNetCore.Engine.QpData.Settings;
 
     /// <summary>
@@ -110,7 +110,7 @@ namespace <#=namespaceName#>
 		/// </summary>
 		public string[] Merge(params QPContent[] tags)
 		{
-			return tags.Select(c => _qpContentCacheTagNamingProvider.Get(c.Name, c.Id, _qpSettings.IsStage)).Where(t => t != null).ToArray();
+			return tags.Select(c => _qpContentCacheTagNamingProvider.Get(c.Name, c.SiteId, _qpSettings.IsStage)).Where(t => t != null).ToArray();
 		}
 	}
 	

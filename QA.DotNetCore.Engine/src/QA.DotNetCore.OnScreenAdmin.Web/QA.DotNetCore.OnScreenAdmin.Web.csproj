@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\QA.DotNetCore.Caching\QA.DotNetCore.Caching.csproj" />
+    <ProjectReference Include="..\QA.DotNetCore.Engine.CacheTags\QA.DotNetCore.Engine.CacheTags.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Persistent.Dapper\QA.DotNetCore.Engine.Persistent.Dapper.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Persistent.Interfaces\QA.DotNetCore.Engine.Persistent.Interfaces.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.QpData\QA.DotNetCore.Engine.QpData.csproj" />

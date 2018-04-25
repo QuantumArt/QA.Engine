@@ -20,5 +20,6 @@ namespace QA.DotNetCore.Engine.Abstractions
         IAbstractItem Get(string alias, ITargetingFilter filter = null);
         object GetTargetingValue(string targetingKey);
         object GetMetadata(string key);
+        AbstractItemStorage Storage { get; set; }
     }
 }

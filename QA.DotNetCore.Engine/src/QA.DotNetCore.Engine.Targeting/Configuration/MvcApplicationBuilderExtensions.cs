@@ -15,6 +15,7 @@ namespace QA.DotNetCore.Engine.Targeting.Configuration
         /// <returns></returns>
         public static IApplicationBuilder UseTargeting(this IApplicationBuilder app, Action<ITargetingProvidersConfigurator> configureTargeting)
         {
+            app.UseMiddleware<TargetingPossibleValuesMiddleware>();
             app.UseMiddleware<TargetingMiddleware>();
             var builder = app.ApplicationServices.GetRequiredService<ITargetingProvidersConfigurator>();
             configureTargeting(builder);

@@ -17,10 +17,10 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
 
         public void AddTracker<T>() where T : ICacheTagTracker
         {
-            var filter = (T)_serviceProvider.GetRequiredService(typeof(T));
-            if (filter == null)
+            var tracker = (T)_serviceProvider.GetRequiredService(typeof(T));
+            if (tracker == null)
                 throw new Exception($"CacheTagsInvalidationConfigurator: Type {typeof(T).Name} not found in IoC! ");
-            _trackers.Add(filter);
+            _trackers.Add(tracker);
         }
 
         public void AddTracker(ICacheTagTracker tracker)

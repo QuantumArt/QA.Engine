@@ -1,0 +1,14 @@
+﻿@model DemoWebApplication.Components.TargetingDisplayViewModel
+
+@if (Model.Items.Any())
+{ 
+  <div class="alert alert-info" role="alert" style="
+    position: absolute;
+  ">
+    <strong>Таргетирование</strong><br />
+    @foreach (var key in Model.Items.Keys)
+    {
+      <strong>@key</strong> @Model.Items[key] <br/>
+    }
+  </div>
+}

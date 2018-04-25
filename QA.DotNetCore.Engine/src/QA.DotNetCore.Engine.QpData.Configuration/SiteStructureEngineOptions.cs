@@ -1,3 +1,4 @@
+using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.QpData.Settings;
 using QA.DotNetCore.Engine.Reflection;
 using System;
@@ -65,36 +66,6 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
         Name,
         /// <summary>
         /// Конвенция предполагает наличие атрибута у класса .Net, в котором задаётся дискриминатор ItemDefinition из QP
-        /// </summary>
-        Attribute
-    }
-
-    /// <summary>
-    /// Конвенция о способе маппинга виджетов структуры сайта и классов ViewComponent
-    /// </summary>
-    public enum ComponentMapperConvention
-    {
-        /// <summary>
-        /// Конвенция предполагает, что компонент должен называться также как тип виджета
-        /// </summary>
-        Name,
-        /// <summary>
-        /// Конвенция предполагает, что компонент должен быть помечен атрибутом, в котором должен быть указан тип виджета
-        /// </summary>
-        Attribute
-    }
-
-    /// <summary>
-    /// Конвенция о способе маппинга страниц структуры сайта и контроллеров MVC
-    /// </summary>
-    public enum ControllerMapperConvention
-    {
-        /// <summary>
-        /// Конвенция предполагает, что контроллер должен называться также как тип страницы
-        /// </summary>
-        Name,
-        /// <summary>
-        /// Конвенция предполагает, что контроллер должен быть помечен атрибутом, в котором должен быть указан тип страницы
         /// </summary>
         Attribute
     }

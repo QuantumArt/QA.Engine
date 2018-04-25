@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using QA.DotNetCore.Caching.Interfaces;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace QA.DotNetCore.Engine.CacheTags.Configuration
@@ -9,6 +10,7 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
     {
         readonly IServiceProvider _serviceProvider;
         readonly IList<ICacheTagTracker> _trackers = new List<ICacheTagTracker>();
+        readonly IList<Type> _trackerTypes = new List<Type>();
 
         public CacheTagsTrackersConfigurator(IServiceProvider serviceProvider)
         {
@@ -17,10 +19,7 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
 
         public void AddTracker<T>() where T : ICacheTagTracker
         {
-            var tracker = (T)_serviceProvider.GetRequiredService(typeof(T));
-            if (tracker == null)
-                throw new Exception($"CacheTagsInvalidationConfigurator: Type {typeof(T).Name} not found in IoC! ");
-            _trackers.Add(tracker);
+            _trackerTypes.Add(typeof(T));
         }
 
         public void AddTracker(ICacheTagTracker tracker)
@@ -30,7 +29,7 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
 
         public IEnumerable<ICacheTagTracker> GetTrackers()
         {
-            return _trackers;
+            return _trackers.Concat(_trackerTypes.Select(t => (ICacheTagTracker)_serviceProvider.GetRequiredService(t)));
         }
     }
 }

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,12 +11,12 @@ namespace QA.DotNetCore.Engine.Targeting
     /// </summary>
     public class TargetingPossibleValuesMiddleware
     {
-        readonly ITargetingProvidersConfigurator _targetingConfigurationBuilder;
+        readonly ServiceSetConfigurator<ITargetingPossibleValuesProvider> _targetingConfigurationBuilder;
         readonly RequestDelegate _next;
 
         public const string HttpContextKeyPrefix = "PossibleValues::";
 
-        public TargetingPossibleValuesMiddleware(RequestDelegate next, ITargetingProvidersConfigurator p)
+        public TargetingPossibleValuesMiddleware(RequestDelegate next, ServiceSetConfigurator<ITargetingPossibleValuesProvider> p)
         {
             _next = next;
             _targetingConfigurationBuilder = p;
@@ -24,7 +25,7 @@ namespace QA.DotNetCore.Engine.Targeting
         public Task Invoke(HttpContext context)
         {
             //сохраним в HttpContext возможные значения таргетирования по всем ключам
-            foreach (var provider in _targetingConfigurationBuilder.GetPossibleValuesProviders())
+            foreach (var provider in _targetingConfigurationBuilder.GetServices())
             {
                 var dict = provider.GetPossibleValues();
                 foreach (var key in dict.Keys)

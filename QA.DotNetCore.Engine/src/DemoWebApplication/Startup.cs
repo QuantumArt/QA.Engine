@@ -132,25 +132,25 @@ namespace DemoWebApplication
             
             app.UseStaticFiles();
 
-            app.UseCacheTagsInvalidation(invalidation =>
+            app.UseCacheTagsInvalidation(trackers =>
             {
-                invalidation.AddTracker<QpContentCacheTracker>();
+                trackers.RegisterScoped<QpContentCacheTracker>();
             });
 
             app.UseSiteStructure();
 
-            app.UseTargeting(targeting =>
+            app.UseTargeting((providers, possibleValues) =>
             {
                 //targeting.Add<DemoCultureTargetingProvider>();
                 //targeting.Add<DemoRegionTargetingProvider>();
-                targeting.Add<UrlTokenTargetingProvider>();
-                targeting.AddPossibleValues<DemoCultureRegionPossibleValuesProvider>();
+                providers.RegisterSingleton<UrlTokenTargetingProvider>();
+                possibleValues.RegisterSingleton<DemoCultureRegionPossibleValuesProvider>();
             });
 
             app.UseSiteSctructureFilters(filters =>
             {
-                filters.Add<DemoRegionFilter>();
-                filters.Add<DemoCultureFilter>();
+                filters.RegisterSingleton<DemoRegionFilter>();
+                filters.RegisterSingleton<DemoCultureFilter>();
             });
 
             app.UseOnScreenMode();

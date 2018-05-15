@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using QA.DotNetCore.Caching.Interfaces;
+using QA.DotNetCore.Engine.Abstractions;
 using System;
 
 namespace QA.DotNetCore.Engine.CacheTags.Configuration
@@ -12,9 +14,9 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
         /// <param name="app"></param>
         /// <param name="configureTrackers"></param>
         /// <returns></returns>
-        public static IApplicationBuilder UseCacheTagsInvalidation(this IApplicationBuilder app, Action<CacheTagsTrackersConfigurator> configureTrackers)
+        public static IApplicationBuilder UseCacheTagsInvalidation(this IApplicationBuilder app, Action<ServiceSetConfigurator<ICacheTagTracker>> configureTrackers)
         {
-            var cfgTrackers = app.ApplicationServices.GetRequiredService<CacheTagsTrackersConfigurator>();
+            var cfgTrackers = app.ApplicationServices.GetRequiredService<ServiceSetConfigurator<ICacheTagTracker>>();
             configureTrackers(cfgTrackers);//наполняем CacheTagsTrackersConfigurator трекерами, которые были настроены
 
             var cfg = app.ApplicationServices.GetRequiredService<CacheTagsRegistrationConfigurator>();

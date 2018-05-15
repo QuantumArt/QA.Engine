@@ -1,21 +1,21 @@
 using QA.DotNetCore.Caching.Interfaces;
-using QA.DotNetCore.Engine.CacheTags.Configuration;
+using QA.DotNetCore.Engine.Abstractions;
 using System.Collections.Generic;
 
 namespace QA.DotNetCore.Engine.CacheTags
 {
     public class CacheTrackersAccessor : ICacheTrackersAccessor
     {
-        private readonly CacheTagsTrackersConfigurator _cfg;
+        private readonly ServiceSetConfigurator<ICacheTagTracker> _cfg;
 
-        public CacheTrackersAccessor(CacheTagsTrackersConfigurator cfg)
+        public CacheTrackersAccessor(ServiceSetConfigurator<ICacheTagTracker> cfg)
         {
             _cfg = cfg;
         }
 
         public IEnumerable<ICacheTagTracker> Get()
         {
-            return _cfg.GetTrackers();
+            return _cfg.GetServices();
         }
     }
 }

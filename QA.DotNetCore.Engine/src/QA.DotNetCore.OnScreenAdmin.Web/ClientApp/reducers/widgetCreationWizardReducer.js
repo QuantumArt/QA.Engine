@@ -18,7 +18,7 @@ import { WIDGET_CREATION_MODE, WIDGET_CREATION_STEPS, ZONE_TYPE } from 'constant
 const initialState = {
   isActive: false,
   creationMode: null, // WIDGET_CREATION_MODE
-  parentOnScreenId: null, // 'page' || widgetOnScreenId || widgetOnScreenId (если добавляем в конкретную зону - находим ее парента (страница/виджет))    
+  parentOnScreenId: null, // 'page' || widgetOnScreenId || widgetOnScreenId (если добавляем в конкретную зону - находим ее парента (страница/виджет))
   targetZoneName: null, // название зоны
   isCustomTargetZone: false, // Добавляем в кастомную зону
   zoneType: null, // ZONE_TYPE

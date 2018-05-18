@@ -1,6 +1,7 @@
 import React from 'react';
 import { v4 } from 'uuid';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { withStyles } from 'material-ui/styles';
 import Toolbar from 'material-ui/Toolbar';
 import Paper from 'material-ui/Paper';
@@ -16,6 +17,7 @@ import PlayArrow from 'material-ui-icons/PlayArrow';
 import Person from 'material-ui-icons/Person';
 import Stop from 'material-ui-icons/Stop';
 import { green } from 'material-ui/colors';
+import moment from 'moment';
 import StatusIcon from './StatusIcon';
 import TestDetails from './TestDetails';
 
@@ -59,6 +61,9 @@ const styles = theme => ({
     '&:hover': {
       backgroundColor: green[700],
     },
+  },
+  testPassed: {
+    opacity: 0.6,
   },
 });
 
@@ -144,12 +149,19 @@ const AbTestingScreen = (props) => {
 
     return '';
   };
-
+  const isTestAvailable = (startMoment, endMoment) => (
+    moment(startMoment).isAfter(moment()) || moment(endMoment).isBefore(moment())
+  );
   return (
     <Toolbar className={classes.toolBar}>
       <Paper className={classes.paper} elevation={0}>
         {tests.map(test => (
-          <ExpansionPanel key={test.id} className={classes.panel}>
+          <ExpansionPanel
+            key={test.id}
+            className={classNames(classes.panel, {
+              [classes.testPassed]: isTestAvailable(test.startDate, test.endDate),
+            })}
+          >
             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
               <StatusIcon {...test} />
               <Paper className={classes.headingPaper} elevation={0}>

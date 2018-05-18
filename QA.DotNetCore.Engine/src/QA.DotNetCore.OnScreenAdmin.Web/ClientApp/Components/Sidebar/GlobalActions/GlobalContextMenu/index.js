@@ -90,7 +90,7 @@ class GlobalContextMenu extends Component {
   }
 }
 
-// 
+//
 
 GlobalContextMenu.propTypes = {
   enabledMenuKeys: PropTypes.array.isRequired,

@@ -46,6 +46,11 @@ const fake = {
       cids: [629710, 629749],
       targetedCids: [],
     },
+    'abt-629731': {
+      choice: null,
+      cids: [629710, 629749],
+      targetedCids: [],
+    },
   },
   api: [
     {
@@ -160,6 +165,29 @@ const fake = {
       comment: null,
       startDate: null,
       endDate: '2018-01-31T19:04:00',
+      variants: [{
+        choice: 0,
+        percent: 75.0,
+        containers: [],
+      }, {
+        choice: 1,
+        percent: 33.33,
+        containers: [{
+          cid: 629728,
+          containerDescription: 'Пустышка, пишет в консоль',
+          variantDescription: 'console.log ab test choice 1',
+          variantId: 629731,
+          type: 'Script',
+        }],
+      }],
+    },
+    {
+      id: 629731,
+      enabled: false,
+      title: 'Активный тест',
+      comment: null,
+      startDate: '2018-04-30T19:04:00',
+      endDate: '2018-07-30T19:04:00',
       variants: [{
         choice: 0,
         percent: 75.0,

@@ -20,7 +20,7 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper
         }
 
         //запросы с использованием NetName таблиц и столбцов
-        private const string CmdGetActiveTests = @"
+        private const string CmdGetTests = @"
 SELECT
     t.content_item_id AS Id,
     t.[|AbTest.Title|] as Title,
@@ -30,10 +30,13 @@ SELECT
     t.[|AbTest.Comment|] as Comment,
     t.[|AbTest.Enabled|] as Enabled
 FROM [|AbTest|] t
-WHERE (t.[|AbTest.StartDate|] IS NULL OR t.[|AbTest.StartDate|] < @currentDate) AND (t.[|AbTest.EndDate|] IS NULL OR @currentDate < t.[|AbTest.EndDate|])
+WHERE @onlyActive = 0 OR (
+    @onlyActive = 1 AND
+    (t.[|AbTest.StartDate|] IS NULL OR t.[|AbTest.StartDate|] < @currentDate) AND
+    (t.[|AbTest.EndDate|] IS NULL OR @currentDate < t.[|AbTest.EndDate|]))
 ";
 
-        private const string CmdGetActiveTestsContainers = @"
+        private const string CmdGetTestsContainers = @"
 SELECT
     cont.content_item_id AS Id,
     cont.[|AbTestBaseContainer.ParentTest|] as TestId,
@@ -46,7 +49,13 @@ SELECT
 FROM [|AbTestBaseContainer|] cont
 JOIN [|AbTest|] t on t.content_item_id = cont.[|AbTestBaseContainer.ParentTest|]
 WHERE cont.[|AbTestBaseContainer.Type|] = (SELECT TOP 1 CONTENT_ID FROM CONTENT WHERE NET_CONTENT_NAME = @containerType)
-    AND (t.[|AbTest.StartDate|] IS NULL OR t.[|AbTest.StartDate|] < @currentDate) AND (t.[|AbTest.EndDate|] IS NULL OR @currentDate < t.[|AbTest.EndDate|])
+    AND (
+        @onlyActive = 0 OR (
+            @onlyActive = 1 AND
+            (t.[|AbTest.StartDate|] IS NULL OR t.[|AbTest.StartDate|] < @currentDate) AND
+            (t.[|AbTest.EndDate|] IS NULL OR @currentDate < t.[|AbTest.EndDate|])
+        )
+    )
 ";
 
         private const string CmdGetAbTestScripts = @"
@@ -79,15 +88,29 @@ JOIN [|AbTestClientRedirectContainer|] rcont on rcont.content_item_id = r.[|AbTe
 
         public IEnumerable<AbTestPersistentData> GetActiveTests(int siteId, bool isStage)
         {
-            var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetActiveTests, siteId, isStage);
-            return _connection.Query<AbTestPersistentData>(query, new { currentDate = DateTime.Now });
+            return GetTests(siteId, isStage, true);
+        }
+
+        public IEnumerable<AbTestPersistentData> GetAllTests(int siteId, bool isStage)
+        {
+            return GetTests(siteId, isStage, false);
         }
 
         public IEnumerable<AbTestContainerBasePersistentData> GetActiveTestsContainers(int siteId, bool isStage)
         {
+            return GetTestsContainers(siteId, isStage, true);
+        }
+
+        public IEnumerable<AbTestContainerBasePersistentData> GetAllTestsContainers(int siteId, bool isStage)
+        {
+            return GetTestsContainers(siteId, isStage, false);
+        }
+
+        private IEnumerable<AbTestContainerBasePersistentData> GetTestsContainers(int siteId, bool isStage, bool onlyActive)
+        {
             var currentDate = DateTime.Now;
-            var scriptContainersQuery = _netNameQueryAnalyzer.PrepareQuery(CmdGetActiveTestsContainers, siteId, isStage);
-            var scriptContainersDict = _connection.Query<AbTestScriptContainerPersistentData>(scriptContainersQuery, new { currentDate, containerType = "AbTestScriptContainer" }).ToDictionary(_ => _.Id);
+            var scriptContainersQuery = _netNameQueryAnalyzer.PrepareQuery(CmdGetTestsContainers, siteId, isStage);
+            var scriptContainersDict = _connection.Query<AbTestScriptContainerPersistentData>(scriptContainersQuery, new { currentDate, onlyActive = (onlyActive ? 1 : 0), containerType = "AbTestScriptContainer" }).ToDictionary(_ => _.Id);
 
             var scriptQuery = _netNameQueryAnalyzer.PrepareQuery(CmdGetAbTestScripts, siteId, isStage);
             var scripts = _connection.Query<AbTestScriptPersistentData>(scriptQuery);
@@ -100,8 +123,8 @@ JOIN [|AbTestClientRedirectContainer|] rcont on rcont.content_item_id = r.[|AbTe
                 }
             }
 
-            var redirectContainersQuery = _netNameQueryAnalyzer.PrepareQuery(CmdGetActiveTestsContainers, siteId, isStage);
-            var redirectContainersDict = _connection.Query<AbTestClientRedirectContainerPersistentData>(redirectContainersQuery, new { currentDate, containerType = "AbTestClientRedirectContainer" }).ToDictionary(_ => _.Id);
+            var redirectContainersQuery = _netNameQueryAnalyzer.PrepareQuery(CmdGetTestsContainers, siteId, isStage);
+            var redirectContainersDict = _connection.Query<AbTestClientRedirectContainerPersistentData>(redirectContainersQuery, new { currentDate, onlyActive = (onlyActive ? 1 : 0), containerType = "AbTestClientRedirectContainer" }).ToDictionary(_ => _.Id);
 
             var redirectQuery = _netNameQueryAnalyzer.PrepareQuery(CmdGetAbTestClientRedirects, siteId, isStage);
             var redirects = _connection.Query<AbTestClientRedirectPersistentData>(redirectQuery);
@@ -116,6 +139,12 @@ JOIN [|AbTestClientRedirectContainer|] rcont on rcont.content_item_id = r.[|AbTe
 
             return scriptContainersDict.Values.Cast<AbTestContainerBasePersistentData>()
                 .Concat(redirectContainersDict.Values.Cast<AbTestContainerBasePersistentData>());
+        }
+
+        private IEnumerable<AbTestPersistentData> GetTests(int siteId, bool isStage, bool onlyActive)
+        {
+            var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetTests, siteId, isStage);
+            return _connection.Query<AbTestPersistentData>(query, new { currentDate = DateTime.Now, onlyActive = (onlyActive ? 1 : 0) });
         }
     }
 }

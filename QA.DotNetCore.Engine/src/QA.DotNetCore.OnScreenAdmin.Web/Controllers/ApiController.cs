@@ -131,9 +131,9 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
             try
             {
                 var cacheTag = new string[1] { _qpContentCacheTagNamingProvider.GetByNetName(_abTestRepository.AbTestNetName, siteId, isStage) };
-                var tests = _cacheProvider.GetOrAdd($"ActiveTests_{siteId}_{isStage}", cacheTag, TimeSpan.FromHours(1), () =>
+                var tests = _cacheProvider.GetOrAdd($"AllTests_{siteId}_{isStage}", cacheTag, TimeSpan.FromHours(1), () =>
                 {
-                    return _abTestRepository.GetActiveTests(siteId, isStage); ;
+                    return _abTestRepository.GetAllTests(siteId, isStage); ;
                 });
                 
                 var containersCacheTags = new string[4] {
@@ -144,9 +144,9 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
                 }.Select(c => _qpContentCacheTagNamingProvider.GetByNetName(c, siteId, isStage))
                 .Where(t => t != null)
                 .ToArray();
-                var containers = _cacheProvider.GetOrAdd($"ActiveTestContainers_{siteId}_{isStage}", containersCacheTags, TimeSpan.FromHours(1), () =>
+                var containers = _cacheProvider.GetOrAdd($"AllTestContainers_{siteId}_{isStage}", containersCacheTags, TimeSpan.FromHours(1), () =>
                 {
-                    return _abTestRepository.GetActiveTestsContainers(siteId, isStage);
+                    return _abTestRepository.GetAllTestsContainers(siteId, isStage);
                 });
 
                 var result = containers

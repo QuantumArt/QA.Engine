@@ -41,10 +41,10 @@ const TestDetails = (props) => {
   } = props;
   const variantIsActive = i => i === choice;
   const startDateFormated = startDate ?
-    moment(startDate).format('dddd, MMMM Do YYYY, h:mm a').toString() :
+    moment(startDate).format('MMMM Do YYYY, h:mm a').toString() :
     null;
   const endDateFormated = endDate ?
-    moment(endDate).format('dddd, MMMM Do YYYY, h:mm a').toString() :
+    moment(endDate).format('MMMM Do YYYY, h:mm a').toString() :
     null;
   // const currentDate = moment().toString();
   return (

@@ -138,20 +138,51 @@ const AbTestingScreen = (props) => {
       <Person className={classes.actionIcon} />
     </Button>
   );
+
+  const isTestPast = date => moment(date).isBefore(moment());
+  const isTestFuture = date => moment(date).isAfter(moment());
+  const isTestDataActive = (startMoment, endMoment) => {
+    if (startMoment && endMoment) {
+      return (moment(startMoment).isBefore(moment()) && moment(endMoment).isAfter(moment()));
+    }
+    if (startMoment) {
+      return (moment(startMoment).isBefore(moment()));
+    }
+    return moment(endMoment).isAfter(moment());
+  };
+
   const renderSummaryText = (test) => {
     if (test.choice !== null) {
-      if (test.globalActive) return `Test active, case # ${test.choice}`;
+      if (test.globalActive && isTestPast(test.endDate)) {
+        return `The test did finished ${moment(test.endDate).format('MMMM Do YYYY, h:mm a').toString()}`;
+      }
+      if (test.globalActive && isTestFuture(test.startDate)) {
+        return `The test will begin ${moment(test.startDate).format('MMMM Do YYYY, h:mm a').toString()}`;
+      }
+      if (test.globalActive) {
+        return `Test active, case # ${test.choice}`;
+      }
       if (test.sessionActive) return `Test active for session, case # ${test.choice}`;
     } else {
+      if (test.sessionStopped && isTestPast(test.endDate)) {
+        return `The test did finished ${moment(test.endDate).format('MMMM Do YYYY, h:mm a').toString()}`;
+      }
+      if (test.sessionStopped && isTestFuture(test.startDate)) {
+        return `The test will begin ${moment(test.startDate).format('MMMM Do YYYY, h:mm a').toString()}`;
+      }
       if (test.sessionStopped) return 'Test stopped for session';
+      if (test.globalStopped && isTestPast(test.endDate)) {
+        return `The test did finished ${moment(test.endDate).format('MMMM Do YYYY, h:mm a').toString()}`;
+      }
+      if (test.globalStopped && isTestFuture(test.startDate)) {
+        return `The test will begin ${moment(test.startDate).format('MMMM Do YYYY, h:mm a').toString()}`;
+      }
       if (test.globalStopped) return 'Test stopped';
+      if (test.globalStopped && test.sessionStopped) return 'Test stopped';
     }
-
     return '';
   };
-  const isTestAvailable = (startMoment, endMoment) => (
-    moment(startMoment).isAfter(moment()) || moment(endMoment).isBefore(moment())
-  );
+
   return (
     <Toolbar className={classes.toolBar}>
       <Paper className={classes.paper} elevation={0}>
@@ -159,7 +190,7 @@ const AbTestingScreen = (props) => {
           <ExpansionPanel
             key={test.id}
             className={classNames(classes.panel, {
-              [classes.testPassed]: isTestAvailable(test.startDate, test.endDate),
+              [classes.testPassed]: !isTestDataActive(test.startDate, test.endDate),
             })}
           >
             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
@@ -178,19 +209,42 @@ const AbTestingScreen = (props) => {
               />
             </ExpansionPanelDetails>
             <ExpansionPanelActions className={classes.panelActions}>
-              {test.globalActive && [
+              {test.globalActive && isTestDataActive(test.startDate, test.endDate) && [
                 renderSessionStopButton(test.id),
                 renderGlobalStopButton(test.id),
               ]}
-              {test.sessionActive && [
+              {test.globalActive && isTestFuture(test.startDate) && [
+                renderSessionLaunchButton(test.id),
+                renderGlobalStopButton(test.id),
+              ]}
+              {test.globalActive && isTestPast(test.endDate) && [
+                renderSessionLaunchButton(test.id),
+              ]}
+              {test.sessionActive && isTestDataActive(test.startDate, test.endDate) && [
                 renderSessionStopButton(test.id),
                 renderGlobalLaunchButton(test.id),
               ]}
-              {test.sessionStopped && [
+              {test.sessionActive && !isTestDataActive(test.startDate, test.endDate) && [
+                renderSessionStopButton(test.id),
+              ]}
+              {test.sessionStopped && isTestDataActive(test.startDate, test.endDate) && [
                 renderGlobalStopButton(test.id),
                 renderSessionLaunchButton(test.id),
               ]}
-              {test.globalStopped && [
+              {test.sessionStopped && !isTestDataActive(test.startDate, test.endDate) && [
+                renderSessionLaunchButton(test.id),
+              ]}
+              {test.sessionStopped && isTestFuture(test.startDate) && [
+                renderGlobalLaunchButton(test.id),
+              ]}
+              {test.globalStopped && isTestDataActive(test.startDate, test.endDate) && [
+                renderSessionLaunchButton(test.id),
+                renderGlobalLaunchButton(test.id),
+              ]}
+              {test.globalStopped && isTestPast(test.endDate) && [
+                renderSessionLaunchButton(test.id),
+              ]}
+              {test.globalStopped && isTestFuture(test.startDate) && [
                 renderSessionLaunchButton(test.id),
                 renderGlobalLaunchButton(test.id),
               ]}

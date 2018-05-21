@@ -90,7 +90,7 @@ namespace DemoWebApplication
             {
                 if (qpSettings.IsStage)
                 {
-                    options.InvalidateByMiddleware(@"^.*\/.+\.[a-zA-Z0-9]+$");//отсекаем левые запросы для статики (для каждого сайта может настраиваться индивидуально)
+                    options.InvalidateByMiddleware(@"^.*\/(__webpack.*|.+\.[a-zA-Z0-9]+)$");//отсекаем левые запросы для статики (для каждого сайта может настраиваться индивидуально)
                 }
                 else
                 {
@@ -110,8 +110,10 @@ namespace DemoWebApplication
             
             services.AddSingleton<UrlTokenResolverFactory>();
             services.AddSingleton<UrlTokenTargetingProvider>();
-            services.AddScoped<DemoCultureRegionPossibleValuesProvider>();
+            services.AddSingleton<DemoCultureRegionPossibleValuesProvider>();
             services.AddSingleton(Configuration.GetSection("UrlTokenConfig").Get<UrlTokenConfig>());
+
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

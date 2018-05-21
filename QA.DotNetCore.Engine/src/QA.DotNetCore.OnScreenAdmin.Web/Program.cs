@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
+using NLog.Web;
+using Microsoft.Extensions.Logging;
 
 namespace QA.DotNetCore.OnScreenAdmin.Web
 {
@@ -13,8 +15,13 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseDefaultServiceProvider((context, options) => options.ValidateScopes = true)
                 .UseStartup<Startup>()
+                .ConfigureLogging(logging =>
+                {
+                    logging.ClearProviders();
+                    logging.SetMinimumLevel(LogLevel.Trace);
+                })
+                .UseNLog()  // NLog: setup NLog for Dependency injection
                 .Build();
     }
 }

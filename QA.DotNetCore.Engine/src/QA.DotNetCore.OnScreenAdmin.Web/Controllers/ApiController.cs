@@ -69,7 +69,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
 
                 var cacheTag = new string[1] { _qpContentCacheTagNamingProvider.Get(content.ContentName, siteId, isStage) };
 
-                var widgetDefinitions = _cacheProvider.GetOrAdd($"AvailableWidgets_{siteId}_{isStage}", cacheTag, TimeSpan.FromHours(1), () => {
+                var widgetDefinitions = _cacheProvider.GetOrAdd($"AvailableWidgets_{siteId}_{isStage}", cacheTag, TimeSpan.FromSeconds(30), () => {
                     return _itemDefinitionRepository
                         .GetAllItemDefinitions(siteId, isStage)
                         .Where(d => !d.IsPage);
@@ -131,7 +131,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
             try
             {
                 var cacheTag = new string[1] { _qpContentCacheTagNamingProvider.GetByNetName(_abTestRepository.AbTestNetName, siteId, isStage) };
-                var tests = _cacheProvider.GetOrAdd($"AllTests_{siteId}_{isStage}", cacheTag, TimeSpan.FromHours(1), () =>
+                var tests = _cacheProvider.GetOrAdd($"AllTests_{siteId}_{isStage}", cacheTag, TimeSpan.FromSeconds(30), () =>
                 {
                     return _abTestRepository.GetAllTests(siteId, isStage); ;
                 });
@@ -144,7 +144,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
                 }.Select(c => _qpContentCacheTagNamingProvider.GetByNetName(c, siteId, isStage))
                 .Where(t => t != null)
                 .ToArray();
-                var containers = _cacheProvider.GetOrAdd($"AllTestContainers_{siteId}_{isStage}", containersCacheTags, TimeSpan.FromHours(1), () =>
+                var containers = _cacheProvider.GetOrAdd($"AllTestContainers_{siteId}_{isStage}", containersCacheTags, TimeSpan.FromSeconds(30), () =>
                 {
                     return _abTestRepository.GetAllTestsContainers(siteId, isStage);
                 });
@@ -181,13 +181,13 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
                 if (enabledField == null)
                     return ApiResult.Error(Response, $"Field with netname 'Enabled' not found in content {contentId}");
 
-                var widgetUpdates = new Dictionary<string, string>
+                var testUpdate = new Dictionary<string, string>
                 {
                     [SystemColumnNames.Id] = testId.ToString(),
                     [enabledField.ColumnName] = (value ? 1 : 0).ToString()
                 };
 
-                _dbConnector.MassUpdate(contentId, new[] { widgetUpdates }, GetUserId());
+                _dbConnector.MassUpdate(contentId, new[] { testUpdate }, GetUserId());
 
                 return ApiResult.Success();
             }

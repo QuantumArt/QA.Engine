@@ -197,6 +197,159 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
             }
         }
 
+        [HttpPost("abtests/create")]
+        public ApiResult CreateAbTest(AbTestCreateModel model)
+        {
+            try
+            {
+                //создание теста - это создание записей сразу в нескольких контентах
+                //проверим наличие всех нужных нам контентов в QP
+                var abTestContent = _metaInfoRepository.GetContent("AbTest", model.SiteId);
+                if (abTestContent == null)
+                    return ApiResult.Error(Response, $"Not found AbTest content in site {model.SiteId}");
+
+                var containerContent = _metaInfoRepository.GetContent("AbTestBaseContainer", model.SiteId);
+                if (containerContent == null)
+                    return ApiResult.Error(Response, $"Not found AbTestBaseContainer content in site {model.SiteId}");
+
+                var scriptContainerContent = _metaInfoRepository.GetContent("AbTestScriptContainer", model.SiteId);
+                if (scriptContainerContent == null)
+                    return ApiResult.Error(Response, $"Not found AbTestScriptContainer content in site {model.SiteId}");
+
+                var scriptContent = _metaInfoRepository.GetContent("AbTestScript", model.SiteId);
+                if (scriptContent == null)
+                    return ApiResult.Error(Response, $"Not found AbTestScript content in site {model.SiteId}");
+
+                var redirectContainerContent = _metaInfoRepository.GetContent("AbTestClientRedirectContainer", model.SiteId);
+                if (redirectContainerContent == null)
+                    return ApiResult.Error(Response, $"Not found AbTestClientRedirectContainer content in site {model.SiteId}");
+
+                var redirectContent = _metaInfoRepository.GetContent("AbTestClientRedirect", model.SiteId);
+                if (redirectContent == null)
+                    return ApiResult.Error(Response, $"Not found AbTestClientRedirect content in site {model.SiteId}");
+
+                var testCreateFields = new Dictionary<string, string>
+                {
+                    [abTestContent.ContentAttributes.First(a => a.NetName == "Title").ColumnName] = model.Title,
+                    [abTestContent.ContentAttributes.First(a => a.NetName == "Comment").ColumnName] = model.Comment,
+                    [abTestContent.ContentAttributes.First(a => a.NetName == "Enabled").ColumnName] = "0",//только что созданный тест всегда делаем выключенным
+                    [abTestContent.ContentAttributes.First(a => a.NetName == "Percentage").ColumnName] = GetPercentageAsString(model.Percentage),
+                    [abTestContent.ContentAttributes.First(a => a.NetName == "StartDate").ColumnName] = model.StartDate.ToString(),
+                    [abTestContent.ContentAttributes.First(a => a.NetName == "EndDate").ColumnName] = model.EndDate.ToString(),
+                };
+                
+                _dbConnector.MassUpdate(abTestContent.ContentId, new[] { testCreateFields }, GetUserId());
+
+                //id только что созданного теста
+                var testId = testCreateFields[SystemColumnNames.Id];
+
+                var containersToCreate = model.Containers;
+                if (containersToCreate.Any(c => c.Type == AbTestContainerType.ClientRedirect))//если есть контейнер с клиентским редиректом, то больше никаких других контейнеров не добавляем
+                    containersToCreate = new[] { containersToCreate.First(c => c.Type == AbTestContainerType.ClientRedirect) };
+
+                foreach (var container in containersToCreate)
+                {
+                    int containerTypeId;
+                    switch (container.Type)
+                    {
+                        case AbTestContainerType.Script:
+                            containerTypeId = scriptContainerContent.ContentId;
+                            break;
+                        case AbTestContainerType.ClientRedirect:
+                            containerTypeId = redirectContainerContent.ContentId;
+                            break;
+                        default:
+                            continue;
+                    }
+                    var containerCreateFields = new Dictionary<string, string>
+                    {
+                        [containerContent.ContentAttributes.First(a => a.NetName == "ParentTest").ColumnName] = testId,
+                        [containerContent.ContentAttributes.First(a => a.NetName == "Description").ColumnName] = container.Description,
+                        [containerContent.ContentAttributes.First(a => a.NetName == "AllowedUrlPatterns").ColumnName] = container.AllowedUrlPatterns,
+                        [containerContent.ContentAttributes.First(a => a.NetName == "DeniedUrlPatterns").ColumnName] = container.DeniedUrlPatterns,
+                        [containerContent.ContentAttributes.First(a => a.NetName == "Domain").ColumnName] = container.Domain,
+                        [containerContent.ContentAttributes.First(a => a.NetName == "Precondition").ColumnName] = container.Precondition,
+                        [containerContent.ContentAttributes.First(a => a.NetName == "Arguments").ColumnName] = container.Arguments,
+                        [containerContent.ContentAttributes.First(a => a.NetName == "Type").ColumnName] = containerTypeId.ToString()
+                    };
+
+                    _dbConnector.MassUpdate(containerContent.ContentId, new[] { containerCreateFields }, GetUserId());
+
+                    var baseContainerId = containerCreateFields[SystemColumnNames.Id];
+
+                    if (container.Type == AbTestContainerType.Script)
+                    {
+                        var scriptContainerCreateFields = new Dictionary<string, string>
+                        {
+                            [scriptContainerContent.ContentAttributes.First(a => a.NetName == "BaseContainer").ColumnName] = baseContainerId
+                        };
+
+                        _dbConnector.MassUpdate(scriptContainerContent.ContentId, new[] { scriptContainerCreateFields }, GetUserId());
+
+                        var containerId = scriptContainerCreateFields[SystemColumnNames.Id];
+
+                        var scriptVariants = new List<Dictionary<string, string>>();
+                        var versionNumber = 0;
+                        foreach (var variant in container.Variants)
+                        {
+                            if (!String.IsNullOrWhiteSpace(variant))
+                            { 
+                                scriptVariants.Add(new Dictionary<string, string>
+                                {
+                                    [scriptContent.ContentAttributes.First(a => a.NetName == "Container").ColumnName] = containerId,
+                                    [scriptContent.ContentAttributes.First(a => a.NetName == "VersionNumber").ColumnName] = versionNumber.ToString(),
+                                    [scriptContent.ContentAttributes.First(a => a.NetName == "ScriptText").ColumnName] = variant,
+                                });
+                            }
+                            versionNumber++;
+                        }
+
+                        _dbConnector.MassUpdate(scriptContent.ContentId, scriptVariants, GetUserId());
+                    }
+                    else if (container.Type == AbTestContainerType.ClientRedirect)
+                    {
+                        var redirectContainerCreateFields = new Dictionary<string, string>
+                        {
+                            [redirectContainerContent.ContentAttributes.First(a => a.NetName == "BaseContainer").ColumnName] = baseContainerId
+                        };
+
+                        _dbConnector.MassUpdate(redirectContainerContent.ContentId, new[] { redirectContainerCreateFields }, GetUserId());
+
+                        var containerId = redirectContainerCreateFields[SystemColumnNames.Id];
+
+                        var redirectVariants = new List<Dictionary<string, string>>();
+                        var versionNumber = 0;
+                        foreach (var variant in container.Variants)
+                        {
+                            if (!String.IsNullOrWhiteSpace(variant))
+                            {
+                                redirectVariants.Add(new Dictionary<string, string>
+                                {
+                                    [redirectContent.ContentAttributes.First(a => a.NetName == "Container").ColumnName] = containerId,
+                                    [redirectContent.ContentAttributes.First(a => a.NetName == "VersionNumber").ColumnName] = versionNumber.ToString(),
+                                    [redirectContent.ContentAttributes.First(a => a.NetName == "ScriptText").ColumnName] = variant,
+                                });
+                            }
+                            versionNumber++;
+                        }
+
+                        _dbConnector.MassUpdate(redirectContent.ContentId, redirectVariants, GetUserId());
+                    }
+                }
+
+                return ApiResult.Success();
+            }
+            catch (Exception ex)
+            {
+                return ApiResult.Error(Response, ex.Message);
+            }
+        }
+
+        public string GetPercentageAsString(decimal[] percentage)
+        {
+            return String.Join(";", percentage.Cast<int>());
+        }
+
         private int GetUserId()
         {
             var identity = User.Identity as QpIdentity;

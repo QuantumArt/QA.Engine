@@ -154,10 +154,10 @@ const AbTestingScreen = (props) => {
   const renderSummaryText = (test) => {
     if (test.choice !== null) {
       if (test.globalActive && isTestPast(test.endDate)) {
-        return `The test did finished ${moment(test.endDate).format('MMMM Do YYYY, h:mm a').toString()}`;
+        return `Test finished at ${moment(test.endDate).format('MMMM Do YYYY, h:mm a').toString()}`;
       }
       if (test.globalActive && isTestFuture(test.startDate)) {
-        return `The test will begin ${moment(test.startDate).format('MMMM Do YYYY, h:mm a').toString()}`;
+        return `Test will begin at ${moment(test.startDate).format('MMMM Do YYYY, h:mm a').toString()}`;
       }
       if (test.globalActive) {
         return `Test active, case # ${test.choice}`;
@@ -165,17 +165,17 @@ const AbTestingScreen = (props) => {
       if (test.sessionActive) return `Test active for session, case # ${test.choice}`;
     } else {
       if (test.sessionStopped && isTestPast(test.endDate)) {
-        return `The test did finished ${moment(test.endDate).format('MMMM Do YYYY, h:mm a').toString()}`;
+        return `Test finished at ${moment(test.endDate).format('MMMM Do YYYY, h:mm a').toString()}`;
       }
       if (test.sessionStopped && isTestFuture(test.startDate)) {
-        return `The test will begin ${moment(test.startDate).format('MMMM Do YYYY, h:mm a').toString()}`;
+        return `Test will begin at ${moment(test.startDate).format('MMMM Do YYYY, h:mm a').toString()}`;
       }
       if (test.sessionStopped) return 'Test stopped for session';
       if (test.globalStopped && isTestPast(test.endDate)) {
-        return `The test did finished ${moment(test.endDate).format('MMMM Do YYYY, h:mm a').toString()}`;
+        return `Test finished at ${moment(test.endDate).format('MMMM Do YYYY, h:mm a').toString()}`;
       }
       if (test.globalStopped && isTestFuture(test.startDate)) {
-        return `The test will begin ${moment(test.startDate).format('MMMM Do YYYY, h:mm a').toString()}`;
+        return `Test will begin at ${moment(test.startDate).format('MMMM Do YYYY, h:mm a').toString()}`;
       }
       if (test.globalStopped) return 'Test stopped';
       if (test.globalStopped && test.sessionStopped) return 'Test stopped';

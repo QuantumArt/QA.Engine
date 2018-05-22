@@ -33,7 +33,7 @@ namespace QA.DotNetCore.Engine.AbTesting
         {
             var onScreenContext = _onScreenContextProvider.GetContext();
             var isStage = onScreenContext?.AbtestsIsStageOverrided ?? _abTestingSettings.IsStage;//isStage может быть переопределен для Onscreen
-            var getOnlyActiveTests = onScreenContext == null;//в режиме Onscreen нам нужны не только активные сейчас тесты
+            var getOnlyActiveTests = onScreenContext == null || !onScreenContext.Enabled;//в режиме Onscreen нам нужны не только активные сейчас тесты
             var cacheTags = new string[1] { _qpContentCacheTagNamingProvider.GetByNetName(_abTestRepository.AbTestNetName, _abTestingSettings.SiteId, isStage) }
                 .Where(t => t != null)
                 .ToArray();

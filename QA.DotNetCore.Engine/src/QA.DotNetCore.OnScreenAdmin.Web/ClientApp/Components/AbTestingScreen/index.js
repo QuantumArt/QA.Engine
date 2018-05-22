@@ -231,11 +231,12 @@ const AbTestingScreen = (props) => {
                 renderGlobalStopButton(test.id),
                 renderSessionLaunchButton(test.id),
               ]}
-              {test.sessionStopped && !isTestDataActive(test.startDate, test.endDate) && [
+              {test.sessionStopped && isTestPast(test.endDate) && [
                 renderSessionLaunchButton(test.id),
               ]}
               {test.sessionStopped && isTestFuture(test.startDate) && [
-                renderGlobalLaunchButton(test.id),
+                renderSessionLaunchButton(test.id),
+                renderGlobalStopButton(test.id),
               ]}
               {test.globalStopped && isTestDataActive(test.startDate, test.endDate) && [
                 renderSessionLaunchButton(test.id),

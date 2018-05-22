@@ -52,7 +52,7 @@ const fake = {
       targetedCids: [],
     },
     'abt-629740': {
-      choice: 1,
+      choice: null,
       cids: [629710, 629749],
       targetedCids: [],
     },

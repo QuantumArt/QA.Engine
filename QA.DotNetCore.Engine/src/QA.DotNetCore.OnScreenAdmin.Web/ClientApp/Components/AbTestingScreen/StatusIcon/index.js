@@ -27,14 +27,24 @@ const StatusIcon = (props) => {
     startDate,
     endDate,
   } = props;
-  const isTestDataActive = (startMoment, endMoment) => (
-    (startMoment ? !moment(startMoment).isAfter(moment()) : null) ||
-    (endMoment ? !moment(endMoment).isBefore(moment()) : null)
-  );
+  // const isTestDataActive = (startMoment, endMoment) => (
+  //   (startMoment ? !moment(startMoment).isAfter(moment()) : null) ||
+  //   (endMoment ? !moment(endMoment).isBefore(moment()) : null)
+  // );
+  const isTestDataActive = (startMoment, endMoment) => {
+    if (startMoment && endMoment) {
+      return (moment(startMoment).isBefore(moment()) && moment(endMoment).isAfter(moment()));
+    }
+    if (startMoment) {
+      return (moment(startMoment).isBefore(moment()));
+    }
+    return moment(endMoment).isAfter(moment());
+  };
   const isTestFuture = date => (date ? moment(date).isAfter(moment()) : null);
   const isTestPast = date => (date ? moment(date).isBefore(moment()) : null);
   const getColor = () => {
-    if (globalActive && isTestFuture(startDate)) return blue[500];
+    if ((globalActive && isTestFuture(startDate)) ||
+       (sessionStopped && isTestFuture(startDate))) return blue[500];
     if (globalActive && isTestPast(endDate)) return grey[500];
     if ((globalActive && isTestDataActive(startDate, endDate)) || sessionActive) {
       return green[500];

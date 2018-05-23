@@ -157,7 +157,7 @@ const AbTestingScreen = (props) => {
         return `Test finished at ${moment(test.endDate).format('MMMM Do YYYY, h:mm a').toString()}`;
       }
       if (test.globalActive && isTestFuture(test.startDate)) {
-        return `Test will begin at ${moment(test.startDate).format('MMMM Do YYYY, h:mm a').toString()}`;
+        return `Test active for session, case # ${test.choice}`;
       }
       if (test.globalActive) {
         return `Test active, case # ${test.choice}`;
@@ -173,9 +173,6 @@ const AbTestingScreen = (props) => {
       if (test.sessionStopped) return 'Test stopped for session';
       if (test.globalStopped && isTestPast(test.endDate)) {
         return `Test finished at ${moment(test.endDate).format('MMMM Do YYYY, h:mm a').toString()}`;
-      }
-      if (test.globalStopped && isTestFuture(test.startDate)) {
-        return `Test will begin at ${moment(test.startDate).format('MMMM Do YYYY, h:mm a').toString()}`;
       }
       if (test.globalStopped) return 'Test stopped';
       if (test.globalStopped && test.sessionStopped) return 'Test stopped';

@@ -22,7 +22,11 @@ const styles = theme => ({
   },
   DateSectionTitle: {
     marginBottom: 5,
+    fontSize: 12,
     fontWeight: 'bold',
+  },
+  DateSectionContent: {
+    fontSize: 12,
   },
 });
 
@@ -57,8 +61,8 @@ const TestDetails = (props) => {
       <div className={classes.DateSection}>
         {startDateFormated &&
           <div className={classes.DateSectionItem}>
-            <Typography className={classes.DateSectionTitle} variant="subheading">Начало теста</Typography>
-            <Typography variant="body1">{startDateFormated}</Typography>
+            <Typography className={classes.DateSectionTitle} variant="subheading">Start of test</Typography>
+            <Typography className={classes.DateSectionContent} variant="body1">{startDateFormated}</Typography>
           </div>
         }
         {startDateFormated && endDateFormated &&
@@ -66,8 +70,8 @@ const TestDetails = (props) => {
         }
         {endDateFormated &&
           <div className={classes.DateSectionItem}>
-            <Typography className={classes.DateSectionTitle} variant="subheading">Окончание теста</Typography>
-            <Typography variant="body1">{endDateFormated}</Typography>
+            <Typography className={classes.DateSectionTitle} variant="subheading">Finish of test</Typography>
+            <Typography className={classes.DateSectionContent} variant="body1">{endDateFormated}</Typography>
           </div>
         }
       </div>

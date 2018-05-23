@@ -43,10 +43,10 @@ const StatusIcon = (props) => {
   const isTestFuture = date => (date ? moment(date).isAfter(moment()) : null);
   const isTestPast = date => (date ? moment(date).isBefore(moment()) : null);
   const getColor = () => {
-    if ((globalActive && isTestFuture(startDate)) ||
-       (sessionStopped && isTestFuture(startDate))) return blue[500];
+    if (sessionStopped && isTestFuture(startDate)) return blue[500];
     if (globalActive && isTestPast(endDate)) return grey[500];
-    if ((globalActive && isTestDataActive(startDate, endDate)) || sessionActive) {
+    if ((globalActive && isTestDataActive(startDate, endDate)) || sessionActive ||
+      (globalActive && isTestFuture(startDate))) {
       return green[500];
     }
     if ((globalStopped && isTestDataActive(startDate, endDate)) ||
@@ -60,7 +60,8 @@ const StatusIcon = (props) => {
   return (
     <SvgIcon className={classes.statusIcon}>
       <path d="M0 0h24v24H0z" fill={getColor()} />
-      {(sessionActive || (sessionStopped && isTestDataActive(startDate, endDate))) &&
+      {(sessionActive || (sessionStopped && isTestDataActive(startDate, endDate)) ||
+        (globalActive && isTestFuture(startDate))) &&
         <path transform="translate(5, 7.5) scale(0.8)" fill="white" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
       }
     </SvgIcon>

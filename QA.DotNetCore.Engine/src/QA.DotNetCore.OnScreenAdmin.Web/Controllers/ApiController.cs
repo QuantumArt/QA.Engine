@@ -65,22 +65,26 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
                 var content = _metaInfoRepository.GetContent("QPDiscriminator", siteId);
                 if (content == null)
                     return ApiResult.Error(Response, $"Not found QPDiscriminator content in site {siteId}");
-                var baseIconUrl = _qpUrlResolver.UrlForImage(siteId, content.ContentId, "IconUrl");
 
                 var cacheTag = new string[1] { _qpContentCacheTagNamingProvider.Get(content.ContentName, siteId, isStage) };
 
                 var widgetDefinitions = _cacheProvider.GetOrAdd($"AvailableWidgets_{siteId}_{isStage}", cacheTag, TimeSpan.FromSeconds(30), () => {
-                    return _itemDefinitionRepository
+                    var result = _itemDefinitionRepository
                         .GetAllItemDefinitions(siteId, isStage)
-                        .Where(d => !d.IsPage);
+                        .Where(d => !d.IsPage)
+                        .ToList();
+
+                    var baseIconUrl = _qpUrlResolver.UrlForImage(siteId, content.ContentId, "IconUrl");
+
+                    foreach (var w in result)
+                    {
+                        w.IconUrl = (baseIconUrl ?? "") + "/" + w.IconUrl;
+                    }
+
+                    return result;
                 });
 
-                foreach (var w in widgetDefinitions)
-                {
-                    w.IconUrl = (baseIconUrl ?? "") + "/" + w.IconUrl;
-                }
-
-                return ApiResult.Success<IEnumerable<ItemDefinitionPersistentData>>(widgetDefinitions.ToList());
+                return ApiResult.Success<IEnumerable<ItemDefinitionPersistentData>>(widgetDefinitions);
             }
             catch (Exception ex)
             {

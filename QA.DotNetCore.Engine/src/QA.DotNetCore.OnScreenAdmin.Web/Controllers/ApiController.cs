@@ -198,7 +198,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
         }
 
         [HttpPost("abtests/create")]
-        public ApiResult CreateAbTest(AbTestCreateModel model)
+        public ApiResult CreateAbTest([FromBody] AbTestCreateModel model)
         {
             try
             {
@@ -228,26 +228,25 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
                 if (redirectContent == null)
                     return ApiResult.Error(Response, $"Not found AbTestClientRedirect content in site {model.SiteId}");
 
-                var testCreateFields = new Dictionary<string, string>
+                //хотим создать все записи сразу опубликованными (цель же ускорить работу контент-редактора)
+                var publishedStatus = _dbConnector.GetStatusTypeId(model.SiteId, "Published");
+
+                var testCreateFields = PrepareMassUpdateDictionaryForCreate(abTestContent, publishedStatus, new Dictionary<string, string>
                 {
-                    [abTestContent.ContentAttributes.First(a => a.NetName == "Title").ColumnName] = model.Title,
-                    [abTestContent.ContentAttributes.First(a => a.NetName == "Comment").ColumnName] = model.Comment,
-                    [abTestContent.ContentAttributes.First(a => a.NetName == "Enabled").ColumnName] = "0",//только что созданный тест всегда делаем выключенным
-                    [abTestContent.ContentAttributes.First(a => a.NetName == "Percentage").ColumnName] = GetPercentageAsString(model.Percentage),
-                    [abTestContent.ContentAttributes.First(a => a.NetName == "StartDate").ColumnName] = model.StartDate.ToString(),
-                    [abTestContent.ContentAttributes.First(a => a.NetName == "EndDate").ColumnName] = model.EndDate.ToString(),
-                };
+                    ["Title"] = model.Title,
+                    ["Comment"] = model.Comment,
+                    ["Enabled"] = "0",//только что созданный тест всегда делаем выключенным
+                    ["Percentage"] = GetPercentageAsString(model.Percentage),
+                    ["StartDate"] = model.StartDate?.ToString(),
+                    ["EndDate"] = model.EndDate?.ToString(),
+                });
                 
                 _dbConnector.MassUpdate(abTestContent.ContentId, new[] { testCreateFields }, GetUserId());
 
                 //id только что созданного теста
                 var testId = testCreateFields[SystemColumnNames.Id];
 
-                var containersToCreate = model.Containers;
-                if (containersToCreate.Any(c => c.Type == AbTestContainerType.ClientRedirect))//если есть контейнер с клиентским редиректом, то больше никаких других контейнеров не добавляем
-                    containersToCreate = new[] { containersToCreate.First(c => c.Type == AbTestContainerType.ClientRedirect) };
-
-                foreach (var container in containersToCreate)
+                foreach (var container in model.Containers)
                 {
                     int containerTypeId;
                     switch (container.Type)
@@ -261,17 +260,17 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
                         default:
                             continue;
                     }
-                    var containerCreateFields = new Dictionary<string, string>
+                    var containerCreateFields = PrepareMassUpdateDictionaryForCreate(containerContent, publishedStatus, new Dictionary<string, string>
                     {
-                        [containerContent.ContentAttributes.First(a => a.NetName == "ParentTest").ColumnName] = testId,
-                        [containerContent.ContentAttributes.First(a => a.NetName == "Description").ColumnName] = container.Description,
-                        [containerContent.ContentAttributes.First(a => a.NetName == "AllowedUrlPatterns").ColumnName] = container.AllowedUrlPatterns,
-                        [containerContent.ContentAttributes.First(a => a.NetName == "DeniedUrlPatterns").ColumnName] = container.DeniedUrlPatterns,
-                        [containerContent.ContentAttributes.First(a => a.NetName == "Domain").ColumnName] = container.Domain,
-                        [containerContent.ContentAttributes.First(a => a.NetName == "Precondition").ColumnName] = container.Precondition,
-                        [containerContent.ContentAttributes.First(a => a.NetName == "Arguments").ColumnName] = container.Arguments,
-                        [containerContent.ContentAttributes.First(a => a.NetName == "Type").ColumnName] = containerTypeId.ToString()
-                    };
+                        ["ParentTest"] = testId,
+                        ["Description"] = container.Description,
+                        ["AllowedUrlPatterns"] = container.AllowedUrlPatterns,
+                        ["DeniedUrlPatterns"] = container.DeniedUrlPatterns,
+                        ["Domain"] = container.Domain,
+                        ["Precondition"] = container.Precondition,
+                        ["Arguments"] = container.Arguments,
+                        ["Type"] = containerTypeId.ToString()
+                    });
 
                     _dbConnector.MassUpdate(containerContent.ContentId, new[] { containerCreateFields }, GetUserId());
 
@@ -279,10 +278,10 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
 
                     if (container.Type == AbTestContainerType.Script)
                     {
-                        var scriptContainerCreateFields = new Dictionary<string, string>
+                        var scriptContainerCreateFields = PrepareMassUpdateDictionaryForCreate(scriptContainerContent, publishedStatus, new Dictionary<string, string>
                         {
-                            [scriptContainerContent.ContentAttributes.First(a => a.NetName == "BaseContainer").ColumnName] = baseContainerId
-                        };
+                            ["BaseContainer"] = baseContainerId
+                        });
 
                         _dbConnector.MassUpdate(scriptContainerContent.ContentId, new[] { scriptContainerCreateFields }, GetUserId());
 
@@ -294,12 +293,13 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
                         {
                             if (!String.IsNullOrWhiteSpace(variant))
                             { 
-                                scriptVariants.Add(new Dictionary<string, string>
+                                scriptVariants.Add(PrepareMassUpdateDictionaryForCreate(scriptContent, publishedStatus, new Dictionary<string, string>
                                 {
-                                    [scriptContent.ContentAttributes.First(a => a.NetName == "Container").ColumnName] = containerId,
-                                    [scriptContent.ContentAttributes.First(a => a.NetName == "VersionNumber").ColumnName] = versionNumber.ToString(),
-                                    [scriptContent.ContentAttributes.First(a => a.NetName == "ScriptText").ColumnName] = variant,
-                                });
+                                    ["Container"] = containerId,
+                                    ["VersionNumber"] = versionNumber.ToString(),
+                                    ["ScriptText"] = variant,
+                                    ["Description"] = "-",
+                                }));
                             }
                             versionNumber++;
                         }
@@ -308,10 +308,10 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
                     }
                     else if (container.Type == AbTestContainerType.ClientRedirect)
                     {
-                        var redirectContainerCreateFields = new Dictionary<string, string>
+                        var redirectContainerCreateFields = PrepareMassUpdateDictionaryForCreate(redirectContainerContent, publishedStatus, new Dictionary<string, string>
                         {
-                            [redirectContainerContent.ContentAttributes.First(a => a.NetName == "BaseContainer").ColumnName] = baseContainerId
-                        };
+                            ["BaseContainer"] = baseContainerId
+                        });
 
                         _dbConnector.MassUpdate(redirectContainerContent.ContentId, new[] { redirectContainerCreateFields }, GetUserId());
 
@@ -323,16 +323,16 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
                         {
                             if (!String.IsNullOrWhiteSpace(variant))
                             {
-                                redirectVariants.Add(new Dictionary<string, string>
+                                redirectVariants.Add(PrepareMassUpdateDictionaryForCreate(redirectContent, publishedStatus, new Dictionary<string, string>
                                 {
-                                    [redirectContent.ContentAttributes.First(a => a.NetName == "Container").ColumnName] = containerId,
-                                    [redirectContent.ContentAttributes.First(a => a.NetName == "VersionNumber").ColumnName] = versionNumber.ToString(),
-                                    [redirectContent.ContentAttributes.First(a => a.NetName == "ScriptText").ColumnName] = variant,
-                                });
+                                    ["Container"] = containerId,
+                                    ["VersionNumber"] = versionNumber.ToString(),
+                                    ["RedirectUrl"] = variant,
+                                }));
                             }
                             versionNumber++;
                         }
-
+                        
                         _dbConnector.MassUpdate(redirectContent.ContentId, redirectVariants, GetUserId());
                     }
                 }
@@ -345,9 +345,26 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
             }
         }
 
-        public string GetPercentageAsString(decimal[] percentage)
+        private Dictionary<string, string> PrepareMassUpdateDictionaryForCreate(ContentPersistentData content, int status, Dictionary<string, string> fields)
         {
-            return String.Join(";", percentage.Cast<int>());
+            var result = new Dictionary<string, string>
+            {
+                [SystemColumnNames.Id] = "0",
+                [SystemColumnNames.StatusTypeId] = status.ToString(),
+            };
+            foreach (var field in fields)
+            {
+                var attr = content.ContentAttributes.FirstOrDefault(a => a.NetName == field.Key);
+                if (attr == null)
+                    throw new Exception($"Field with net name '{field.Key}' not found in content '{content.ContentName}'");
+                result[attr.ColumnName] = field.Value;
+            }
+            return result;
+        }
+
+        private string GetPercentageAsString(decimal[] percentage)
+        {
+            return String.Join(";", percentage.Select(p => (int)Math.Round(p)));
         }
 
         private int GetUserId()

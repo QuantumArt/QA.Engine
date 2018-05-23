@@ -291,14 +291,14 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
                         var versionNumber = 0;
                         foreach (var variant in container.Variants)
                         {
-                            if (!String.IsNullOrWhiteSpace(variant))
+                            if (!String.IsNullOrWhiteSpace(variant.Value))
                             { 
                                 scriptVariants.Add(PrepareMassUpdateDictionaryForCreate(scriptContent, publishedStatus, new Dictionary<string, string>
                                 {
                                     ["Container"] = containerId,
                                     ["VersionNumber"] = versionNumber.ToString(),
-                                    ["ScriptText"] = variant,
-                                    ["Description"] = "-",
+                                    ["ScriptText"] = variant.Value,
+                                    ["Description"] = String.IsNullOrWhiteSpace(variant.Description) ? "-" : variant.Description
                                 }));
                             }
                             versionNumber++;
@@ -321,13 +321,13 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Controllers
                         var versionNumber = 0;
                         foreach (var variant in container.Variants)
                         {
-                            if (!String.IsNullOrWhiteSpace(variant))
+                            if (!String.IsNullOrWhiteSpace(variant.Value))
                             {
                                 redirectVariants.Add(PrepareMassUpdateDictionaryForCreate(redirectContent, publishedStatus, new Dictionary<string, string>
                                 {
                                     ["Container"] = containerId,
                                     ["VersionNumber"] = versionNumber.ToString(),
-                                    ["RedirectUrl"] = variant,
+                                    ["RedirectUrl"] = variant.Value,
                                 }));
                             }
                             versionNumber++;

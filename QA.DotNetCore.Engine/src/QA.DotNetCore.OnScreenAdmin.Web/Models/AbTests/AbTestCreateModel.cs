@@ -1,8 +1,5 @@
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace QA.DotNetCore.OnScreenAdmin.Web.Models.AbTests
 {
@@ -26,6 +23,12 @@ namespace QA.DotNetCore.OnScreenAdmin.Web.Models.AbTests
         public string DeniedUrlPatterns { get; set; }
         public string Precondition { get; set; }
         public string Arguments { get; set; }
-        public string[] Variants { get; set; }
+        public AbTestContainerVariantModel[] Variants { get; set; }
+    }
+
+    public class AbTestContainerVariantModel
+    {
+        public string Value { get; set; }
+        public string Description { get; set; }
     }
 }

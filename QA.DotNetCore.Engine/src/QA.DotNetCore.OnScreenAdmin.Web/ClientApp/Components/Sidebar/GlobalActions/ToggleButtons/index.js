@@ -4,6 +4,8 @@ import { withStyles } from 'material-ui/styles';
 import Button from 'material-ui/Button';
 import Tooltip from 'material-ui/Tooltip';
 import { lightBlue, green, grey } from 'material-ui/colors';
+import WidgetIcon from 'Components/Icons/Widget';
+import ZoneIcon from 'Components/Icons/Zone';
 
 const styles = theme => ({
   tooltipRoot: {
@@ -11,7 +13,7 @@ const styles = theme => ({
   },
   buttonRoot: {
     width: theme.spacing.unit * 5,
-    height: theme.spacing.unit,
+    // height: theme.spacing.unit,
     minWidth: theme.spacing.unit * 5,
     fontSize: theme.typography.pxToRem(20),
   },
@@ -45,7 +47,7 @@ const ToggleButtons = (props) => {
           className={showAllWidgets ? classes.widgetsButtonChecked : classes.buttonUnchecked}
           aria-label="Widgets"
         >
-        W
+          <WidgetIcon />
         </Button>
       </Tooltip>
       <Tooltip id="zonesTooltip" title="Highlight zones" classes={{ tooltip: classes.tooltipRoot }} enterDelay={300}>
@@ -54,7 +56,7 @@ const ToggleButtons = (props) => {
           onClick={toggleAllZones}
           className={showAllZones ? classes.zonesButtonChecked : classes.buttonUnchecked}
         >
-        Z
+          <ZoneIcon />
         </Button>
       </Tooltip>
 

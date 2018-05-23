@@ -16,6 +16,7 @@ import Widgets from 'material-ui-icons/Widgets';
 import NewWidget from 'material-ui-icons/NewReleases';
 import IconButton from 'material-ui/IconButton';
 import Icon from 'material-ui/Icon';
+import ZoneIcon from 'Components/Icons/Zone';
 import Collapse from 'material-ui/transitions/Collapse';
 import { deepPurple, red } from 'material-ui/colors';
 import ComponentControlMenu from 'containers/WidgetsScreen/componentControlMenu';
@@ -24,11 +25,9 @@ import { MAX_COMPONENT_PRIMARY_TEXT_LENGTH } from 'constants/general';
 const styles = (theme) => {
   console.log(theme);
   return {
-
     componentAvatar: {
       borderRadius: 0,
       color: 'inherit',
-      backgroundColor: 'inherit',
       width: theme.typography.pxToRem(30),
       height: theme.typography.pxToRem(30),
     },
@@ -36,7 +35,6 @@ const styles = (theme) => {
       borderRadius: 0,
       color: deepPurple[500],
       fontWeight: 'bold',
-      backgroundColor: 'inherit',
       width: theme.typography.pxToRem(30),
       height: theme.typography.pxToRem(30),
     },
@@ -190,7 +188,9 @@ class ComponentItem extends Component {
   renderListItemIcon = (type, properties, isSelected, classes) => {
     const className = isSelected ? classes.componentAvatarSelected : classes.componentAvatar;
     if (type === 'zone') {
-      return (<Avatar className={className}>[Z]</Avatar>);
+      return (
+        <ZoneIcon className={className} />
+      );
     }
 
     if (properties.widgetTypeIconSrc) {

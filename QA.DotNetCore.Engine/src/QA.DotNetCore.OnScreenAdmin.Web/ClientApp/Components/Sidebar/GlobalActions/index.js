@@ -18,17 +18,17 @@ const GlobalActions = (props) => {
 
   return (
     <Fragment>
-      <ToggleButtons
-        showAllWidgets={showAllWidgets}
-        showAllZones={showAllZones}
-        toggleAllWidgets={toggleAllWidgets}
-        toggleAllZones={toggleAllZones}
-      />
       <GlobalContextMenu
         enabledMenuKeys={enabledMenuKeys}
         addWidgetToPage={addWidgetToPage}
         toggleShowOnlyWidgets={toggleShowOnlyWidgets}
         showOnlyWidgets={showOnlyWidgets}
+      />
+      <ToggleButtons
+        showAllWidgets={showAllWidgets}
+        showAllZones={showAllZones}
+        toggleAllWidgets={toggleAllWidgets}
+        toggleAllZones={toggleAllZones}
       />
     </Fragment>
   );

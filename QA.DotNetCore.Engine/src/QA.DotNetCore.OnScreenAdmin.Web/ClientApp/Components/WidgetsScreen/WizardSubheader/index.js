@@ -14,7 +14,7 @@ const styles = () => ({
   },
   text: {
     // fontStyle: 'italic',
-    marginTop: 16,
+    // marginTop: 16,
   },
   toolbar: {
     justifyContent: 'center',
@@ -23,10 +23,10 @@ const styles = () => ({
   },
 });
 
-const WizardSubHeader = ({ text, classes, showSearchButton, searchButtonClick }) => (
+const WizardSubHeader = ({ text, classes, showSearchButton, searchButtonClick, className, textClass }) => (
   // <Paper className={classes.wrap} elevation={0}>
-  <Paper className={classes.toolbar} elevation={0}>
-    <Typography variant="title" /* align="center" className={classes.text} */>
+  <Paper className={[classes.toolbar, className]} elevation={0}>
+    <Typography variant="title" /* align="center" */ className={textClass}>
       {showSearchButton &&
       <IconButton
         onClick={searchButtonClick}
@@ -46,11 +46,15 @@ WizardSubHeader.propTypes = {
   classes: PropTypes.object.isRequired,
   showSearchButton: PropTypes.bool,
   searchButtonClick: PropTypes.func,
+  className: PropTypes.any,
+  textClass: PropTypes.any,
 };
 
 WizardSubHeader.defaultProps = {
   searchButtonClick: null,
   showSearchButton: false,
+  className: null,
+  textClass: null,
 };
 
 export default withStyles(styles)(WizardSubHeader);

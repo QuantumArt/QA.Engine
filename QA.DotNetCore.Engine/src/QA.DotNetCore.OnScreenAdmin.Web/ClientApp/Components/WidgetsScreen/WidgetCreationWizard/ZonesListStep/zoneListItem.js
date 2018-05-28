@@ -5,9 +5,8 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  // ListItemSecondaryAction,
 } from 'material-ui/List';
-import PanoramaHorizontal from 'material-ui-icons/PanoramaHorizontal';
+import ZoneIcon from 'Components/Icons/Zone';
 
 const styles = (theme) => {
   console.log(theme);
@@ -32,7 +31,6 @@ class ZoneListItem extends Component {
     const { classes, zoneName } = this.props;
     return (
       <Fragment>
-
         <ListItem
           classes={{
             root: classes.listItem,
@@ -41,7 +39,7 @@ class ZoneListItem extends Component {
           button
         >
           <ListItemIcon>
-            <PanoramaHorizontal />
+            <ZoneIcon />
           </ListItemIcon>
           <ListItemText
             primary={zoneName}

@@ -4,9 +4,11 @@ using DemoWebSite.PagesAndWidgets.Pages;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.OnScreen;
@@ -14,6 +16,7 @@ using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.AbTesting.Configuration;
 using QA.DotNetCore.Engine.CacheTags;
 using QA.DotNetCore.Engine.CacheTags.Configuration;
+using QA.DotNetCore.Engine.OnScreen;
 using QA.DotNetCore.Engine.OnScreen.Configuration;
 using QA.DotNetCore.Engine.QpData.Configuration;
 using QA.DotNetCore.Engine.QpData.Settings;
@@ -60,13 +63,16 @@ namespace DemoWebApplication
                 options.TypeFinder.RegisterFromAssemblyContaining<RootPage, IAbstractItem>();
             });
 
+            services.AddOnScreenViewComponent();
+
             //services.AddSiteStructureEngineViaXml(options =>
             //{
             //    options.Settings.FilePath = @"C:\git\QA.Engine\QA.DotNetCore.Engine\src\DemoWebApplication\pages_and_widgets.xml";
             //    options.TypeFinder.RegisterFromAssemblyContaining<XmlRootPage, XmlAbstractItem>();
             //});
 
-            services.AddAbTestServices(options => {
+            services.AddAbTestServices(options =>
+            {
                 //дублируются некоторые опции из AddSiteStructureEngine, потому что АБ-тесты могут быть или не быть независимо от структуры сайта
                 options.QpConnectionString = qpConnection;
                 options.AbTestingSettings.SiteId = qpSettings.SiteId;
@@ -107,13 +113,12 @@ namespace DemoWebApplication
 
             services.AddTargeting();
 
-            
+
             services.AddSingleton<UrlTokenResolverFactory>();
             services.AddSingleton<UrlTokenTargetingProvider>();
             services.AddSingleton<DemoCultureRegionPossibleValuesProvider>();
             services.AddSingleton(Configuration.GetSection("UrlTokenConfig").Get<UrlTokenConfig>());
 
-            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -131,7 +136,7 @@ namespace DemoWebApplication
             {
                 app.UseExceptionHandler("/Home/Error");
             }
-            
+
             app.UseStaticFiles();
 
             app.UseCacheTagsInvalidation(trackers =>
@@ -161,7 +166,9 @@ namespace DemoWebApplication
             {
                 routes.MapContentRoute("Route with custom params", "{controller}/{id}/{page}",
                     defaults: new RouteValueDictionary(new { action = "details" }),
-                    constraints: new { page = @"^\d+$"
+                    constraints: new
+                    {
+                        page = @"^\d+$"
                     });
 
                 routes.MapContentRoute("default", "{controller}/{action=Index}/{id?}");

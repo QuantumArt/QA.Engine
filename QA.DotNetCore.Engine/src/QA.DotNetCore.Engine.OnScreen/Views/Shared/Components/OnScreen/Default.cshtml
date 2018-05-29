@@ -1,0 +1,25 @@
+﻿@using QA.DotNetCore.Engine.OnScreen
+@using QA.DotNetCore.Engine.Abstractions.OnScreen
+@model OnScreenViewModel
+
+<div id='sidebarplaceholder'></div>
+<script type='text/javascript'>
+  window.onScreenAdminBaseUrl = '@Model.OnScreenSettings.AdminSiteBaseUrl';
+  window.currentPageId = '@Model.AI?.Id';
+  window.startPageId = '@Model.StartPage?.Id';
+  window.siteId = '@Model.OnScreenSettings.SiteId';
+  window.isStage = @Model.OnScreenSettings.IsStage.ToString().ToLower();
+  window.onScreenFeatures = '@Model.Ctx.Features';
+  window.onScreenTokenCookieName = '@Model.OnScreenSettings.AuthCookieName';
+  window.onScreenOverrideAbTestStageModeCookieName = '@Model.OnScreenSettings.OverrideAbTestStageModeCookieName';
+</script>
+
+<script src='@(Model.OnScreenSettings.AdminSiteBaseUrl)/dist/pmrpc.js'></script>
+<script src='@(Model.OnScreenSettings.AdminSiteBaseUrl)/dist/vendor.js'></script>
+<script src='@(Model.OnScreenSettings.AdminSiteBaseUrl)/dist/main.js'></script>
+
+@if (Model.Ctx.HasFeature(OnScreenFeatures.AbTests))
+{
+  <script src='@(Model.OnScreenSettings.AdminSiteBaseUrl)/dist/cookies.js' defer></script>
+  <script src='@(Model.OnScreenSettings.AdminSiteBaseUrl)/dist/onScreenAbTestApi.js' defer></script>
+}

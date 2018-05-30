@@ -4,6 +4,7 @@ import {
   toggleLeftPosition,
   toggleRightPosition,
   toggleTab,
+  saveCords,
 } from 'actions/sidebarActions';
 import { getShowAllZones, getShowAllWidgets } from 'selectors/componentsHighlight';
 
@@ -13,6 +14,7 @@ import {
   getWidgetsTabAvailable,
   getAbTestsTabAvailable,
   getActiveTabIndex,
+  getCords,
 } from 'selectors/sidebar';
 import Sidebar from 'Components/Sidebar';
 
@@ -28,27 +30,20 @@ const mapStateToProps = state => ({
   featuresCount: availableFeatures.length,
   widgetTabAvailable: getWidgetsTabAvailable(),
   abTestsTabAvailable: getAbTestsTabAvailable(),
+  cords: getCords(state),
 });
 
-const mapDispatchToProps = dispatch => ({
-  toggleSidebar: () => {
-    dispatch(toggleState());
-  },
-  toggleLeft: () => {
-    dispatch(toggleLeftPosition());
-  },
-  toggleRight: () => {
-    dispatch(toggleRightPosition());
-  },
-  toggleTab: (value) => {
-    dispatch(toggleTab(value));
-  },
-
-});
+const bindActions = {
+  toggleSidebar: toggleState,
+  toggleLeft: toggleLeftPosition,
+  toggleRight: toggleRightPosition,
+  toggleTab,
+  saveCords,
+};
 
 const SidebarContainer = connect(
   mapStateToProps,
-  mapDispatchToProps,
+  bindActions,
 )(Sidebar);
 
 export default SidebarContainer;

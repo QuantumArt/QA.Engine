@@ -15,41 +15,20 @@ const getAbTestsTabAvailableSelector = () => availableFeatures &&
 const getSidebarSideSelector = state => state.sidebar.side;
 const getOpenedSelector = state => state.sidebar.opened;
 const getActiveTabIndexSelector = state => state.sidebar.activeTab;
+const getCordsSelector = state => state.sidebar.cords;
 
 
-export const getSidebarSide = createSelector(
-  [getSidebarSideSelector],
-  side => side,
-);
-
-export const getOpened = createSelector(
-  [getOpenedSelector],
-  opened => opened,
-);
-
-export const getShowTabs = createSelector(
-  [getShowTabsSelector],
-  showTabs => showTabs,
-);
-
-export const getWidgetsTabAvailable = createSelector(
-  [getWidgetsTabAvailableSelector],
-  available => available,
-);
-
-export const getAbTestsTabAvailable = createSelector(
-  [getAbTestsTabAvailableSelector],
-  available => available,
-);
-
-export const getActiveTabIndex = createSelector(
-  [getActiveTabIndexSelector],
-  activeTabIndex => activeTabIndex,
-);
+export const getSidebarSide = createSelector(getSidebarSideSelector, _.identity);
+export const getOpened = createSelector(getOpenedSelector, _.identity);
+export const getShowTabs = createSelector(getShowTabsSelector, _.identity);
+export const getWidgetsTabAvailable = createSelector(getWidgetsTabAvailableSelector, _.identity);
+export const getAbTestsTabAvailable = createSelector(getAbTestsTabAvailableSelector, _.identity);
+export const getActiveTabIndex = createSelector(getActiveTabIndexSelector, _.identity);
+export const getCords = createSelector(getCordsSelector, _.identity);
 
 // адский костыль
 export const getActiveTab = createSelector(
-  [getActiveTabIndexSelector],
+  getActiveTabIndexSelector,
   (tabIndex) => {
     const activeTabFeature = availableFeatures[tabIndex];
     switch (activeTabFeature) {

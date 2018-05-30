@@ -30,7 +30,6 @@ class OpenControl extends Component {
   state = {
     canClick: true,
     preventDrag: false,
-    popoverOpened: false,
   };
 
   disableClick = () => {
@@ -45,11 +44,22 @@ class OpenControl extends Component {
     this.disableClick();
   }
 
+  stopHanlder = (e, cords) => {
+    const buttonCords = document.getElementById('gear').getBoundingClientRect();
+    this.props.saveCords(
+      cords.lastX,
+      cords.lastY,
+      buttonCords.left,
+      buttonCords.top,
+    );
+  }
+
   render() {
     const {
       toggleSidebar,
       classes,
       drawerOpened,
+      cords: { componentX, componentY },
     } = this.props;
     const { canClick, preventDrag } = this.state;
 
@@ -58,16 +68,18 @@ class OpenControl extends Component {
         onStart={this.enableClick}
         onDrag={this.dragHander}
         bounds="html"
-        defaultPosition={{ x: 10, y: 10 }}
+        defaultPosition={{ x: componentX, y: componentY }}
+        onStop={this.stopHanlder}
         grid={[25, 25]}
         disabled={preventDrag}
       >
-        <div className={classes.wrap} ref={(el) => { this.wrap = el; }}>
+        <div className={classes.wrap}>
           <Button
             variant="fab"
             color="primary"
             onClick={canClick ? toggleSidebar : null}
             className={drawerOpened ? classes.buttonHidden : null}
+            id="gear"
           >
             <Settings />
           </Button>
@@ -79,8 +91,10 @@ class OpenControl extends Component {
 
 OpenControl.propTypes = {
   toggleSidebar: PropTypes.func.isRequired,
+  saveCords: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired,
   drawerOpened: PropTypes.bool.isRequired,
+  cords: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(OpenControl);

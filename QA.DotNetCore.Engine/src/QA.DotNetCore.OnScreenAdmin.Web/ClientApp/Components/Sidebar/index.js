@@ -66,11 +66,13 @@ const Sidebar = (props) => {
     toggleLeft,
     toggleRight,
     toggleTab,
+    saveCords,
     classes,
     showTabs,
     widgetTabAvailable,
     abTestsTabAvailable,
     featuresCount,
+    cords,
   } = props;
 
 
@@ -80,6 +82,8 @@ const Sidebar = (props) => {
         toggleSidebar={toggleSidebar}
         toggleLeft={toggleLeft}
         toggleRight={toggleRight}
+        cords={cords}
+        saveCords={saveCords}
         drawerOpened={opened}
       />
       <Drawer
@@ -93,8 +97,6 @@ const Sidebar = (props) => {
             <div className={classes.topLeftRoot}>
               <GlobalActions />
             </div>
-
-
             <div className={classes.controlToolbar}>
               <IconButton
                 color="primary"
@@ -150,6 +152,8 @@ Sidebar.propTypes = {
   toggleLeft: PropTypes.func.isRequired,
   toggleRight: PropTypes.func.isRequired,
   toggleTab: PropTypes.func.isRequired,
+  cords: PropTypes.object.isRequired,
+  saveCords: PropTypes.func.isRequired,
   showTabs: PropTypes.bool.isRequired,
   widgetTabAvailable: PropTypes.bool.isRequired,
   abTestsTabAvailable: PropTypes.bool.isRequired,

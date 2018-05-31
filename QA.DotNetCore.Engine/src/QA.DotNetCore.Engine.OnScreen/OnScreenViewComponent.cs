@@ -1,15 +1,9 @@
-using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
-using QA.DotNetCore.Engine.Routing;
-using QA.DotNetCore.Engine.OnScreen.Configuration;
-using QA.DotNetCore.Engine.Abstractions.OnScreen;
-using System;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.FileProviders;
 using QA.DotNetCore.Engine.Abstractions;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Mvc.Razor;
+using QA.DotNetCore.Engine.Abstractions.OnScreen;
+using QA.DotNetCore.Engine.OnScreen.Configuration;
+using QA.DotNetCore.Engine.Routing;
+using System;
 
 namespace QA.DotNetCore.Engine.OnScreen
 {
@@ -38,17 +32,6 @@ namespace QA.DotNetCore.Engine.OnScreen
                 return View(model);
             }
             return Content(string.Empty);
-        }
-    }
-
-    public static class OnScreenViewComponentExtensions
-    {
-        public static IServiceCollection AddOnScreenViewComponent(this IServiceCollection services)
-        {
-            var onScreenAssembly = typeof(OnScreenViewComponent).Assembly;
-            services.AddMvc().AddApplicationPart(onScreenAssembly);
-            services.Configure<RazorViewEngineOptions>(options => { options.FileProviders.Add(new EmbeddedFileProvider(onScreenAssembly)); });
-            return services;
         }
     }
 

@@ -46,7 +46,7 @@ namespace DemoWebApplication
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddMvc();
+            var mvcBuilder = services.AddMvc();
             services.AddLogging();
             services.AddMemoryCache();
 
@@ -60,8 +60,6 @@ namespace DemoWebApplication
                 options.QpSiteStructureSettings = Configuration.GetSection("QpSiteStructureSettings").Get<QpSiteStructureSettings>();
                 options.TypeFinder.RegisterFromAssemblyContaining<RootPage, IAbstractItem>();
             });
-
-            services.AddOnScreenViewComponent();
 
             //services.AddSiteStructureEngineViaXml(options =>
             //{
@@ -77,7 +75,7 @@ namespace DemoWebApplication
                 options.AbTestingSettings.IsStage = qpSettings.IsStage;
             });
 
-            services.AddOnScreenIntegration(options =>
+            services.AddOnScreenIntegration(mvcBuilder, options =>
             {
                 options.Settings.AdminSiteBaseUrl = Configuration.GetSection("OnScreen").Get<OnScreenSettings>().AdminSiteBaseUrl;
                 options.Settings.SiteId = qpSettings.SiteId;

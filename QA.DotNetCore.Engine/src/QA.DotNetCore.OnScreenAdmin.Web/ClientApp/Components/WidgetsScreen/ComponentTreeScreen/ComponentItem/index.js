@@ -79,6 +79,7 @@ const styles = (theme) => {
 class ComponentItem extends Component {
   handleToggleClick = () => {
     const { isMovingWidget, onScreenId, onToggleComponent, onMovingWidgetSelectTargetZone } = this.props;
+
     if (isMovingWidget) {
       onMovingWidgetSelectTargetZone(onScreenId);
     } else {

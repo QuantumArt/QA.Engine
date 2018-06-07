@@ -149,10 +149,10 @@ export const filteredComponentTree = createJSONEqualSelector(
 export const getMovingWidgetTargetZoneSelector = createSelector(
   [getFlatComponentsSelector, getMovingWidgetSelector],
   (componentsFlat, movingWidget) => {
-    if (!isMoving(movingWidget)
-      || !movingWidget.targetZoneId) {
+    if (!isMoving(movingWidget) || !movingWidget.targetZoneId) {
       return null;
     }
+
     return _.find(componentsFlat, { onScreenId: movingWidget.targetZoneId });
   },
 );
@@ -163,6 +163,7 @@ export const movingWidgetSelector = createSelector(
     if (!isMoving(movingWidget)) {
       return null;
     }
+
     return _.find(componentsFlat, { onScreenId: movingWidget.onScreenId });
   },
 );

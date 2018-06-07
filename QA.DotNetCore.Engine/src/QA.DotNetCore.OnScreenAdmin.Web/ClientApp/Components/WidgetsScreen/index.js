@@ -6,8 +6,6 @@ import { withStyles } from 'material-ui/styles';
 import EditComponentTree from 'containers/WidgetsScreen/editComponentTree';
 import MoveWidgetScreen from 'containers/WidgetsScreen/moveWidgetsScreen';
 import WidgetCreationWizard from 'containers/WidgetsScreen/widgetCreationWizard';
-
-
 import ComponentTreeScreen from 'containers/WidgetsScreen/ComponentTreeScreen';
 
 const styles = theme => ({
@@ -17,7 +15,6 @@ const styles = theme => ({
     alignItems: 'center',
     marginTop: '45%',
   }),
-
 });
 
 
@@ -34,21 +31,16 @@ const WidgetsScreen = ({
         <CircularProgress />
       </Paper>
     }
-    {showComponentTree
-      ? (
-        <Fragment>
-          <ComponentTreeScreen />
-        </Fragment>
-      )
-      : null
+    {showComponentTree &&
+      <Fragment>
+        <ComponentTreeScreen />
+      </Fragment>
     }
-    {showWidgetCreationWizard
-      ? (<WidgetCreationWizard />)
-      : null
+    {showWidgetCreationWizard &&
+      <WidgetCreationWizard />
     }
-    {showMoveWidgetScreen
-      ? (<MoveWidgetScreen />)
-      : null
+    {showMoveWidgetScreen &&
+      <MoveWidgetScreen />
     }
     <EditComponentTree />
   </Fragment>

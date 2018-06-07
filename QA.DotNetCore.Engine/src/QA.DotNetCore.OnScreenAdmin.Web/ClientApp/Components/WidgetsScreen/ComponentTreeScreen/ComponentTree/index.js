@@ -4,21 +4,21 @@ import List from 'material-ui/List';
 import ComponentItem from '../ComponentItem';
 
 
-class ComponentTree extends Component {
-  renderComponentsList = () => {
-    const {
-      components,
-      selectedComponentId,
-      onToggleComponent,
-      onToggleSubtree,
-      onToggleFullSubtree,
-      isMovingWidget,
-      onMovingWidgetSelectTargetZone,
-      showOnlyWidgets,
-    } = this.props;
-    console.log(components);
-    return (
-      <List dense >
+export default function ComponentTree(props) {
+  const {
+    components,
+    selectedComponentId,
+    onToggleComponent,
+    onToggleSubtree,
+    onToggleFullSubtree,
+    isMovingWidget,
+    onMovingWidgetSelectTargetZone,
+    showOnlyWidgets,
+  } = props;
+
+  return (
+    <Fragment>
+      <List dense>
         {components.map(component => (
           <ComponentItem
             {...component}
@@ -34,17 +34,8 @@ class ComponentTree extends Component {
             itemLevel={1}
           />))}
       </List>
-    );
-  }
-
-
-  render() {
-    return (
-      <Fragment>
-        { this.renderComponentsList() }
-      </Fragment>
-    );
-  }
+    </Fragment>
+  );
 }
 
 ComponentTree.propTypes = {
@@ -66,5 +57,3 @@ ComponentTree.propTypes = {
   onMovingWidgetSelectTargetZone: PropTypes.func.isRequired,
   showOnlyWidgets: PropTypes.bool.isRequired,
 };
-
-export default ComponentTree;

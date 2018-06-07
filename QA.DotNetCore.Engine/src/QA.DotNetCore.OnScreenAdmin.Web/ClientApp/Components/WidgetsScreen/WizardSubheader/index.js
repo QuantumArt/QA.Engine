@@ -24,20 +24,17 @@ const styles = () => ({
 });
 
 const WizardSubHeader = ({ text, classes, showSearchButton, searchButtonClick, className, textClass }) => (
-  // <Paper className={classes.wrap} elevation={0}>
-  <Paper className={[classes.toolbar, className]} elevation={0}>
-    <Typography variant="title" /* align="center" */ className={textClass}>
+  <Paper className={classes.toolbar} elevation={0}>
+    <Typography variant="title" className={textClass}>
       {showSearchButton &&
-      <IconButton
-        onClick={searchButtonClick}
-      >
-        <SearchIcon />
-      </IconButton>
-      }
+        <IconButton
+          onClick={searchButtonClick}
+        >
+          <SearchIcon />
+        </IconButton>}
       { text }
     </Typography>
   </Paper>
-  /* </Paper> */
 );
 
 

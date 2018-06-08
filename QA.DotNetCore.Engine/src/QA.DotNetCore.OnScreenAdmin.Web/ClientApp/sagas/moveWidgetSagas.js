@@ -28,7 +28,7 @@ function moveWidgetSucceeded() {
   location.reload();
 }
 
-function* moveWidgetFailed(action) {
+function* moveWidgetFailed() {
   yield put({ type: EDIT_WIDGET_ACTIONS.FINISH_MOVING_WIDGET });
 }
 

@@ -23,7 +23,7 @@ const styles = () => ({
   },
 });
 
-const WizardSubHeader = ({ text, classes, showSearchButton, searchButtonClick, className, textClass }) => (
+const WizardSubHeader = ({ text, classes, showSearchButton, searchButtonClick, textClass }) => (
   <Paper className={classes.toolbar} elevation={0}>
     <Typography variant="title" className={textClass}>
       {showSearchButton &&
@@ -43,14 +43,12 @@ WizardSubHeader.propTypes = {
   classes: PropTypes.object.isRequired,
   showSearchButton: PropTypes.bool,
   searchButtonClick: PropTypes.func,
-  className: PropTypes.any,
   textClass: PropTypes.any,
 };
 
 WizardSubHeader.defaultProps = {
   searchButtonClick: null,
   showSearchButton: false,
-  className: null,
   textClass: null,
 };
 

@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import List from 'material-ui/List';
 import ComponentItem from '../ComponentItem';
@@ -52,7 +52,6 @@ ComponentTree.propTypes = {
   onToggleComponent: PropTypes.func.isRequired,
   onToggleSubtree: PropTypes.func.isRequired,
   onToggleFullSubtree: PropTypes.func.isRequired,
-  disabledComponents: PropTypes.array.isRequired,
   isMovingWidget: PropTypes.bool.isRequired,
   onMovingWidgetSelectTargetZone: PropTypes.func.isRequired,
   showOnlyWidgets: PropTypes.bool.isRequired,

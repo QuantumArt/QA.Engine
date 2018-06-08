@@ -102,7 +102,6 @@ class ComponentItem extends Component {
     this.props.onToggleSubtree(this.props.onScreenId);
   }
 
-
   renderSecondaryText = (type, properties) => {
     if (type === 'zone') {
       let zoneSettings = '';
@@ -118,7 +117,10 @@ class ComponentItem extends Component {
   renderListItemText = (primaryText, isSelected, classes) => (
     <ListItemText
       primary={primaryText}
-      classes={{ root: classes.listItemTextRoot, primary: isSelected ? classes.listItemTextSelected : classes.primary }}
+      classes={{
+        root: classes.listItemTextRoot,
+        primary: isSelected ? classes.listItemTextSelected : classes.primary,
+      }}
     />
   )
 
@@ -130,6 +132,7 @@ class ComponentItem extends Component {
     const textToRender = isPrimaryTextTruncated
       ? `${primaryText.substring(0, MAX_COMPONENT_PRIMARY_TEXT_LENGTH)}…`
       : primaryText;
+
     return (
       <Tooltip
         title={isPrimaryTextTruncated ? primaryText : ''}
@@ -222,6 +225,7 @@ class ComponentItem extends Component {
     } = this.props;
     const isSelected = selectedComponentId === onScreenId;
     if (showOnlyWidgets && type === 'zone') { return null; }
+
     return (
       <ListItem
         disabled={isDisabled}

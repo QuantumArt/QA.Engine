@@ -1,0 +1,24 @@
+
+[
+  {
+    "outputFileName": "wwwroot/css/demosite.min.css",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "wwwroot/css/*.css"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/js/demosite.min.js",
+    "inputFiles": [
+      "jquery-3.1.0.min.js",
+      "wwwroot/js/*.js"
+    ],
+    // Optionally specify minification options
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    // Optionally generate .map file
+    "sourceMap": false
+  }
+]

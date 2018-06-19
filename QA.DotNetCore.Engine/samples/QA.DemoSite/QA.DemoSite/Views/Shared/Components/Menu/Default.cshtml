@@ -1,0 +1,39 @@
+﻿@model QA.DemoSite.Models.MenuViewModel
+
+  <div id="secondaryMenu-sticky-wrapper" class="sticky-wrapper" style="height: 91px;">
+    <nav id="secondaryMenu" class="navbar" data-sticky="true">
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">
+            <img src="~/img/quantum_logo.png" alt="" class="img-responsive">
+          </a>
+        </div>
+        <div id="secondaryNavbar" class="navbar-right reset-padding hidden-sm hidden-xs">
+          <ul class="secondary-menu-links nav navbar-nav">
+            @if (Model.Items.Any())
+            {
+              @foreach (var item in Model.Items)
+              {
+                <li @(item.IsActive ? "class=active" : string.Empty)>
+                  @if (!item.Children.Any())
+                  {
+                    <a href="@item.Href">@item.Title</a>
+                  }
+                  else
+                  {
+                    <a href="@item.Href" class="dropdown-toggle" data-toggle="dropdown">@item.Title <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                      @foreach (var child in item.Children)
+                      {
+                        <li @(child.IsActive ? "class=active" : string.Empty)><a href="@child.Href">@child.Title</a></li>
+                      }
+                    </ul>
+                  }
+                </li>
+              }
+            }
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </div>

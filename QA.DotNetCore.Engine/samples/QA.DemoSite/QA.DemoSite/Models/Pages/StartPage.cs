@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.QpData;
 
 namespace QA.DemoSite.Models.Pages
@@ -15,6 +16,11 @@ namespace QA.DemoSite.Models.Pages
                 .Split(new char[] { '\n', '\r', ',' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(_ => _.Trim())
                 .ToArray();
+        }
+
+        public ITargetingUrlResolver GetUrlResolver()
+        {
+            return null;
         }
     }
 }

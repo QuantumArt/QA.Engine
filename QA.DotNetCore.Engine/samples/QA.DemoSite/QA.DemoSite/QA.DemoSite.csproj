@@ -13,12 +13,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.0.2" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.5.4" />
-    <PackageReference Include="QA.DotNetCore.Engine.Abstractions" Version="0.2.2" />
-    <PackageReference Include="QA.DotNetCore.Engine.QpData" Version="0.2.2" />
-    <PackageReference Include="QA.DotNetCore.Engine.QpData.Configuration" Version="0.2.2" />
-    <PackageReference Include="QA.DotNetCore.Engine.Reflection" Version="0.2.2" />
-    <PackageReference Include="QA.DotNetCore.Engine.Routing" Version="0.2.2" />
-    <PackageReference Include="QA.DotNetCore.Engine.Widgets" Version="0.2.2" />
+    <PackageReference Include="QA.DotNetCore.Engine.QpData.Configuration" Version="0.3.0" />
   </ItemGroup>
 
   <ItemGroup>

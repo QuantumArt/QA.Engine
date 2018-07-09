@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<schema connectionStringName="qp_database" class="QPContext" namespace="QA.Core.Engine.QPData" useLongUrls="true" replaceUrls="true" dbIndependent="true" isPartial="true" sendNotifications="false" siteName="main_site">
+  <content id="540" name="Локализация" mapped_name="QPCulture" plural_mapped_name="QPCultures" use_default_filtration="true">
+    <attribute name="Title" />
+    <attribute name="Name" />
+    <attribute name="Icon" />
+  </content>
+</schema>

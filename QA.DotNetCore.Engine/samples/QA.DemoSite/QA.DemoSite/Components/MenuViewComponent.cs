@@ -1,13 +1,10 @@
-using System;
+using Microsoft.AspNetCore.Mvc;
+using QA.DemoSite.ViewModels;
+using QA.DotNetCore.Engine.QpData;
+using QA.DotNetCore.Engine.Routing;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using QA.DotNetCore.Engine.Routing;
-using QA.DemoSite.Models;
-using QA.DotNetCore.Engine;
-using QA.DemoSite.Models.Pages;
-using QA.DotNetCore.Engine.QpData;
 
 namespace QA.DemoSite.Components
 {
@@ -23,7 +20,11 @@ namespace QA.DemoSite.Components
 
             var model = new MenuViewModel();
 
-            var topLevelItems = startPage.GetChildren().Where(w => w.IsPage).OfType<AbstractPage>().OrderBy(o => o.SortOrder);
+            var topLevelItems = startPage.GetChildren()
+                .Where(w => w.IsPage)
+                .OfType<AbstractPage>()
+                .Where(p => p.IsVisible)
+                .OrderBy(o => o.SortOrder);
 
             var ci = ViewContext.GetCurrentItem<AbstractPage>();
 
@@ -36,7 +37,8 @@ namespace QA.DemoSite.Components
                     Alias = tlitem.Alias,
                     Href = tlitem.GetUrl(),
                     Children = resultBuildMenu,
-                    IsActive = tlitem.Id == ci.Id || resultBuildMenu.Where(w => w.IsActive).Any()
+                    IsActive = tlitem.Id == ci.Id,
+                    HasActiveChild = resultBuildMenu.Where(w => w.IsActive).Any()
                 });
             }
 
@@ -54,9 +56,8 @@ namespace QA.DemoSite.Components
             }
 
             var itemList = new List<MenuItem>();
-            foreach (var itemlv in item.GetChildren().Where(w => w.IsPage).OfType<AbstractPage>().OrderBy(o => o.SortOrder))
+            foreach (var itemlv in item.GetChildren().Where(w => w.IsPage).OfType<AbstractPage>().Where(p => p.IsVisible).OrderBy(o => o.SortOrder))
             {
-
                 var resultBuidMenu = BuildMenu(itemlv, level - 1, currentId);
                 itemList.Add(new MenuItem
                 {

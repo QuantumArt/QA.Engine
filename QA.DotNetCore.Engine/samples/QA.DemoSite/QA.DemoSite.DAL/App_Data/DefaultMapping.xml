@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<schema connectionStringName="qp_database" class="QpDataContext" namespace="QA.DemoSite.DAL" useLongUrls="true" replaceUrls="true" dbIndependent="true" isPartial="false" sendNotifications="false" siteName="main_site">
+  <content id="537" name="AbstractItem" mapped_name="QPAbstractItem" plural_mapped_name="QPAbstractItems" use_default_filtration="true">
+    <attribute name="Title" />
+    <attribute name="Name" />
+    <attribute name="Parent" mapped_back_name="QPAbstractItems" />
+    <attribute name="IsVisible" />
+    <attribute name="IsPage" />
+    <attribute name="Icon" />
+    <attribute name="ZoneName" />
+    <attribute name="AllowedUrlPatterns" />
+    <attribute name="DeniedUrlPatterns" />
+    <attribute name="Description" />
+    <attribute name="Discriminator" mapped_back_name="QPAbstractItems" />
+    <attribute name="VersionOf" mapped_back_name="QPAbstractItems_2" />
+    <attribute name="Culture" mapped_back_name="QPAbstractItems" />
+    <attribute name="Keywords" />
+    <attribute name="MetaDescription" />
+    <attribute name="Tags" />
+    <attribute name="IsInSiteMap" />
+    <attribute name="IndexOrder" />
+    <attribute name="ExtensionId" />
+    <attribute name="ContentId" />
+    <attribute name="TitleFormat" mapped_back_name="QPAbstractItems" />
+  </content>
+  <content id="538" name="ItemDefinition" mapped_name="QPDiscriminator" plural_mapped_name="QPDiscriminators" use_default_filtration="true">
+    <attribute name="Title" />
+    <attribute name="Name" />
+    <attribute name="PreferredContentId" />
+    <attribute name="FriendlyDescription" />
+    <attribute name="CategoryName" />
+    <attribute name="Description" />
+    <attribute name="IconUrl" />
+    <attribute name="IsPage" />
+    <attribute name="AllowedZones" />
+    <attribute name="AllowedItemDefinitions1" />
+    <attribute name="FilterPartByUrl" />
+    <attribute name="AllowedItemDefinitions" />
+  </content>
+  <content id="540" name="Локализация" mapped_name="QPCulture" plural_mapped_name="QPCultures" use_default_filtration="true">
+    <attribute name="Title" />
+    <attribute name="Name" />
+    <attribute name="Icon" />
+  </content>
+  <content id="547" name="StartPageExtension" mapped_name="StartPageExtensionArticle" plural_mapped_name="StartPageExtensionArticles" use_default_filtration="true">
+    <attribute name="ItemId" mapped_back_name="StartPageExtensionArticles" />
+    <attribute name="Bindings" />
+    <attribute name="Mode" />
+    <attribute name="DefaultHost" />
+  </content>
+  <content id="10609" name="ItemDefinitionConstraint" mapped_name="ItemDefinitionConstraintArticle" plural_mapped_name="ItemDefinitionConstraintArticles" use_default_filtration="true">
+    <attribute name="Title" />
+    <attribute name="Target" mapped_back_name="ItemDefinitionConstraintArticles" />
+    <attribute name="Source" mapped_back_name="ItemDefinitionConstraintArticles_2" />
+  </content>
+  <content id="10660" name="RootPageExtension" mapped_name="RootPageExtensionArticle" plural_mapped_name="RootPageExtensionArticles" use_default_filtration="true">
+    <attribute name="ItemId" mapped_back_name="RootPageExtensionArticles" />
+    <attribute name="DefaultStartPageId" />
+  </content>
+  <content id="20662" name="TextWidgetExtension" mapped_name="TextWidgetExtensionArticle" plural_mapped_name="TextWidgetExtensionArticles" use_default_filtration="true">
+    <attribute name="ItemId" mapped_back_name="TextWidgetExtensionArticles" />
+    <attribute name="Text" />
+  </content>
+  <content id="30736" name="ItemTitleFormat" mapped_name="ItemTitleFormatArticle" plural_mapped_name="ItemTitleFormatArticles" use_default_filtration="true">
+    <attribute name="Title" />
+    <attribute name="Value" />
+    <attribute name="Description" />
+  </content>
+  <content id="30738" name="TextPageExtension" mapped_name="TextPageExtensionArticle" plural_mapped_name="TextPageExtensionArticles" use_default_filtration="true">
+    <attribute name="Text" />
+    <attribute name="ItemId" mapped_back_name="TextPageExtensionArticles" />
+  </content>
+  <content id="30739" name="HtmlWidgetExtension" mapped_name="HtmlWidgetExtensionArticle" plural_mapped_name="HtmlWidgetExtensionArticles" use_default_filtration="true">
+    <attribute name="ItemId" mapped_back_name="HtmlWidgetExtensionArticles" />
+    <attribute name="HTML" />
+  </content>
+  <content id="30740" name="ContentPageExtension" mapped_name="ContentPageExtensionArticle" plural_mapped_name="ContentPageExtensionArticles" use_default_filtration="true">
+    <attribute name="ItemId" mapped_back_name="ContentPageExtensionArticles" />
+  </content>
+  <content id="30741" name="Новости" mapped_name="NewsItem" plural_mapped_name="NewsItems" use_default_filtration="true">
+    <attribute name="Title" />
+    <attribute name="Date" />
+    <attribute name="Category" mapped_back_name="NewsItems" />
+    <attribute name="Text" />
+  </content>
+  <content id="30742" name="Категория новости" mapped_name="NewsCategory" plural_mapped_name="NewsCategories" use_default_filtration="true">
+    <attribute name="Title" />
+  </content>
+  <link id="88" self="1" content_id="538" linked_content_id="538" mapped_name="ItemDefinitionItemDefinitionArticle" plural_mapped_name="ItemDefinitionItemDefinitionArticles" />
+</schema>

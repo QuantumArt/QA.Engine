@@ -44,31 +44,15 @@ namespace QA.DemoSite
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILogger logger)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-            }
-
-            app.UseExceptionHandler(options =>
-            {
-                options.Run(context =>
-                {
-                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    context.Response.ContentType = "text/html";
-                    var ex = context.Features.Get<IExceptionHandlerFeature>();
-                    if (ex != null)
-                    {
-                        logger.LogError(1000, ex.Error, "Exception occurred which has not been handled in the MVC application");
-                    }
-                    return Task.CompletedTask;
-                });
-            });
-
-            app.UseExceptionHandler("/Error/ServerError");
+            app.UseDeveloperExceptionPage();
+            //if (env.IsDevelopment())
+            //{
+            //    app.UseDeveloperExceptionPage();
+            //}
+            //else
+            //{
+            //    app.UseExceptionHandler("/Home/Error");
+            //}
 
             app.UseStaticFiles();
             app.UseSiteStructure();

@@ -1,0 +1,34 @@
+<Database Name="" Class="QPContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="WebSettings" ConnectionString="Data Source=SPBDEVSQL01\DEV;Initial Catalog=qa_demosite;User ID=publishing;Password=QuantumartHost.SQL;Connect Timeout=120;Application Name=QP8Backend" SettingsObjectName="System.Configuration.ConfigurationManager.ConnectionStrings" SettingsPropertyName="qp_database" Provider="System.Data.SqlClient" />
+  <Table Name="STATUS_TYPE" Member="StatusTypes">
+    <Type Name="StatusType">
+      <Column Name="SITE_ID" Member="SiteId" Type="System.Int32" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="STATUS_TYPE_ID" Member="Id" Type="System.Int32" DbType="Decimal(18,0) NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="STATUS_TYPE_NAME" Member="Name" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="WEIGHT" Member="Weight" Type="System.Int32" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="DESCRIPTION" Member="Description" Type="System.String" DbType="NVarChar(512)" CanBeNull="true" />
+      <Column Name="CREATED" Member="Created" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="MODIFIED" Member="Modified" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="LAST_MODIFIED_BY" Member="LastModifiedBy" Type="System.Int32" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+    </Type>
+  </Table>
+  <Table Name="dbo.CONTENT_540_LIVE" Member="QPCultures">
+    <Type Name="QPCulture">
+      <Column Name="CONTENT_ITEM_ID" Type="System.Int32" Member="Id" DbType="Decimal(18,0) IDENTITY NOT NULL" IsPrimaryKey="true" CanBeNull="false" IsDbGenerated="true" />
+      <Column Name="STATUS_TYPE_ID" Type="System.Int32" Member="StatusTypeId" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="VISIBLE" Type="System.Boolean" Member="Visible" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="ARCHIVE" Type="System.Boolean" Member="Archive" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="CREATED" Type="System.DateTime" Member="Created" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="MODIFIED" Type="System.DateTime" Member="Modified" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="LAST_MODIFIED_BY" Type="System.Int32" Member="LastModifiedBy" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="[Title]" Member="Title" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="[Name]" Member="Name" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="[Icon]" Member="Icon" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Association Name="StatusType_ContentItem" Member="StatusType" ThisKey="StatusTypeId" OtherKey="Id" Type="StatusType" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Function Name="dbo.qp_abs_time" Method="AbsTime" IsComposable="true">
+    <Parameter Name="time" Type="System.DateTime" DbType="DateTime" />
+    <Return Type="System.Int32" DbType="Decimal" />
+  </Function>
+</Database>

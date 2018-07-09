@@ -1,9 +1,8 @@
 ﻿@using QA.DotNetCore.Engine.Widgets
 @model QA.DemoSite.Models.Pages.TextPage
 
-
 <div class="guides-layout__content">
   <section class="guides">
-    @Html.Raw(Model.Text)
+    @await Component.RenderZonesInText(Html, Model.Text)
   </section>
 </div>

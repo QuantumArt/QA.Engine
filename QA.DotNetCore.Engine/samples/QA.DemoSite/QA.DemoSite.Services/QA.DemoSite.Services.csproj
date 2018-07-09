@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net471</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\QA.DemoSite.DAL\QA.DemoSite.DAL.csproj" />
+    <ProjectReference Include="..\QA.DemoSite.Interfaces\QA.DemoSite.Interfaces.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -47,7 +47,9 @@ namespace QA.DemoSite
             services.AddScoped(sp => QpDataContext.CreateWithStaticMapping(ContentAccess.Live,
                 new System.Data.SqlClient.SqlConnection(qpConnection),
                 true));
+
             services.AddScoped<IFaqService, FaqService>();
+            services.AddScoped<IBlogService, BlogService>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILogger logger)

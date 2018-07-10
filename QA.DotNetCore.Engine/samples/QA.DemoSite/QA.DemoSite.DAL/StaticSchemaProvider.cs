@@ -232,7 +232,7 @@ namespace QA.DemoSite.DAL
                 {
                     Id = 27541,
                     ContentId = 538,
-                    Name = "FriendlyDescription",
+                    Name = "TypeName",
                     MappedName = "TypeName",
                     LinkId = 0,
                     Type = "String"
@@ -302,6 +302,15 @@ namespace QA.DemoSite.DAL
                 },
                 new AttributeInfo
                 {
+                    Id = 47910,
+                    ContentId = 538,
+                    Name = "AllowedItemDefinitions",
+                    MappedName = "AllowedItemDefinitions",
+                    LinkId = 0,
+                    Type = "M2O"
+                },
+                new AttributeInfo
+                {
                     Id = 27517,
                     ContentId = 540,
                     Name = "Title",
@@ -329,8 +338,26 @@ namespace QA.DemoSite.DAL
                 },
                 new AttributeInfo
                 {
-                    Id = 68541,
-                    ContentId = 30741,
+                    Id = 47908,
+                    ContentId = 10609,
+                    Name = "Target",
+                    MappedName = "Target",
+                    LinkId = 0,
+                    Type = "O2M"
+                },
+                new AttributeInfo
+                {
+                    Id = 47909,
+                    ContentId = 10609,
+                    Name = "Source",
+                    MappedName = "Source",
+                    LinkId = 0,
+                    Type = "O2M"
+                },
+                new AttributeInfo
+                {
+                    Id = 68556,
+                    ContentId = 30745,
                     Name = "Title",
                     MappedName = "Title",
                     LinkId = 0,
@@ -338,17 +365,26 @@ namespace QA.DemoSite.DAL
                 },
                 new AttributeInfo
                 {
-                    Id = 68542,
-                    ContentId = 30741,
-                    Name = "Date",
-                    MappedName = "Date",
+                    Id = 68567,
+                    ContentId = 30745,
+                    Name = "Brief",
+                    MappedName = "Brief",
                     LinkId = 0,
-                    Type = "DateTime"
+                    Type = "Textbox"
                 },
                 new AttributeInfo
                 {
-                    Id = 68544,
-                    ContentId = 30741,
+                    Id = 68568,
+                    ContentId = 30745,
+                    Name = "PostDate",
+                    MappedName = "PostDate",
+                    LinkId = 0,
+                    Type = "Date"
+                },
+                new AttributeInfo
+                {
+                    Id = 68569,
+                    ContentId = 30745,
                     Name = "Category",
                     MappedName = "Category",
                     LinkId = 0,
@@ -356,8 +392,8 @@ namespace QA.DemoSite.DAL
                 },
                 new AttributeInfo
                 {
-                    Id = 68545,
-                    ContentId = 30741,
+                    Id = 68570,
+                    ContentId = 30745,
                     Name = "Text",
                     MappedName = "Text",
                     LinkId = 0,
@@ -365,8 +401,35 @@ namespace QA.DemoSite.DAL
                 },
                 new AttributeInfo
                 {
-                    Id = 68543,
-                    ContentId = 30742,
+                    Id = 68571,
+                    ContentId = 30745,
+                    Name = "Tags",
+                    MappedName = "Tags",
+                    LinkId = 140,
+                    Type = "M2M"
+                },
+                new AttributeInfo
+                {
+                    Id = 68572,
+                    ContentId = 30745,
+                    Name = "Image",
+                    MappedName = "Image",
+                    LinkId = 0,
+                    Type = "Image"
+                },
+                new AttributeInfo
+                {
+                    Id = 68573,
+                    ContentId = 30745,
+                    Name = "YoutubeVideoCode",
+                    MappedName = "YoutubeVideoCode",
+                    LinkId = 0,
+                    Type = "String"
+                },
+                new AttributeInfo
+                {
+                    Id = 68557,
+                    ContentId = 30746,
                     Name = "Title",
                     MappedName = "Title",
                     LinkId = 0,
@@ -374,7 +437,52 @@ namespace QA.DemoSite.DAL
                 },
                 new AttributeInfo
                 {
-                    Id = 68546,
+                    Id = 68576,
+                    ContentId = 30746,
+                    Name = "SortOrder",
+                    MappedName = "SortOrder",
+                    LinkId = 0,
+                    Type = "Numeric"
+                },
+                new AttributeInfo
+                {
+                    Id = 68558,
+                    ContentId = 30747,
+                    Name = "Title",
+                    MappedName = "Title",
+                    LinkId = 0,
+                    Type = "String"
+                },
+                new AttributeInfo
+                {
+                    Id = 68561,
+                    ContentId = 30749,
+                    Name = "Question",
+                    MappedName = "Question",
+                    LinkId = 0,
+                    Type = "String"
+                },
+                new AttributeInfo
+                {
+                    Id = 68562,
+                    ContentId = 30749,
+                    Name = "Answer",
+                    MappedName = "Answer",
+                    LinkId = 0,
+                    Type = "VisualEdit"
+                },
+                new AttributeInfo
+                {
+                    Id = 68574,
+                    ContentId = 30749,
+                    Name = "SortOrder",
+                    MappedName = "SortOrder",
+                    LinkId = 0,
+                    Type = "Numeric"
+                },
+                new AttributeInfo
+                {
+                    Id = 68577,
                     ContentId = 537,
                     Name = "Children",
                     MappedName = "Children",
@@ -383,7 +491,7 @@ namespace QA.DemoSite.DAL
                 },
                 new AttributeInfo
                 {
-                    Id = 68547,
+                    Id = 68578,
                     ContentId = 538,
                     Name = "Items",
                     MappedName = "Items",
@@ -392,7 +500,7 @@ namespace QA.DemoSite.DAL
                 },
                 new AttributeInfo
                 {
-                    Id = 68548,
+                    Id = 68579,
                     ContentId = 537,
                     Name = "Versions",
                     MappedName = "Versions",
@@ -401,7 +509,7 @@ namespace QA.DemoSite.DAL
                 },
                 new AttributeInfo
                 {
-                    Id = 68549,
+                    Id = 68580,
                     ContentId = 540,
                     Name = "AbstractItems",
                     MappedName = "AbstractItems",
@@ -410,20 +518,38 @@ namespace QA.DemoSite.DAL
                 },
                 new AttributeInfo
                 {
-                    Id = 68550,
-                    ContentId = 30742,
-                    Name = "NewsByCategory",
-                    MappedName = "NewsByCategory",
+                    Id = 68581,
+                    ContentId = 538,
+                    Name = "AllowDefinition",
+                    MappedName = "AllowDefinition",
                     LinkId = 0,
                     Type = "M2O"
                 },
                 new AttributeInfo
                 {
-                    Id = 68551,
+                    Id = 68582,
+                    ContentId = 30746,
+                    Name = "PostsInCategory",
+                    MappedName = "PostsInCategory",
+                    LinkId = 0,
+                    Type = "M2O"
+                },
+                new AttributeInfo
+                {
+                    Id = 68583,
                     ContentId = 538,
                     Name = "BackwardForAllowedItemDefinitions1",
                     MappedName = "BackwardForAllowedItemDefinitions1",
                     LinkId = 88,
+                    Type = "M2M"
+                },
+                new AttributeInfo
+                {
+                    Id = 68584,
+                    ContentId = 30747,
+                    Name = "BackwardForTags",
+                    MappedName = "BackwardForTags",
+                    LinkId = 140,
                     Type = "M2M"
                 },
             };
@@ -458,18 +584,42 @@ namespace QA.DemoSite.DAL
                 },
                 new ContentInfo
                 {
-                   Id = 30741,
-                   MappedName = "NewsItem",
+                   Id = 10609,
+                   MappedName = "QPItemDefinitionConstraint",
                    UseDefaultFiltration = true,
-                   Attributes = new List<AttributeInfo>(attributesLookup[30741]),
+                   Attributes = new List<AttributeInfo>(attributesLookup[10609]),
                    IsVirtual = false
                 },
                 new ContentInfo
                 {
-                   Id = 30742,
-                   MappedName = "NewsCategory",
+                   Id = 30745,
+                   MappedName = "BlogPost",
                    UseDefaultFiltration = true,
-                   Attributes = new List<AttributeInfo>(attributesLookup[30742]),
+                   Attributes = new List<AttributeInfo>(attributesLookup[30745]),
+                   IsVirtual = false
+                },
+                new ContentInfo
+                {
+                   Id = 30746,
+                   MappedName = "BlogCategory",
+                   UseDefaultFiltration = true,
+                   Attributes = new List<AttributeInfo>(attributesLookup[30746]),
+                   IsVirtual = false
+                },
+                new ContentInfo
+                {
+                   Id = 30747,
+                   MappedName = "BlogTag",
+                   UseDefaultFiltration = true,
+                   Attributes = new List<AttributeInfo>(attributesLookup[30747]),
+                   IsVirtual = false
+                },
+                new ContentInfo
+                {
+                   Id = 30749,
+                   MappedName = "FaqItem",
+                   UseDefaultFiltration = true,
+                   Attributes = new List<AttributeInfo>(attributesLookup[30749]),
                    IsVirtual = false
                 },
             };

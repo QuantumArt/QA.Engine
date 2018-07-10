@@ -34,8 +34,11 @@ namespace QA.DemoSite.DAL
         public virtual DbSet<QPAbstractItem> QPAbstractItems { get; set; }
         public virtual DbSet<QPDiscriminator> QPDiscriminators { get; set; }
         public virtual DbSet<QPCulture> QPCultures { get; set; }
-        public virtual DbSet<NewsItem> NewsItems { get; set; }
-        public virtual DbSet<NewsCategory> NewsCategories { get; set; }
+        public virtual DbSet<QPItemDefinitionConstraint> QPItemDefinitionConstraints { get; set; }
+        public virtual DbSet<BlogPost> BlogPosts { get; set; }
+        public virtual DbSet<BlogCategory> BlogCategories { get; set; }
+        public virtual DbSet<BlogTag> BlogTags { get; set; }
+        public virtual DbSet<FaqItem> FaqItems { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

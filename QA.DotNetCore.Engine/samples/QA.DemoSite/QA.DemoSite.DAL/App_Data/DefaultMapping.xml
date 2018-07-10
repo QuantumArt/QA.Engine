@@ -27,7 +27,7 @@
     <attribute name="Title" />
     <attribute name="Name" />
     <attribute name="PreferredContentId" />
-    <attribute name="FriendlyDescription" />
+    <attribute name="TypeName" />
     <attribute name="CategoryName" />
     <attribute name="Description" />
     <attribute name="IconUrl" />
@@ -48,18 +48,14 @@
     <attribute name="Mode" />
     <attribute name="DefaultHost" />
   </content>
-  <content id="10609" name="ItemDefinitionConstraint" mapped_name="ItemDefinitionConstraintArticle" plural_mapped_name="ItemDefinitionConstraintArticles" use_default_filtration="true">
+  <content id="10609" name="ItemDefinitionConstraint" mapped_name="QPItemDefinitionConstraint" plural_mapped_name="QPItemDefinitionConstraints" use_default_filtration="true">
     <attribute name="Title" />
-    <attribute name="Target" mapped_back_name="ItemDefinitionConstraintArticles" />
-    <attribute name="Source" mapped_back_name="ItemDefinitionConstraintArticles_2" />
+    <attribute name="Target" mapped_back_name="QPItemDefinitionConstraints" />
+    <attribute name="Source" mapped_back_name="QPItemDefinitionConstraints_2" />
   </content>
   <content id="10660" name="RootPageExtension" mapped_name="RootPageExtensionArticle" plural_mapped_name="RootPageExtensionArticles" use_default_filtration="true">
     <attribute name="ItemId" mapped_back_name="RootPageExtensionArticles" />
     <attribute name="DefaultStartPageId" />
-  </content>
-  <content id="20662" name="TextWidgetExtension" mapped_name="TextWidgetExtensionArticle" plural_mapped_name="TextWidgetExtensionArticles" use_default_filtration="true">
-    <attribute name="ItemId" mapped_back_name="TextWidgetExtensionArticles" />
-    <attribute name="Text" />
   </content>
   <content id="30736" name="ItemTitleFormat" mapped_name="ItemTitleFormatArticle" plural_mapped_name="ItemTitleFormatArticles" use_default_filtration="true">
     <attribute name="Title" />
@@ -74,17 +70,49 @@
     <attribute name="ItemId" mapped_back_name="HtmlWidgetExtensionArticles" />
     <attribute name="HTML" />
   </content>
-  <content id="30740" name="ContentPageExtension" mapped_name="ContentPageExtensionArticle" plural_mapped_name="ContentPageExtensionArticles" use_default_filtration="true">
-    <attribute name="ItemId" mapped_back_name="ContentPageExtensionArticles" />
+  <content id="30743" name="BannerWidgetExtension" mapped_name="BannerWidgetExtensionArticle" plural_mapped_name="BannerWidgetExtensionArticles" use_default_filtration="true">
+    <attribute name="ItemId" mapped_back_name="BannerWidgetExtensionArticles" />
   </content>
-  <content id="30741" name="Новости" mapped_name="NewsItem" plural_mapped_name="NewsItems" use_default_filtration="true">
+  <content id="30744" name="BannerItemWidgetExtension" mapped_name="BannerItemWidgetExtensionArticle" plural_mapped_name="BannerItemWidgetExtensionArticles" use_default_filtration="true">
+    <attribute name="ItemId" mapped_back_name="BannerItemWidgetExtensionArticles" />
+    <attribute name="Header" />
+    <attribute name="BackgroundImage" />
+    <attribute name="Description" />
+    <attribute name="DetailsButtonText" />
+    <attribute name="DetailsButtonUrl" />
+    <attribute name="Image" />
+  </content>
+  <content id="30745" name="Блог Посты" mapped_name="BlogPost" plural_mapped_name="BlogPosts" use_default_filtration="true">
     <attribute name="Title" />
-    <attribute name="Date" />
-    <attribute name="Category" mapped_back_name="NewsItems" />
+    <attribute name="Brief" />
+    <attribute name="PostDate" />
+    <attribute name="Category" mapped_back_name="BlogPosts" />
     <attribute name="Text" />
+    <attribute name="Tags" />
+    <attribute name="Image" />
+    <attribute name="YoutubeVideoCode" />
   </content>
-  <content id="30742" name="Категория новости" mapped_name="NewsCategory" plural_mapped_name="NewsCategories" use_default_filtration="true">
+  <content id="30746" name="Блог Категории" mapped_name="BlogCategory" plural_mapped_name="BlogCategories" use_default_filtration="true">
     <attribute name="Title" />
+    <attribute name="SortOrder" />
+  </content>
+  <content id="30747" name="Блог Теги" mapped_name="BlogTag" plural_mapped_name="BlogTags" use_default_filtration="true">
+    <attribute name="Title" />
+  </content>
+  <content id="30748" name="BlogPageExtension" mapped_name="BlogPageExtensionArticle" plural_mapped_name="BlogPageExtensionArticles" use_default_filtration="true">
+    <attribute name="ItemId" mapped_back_name="BlogPageExtensionArticles" />
+  </content>
+  <content id="30749" name="FAQ Вопросы и ответы" mapped_name="FaqItem" plural_mapped_name="FaqItems" use_default_filtration="true">
+    <attribute name="Question" />
+    <attribute name="Answer" />
+    <attribute name="SortOrder" />
+  </content>
+  <content id="30750" name="FaqWidgetExtension" mapped_name="FaqWidgetExtensionArticle" plural_mapped_name="FaqWidgetExtensionArticles" use_default_filtration="true">
+    <attribute name="ItemId" mapped_back_name="FaqWidgetExtensionArticles" />
+    <attribute name="Header" />
+    <attribute name="Questions" />
   </content>
   <link id="88" self="1" content_id="538" linked_content_id="538" mapped_name="ItemDefinitionItemDefinitionArticle" plural_mapped_name="ItemDefinitionItemDefinitionArticles" />
+  <link id="139" self="0" content_id="30750" linked_content_id="30749" mapped_name="FaqWidgetExtensionFAQVoprosyiotvetyArticle" plural_mapped_name="FaqWidgetExtensionFAQVoprosyiotvetyArticles" />
+  <link id="140" self="0" content_id="30745" linked_content_id="30747" mapped_name="BlogPostyBlogTegiArticle" plural_mapped_name="BlogPostyBlogTegiArticles" />
 </schema>

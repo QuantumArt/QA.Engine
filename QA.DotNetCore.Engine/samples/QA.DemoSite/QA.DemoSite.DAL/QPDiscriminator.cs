@@ -10,7 +10,9 @@ namespace QA.DemoSite.DAL
         public QPDiscriminator()
         {
 		    AllowedItemDefinitions1 = new HashSet<QPDiscriminator>();
+		    AllowedItemDefinitions = new HashSet<QPItemDefinitionConstraint>();
 		    Items = new HashSet<QPAbstractItem>();
+		    AllowDefinition = new HashSet<QPItemDefinitionConstraint>();
 		    BackwardForAllowedItemDefinitions1 = new HashSet<QPDiscriminator>();
         }
 
@@ -38,9 +40,17 @@ namespace QA.DemoSite.DAL
 		/// </summary>
 		public  ICollection<QPDiscriminator> AllowedItemDefinitions1 { get; set; }
 		/// <summary>
+		/// 
+		/// </summary>
+		public  ICollection<QPItemDefinitionConstraint> AllowedItemDefinitions { get; set; }
+		/// <summary>
 		/// Auto-generated backing property for field (id: 27516)/Discriminator Items
 		/// </summary>
 		public  ICollection<QPAbstractItem> Items { get; set; }
+		/// <summary>
+		/// Auto-generated backing property for field (id: 47908)/Target AllowDefinition
+		/// </summary>
+		public  ICollection<QPItemDefinitionConstraint> AllowDefinition { get; set; }
 		/// <summary>
 		/// Auto-generated backing property for 27552/AllowedItemDefinitions1
 		/// </summary>

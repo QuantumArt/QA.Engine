@@ -5,7 +5,10 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using QA.DemoSite.DAL;
+using QA.DemoSite.Interfaces;
 using QA.DemoSite.Models.Pages;
+using QA.DemoSite.Services;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.QpData.Configuration;
 using QA.DotNetCore.Engine.QpData.Settings;
@@ -40,6 +43,11 @@ namespace QA.DemoSite
                 options.QpSiteStructureSettings = Configuration.GetSection("QpSiteStructureSettings").Get<QpSiteStructureSettings>();
                 options.TypeFinder.RegisterFromAssemblyContaining<RootPage, IAbstractItem>();
             });
+
+            services.AddScoped(sp => QpDataContext.CreateWithStaticMapping(ContentAccess.Live,
+                new System.Data.SqlClient.SqlConnection(qpConnection),
+                true));
+            services.AddScoped<IFaqService, FaqService>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILogger logger)

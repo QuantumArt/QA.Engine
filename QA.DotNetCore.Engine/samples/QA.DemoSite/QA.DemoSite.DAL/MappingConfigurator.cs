@@ -99,9 +99,6 @@ namespace QA.DemoSite.DAL
                 .WithMany()
                 .HasForeignKey(x => x.StatusTypeId); 
 
-            modelBuilder.Entity<QPDiscriminator>()
-                .Property(x => x.TypeName)
-                .HasColumnName(GetFieldName("QPDiscriminator", "TypeName"));
 
             modelBuilder.Entity<QPDiscriminator>().HasMany<QPDiscriminator>(p => p.AllowedItemDefinitions1).WithMany()
                 .Map(rp =>
@@ -149,53 +146,149 @@ namespace QA.DemoSite.DAL
  
             #endregion
 
-            #region NewsItem mappings
-            modelBuilder.Entity<NewsItem>()
-                .ToTable(GetTableName("NewsItem"))
+            #region QPItemDefinitionConstraint mappings
+            modelBuilder.Entity<QPItemDefinitionConstraint>()
+                .ToTable(GetTableName("QPItemDefinitionConstraint"))
                 .Property(x => x.Id)
                 .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity)
                 .HasColumnName("CONTENT_ITEM_ID");
            
-		    modelBuilder.Entity<NewsItem>()
+		    modelBuilder.Entity<QPItemDefinitionConstraint>()
                 .Property(x => x.LastModifiedBy)
                 .HasColumnName("LAST_MODIFIED_BY");
             
-            modelBuilder.Entity<NewsItem>()
+            modelBuilder.Entity<QPItemDefinitionConstraint>()
                 .Property(x => x.StatusTypeId)
                 .HasColumnName("STATUS_TYPE_ID");
 
-			modelBuilder.Entity<NewsItem>()
+			modelBuilder.Entity<QPItemDefinitionConstraint>()
                 .HasRequired<StatusType>(x => x.StatusType)
                 .WithMany()
                 .HasForeignKey(x => x.StatusTypeId); 
 
-            modelBuilder.Entity<NewsItem>()
-                .HasOptional<NewsCategory>(mp => mp.Category)
-                .WithMany(mp => mp.NewsByCategory)
-                .HasForeignKey(fp => fp.Category_ID);
+            modelBuilder.Entity<QPItemDefinitionConstraint>()
+                .HasOptional<QPDiscriminator>(mp => mp.Target)
+                .WithMany(mp => mp.AllowDefinition)
+                .HasForeignKey(fp => fp.Target_ID);
 
-            modelBuilder.Entity<NewsItem>()
-                .Property(x => x.Category_ID)
-                .HasColumnName(GetFieldName("NewsItem", "Category"));
+            modelBuilder.Entity<QPItemDefinitionConstraint>()
+                .Property(x => x.Target_ID)
+                .HasColumnName(GetFieldName("QPItemDefinitionConstraint", "Target"));
+            modelBuilder.Entity<QPItemDefinitionConstraint>()
+                .HasOptional<QPDiscriminator>(mp => mp.Source)
+                .WithMany(mp => mp.AllowedItemDefinitions)
+                .HasForeignKey(fp => fp.Source_ID);
+
+            modelBuilder.Entity<QPItemDefinitionConstraint>()
+                .Property(x => x.Source_ID)
+                .HasColumnName(GetFieldName("QPItemDefinitionConstraint", "Source"));
  
             #endregion
 
-            #region NewsCategory mappings
-            modelBuilder.Entity<NewsCategory>()
-                .ToTable(GetTableName("NewsCategory"))
+            #region BlogPost mappings
+            modelBuilder.Entity<BlogPost>()
+                .ToTable(GetTableName("BlogPost"))
                 .Property(x => x.Id)
                 .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity)
                 .HasColumnName("CONTENT_ITEM_ID");
            
-		    modelBuilder.Entity<NewsCategory>()
+		    modelBuilder.Entity<BlogPost>()
                 .Property(x => x.LastModifiedBy)
                 .HasColumnName("LAST_MODIFIED_BY");
             
-            modelBuilder.Entity<NewsCategory>()
+            modelBuilder.Entity<BlogPost>()
                 .Property(x => x.StatusTypeId)
                 .HasColumnName("STATUS_TYPE_ID");
 
-			modelBuilder.Entity<NewsCategory>()
+			modelBuilder.Entity<BlogPost>()
+                .HasRequired<StatusType>(x => x.StatusType)
+                .WithMany()
+                .HasForeignKey(x => x.StatusTypeId); 
+
+            modelBuilder.Entity<BlogPost>()
+                .HasOptional<BlogCategory>(mp => mp.Category)
+                .WithMany(mp => mp.PostsInCategory)
+                .HasForeignKey(fp => fp.Category_ID);
+
+            modelBuilder.Entity<BlogPost>()
+                .Property(x => x.Category_ID)
+                .HasColumnName(GetFieldName("BlogPost", "Category"));
+
+            modelBuilder.Entity<BlogPost>().HasMany<BlogTag>(p => p.Tags)
+                .WithMany(r => r.BackwardForTags)
+                .Map(rp =>
+                {
+                    rp.MapLeftKey("id");
+                    rp.MapRightKey("linked_id");
+                    rp.ToTable(GetLinkTableName("BlogPost", "Tags"));
+                });
+            modelBuilder.Entity<BlogPost>().Ignore(p => p.ImageUrl);
+            modelBuilder.Entity<BlogPost>().Ignore(p => p.ImageUploadPath);
+ 
+            #endregion
+
+            #region BlogCategory mappings
+            modelBuilder.Entity<BlogCategory>()
+                .ToTable(GetTableName("BlogCategory"))
+                .Property(x => x.Id)
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity)
+                .HasColumnName("CONTENT_ITEM_ID");
+           
+		    modelBuilder.Entity<BlogCategory>()
+                .Property(x => x.LastModifiedBy)
+                .HasColumnName("LAST_MODIFIED_BY");
+            
+            modelBuilder.Entity<BlogCategory>()
+                .Property(x => x.StatusTypeId)
+                .HasColumnName("STATUS_TYPE_ID");
+
+			modelBuilder.Entity<BlogCategory>()
+                .HasRequired<StatusType>(x => x.StatusType)
+                .WithMany()
+                .HasForeignKey(x => x.StatusTypeId); 
+
+ 
+            #endregion
+
+            #region BlogTag mappings
+            modelBuilder.Entity<BlogTag>()
+                .ToTable(GetTableName("BlogTag"))
+                .Property(x => x.Id)
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity)
+                .HasColumnName("CONTENT_ITEM_ID");
+           
+		    modelBuilder.Entity<BlogTag>()
+                .Property(x => x.LastModifiedBy)
+                .HasColumnName("LAST_MODIFIED_BY");
+            
+            modelBuilder.Entity<BlogTag>()
+                .Property(x => x.StatusTypeId)
+                .HasColumnName("STATUS_TYPE_ID");
+
+			modelBuilder.Entity<BlogTag>()
+                .HasRequired<StatusType>(x => x.StatusType)
+                .WithMany()
+                .HasForeignKey(x => x.StatusTypeId); 
+
+ 
+            #endregion
+
+            #region FaqItem mappings
+            modelBuilder.Entity<FaqItem>()
+                .ToTable(GetTableName("FaqItem"))
+                .Property(x => x.Id)
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity)
+                .HasColumnName("CONTENT_ITEM_ID");
+           
+		    modelBuilder.Entity<FaqItem>()
+                .Property(x => x.LastModifiedBy)
+                .HasColumnName("LAST_MODIFIED_BY");
+            
+            modelBuilder.Entity<FaqItem>()
+                .Property(x => x.StatusTypeId)
+                .HasColumnName("STATUS_TYPE_ID");
+
+			modelBuilder.Entity<FaqItem>()
                 .HasRequired<StatusType>(x => x.StatusType)
                 .WithMany()
                 .HasForeignKey(x => x.StatusTypeId); 

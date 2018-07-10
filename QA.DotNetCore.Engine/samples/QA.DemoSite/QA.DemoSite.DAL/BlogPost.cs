@@ -5,10 +5,11 @@ using System.Collections;
 using System.Collections.Generic;
 namespace QA.DemoSite.DAL
 {
-    public partial class NewsItem: IQPArticle
+    public partial class BlogPost: IQPArticle
     {
-        public NewsItem()
+        public BlogPost()
         {
+		    Tags = new HashSet<BlogTag>();
         }
 
         public virtual Int32 Id { get; set; }
@@ -21,16 +22,27 @@ namespace QA.DemoSite.DAL
         public virtual StatusType StatusType { get; set; }
 
         public virtual String Title { get; set; }
-        public virtual DateTime? Date { get; set; }
+        public virtual String Brief { get; set; }
+        public virtual DateTime? PostDate { get; set; }
         public virtual String Text { get; set; }
+        public virtual String Image { get; set; }
+        public virtual String YoutubeVideoCode { get; set; }
 		/// <summary>
 		/// 
 		/// </summary>			
-		public virtual NewsCategory Category { get; set; }
+		public virtual BlogCategory Category { get; set; }
 		/// <summary>
 		/// 
 		/// </summary>
 		public virtual Int32? Category_ID { get; set; }
+		/// <summary>
+		/// 
+		/// </summary>
+		public  ICollection<BlogTag> Tags { get; set; }
+		#region Generated Content properties
+        // public string ImageUrl { get; set; }
+        // public string ImageUploadPath { get; set; }
+		#endregion
 	}
 }
 	

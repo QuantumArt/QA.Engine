@@ -62,15 +62,17 @@
       <Column Name="[Title]" Member="Title" DbType="NVarChar(255)" Storage="_Title" />
       <Column Name="[Name]" Member="Name" DbType="NVarChar(255)" Storage="_Name" />
       <Column Name="[PreferredContentId]" Member="PreferredContentId" DbType="Decimal(38,0)" Storage="_PreferredContentId" />
-      <Column Name="[FriendlyDescription]" Member="TypeName" DbType="NVarChar(255)" Storage="_TypeName" />
+      <Column Name="[TypeName]" Member="TypeName" DbType="NVarChar(255)" Storage="_TypeName" />
       <Column Name="[CategoryName]" Member="CategoryName" DbType="NVarChar(255)" Storage="_CategoryName" />
       <Column Name="[Description]" Member="Description" DbType="NVarChar(512)" Storage="_Description" />
       <Column Name="[IconUrl]" Member="IconUrl" DbType="NVarChar(255)" Storage="_IconUrl" />
       <Column Name="[IsPage]" Member="IsPage" DbType="Decimal(18,0)" Storage="_IsPage" />
       <Column Name="[AllowedZones]" Member="AllowedZones" DbType="NVarChar(255)" Storage="_AllowedZones" />
       <Column Name="[FilterPartByUrl]" Member="FilterPartByUrl" DbType="Decimal(18,0)" Storage="_FilterPartByUrl" />
+      <Association Name="Source_QPItemDefinitionConstraint" Member="AllowedItemDefinitions" ThisKey="Id" OtherKey="Source_ID" Storage="_AllowedItemDefinitions" />
       <Association Name="QPDiscriminator_88" Member="ItemDefinitionItemDefinitionArticles" ThisKey="Id" OtherKey="QPDiscriminator_ID" Storage="_ItemDefinitionItemDefinitionArticles" />
       <Association Name="Discriminator_QPAbstractItem" Member="Items" ThisKey="Id" OtherKey="Discriminator_ID" Storage="_Items" />
+      <Association Name="Target_QPItemDefinitionConstraint" Member="AllowDefinition" ThisKey="Id" OtherKey="Target_ID" Storage="_AllowDefinition" />
       <Association Name="StatusType_ContentItem" Member="StatusType" ThisKey="StatusTypeId" OtherKey="Id" IsForeignKey="true" Storage="_StatusType" />
     </Type>
   </Table>
@@ -90,8 +92,8 @@
       <Association Name="StatusType_ContentItem" Member="StatusType" ThisKey="StatusTypeId" OtherKey="Id" IsForeignKey="true" Storage="_StatusType" />
     </Type>
   </Table>
-  <Table Name="dbo.CONTENT_30741_LIVE" Member="NewsItems">
-    <Type Name="QA.DemoSite.DAL.NewsItem">
+  <Table Name="dbo.CONTENT_10609_LIVE" Member="QPItemDefinitionConstraints">
+    <Type Name="QA.DemoSite.DAL.QPItemDefinitionConstraint">
       <Column Name="CONTENT_ITEM_ID" Member="Id" DbType="Decimal(18,0) IDENTITY NOT NULL" IsPrimaryKey="true" IsDbGenerated="true" AutoSync="OnInsert" Storage="_Id" />
       <Column Name="STATUS_TYPE_ID" Member="StatusTypeId" DbType="Decimal(18,0) NOT NULL" Storage="_StatusTypeId" />
       <Column Name="VISIBLE" Member="Visible" DbType="Decimal(18,0) NOT NULL" Storage="_Visible" />
@@ -99,16 +101,15 @@
       <Column Name="CREATED" Member="Created" DbType="DateTime NOT NULL" Storage="_Created" />
       <Column Name="MODIFIED" Member="Modified" DbType="DateTime NOT NULL" Storage="_Modified" />
       <Column Name="LAST_MODIFIED_BY" Member="LastModifiedBy" DbType="Decimal(18,0) NOT NULL" Storage="_LastModifiedBy" />
-      <Column Name="[Title]" Member="Title" DbType="NVarChar(255)" Storage="_Title" />
-      <Column Name="[Date]" Member="Date" DbType="DateTime" Storage="_Date" />
-      <Column Name="[Category]" Member="Category_ID" Storage="_Category" DbType="Decimal(18,0)" />
-      <Column Name="[Text]" Member="Text" DbType="NText" UpdateCheck="Never" Storage="_Text" />
-      <Association Name="Category_NewsItem" Member="Category" Storage="_Category1" ThisKey="Category_ID" OtherKey="Id" IsForeignKey="true" />
+      <Column Name="[Target]" Member="Target_ID" Storage="_Target" DbType="Decimal(18,0)" />
+      <Column Name="[Source]" Member="Source_ID" Storage="_Source" DbType="Decimal(18,0)" />
+      <Association Name="Target_QPItemDefinitionConstraint" Member="Target" Storage="_Target1" ThisKey="Target_ID" OtherKey="Id" IsForeignKey="true" />
+      <Association Name="Source_QPItemDefinitionConstraint" Member="Source" Storage="_Source1" ThisKey="Source_ID" OtherKey="Id" IsForeignKey="true" />
       <Association Name="StatusType_ContentItem" Member="StatusType" ThisKey="StatusTypeId" OtherKey="Id" IsForeignKey="true" Storage="_StatusType" />
     </Type>
   </Table>
-  <Table Name="dbo.CONTENT_30742_LIVE" Member="NewsCategories">
-    <Type Name="QA.DemoSite.DAL.NewsCategory">
+  <Table Name="dbo.CONTENT_30745_LIVE" Member="BlogPosts">
+    <Type Name="QA.DemoSite.DAL.BlogPost">
       <Column Name="CONTENT_ITEM_ID" Member="Id" DbType="Decimal(18,0) IDENTITY NOT NULL" IsPrimaryKey="true" IsDbGenerated="true" AutoSync="OnInsert" Storage="_Id" />
       <Column Name="STATUS_TYPE_ID" Member="StatusTypeId" DbType="Decimal(18,0) NOT NULL" Storage="_StatusTypeId" />
       <Column Name="VISIBLE" Member="Visible" DbType="Decimal(18,0) NOT NULL" Storage="_Visible" />
@@ -117,7 +118,57 @@
       <Column Name="MODIFIED" Member="Modified" DbType="DateTime NOT NULL" Storage="_Modified" />
       <Column Name="LAST_MODIFIED_BY" Member="LastModifiedBy" DbType="Decimal(18,0) NOT NULL" Storage="_LastModifiedBy" />
       <Column Name="[Title]" Member="Title" DbType="NVarChar(255)" Storage="_Title" />
-      <Association Name="Category_NewsItem" Member="NewsByCategory" ThisKey="Id" OtherKey="Category_ID" Storage="_NewsByCategory" />
+      <Column Name="[Brief]" Member="Brief" DbType="NText" UpdateCheck="Never" Storage="_Brief" />
+      <Column Name="[PostDate]" Member="PostDate" DbType="DateTime" Storage="_PostDate" />
+      <Column Name="[Category]" Member="Category_ID" Storage="_Category" DbType="Decimal(18,0)" />
+      <Column Name="[Text]" Member="Text" DbType="NText" UpdateCheck="Never" Storage="_Text" />
+      <Column Name="[Image]" Member="Image" DbType="NVarChar(255)" Storage="_Image" />
+      <Column Name="[YoutubeVideoCode]" Member="YoutubeVideoCode" DbType="NVarChar(255)" Storage="_YoutubeVideoCode" />
+      <Association Name="Category_BlogPost" Member="Category" Storage="_Category1" ThisKey="Category_ID" OtherKey="Id" IsForeignKey="true" />
+      <Association Name="BlogPost_140" Member="BlogPostyBlogTegiArticles" ThisKey="Id" OtherKey="BlogPost_ID" Storage="_BlogPostyBlogTegiArticles" />
+      <Association Name="StatusType_ContentItem" Member="StatusType" ThisKey="StatusTypeId" OtherKey="Id" IsForeignKey="true" Storage="_StatusType" />
+    </Type>
+  </Table>
+  <Table Name="dbo.CONTENT_30746_LIVE" Member="BlogCategories">
+    <Type Name="QA.DemoSite.DAL.BlogCategory">
+      <Column Name="CONTENT_ITEM_ID" Member="Id" DbType="Decimal(18,0) IDENTITY NOT NULL" IsPrimaryKey="true" IsDbGenerated="true" AutoSync="OnInsert" Storage="_Id" />
+      <Column Name="STATUS_TYPE_ID" Member="StatusTypeId" DbType="Decimal(18,0) NOT NULL" Storage="_StatusTypeId" />
+      <Column Name="VISIBLE" Member="Visible" DbType="Decimal(18,0) NOT NULL" Storage="_Visible" />
+      <Column Name="ARCHIVE" Member="Archive" DbType="Decimal(18,0) NOT NULL" Storage="_Archive" />
+      <Column Name="CREATED" Member="Created" DbType="DateTime NOT NULL" Storage="_Created" />
+      <Column Name="MODIFIED" Member="Modified" DbType="DateTime NOT NULL" Storage="_Modified" />
+      <Column Name="LAST_MODIFIED_BY" Member="LastModifiedBy" DbType="Decimal(18,0) NOT NULL" Storage="_LastModifiedBy" />
+      <Column Name="[Title]" Member="Title" DbType="NVarChar(255)" Storage="_Title" />
+      <Column Name="[SortOrder]" Member="SortOrder" DbType="Decimal(38,0)" Storage="_SortOrder" />
+      <Association Name="Category_BlogPost" Member="PostsInCategory" ThisKey="Id" OtherKey="Category_ID" Storage="_PostsInCategory" />
+      <Association Name="StatusType_ContentItem" Member="StatusType" ThisKey="StatusTypeId" OtherKey="Id" IsForeignKey="true" Storage="_StatusType" />
+    </Type>
+  </Table>
+  <Table Name="dbo.CONTENT_30747_LIVE" Member="BlogTags">
+    <Type Name="QA.DemoSite.DAL.BlogTag">
+      <Column Name="CONTENT_ITEM_ID" Member="Id" DbType="Decimal(18,0) IDENTITY NOT NULL" IsPrimaryKey="true" IsDbGenerated="true" AutoSync="OnInsert" Storage="_Id" />
+      <Column Name="STATUS_TYPE_ID" Member="StatusTypeId" DbType="Decimal(18,0) NOT NULL" Storage="_StatusTypeId" />
+      <Column Name="VISIBLE" Member="Visible" DbType="Decimal(18,0) NOT NULL" Storage="_Visible" />
+      <Column Name="ARCHIVE" Member="Archive" DbType="Decimal(18,0) NOT NULL" Storage="_Archive" />
+      <Column Name="CREATED" Member="Created" DbType="DateTime NOT NULL" Storage="_Created" />
+      <Column Name="MODIFIED" Member="Modified" DbType="DateTime NOT NULL" Storage="_Modified" />
+      <Column Name="LAST_MODIFIED_BY" Member="LastModifiedBy" DbType="Decimal(18,0) NOT NULL" Storage="_LastModifiedBy" />
+      <Column Name="[Title]" Member="Title" DbType="NVarChar(255)" Storage="_Title" />
+      <Association Name="StatusType_ContentItem" Member="StatusType" ThisKey="StatusTypeId" OtherKey="Id" IsForeignKey="true" Storage="_StatusType" />
+    </Type>
+  </Table>
+  <Table Name="dbo.CONTENT_30749_LIVE" Member="FaqItems">
+    <Type Name="QA.DemoSite.DAL.FaqItem">
+      <Column Name="CONTENT_ITEM_ID" Member="Id" DbType="Decimal(18,0) IDENTITY NOT NULL" IsPrimaryKey="true" IsDbGenerated="true" AutoSync="OnInsert" Storage="_Id" />
+      <Column Name="STATUS_TYPE_ID" Member="StatusTypeId" DbType="Decimal(18,0) NOT NULL" Storage="_StatusTypeId" />
+      <Column Name="VISIBLE" Member="Visible" DbType="Decimal(18,0) NOT NULL" Storage="_Visible" />
+      <Column Name="ARCHIVE" Member="Archive" DbType="Decimal(18,0) NOT NULL" Storage="_Archive" />
+      <Column Name="CREATED" Member="Created" DbType="DateTime NOT NULL" Storage="_Created" />
+      <Column Name="MODIFIED" Member="Modified" DbType="DateTime NOT NULL" Storage="_Modified" />
+      <Column Name="LAST_MODIFIED_BY" Member="LastModifiedBy" DbType="Decimal(18,0) NOT NULL" Storage="_LastModifiedBy" />
+      <Column Name="[Question]" Member="Question" DbType="NVarChar(255)" Storage="_Question" />
+      <Column Name="[Answer]" Member="Answer" DbType="NText" UpdateCheck="Never" Storage="_Answer" />
+      <Column Name="[SortOrder]" Member="SortOrder" DbType="Decimal(38,0)" Storage="_SortOrder" />
       <Association Name="StatusType_ContentItem" Member="StatusType" ThisKey="StatusTypeId" OtherKey="Id" IsForeignKey="true" Storage="_StatusType" />
     </Type>
   </Table>
@@ -127,6 +178,14 @@
       <Column Name="LINKED_ITEM_ID" DbType="Decimal(18,0) NOT NULL" IsPrimaryKey="true" Member="QPDiscriminator_ID2" Storage="_LINKED_ITEM_ID" />
       <Association Name="QPDiscriminator_88" Member="QPDiscriminator" Storage="_QPDiscriminator1" ThisKey="QPDiscriminator_ID" OtherKey="Id" IsForeignKey="true" />
       <Association Name="QPDiscriminator_88" Member="QPDiscriminator2" Storage="_QPDiscriminator12" ThisKey="QPDiscriminator_ID2" OtherKey="Id" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.LINK_140" Member="BlogPostyBlogTegiArticles">
+    <Type Name="QA.DemoSite.DAL.BlogPostyBlogTegiArticle">
+      <Column Name="ITEM_ID" DbType="Decimal(18,0) NOT NULL" IsPrimaryKey="true" Member="BlogPost_ID" Storage="_ITEM_ID" />
+      <Column Name="LINKED_ITEM_ID" DbType="Decimal(18,0) NOT NULL" IsPrimaryKey="true" Member="BlogTag_ID" Storage="_LINKED_ITEM_ID" />
+      <Association Name="BlogPost_140" Member="BlogPost" Storage="_BlogPost1" ThisKey="BlogPost_ID" OtherKey="Id" IsForeignKey="true" />
+      <Association Name="BlogTag_140" Member="BlogTag" Storage="_BlogTag1" ThisKey="BlogTag_ID" OtherKey="Id" IsForeignKey="true" />
     </Type>
   </Table>
   <Function Name="dbo.qp_abs_time" Method="AbsTime" IsComposable="true">

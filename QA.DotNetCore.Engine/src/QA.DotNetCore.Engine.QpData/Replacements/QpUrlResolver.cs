@@ -38,9 +38,13 @@ namespace QA.DotNetCore.Engine.QpData.Replacements
                 return null;
 
             var baseUrl = new StringBuilder();
-            baseUrl.Append(LibraryUrl(siteId, removeScheme));
-            if (!attr.UseSiteLibrary)
+            if (attr.UseSiteLibrary)
             {
+                baseUrl.Append(UploadUrl(siteId, removeScheme));
+            }
+            else
+            {
+                baseUrl.Append(LibraryUrl(siteId, removeScheme));
                 if (baseUrl[baseUrl.Length - 1] != '/')
                 {
                     baseUrl.Append("/");

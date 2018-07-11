@@ -5,7 +5,6 @@ namespace QA.DemoSite.ViewModels
     public class BlogDetailsViewModel
     {
         public string Title { get; set; }
-        public string Brief { get; set; }
         public string CategoryName { get; set; }
         public string Date { get; set; }
         public List<string> Tags { get; set; }

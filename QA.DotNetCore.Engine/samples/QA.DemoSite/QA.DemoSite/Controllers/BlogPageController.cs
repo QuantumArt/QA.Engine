@@ -49,11 +49,10 @@ namespace QA.DemoSite.Controllers
             return new BlogDetailsViewModel
             {
                 Title = dto.Title,
-                Brief = dto.Brief,
                 Date = dto.PostDate.ToString("dd.MM.yyyy"),
                 CategoryName = dto.Category?.Title,
                 Image = dto.Image,
-                YoutubeVideoCode = dto.Image,
+                YoutubeVideoCode = dto.YoutubeVideoCode,
                 Tags = dto.Tags.Select(t => t.Title).ToList(),
                 Text = dto.Text
             };

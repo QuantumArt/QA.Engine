@@ -82,7 +82,7 @@ namespace QA.DemoSite
             app.UseStaticFiles();
             app.UseCacheTagsInvalidation(invalidation =>
             {
-                invalidation.AddTracker<QpContentCacheTracker>();
+                invalidation.RegisterScoped<QpContentCacheTracker>();
             });
             app.UseSiteStructure();
 

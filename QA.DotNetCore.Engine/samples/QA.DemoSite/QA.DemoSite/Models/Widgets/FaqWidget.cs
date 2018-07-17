@@ -1,13 +1,11 @@
+using QA.DemoSite.Interfaces.PagesAndWidgets;
 using QA.DotNetCore.Engine.QpData;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace QA.DemoSite.Models.Widgets
 {
-    
-    public class FaqWidget : AbstractWidget
+
+    public class FaqWidget : AbstractWidget, IFaqWidget
     {
         public string Header => GetDetail("Header", string.Empty);
 

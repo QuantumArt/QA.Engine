@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net471</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="QA.DotNetCore.Engine.QpData" Version="0.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\QA.DemoSite.Interfaces\QA.DemoSite.Interfaces.csproj" />
+  </ItemGroup>
+</Project>

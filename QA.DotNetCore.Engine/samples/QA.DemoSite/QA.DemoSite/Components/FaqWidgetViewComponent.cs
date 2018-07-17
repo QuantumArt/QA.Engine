@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using QA.DemoSite.Interfaces;
 using QA.DemoSite.Models.Widgets;
 using QA.DemoSite.ViewModels;
+using QA.DemoSite.ViewModels.Builders;
 using QA.DotNetCore.Engine.Widgets;
 using System;
 using System.Collections.Generic;
@@ -12,28 +13,17 @@ namespace QA.DemoSite.Components
 {
     public class FaqWidgetViewComponent : WidgetComponentBase<FaqWidget>
     {
-        public FaqWidgetViewComponent(IFaqService faqService)
+        public FaqWidgetViewComponent(FaqWidgetViewModelBuilder faqWidgetViewModelBuilder)
         {
-            FaqService = faqService;
+            FaqWidgetViewModelBuilder = faqWidgetViewModelBuilder;
         }
 
-        public IFaqService FaqService { get; }
+        public FaqWidgetViewModelBuilder FaqWidgetViewModelBuilder { get; }
 
         public override Task<IViewComponentResult> RenderAsync(FaqWidget widget, IDictionary<string, object> argumets)
         {
-            return Task.FromResult<IViewComponentResult>(View(PrepareViewModel(widget)));
-        }
-
-        private FaqWidgetViewModel PrepareViewModel(FaqWidget widget)
-        {
-            var vm = new FaqWidgetViewModel { Id = widget.Id, Header = widget.Header };
-            if (widget.Questions.Any())
-            {
-                vm.Items.AddRange(FaqService.GetItems(widget.Questions)
-                    .OrderBy(i => i.SortOrder.GetValueOrDefault(Int32.MaxValue))
-                    .Select(i => new FaqWidgetItemViewModel { Id = i.Id, Answer = i.Answer, Question = i.Question }));
-            }
-            return vm;
+            var vm = FaqWidgetViewModelBuilder.Build(widget);
+            return Task.FromResult<IViewComponentResult>(View(vm));
         }
     }
 }

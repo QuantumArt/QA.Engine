@@ -9,6 +9,7 @@ using QA.DemoSite.DAL;
 using QA.DemoSite.Interfaces;
 using QA.DemoSite.Models.Pages;
 using QA.DemoSite.Services;
+using QA.DemoSite.ViewModels.Builders;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.QpData.Configuration;
 using QA.DotNetCore.Engine.QpData.Settings;
@@ -48,8 +49,14 @@ namespace QA.DemoSite
                 new System.Data.SqlClient.SqlConnection(qpConnection),
                 true));
 
+            //сервисы слоя данных
             services.AddScoped<IFaqService, FaqService>();
             services.AddScoped<IBlogService, BlogService>();
+
+            //сервисы построения view-model
+            services.AddScoped<BlogPageViewModelBuilder>();
+            services.AddScoped<FaqWidgetViewModelBuilder>();
+            services.AddSingleton<MenuViewModelBuilder>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILogger logger)

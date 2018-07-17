@@ -1,76 +1,27 @@
 using Microsoft.AspNetCore.Mvc;
 using QA.DemoSite.Models.Widgets;
-using QA.DemoSite.ViewModels;
+using QA.DemoSite.ViewModels.Builders;
 using QA.DotNetCore.Engine.QpData;
 using QA.DotNetCore.Engine.Routing;
 using QA.DotNetCore.Engine.Widgets;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace QA.DemoSite.Components
 {
     public class TopMenuWidgetViewComponent : WidgetComponentBase<TopMenuWidget>
     {
-        private const int MenuDepth = 3;
-        public override async Task<IViewComponentResult> RenderAsync(TopMenuWidget widget, IDictionary<string, object> arguments)
+        public TopMenuWidgetViewComponent(MenuViewModelBuilder menuViewModelBuilder)
         {
-            await Task.Yield();
-
-            var startPage = ViewContext.GetStartPage();
-            if (startPage == null) return null;
-
-            var model = new MenuViewModel();
-
-            var topLevelItems = startPage.GetChildren()
-                .Where(w => w.IsPage)
-                .OfType<AbstractPage>()
-                .Where(p => p.IsVisible)
-                .OrderBy(o => o.SortOrder);
-
-            var ci = ViewContext.GetCurrentItem<AbstractPage>();
-
-            foreach (var tlitem in topLevelItems)
-            {
-                var resultBuildMenu = BuildMenu(tlitem, MenuDepth, ci.Id);
-                model.Items.Add(new MenuItem
-                {
-                    Title = tlitem.Title,
-                    Alias = tlitem.Alias,
-                    Href = tlitem.GetUrl(),
-                    Children = resultBuildMenu,
-                    IsActive = tlitem.Id == ci.Id,
-                    HasActiveChild = resultBuildMenu.Where(w => w.IsActive).Any()
-                });
-            }
-
-            model.Items = model.Items?.OrderBy(o => o.Order).ToList();
-
-            return View(model);
+            MenuViewModelBuilder = menuViewModelBuilder;
         }
 
+        public MenuViewModelBuilder MenuViewModelBuilder { get; }
 
-        private static List<MenuItem> BuildMenu(AbstractPage item, int level, int currentId)
+        public override Task<IViewComponentResult> RenderAsync(TopMenuWidget widget, IDictionary<string, object> arguments)
         {
-            if (level <= 0)
-            {
-                return null;
-            }
-
-            var itemList = new List<MenuItem>();
-            foreach (var itemlv in item.GetChildren().Where(w => w.IsPage).OfType<AbstractPage>().Where(p => p.IsVisible).OrderBy(o => o.SortOrder))
-            {
-                var resultBuidMenu = BuildMenu(itemlv, level - 1, currentId);
-                itemList.Add(new MenuItem
-                {
-                    Title = itemlv.Title,
-                    Alias = itemlv.Alias,
-                    Href = itemlv.GetUrl(),
-                    Children = resultBuidMenu,
-                    IsActive = itemlv.Id == currentId || resultBuidMenu.Where(w => w.IsActive).Any()
-                });
-            }
-            return itemList;
+            var vm = MenuViewModelBuilder.Build(ViewContext.GetStartPage(), ViewContext.GetCurrentItem<AbstractPage>());
+            return Task.FromResult<IViewComponentResult>(View(vm));
         }
     }
 }

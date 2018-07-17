@@ -7,9 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DemoSite", "QA.DemoSite\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DemoSite.DAL", "QA.DemoSite.DAL\QA.DemoSite.DAL.csproj", "{07391BE3-6523-4820-8028-D93E64CE6985}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QA.DemoSite.Interfaces", "QA.DemoSite.Interfaces\QA.DemoSite.Interfaces.csproj", "{A509DA3F-D373-4630-87B7-783A8DFD9227}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DemoSite.Interfaces", "QA.DemoSite.Interfaces\QA.DemoSite.Interfaces.csproj", "{A509DA3F-D373-4630-87B7-783A8DFD9227}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QA.DemoSite.Services", "QA.DemoSite.Services\QA.DemoSite.Services.csproj", "{359FD010-B2CA-4343-9D31-F53CD3500D28}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DemoSite.Services", "QA.DemoSite.Services\QA.DemoSite.Services.csproj", "{359FD010-B2CA-4343-9D31-F53CD3500D28}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QA.DemoSite.ViewModels", "QA.DemoSite.ViewModels\QA.DemoSite.ViewModels.csproj", "{C6DB50EB-5451-4F2B-BB67-725DC95644A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{359FD010-B2CA-4343-9D31-F53CD3500D28}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{359FD010-B2CA-4343-9D31-F53CD3500D28}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{359FD010-B2CA-4343-9D31-F53CD3500D28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6DB50EB-5451-4F2B-BB67-725DC95644A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6DB50EB-5451-4F2B-BB67-725DC95644A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6DB50EB-5451-4F2B-BB67-725DC95644A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6DB50EB-5451-4F2B-BB67-725DC95644A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

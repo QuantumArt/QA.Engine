@@ -69,7 +69,7 @@ FROM [|AbTestClientRedirect|] r
 JOIN [|AbTestClientRedirectContainer|] rcont on rcont.content_item_id = r.[|AbTestClientRedirect.Container|]
 ";
 
-        public string AbTestNetName => "AbTestScript";
+        public string AbTestNetName => "AbTest";
 
         public string AbTestContainerNetName => "AbTestScriptContainer";
 

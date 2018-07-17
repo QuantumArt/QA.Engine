@@ -8,8 +8,8 @@ namespace DemoWebSite.PagesAndWidgets.Pages
     {
         public string Text { get { return GetDetail("Text", String.Empty); } }
 
-        [LibraryUrl]
-        public virtual string Picture { get { return GetDetail("Picture", String.Empty); } }
+        [LibraryUrl("Picture")]
+        public virtual string PictureUrl { get { return GetDetail("Picture", String.Empty); } }
 
         [LibraryUrl]
         public virtual string Icon { get { return GetDetail("Icon", String.Empty); } }

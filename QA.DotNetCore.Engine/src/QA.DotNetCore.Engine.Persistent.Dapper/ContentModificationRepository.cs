@@ -19,6 +19,7 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper
 SELECT 
 	c.[CONTENT_ID] as ContentId,
 	c.CONTENT_NAME as ContentName,
+    c.SITE_ID as SiteId,
 	cm.[LIVE_MODIFIED] as LiveModified,
 	cm.[STAGE_MODIFIED] as StageModified
 FROM [CONTENT_MODIFICATION] cm

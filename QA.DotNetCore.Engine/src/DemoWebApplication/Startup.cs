@@ -1,3 +1,4 @@
+using DemoWebApplication.Templates;
 using DemoWebSite.PagesAndWidgets;
 using DemoWebSite.PagesAndWidgets.Pages;
 using Microsoft.AspNetCore.Builder;
@@ -7,24 +8,22 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using QA.DotNetCore.Caching;
-using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.OnScreen;
+using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.AbTesting.Configuration;
 using QA.DotNetCore.Engine.CacheTags;
-using QA.DotNetCore.Engine.Interfaces;
+using QA.DotNetCore.Engine.CacheTags.Configuration;
 using QA.DotNetCore.Engine.OnScreen.Configuration;
-using QA.DotNetCore.Engine.Persistent.Dapper;
-using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Configuration;
 using QA.DotNetCore.Engine.QpData.Settings;
+using QA.DotNetCore.Engine.Routing;
 using QA.DotNetCore.Engine.Routing.Configuration;
+using QA.DotNetCore.Engine.Routing.UrlResolve;
+using QA.DotNetCore.Engine.Targeting;
 using QA.DotNetCore.Engine.Targeting.Configuration;
 using Quantumart.QPublishing.Database;
-using QA.DotNetCore.Engine.CacheTags.Configuration;
 using System;
-using DemoWebApplication.Templates;
 
 namespace DemoWebApplication
 {
@@ -61,6 +60,12 @@ namespace DemoWebApplication
                 options.TypeFinder.RegisterFromAssemblyContaining<RootPage, IAbstractItem>();
             });
 
+            //services.AddSiteStructureEngineViaXml(options =>
+            //{
+            //    options.Settings.FilePath = @"C:\git\QA.Engine\QA.DotNetCore.Engine\src\DemoWebApplication\pages_and_widgets.xml";
+            //    options.TypeFinder.RegisterFromAssemblyContaining<XmlRootPage, XmlAbstractItem>();
+            //});
+
             services.AddAbTestServices(options => {
                 //дублируются некоторые опции из AddSiteStructureEngine, потому что АБ-тесты могут быть или не быть независимо от структуры сайта
                 options.QpConnectionString = qpConnection;
@@ -93,14 +98,20 @@ namespace DemoWebApplication
                 }
             });
 
-            services.AddSingleton<CacheTagUtilities>();
+            services.AddScoped<CacheTagUtilities>();
 
-            services.AddSingleton(typeof(DemoRegionTargetingProvider));
-            services.AddSingleton(typeof(DemoCultureTargetingProvider));
+            //services.AddSingleton(typeof(DemoRegionTargetingProvider));
+            //services.AddSingleton(typeof(DemoCultureTargetingProvider));
             services.AddSingleton(typeof(DemoRegionFilter));
             services.AddSingleton(typeof(DemoCultureFilter));
 
             services.AddTargeting();
+
+            
+            services.AddSingleton<UrlTokenResolverFactory>();
+            services.AddSingleton<UrlTokenTargetingProvider>();
+            services.AddSingleton<DemoCultureRegionPossibleValuesProvider>();
+            services.AddSingleton(Configuration.GetSection("UrlTokenConfig").Get<UrlTokenConfig>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -130,8 +141,10 @@ namespace DemoWebApplication
 
             app.UseTargeting(targeting =>
             {
-                targeting.Add<DemoCultureTargetingProvider>();
-                targeting.Add<DemoRegionTargetingProvider>();
+                //targeting.Add<DemoCultureTargetingProvider>();
+                //targeting.Add<DemoRegionTargetingProvider>();
+                targeting.Add<UrlTokenTargetingProvider>();
+                targeting.AddPossibleValues<DemoCultureRegionPossibleValuesProvider>();
             });
 
             app.UseSiteSctructureFilters(filters =>

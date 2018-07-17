@@ -6,6 +6,6 @@ namespace DemoWebSite.PagesAndWidgets.Pages
 {
     public class BlogPageType : TextPage
     {
-        public override string Picture => base.Picture;
+        public override string PictureUrl => base.PictureUrl;
     }
 }

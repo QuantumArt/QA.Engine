@@ -34,7 +34,7 @@ namespace DemoWebSite.PagesAndWidgets.Helpers
         private static void VisitNodes(StringBuilder sb, IAbstractItem node, ITargetingFilter filter)
         {
             if (node.IsPage)
-                sb.Append($"<li> <a href = {node.GetTrail()}> {node.Title} </a></li>"); 
+                sb.Append($"<li> <a href = {node.GetUrl()}> {node.Title} </a></li>"); 
             else
                 sb.Append($"<li> {node.Title} </li>");
 

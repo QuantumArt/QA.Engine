@@ -1,22 +1,27 @@
 using QA.DotNetCore.Engine.Abstractions.Targeting;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace QA.DotNetCore.Engine.Abstractions
 {
     public class AbstractItemStorage
     {
         private Dictionary<int, IAbstractItem> _items = new Dictionary<int, IAbstractItem>();
-        public IAbstractItem Root { get; private set; }
+        public IServiceProvider ServiceProvider { get; }
+        public IAbstractItem Root { get; }
 
-        public AbstractItemStorage(IAbstractItem root)
+        public AbstractItemStorage(IAbstractItem root, IServiceProvider serviceProvider)
         {
             Root = root;
+            ServiceProvider = serviceProvider;
             AddItemRecursive(root);
         }
 
         private void AddItemRecursive(IAbstractItem item)
         {
+            item.Storage = this;
             _items[item.Id] = item;
             foreach (var child in item.GetChildren())
             {

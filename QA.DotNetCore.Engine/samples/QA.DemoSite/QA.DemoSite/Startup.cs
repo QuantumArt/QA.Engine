@@ -8,6 +8,7 @@ using QA.DemoSite.DAL;
 using QA.DemoSite.Interfaces;
 using QA.DemoSite.Models.Pages;
 using QA.DemoSite.Services;
+using QA.DemoSite.Templates;
 using QA.DemoSite.ViewModels.Builders;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.CacheTags;
@@ -61,6 +62,7 @@ namespace QA.DemoSite
             services.AddSingleton<MenuViewModelBuilder>();
 
             //работа с кеш-тэгами
+            services.AddScoped<CacheTagUtilities>();
             services.AddCacheTagServices(options =>
             {
                 if (qpSettings.IsStage)

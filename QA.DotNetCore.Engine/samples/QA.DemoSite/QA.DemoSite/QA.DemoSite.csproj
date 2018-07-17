@@ -25,6 +25,7 @@
     <ProjectReference Include="..\QA.DemoSite.DAL\QA.DemoSite.DAL.csproj" />
     <ProjectReference Include="..\QA.DemoSite.Interfaces\QA.DemoSite.Interfaces.csproj" />
     <ProjectReference Include="..\QA.DemoSite.Services\QA.DemoSite.Services.csproj" />
+    <ProjectReference Include="..\QA.DemoSite.Templates\QA.DemoSite.Templates.csproj" />
     <ProjectReference Include="..\QA.DemoSite.ViewModels\QA.DemoSite.ViewModels.csproj" />
   </ItemGroup>
 

@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DemoSite.Services", "QA.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QA.DemoSite.ViewModels", "QA.DemoSite.ViewModels\QA.DemoSite.ViewModels.csproj", "{C6DB50EB-5451-4F2B-BB67-725DC95644A5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QA.DemoSite.Templates", "QA.DemoSite.Templates\QA.DemoSite.Templates.csproj", "{022841AF-F0DA-46A7-A620-77FFF8CF8F8E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{C6DB50EB-5451-4F2B-BB67-725DC95644A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6DB50EB-5451-4F2B-BB67-725DC95644A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6DB50EB-5451-4F2B-BB67-725DC95644A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{022841AF-F0DA-46A7-A620-77FFF8CF8F8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{022841AF-F0DA-46A7-A620-77FFF8CF8F8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{022841AF-F0DA-46A7-A620-77FFF8CF8F8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{022841AF-F0DA-46A7-A620-77FFF8CF8F8E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

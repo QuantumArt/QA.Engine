@@ -12,19 +12,21 @@ namespace QA.DemoSite.ViewModels
             var result = new List<BreadcrumbsItemViewModel>();
             if (additionalBreadcrumb != null)
                 result.Add(new BreadcrumbsItemViewModel { Title = additionalBreadcrumb });
-
-            while (!(currentPage is IStartPage))
+            if (currentPage != null)
             {
-                if (currentPage.IsPage)
-                    result.Add(new BreadcrumbsItemViewModel { Title = currentPage.Title, Url = currentPage.GetUrl() });
-                currentPage = currentPage.Parent;
+                while (!(currentPage is IStartPage))
+                {
+                    if (currentPage.IsPage)
+                        result.Add(new BreadcrumbsItemViewModel { Title = currentPage.Title, Url = currentPage.GetUrl() });
+                    currentPage = currentPage.Parent;
+                }
+                if (result.Any())
+                {
+                    result.First().IsActive = true;
+                    result.First().Url = null;
+                }
+                result.Reverse();
             }
-            if (result.Any())
-            {
-                result.First().IsActive = true;
-                result.First().Url = null;
-            }
-            result.Reverse();
             Items = result;
         }
 

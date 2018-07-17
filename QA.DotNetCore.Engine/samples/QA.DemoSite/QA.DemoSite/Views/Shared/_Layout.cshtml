@@ -46,7 +46,7 @@
 <body>
   <div id="fakeLoader"></div>
 
-  @await Component.InvokeAsync("Menu")
+  @await Component.WidgetZone(Html, "SiteHeaderZone")
 
   @RenderBody()
 

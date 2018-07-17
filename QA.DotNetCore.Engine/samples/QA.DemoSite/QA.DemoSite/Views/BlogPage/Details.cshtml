@@ -9,13 +9,7 @@
         </div>
       </div>
 
-      @*<div class="col-md-6">
-        <ul class="breadcrumb">
-          <li><span>You are here:</span></li>
-          <li><a href="#">Home</a></li>
-          <li class="active">Blog Details</li>
-        </ul>
-      </div>*@
+      @await Component.InvokeAsync("Breadcrumbs", Model.Title)
     </div>
   </div>
 </div>

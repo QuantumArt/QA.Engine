@@ -1,17 +1,19 @@
 using Microsoft.AspNetCore.Mvc;
+using QA.DemoSite.Models.Widgets;
 using QA.DemoSite.ViewModels;
 using QA.DotNetCore.Engine.QpData;
 using QA.DotNetCore.Engine.Routing;
+using QA.DotNetCore.Engine.Widgets;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace QA.DemoSite.Components
 {
-    public class MenuViewComponent : ViewComponent
+    public class TopMenuWidgetViewComponent : WidgetComponentBase<TopMenuWidget>
     {
         private const int MenuDepth = 3;
-        public async Task<IViewComponentResult> InvokeAsync()
+        public override async Task<IViewComponentResult> RenderAsync(TopMenuWidget widget, IDictionary<string, object> arguments)
         {
             await Task.Yield();
 

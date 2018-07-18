@@ -8,6 +8,7 @@ import watchOnScreen from './onScreenEditControls';
 import watchMoveWidget from './moveWidgetSagas';
 import watchAbTests from './abTestsSagas';
 import watchWidgetCreationWizard from './widgetCreationWizardSagas';
+import watchWidgetScreen from './widgetScreenSagas';
 
 export default function* rootSaga() {
   yield all([
@@ -20,5 +21,6 @@ export default function* rootSaga() {
     watchAbTests(),
     watchMoveWidget(),
     watchWidgetCreationWizard(),
+    watchWidgetScreen(),
   ]);
 }

@@ -12,11 +12,21 @@ const findChildComponents = (currentComponent, allComponents, allOpened) => {
   return directChildren;
 };
 
-const buildTree = (componentsList, disabledComponents = [], allOpened = false) => {
+const getWidgetTypeIconSrc = (component, availableWidgets) => {
+  if (availableWidgets === null || availableWidgets.length === 0) { return null; }
+  const availableWidget = _.find(availableWidgets, { discriminator: component.properties.widgetType });
+  if (availableWidget && availableWidget.iconUrl) { return availableWidget.iconUrl; }
+  return null;
+};
+
+const buildTree = (componentsList, disabledComponents = [], allOpened = false, availableWidgets = []) => {
   const tree = [];
   const componentsClone = _.cloneDeep(componentsList);
   _.forEach(componentsClone, (component) => {
     component.isDisabled = _.indexOf(disabledComponents, component.onScreenId) !== -1;
+    if (component.type === 'widget') {
+      component.properties.widgetTypeIconSrc = getWidgetTypeIconSrc(component, availableWidgets);
+    }
   });
   const rootComponents = _.filter(componentsClone, c => c.parentOnScreenId === 'page');
   _.forEach(rootComponents, (component) => {
@@ -30,6 +40,10 @@ const buildTree = (componentsList, disabledComponents = [], allOpened = false) =
 
   return tree;
 };
+
+// const buildWidgetTree = (componentsList, disabledComponents = [], allOpened = false) => {
+//   const fullTree = buildTree(componentsList, disabledComponents, allOpened);
+// };
 
 
 export default buildTree;

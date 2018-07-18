@@ -23,6 +23,11 @@ namespace QA.DotNetCore.Engine.Xml
             return filter == null ? Children : Children.Pipe(filter);
         }
 
+        public override object GetMetadata(string key)
+        {
+            return null;
+        }
+
         private const string AliasAttrKey = "Alias";
         private const string TitleAttrKey = "Title";
         private const string SortOrderAttrKey = "Order";

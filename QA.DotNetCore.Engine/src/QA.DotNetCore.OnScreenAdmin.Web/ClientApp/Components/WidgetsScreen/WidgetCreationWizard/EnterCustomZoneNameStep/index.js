@@ -50,7 +50,9 @@ const EnterCustomZoneNameStep = ({
         value={customZoneName}
         onChange={onChangeCustomZoneName}
       />
-      <Button raised onClick={() => {onConfirmCustomZoneName(customZoneName)}}>Continue</Button>
+      <Button 
+      variant="raised"
+      onClick={() => {onConfirmCustomZoneName(customZoneName)}}>Continue</Button>
     </Toolbar>
     
   </Fragment>

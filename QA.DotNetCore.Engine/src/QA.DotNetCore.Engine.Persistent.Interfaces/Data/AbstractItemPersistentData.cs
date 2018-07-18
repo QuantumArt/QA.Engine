@@ -13,5 +13,6 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces.Data
         public string Discriminator { get; set; }
         public bool IsPage { get; set; }
         public int? VersionOfId { get; set; }
+        public bool Published { get; set; }
     }
 }

@@ -186,7 +186,7 @@ namespace QA.DotNetCore.Engine.Widgets
         private static void RenderOnScreenModeWidgetWrapperStart(bool isWidgetEditMode, IHtmlContentBuilder builder, IAbstractItem widget)
         {
             if (!isWidgetEditMode) return;
-            builder.AppendHtml($"<div data-qa-component-type=\"widget\" data-qa-widget-id=\"{widget.Id}\" data-qa-widget-alias=\"{widget.Alias}\" data-qa-widget-title=\"{widget.Title}\">");
+            builder.AppendHtml($"<div data-qa-component-type=\"widget\" data-qa-widget-id=\"{widget.Id}\" data-qa-widget-alias=\"{widget.Alias}\" data-qa-widget-title=\"{widget.Title}\" data-qa-widget-type=\"{widget.GetMetadata(OnScreenWidgetMetadataKeys.Type)}\" data-qa-widget-published=\"{widget.GetMetadata(OnScreenWidgetMetadataKeys.Published)?.ToString()?.ToLower()}\">");
         }
 
         private static void RenderOnScreenModeZoneWrapperStart(bool isWidgetEditMode, string zoneName, IHtmlContentBuilder builder)

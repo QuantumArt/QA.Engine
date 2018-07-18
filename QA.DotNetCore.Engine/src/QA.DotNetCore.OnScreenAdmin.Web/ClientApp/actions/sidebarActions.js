@@ -3,7 +3,7 @@ import {
   TOGGLE_LEFT_POSITION,
   TOGGLE_RIGHT_POSITION,
   TOGGLE_TAB,
-  // WIDGET_SCREEN_CHANGE_SEARCH_TEXT,
+  SAVE_CORDS,
 } from './actionTypes';
 
 export function toggleState() {
@@ -18,7 +18,18 @@ export function toggleRightPosition() {
   return { type: TOGGLE_RIGHT_POSITION };
 }
 
-
 export function toggleTab(value) {
   return { type: TOGGLE_TAB, value };
+}
+
+export function saveCords(cx, cy, nx, ny) {
+  return {
+    type: SAVE_CORDS,
+    payload: {
+      componentX: cx,
+      componentY: cy,
+      nodeX: nx,
+      nodeY: ny,
+    },
+  };
 }

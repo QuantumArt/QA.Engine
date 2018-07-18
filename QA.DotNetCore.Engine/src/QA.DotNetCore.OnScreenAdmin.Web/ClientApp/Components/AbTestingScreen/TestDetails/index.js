@@ -1,8 +1,10 @@
 import React, { Fragment } from 'react';
 import { v4 } from 'uuid';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import { withStyles } from 'material-ui/styles';
 import Typography from 'material-ui/Typography';
+import Divider from 'material-ui/Divider';
 import TestCaseDetails from '../TestCaseDetails';
 
 const styles = theme => ({
@@ -11,6 +13,20 @@ const styles = theme => ({
     display: 'flex',
     alignItems: 'center',
     marginBottom: 20,
+  },
+  DateSection: {
+    fontSize: theme.typography.fontSize,
+  },
+  DateSectionItem: {
+    margin: '10px 0',
+  },
+  DateSectionTitle: {
+    marginBottom: 5,
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  DateSectionContent: {
+    fontSize: 12,
   },
 });
 
@@ -24,9 +40,17 @@ const TestDetails = (props) => {
     globalStopped,
     sessionStopped,
     id,
+    startDate,
+    endDate,
   } = props;
   const variantIsActive = i => i === choice;
-
+  const startDateFormated = startDate ?
+    moment(startDate).format('MMMM Do YYYY, h:mm a').toString() :
+    null;
+  const endDateFormated = endDate ?
+    moment(endDate).format('MMMM Do YYYY, h:mm a').toString() :
+    null;
+  // const currentDate = moment().toString();
   return (
     <Fragment>
       {comment &&
@@ -34,6 +58,23 @@ const TestDetails = (props) => {
           {comment}
         </Typography>
       }
+      <div className={classes.DateSection}>
+        {startDateFormated &&
+          <div className={classes.DateSectionItem}>
+            <Typography className={classes.DateSectionTitle} variant="subheading">Start of test</Typography>
+            <Typography className={classes.DateSectionContent} variant="body1">{startDateFormated}</Typography>
+          </div>
+        }
+        {startDateFormated && endDateFormated &&
+          <Divider />
+        }
+        {endDateFormated &&
+          <div className={classes.DateSectionItem}>
+            <Typography className={classes.DateSectionTitle} variant="subheading">Finish of test</Typography>
+            <Typography className={classes.DateSectionContent} variant="body1">{endDateFormated}</Typography>
+          </div>
+        }
+      </div>
       {variants.map((variant, i) => (
         <TestCaseDetails
           key={v4()}
@@ -59,11 +100,15 @@ TestDetails.propTypes = {
   sessionStopped: PropTypes.bool.isRequired,
   setTestCase: PropTypes.func.isRequired,
   id: PropTypes.number.isRequired,
+  startDate: PropTypes.string,
+  endDate: PropTypes.string,
 };
 
 TestDetails.defaultProps = {
   choice: null,
   comment: null,
+  startDate: null,
+  endDate: null,
 };
 
 export default withStyles(styles)(TestDetails);

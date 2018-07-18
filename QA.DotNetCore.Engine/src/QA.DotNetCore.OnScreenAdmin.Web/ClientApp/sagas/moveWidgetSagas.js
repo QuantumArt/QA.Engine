@@ -3,29 +3,24 @@ import { EDIT_WIDGET_ACTIONS, WIDGETS_SCREEN_MODE_ACTIONS } from 'actions/action
 import { getMovingWidgetTargetZoneSelector, movingWidgetSelector } from 'selectors/componentTree';
 import { moveWidget as apiMoveWidget } from '../api';
 
-
 function* selectTargetZone() {
   const targetZone = yield select(getMovingWidgetTargetZoneSelector);
   const movingWidget = yield select(movingWidgetSelector);
-  console.log('select target zone', movingWidget);
   yield put({ type: EDIT_WIDGET_ACTIONS.MOVING_WIDGET_REQUESTED,
     options: {
       widgetId: movingWidget.properties.widgetId,
       newParentId: targetZone.properties.parentAbstractItemId,
       zoneName: targetZone.properties.zoneName,
-    } });
+    },
+  });
 }
 
 function* moveWidgetRequested(action) {
   try {
-    console.log('move request', action);
     const result = yield call(apiMoveWidget, action.options);
     yield put({ type: EDIT_WIDGET_ACTIONS.MOVING_WIDGET_SUCCEEDED, data: result });
-  } catch (e) {
-    yield put({
-      type: EDIT_WIDGET_ACTIONS.MOVING_WIDGET_FAILED,
-      error: e,
-    });
+  } catch (error) {
+    yield put({ type: EDIT_WIDGET_ACTIONS.MOVING_WIDGET_FAILED, error });
   }
 }
 
@@ -33,13 +28,11 @@ function moveWidgetSucceeded() {
   location.reload();
 }
 
-function* moveWidgetFailed(action) {
-  console.log('error: ', action.error);
+function* moveWidgetFailed() {
   yield put({ type: EDIT_WIDGET_ACTIONS.FINISH_MOVING_WIDGET });
 }
 
 function* showMoveWidget() {
-  console.log('move widget saga');
   yield put({ type: WIDGETS_SCREEN_MODE_ACTIONS.SHOW_MOVE_WIDGET });
 }
 

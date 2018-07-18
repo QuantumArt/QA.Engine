@@ -7,6 +7,7 @@ import {
   TOGGLE_LEFT_POSITION,
   TOGGLE_RIGHT_POSITION,
   TOGGLE_TAB,
+  SAVE_CORDS,
 } from '../actions/actionTypes';
 
 const availableFeatures = getAvailableFeatures();
@@ -18,6 +19,12 @@ const initialState = {
   side: 'left',
   activeTab,
   widgetScreenSearchText: '',
+  cords: {
+    componentX: 10,
+    componentY: 10,
+    nodeX: 0,
+    nodeY: 0,
+  },
 };
 
 export default function sidebarReducer(state = initialState, action) {
@@ -30,6 +37,8 @@ export default function sidebarReducer(state = initialState, action) {
       return { ...state, side: 'right' };
     case TOGGLE_TAB:
       return { ...state, activeTab: action.value };
+    case SAVE_CORDS:
+      return { ...state, cords: action.payload };
     default:
       return state;
   }

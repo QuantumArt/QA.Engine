@@ -1,19 +1,20 @@
+using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
 
 namespace QA.DotNetCore.Engine.Targeting.Filters
 {
     public class TargetingFilterAccessor : ITargetingFilterAccessor
     {
-        readonly ITargetingFiltersConfigurator _cfg;
+        readonly ServiceSetConfigurator<ITargetingFilter> _cfg;
 
-        public TargetingFilterAccessor(ITargetingFiltersConfigurator cfg)
+        public TargetingFilterAccessor(ServiceSetConfigurator<ITargetingFilter> cfg)
         {
             _cfg = cfg;
         }
 
         public ITargetingFilter Get()
         {
-            return _cfg.ResultFilter;
+            return new UnitedFilter(_cfg.GetServices());
         }
     }
 }

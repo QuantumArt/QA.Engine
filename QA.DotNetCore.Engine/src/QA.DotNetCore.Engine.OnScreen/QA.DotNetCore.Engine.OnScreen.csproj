@@ -2,9 +2,9 @@
   <PropertyGroup>
     <TargetFrameworks>net471;netcoreapp2.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.3.0</Version>
-    <AssemblyVersion>0.3.0.0</AssemblyVersion>
-    <FileVersion>0.3.0.0</FileVersion>
+    <Version>0.3.2</Version>
+    <AssemblyVersion>0.3.2.0</AssemblyVersion>
+    <FileVersion>0.3.2.0</FileVersion>
     <Authors>Grigorenko Paul, Karlov Nickolay</Authors>
     <Company>Quantum Art</Company>
     <Copyright>Copyright 2017</Copyright>
@@ -27,7 +27,11 @@
     <NoWarn>1701;1702;1705;1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Views\Shared\Components\OnScreen\Default.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.2" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="2.0.1" />
     <PackageReference Include="Quantumart.AspNetCore" Version="3.1.2-beta" />
   </ItemGroup>
   <ItemGroup>

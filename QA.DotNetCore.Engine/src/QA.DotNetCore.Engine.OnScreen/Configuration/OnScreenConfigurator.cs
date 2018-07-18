@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using QA.DotNetCore.Engine.Abstractions.OnScreen;
 using Quantumart.QPublishing.Authentication;
 using Quantumart.QPublishing.Database;
@@ -8,7 +10,7 @@ namespace QA.DotNetCore.Engine.OnScreen.Configuration
 {
     public class OnScreenConfigurator
     {
-        public OnScreenConfigurator(IServiceCollection services, Action<OnScreenConfigurationOptions> setupAction)
+        public OnScreenConfigurator(IServiceCollection services, IMvcBuilder mvcBuilder, Action<OnScreenConfigurationOptions> setupAction)
         {
             var options = new OnScreenConfigurationOptions();
 
@@ -34,6 +36,10 @@ namespace QA.DotNetCore.Engine.OnScreen.Configuration
             services.AddSingleton<IOnScreenContextProvider, OnScreenHttpContextProvider>();
             services.AddScoped<DBConnector>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
+
+            var onScreenAssembly = typeof(OnScreenViewComponent).Assembly;
+            mvcBuilder.AddApplicationPart(onScreenAssembly);
+            services.Configure<RazorViewEngineOptions>(o => { o.FileProviders.Add(new EmbeddedFileProvider(onScreenAssembly)); });
         }
     }
 }

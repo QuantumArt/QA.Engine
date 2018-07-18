@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using QA.DotNetCore.Caching;
 using QA.DotNetCore.Caching.Interfaces;
+using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Persistent.Dapper;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using System;
@@ -26,7 +27,7 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
             services.AddScoped<QpContentCacheTracker>();
             services.AddScoped<IContentModificationRepository, ContentModificationRepository>();
             services.AddSingleton<ICacheTrackersAccessor, CacheTrackersAccessor>();
-            services.AddSingleton<CacheTagsTrackersConfigurator>();
+            services.AddSingleton<ServiceSetConfigurator<ICacheTagTracker>>();
 
             if (cfg.UseTimer)
             {

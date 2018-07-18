@@ -1,14 +1,11 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import List from 'material-ui/List';
-import Typography from 'material-ui/Typography';
 import AvailableWidget from '../AvailableWidget';
 
 const AvailableWidgetsList = ({ availableWidgets, onSelectWidget }) => (
   <Fragment>
-    <Typography type="headline" align="center">
-    Select widget to add
-    </Typography>
+
     <List>
       {availableWidgets.map(widget => (
         <AvailableWidget

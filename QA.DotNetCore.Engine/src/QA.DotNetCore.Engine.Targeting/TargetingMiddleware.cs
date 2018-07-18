@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +12,10 @@ namespace QA.DotNetCore.Engine.Targeting
     /// </summary>
     public class TargetingMiddleware
     {
-        readonly ITargetingProvidersConfigurator _targetingConfigurationBuilder;
+        readonly ServiceSetConfigurator<ITargetingProvider> _targetingConfigurationBuilder;
         readonly RequestDelegate _next;
 
-        public TargetingMiddleware(RequestDelegate next, ITargetingProvidersConfigurator p)
+        public TargetingMiddleware(RequestDelegate next, ServiceSetConfigurator<ITargetingProvider> p)
         {
             _next = next;
             _targetingConfigurationBuilder = p;
@@ -24,7 +25,7 @@ namespace QA.DotNetCore.Engine.Targeting
         {
             //сохраним в HttpContext все значения таргетирования
             var targetingKeys = new List<string>();
-            foreach (var provider in _targetingConfigurationBuilder.GetProviders())
+            foreach (var provider in _targetingConfigurationBuilder.GetServices())
             {
                 var dict = provider.GetValues();
                 foreach (var key in dict.Keys)

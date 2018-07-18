@@ -1,50 +1,46 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
+import Paper from 'material-ui/Paper';
+import { CircularProgress } from 'material-ui/Progress';
 import { withStyles } from 'material-ui/styles';
-import Button from 'material-ui/Button';
-import Toolbar from 'material-ui/Toolbar';
 import EditComponentTree from 'containers/WidgetsScreen/editComponentTree';
 import MoveWidgetScreen from 'containers/WidgetsScreen/moveWidgetsScreen';
 import WidgetCreationWizard from 'containers/WidgetsScreen/widgetCreationWizard';
-import ComponentHighlightToolbar from 'containers/WidgetsScreen/componentHighlightToolbar';
+import ComponentTreeScreen from 'containers/WidgetsScreen/ComponentTreeScreen';
 
-import ComponentTreeScreen from './ComponentTreeScreen';
-
-
-const styles = () => ({
-  menuButton: {
-    marginLeft: -12,
-    marginRight: 20,
-  },
+const styles = theme => ({
+  loadingIndicatorPaper: theme.mixins.gutters({
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginTop: '45%',
+  }),
 });
 
+
 const WidgetsScreen = ({
+  showLoadingIndicator,
   showComponentTree,
   showWidgetCreationWizard,
   showMoveWidgetScreen,
-  addWidgetToPage,
   classes,
 }) => (
   <Fragment>
-    {showComponentTree
-      ? (
-        <Fragment>
-          <ComponentHighlightToolbar />
-          <Toolbar>
-            <Button raised color="primary" onClick={addWidgetToPage} className={classes.menuButton}>Add widget</Button>
-          </Toolbar>
-          <ComponentTreeScreen />
-        </Fragment>
-      )
-      : null
+    {showLoadingIndicator &&
+      <Paper elevation={0} className={classes.loadingIndicatorPaper}>
+        <CircularProgress />
+      </Paper>
     }
-    {showWidgetCreationWizard
-      ? (<WidgetCreationWizard />)
-      : null
+    {showComponentTree &&
+      <Fragment>
+        <ComponentTreeScreen />
+      </Fragment>
     }
-    {showMoveWidgetScreen
-      ? (<MoveWidgetScreen />)
-      : null
+    {showWidgetCreationWizard &&
+      <WidgetCreationWizard />
+    }
+    {showMoveWidgetScreen &&
+      <MoveWidgetScreen />
     }
     <EditComponentTree />
   </Fragment>
@@ -54,7 +50,7 @@ WidgetsScreen.propTypes = {
   showComponentTree: PropTypes.bool.isRequired,
   showWidgetCreationWizard: PropTypes.bool.isRequired,
   showMoveWidgetScreen: PropTypes.bool.isRequired,
-  addWidgetToPage: PropTypes.func.isRequired,
+  showLoadingIndicator: PropTypes.bool.isRequired,
   classes: PropTypes.object.isRequired,
 };
 

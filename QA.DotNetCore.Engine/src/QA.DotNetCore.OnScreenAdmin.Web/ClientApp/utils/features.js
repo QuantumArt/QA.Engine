@@ -1,6 +1,17 @@
 import _ from 'lodash';
 import { ONSCREEN_FEATURES } from 'constants/features';
 
+const sortOrder = (feature) => {
+  switch (feature) {
+    case ONSCREEN_FEATURES.WIDGETS_MANAGEMENT:
+      return 0;
+    case ONSCREEN_FEATURES.ABTESTS:
+      return 1;
+    default:
+      return 100;
+  }
+};
+
 const mapFeature = (featureString) => {
   const trimmedLoweredFeature = _.trim(featureString).toLowerCase();
   if (trimmedLoweredFeature === 'widgets') { return ONSCREEN_FEATURES.WIDGETS_MANAGEMENT; }
@@ -15,5 +26,6 @@ export const getAvailableFeatures = () => {
   console.log('splittedFeatures', splittedFeatures);
   const mapped = _.map(splittedFeatures, f => mapFeature(f));
   console.log(mapped);
-  return _.reject(mapped, _.isNull);
+  const withoutNulls = _.reject(mapped, _.isNull);
+  return _.sortBy(withoutNulls, [f => sortOrder(f)]);
 };

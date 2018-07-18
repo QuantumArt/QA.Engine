@@ -37,7 +37,7 @@ const WizardHeader = ({ text, onClickBack, classes }) => (
       >
         <ArrowBack className={classes.actionIcon} />
       </IconButton>
-      <Typography type="display1" align="left" color="inherit">
+      <Typography variant="display1" align="left" color="inherit">
         { text }
       </Typography>
     </Toolbar>

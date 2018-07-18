@@ -7,6 +7,7 @@ export const MODES = {
 };
 const initialState = {
   mode: MODES.SHOW_COMPONENT_TREE,
+  availableWidgetsInfoLoaded: false,
 };
 
 export default function widgetsScreenReducer(state = initialState, action) {
@@ -19,6 +20,9 @@ export default function widgetsScreenReducer(state = initialState, action) {
       return { ...state, mode: MODES.SHOW_MOVE_WIDGET };
     case WIDGETS_SCREEN_MODE_ACTIONS.HIDE_MOVE_WIDGET:
       return { ...state, mode: MODES.SHOW_COMPONENT_TREE };
+    case WIDGETS_SCREEN_MODE_ACTIONS.AVAILABLE_WIDGETS_INFO_LOADED: {
+      return { ...state, availableWidgetsInfoLoaded: true };
+    }
     default:
       return state;
   }

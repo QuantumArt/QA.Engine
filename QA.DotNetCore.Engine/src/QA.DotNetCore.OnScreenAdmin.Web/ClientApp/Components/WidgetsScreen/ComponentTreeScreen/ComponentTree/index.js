@@ -1,28 +1,27 @@
-import React, { Component, Fragment } from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import List from 'material-ui/List';
 import ComponentItem from '../ComponentItem';
 
 
-class ComponentTree extends Component {
-  renderComponentsList = () => {
-    const {
-      components,
-      maxNestLevel,
-      selectedComponentId,
-      onToggleComponent,
-      onToggleSubtree,
-      onToggleFullSubtree,
-      isMovingWidget,
-      onMovingWidgetSelectTargetZone,
-    } = this.props;
-    console.log(components);
-    return (
-      <List dense >
+export default function ComponentTree(props) {
+  const {
+    components,
+    selectedComponentId,
+    onToggleComponent,
+    onToggleSubtree,
+    onToggleFullSubtree,
+    isMovingWidget,
+    onMovingWidgetSelectTargetZone,
+    showOnlyWidgets,
+  } = props;
+
+  return (
+    <Fragment>
+      <List dense>
         {components.map(component => (
           <ComponentItem
             {...component}
-            maxNestLevel={maxNestLevel}
             selectedComponentId={selectedComponentId}
             isOpened={component.isOpened}
             key={component.onScreenId}
@@ -31,20 +30,12 @@ class ComponentTree extends Component {
             onToggleFullSubtree={onToggleFullSubtree}
             isMovingWidget={isMovingWidget}
             onMovingWidgetSelectTargetZone={onMovingWidgetSelectTargetZone}
-
+            showOnlyWidgets={showOnlyWidgets}
+            itemLevel={1}
           />))}
       </List>
-    );
-  }
-
-
-  render() {
-    return (
-      <Fragment>
-        { this.renderComponentsList() }
-      </Fragment>
-    );
-  }
+    </Fragment>
+  );
 }
 
 ComponentTree.propTypes = {
@@ -57,14 +48,11 @@ ComponentTree.propTypes = {
       children: PropTypes.array.isRequired,
     }).isRequired,
   ).isRequired,
-  maxNestLevel: PropTypes.number.isRequired,
   selectedComponentId: PropTypes.string.isRequired,
   onToggleComponent: PropTypes.func.isRequired,
   onToggleSubtree: PropTypes.func.isRequired,
   onToggleFullSubtree: PropTypes.func.isRequired,
-  disabledComponents: PropTypes.array.isRequired,
   isMovingWidget: PropTypes.bool.isRequired,
   onMovingWidgetSelectTargetZone: PropTypes.func.isRequired,
+  showOnlyWidgets: PropTypes.bool.isRequired,
 };
-
-export default ComponentTree;

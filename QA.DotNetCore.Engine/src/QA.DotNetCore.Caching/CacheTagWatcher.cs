@@ -10,7 +10,7 @@ namespace QA.DotNetCore.Caching
     {
         private readonly ICacheTrackersAccessor _trackersAccessor;
         private readonly ICacheProvider _cacheProvider;
-        private readonly ILogger<CacheTagWatcher> _logger;
+        private readonly ILogger _logger;
         private Dictionary<string, CacheTagModification> _modifications = new Dictionary<string, CacheTagModification>();
 
         public CacheTagWatcher(ICacheTrackersAccessor trackersAccessor,
@@ -24,7 +24,9 @@ namespace QA.DotNetCore.Caching
 
         public void TrackChanges()
         {
-            _logger.LogInformation("Cache tags tracking started.");
+            var checkId = Guid.NewGuid();
+            _logger.LogTrace($"Invalidation {checkId} started");
+
             var trackers = _trackersAccessor.Get();
             if (trackers != null && trackers.Any())
             {
@@ -58,6 +60,8 @@ namespace QA.DotNetCore.Caching
                             cacheTagsToUpdate.Add(item.Key);
                         }
                     }
+
+                    _logger.LogTrace($"Invalidation {checkId} check result: ({String.Join(";", cacheTagsToUpdate)})");
 
                     //инвалидируем кеш по обновившимся тегам
                     if (cacheTagsToUpdate.Any())

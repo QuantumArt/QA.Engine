@@ -38,6 +38,8 @@ const mapComponentProperties = (domElement) => {
     widgetId: data.qaWidgetId,
     alias: data.qaWidgetAlias,
     title: data.qaWidgetTitle,
+    widgetType: data.qaWidgetType,
+    published: JSON.parse(data.qaWidgetPublished),
   };
 };
 

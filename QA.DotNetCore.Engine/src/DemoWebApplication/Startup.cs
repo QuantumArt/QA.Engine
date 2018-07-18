@@ -14,6 +14,7 @@ using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.AbTesting.Configuration;
 using QA.DotNetCore.Engine.CacheTags;
 using QA.DotNetCore.Engine.CacheTags.Configuration;
+using QA.DotNetCore.Engine.OnScreen;
 using QA.DotNetCore.Engine.OnScreen.Configuration;
 using QA.DotNetCore.Engine.QpData.Configuration;
 using QA.DotNetCore.Engine.QpData.Settings;
@@ -45,7 +46,7 @@ namespace DemoWebApplication
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddMvc();
+            var mvcBuilder = services.AddMvc();
             services.AddLogging();
             services.AddMemoryCache();
 
@@ -66,14 +67,15 @@ namespace DemoWebApplication
             //    options.TypeFinder.RegisterFromAssemblyContaining<XmlRootPage, XmlAbstractItem>();
             //});
 
-            services.AddAbTestServices(options => {
+            services.AddAbTestServices(options =>
+            {
                 //дублируются некоторые опции из AddSiteStructureEngine, потому что АБ-тесты могут быть или не быть независимо от структуры сайта
                 options.QpConnectionString = qpConnection;
                 options.AbTestingSettings.SiteId = qpSettings.SiteId;
                 options.AbTestingSettings.IsStage = qpSettings.IsStage;
             });
 
-            services.AddOnScreenIntegration(options =>
+            services.AddOnScreenIntegration(mvcBuilder, options =>
             {
                 options.Settings.AdminSiteBaseUrl = Configuration.GetSection("OnScreen").Get<OnScreenSettings>().AdminSiteBaseUrl;
                 options.Settings.SiteId = qpSettings.SiteId;
@@ -90,7 +92,7 @@ namespace DemoWebApplication
             {
                 if (qpSettings.IsStage)
                 {
-                    options.InvalidateByMiddleware(@"^.*\/.+\.[a-zA-Z0-9]+$");//отсекаем левые запросы для статики (для каждого сайта может настраиваться индивидуально)
+                    options.InvalidateByMiddleware(@"^.*\/(__webpack.*|.+\.[a-zA-Z0-9]+)$");//отсекаем левые запросы для статики (для каждого сайта может настраиваться индивидуально)
                 }
                 else
                 {
@@ -107,11 +109,12 @@ namespace DemoWebApplication
 
             services.AddTargeting();
 
-            
+
             services.AddSingleton<UrlTokenResolverFactory>();
             services.AddSingleton<UrlTokenTargetingProvider>();
             services.AddSingleton<DemoCultureRegionPossibleValuesProvider>();
             services.AddSingleton(Configuration.GetSection("UrlTokenConfig").Get<UrlTokenConfig>());
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -123,34 +126,34 @@ namespace DemoWebApplication
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseBrowserLink();
+                //app.UseBrowserLink();
             }
             else
             {
                 app.UseExceptionHandler("/Home/Error");
             }
-            
+
             app.UseStaticFiles();
 
-            app.UseCacheTagsInvalidation(invalidation =>
+            app.UseCacheTagsInvalidation(trackers =>
             {
-                invalidation.AddTracker<QpContentCacheTracker>();
+                trackers.RegisterScoped<QpContentCacheTracker>();
             });
 
             app.UseSiteStructure();
 
-            app.UseTargeting(targeting =>
+            app.UseTargeting((providers, possibleValues) =>
             {
                 //targeting.Add<DemoCultureTargetingProvider>();
                 //targeting.Add<DemoRegionTargetingProvider>();
-                targeting.Add<UrlTokenTargetingProvider>();
-                targeting.AddPossibleValues<DemoCultureRegionPossibleValuesProvider>();
+                providers.RegisterSingleton<UrlTokenTargetingProvider>();
+                possibleValues.RegisterSingleton<DemoCultureRegionPossibleValuesProvider>();
             });
 
             app.UseSiteSctructureFilters(filters =>
             {
-                filters.Add<DemoRegionFilter>();
-                filters.Add<DemoCultureFilter>();
+                filters.RegisterSingleton<DemoRegionFilter>();
+                filters.RegisterSingleton<DemoCultureFilter>();
             });
 
             app.UseOnScreenMode();
@@ -159,7 +162,9 @@ namespace DemoWebApplication
             {
                 routes.MapContentRoute("Route with custom params", "{controller}/{id}/{page}",
                     defaults: new RouteValueDictionary(new { action = "details" }),
-                    constraints: new { page = @"^\d+$"
+                    constraints: new
+                    {
+                        page = @"^\d+$"
                     });
 
                 routes.MapContentRoute("default", "{controller}/{action=Index}/{id?}");

@@ -22,6 +22,15 @@ const styles = (theme) => {
       paddingRight: 80,
     },
 
+    componentAvatar: {
+      borderRadius: 0,
+      color: 'inherit',
+      backgroundColor: 'inherit',
+      width: theme.typography.pxToRem(30),
+      height: theme.typography.pxToRem(30),
+      marginRight: theme.spacing.unit,
+    },
+
   };
 };
 
@@ -46,7 +55,7 @@ class AvailableWidget extends Component {
         button
         onClick={this.handleSelectClick}
       >
-        <Avatar src={iconUrl} />
+        <Avatar src={iconUrl} className={classes.componentAvatar} />
         <ListItemText
           primary={title}
           secondary={description}
@@ -61,9 +70,6 @@ class AvailableWidget extends Component {
 
 AvailableWidget.propTypes = {
   id: PropTypes.number.isRequired,
-  // Discriminator: PropTypes.string.isRequired,
-  // TypeName: PropTypes.string.isRequired,
-  // IsPage: PropTypes.bool.isRequired,
   title: PropTypes.string.isRequired,
   description: PropTypes.string,
   iconUrl: PropTypes.string.isRequired,

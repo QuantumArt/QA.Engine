@@ -5,6 +5,7 @@ import {
   filteredComponentTree,
   getDisabledComponents,
   getIsMovingWidget,
+  getShowOnlyWidgets,
 } from 'selectors/componentTree';
 import {
   toggleComponent,
@@ -23,6 +24,7 @@ const mapStateToProps = state => ({
   searchText: state.sidebar.widgetScreenSearchText,
   isMovingWidget: getIsMovingWidget(state),
   disabledComponents: getDisabledComponents(state),
+  showOnlyWidgets: getShowOnlyWidgets(state),
 });
 
 const mapDispatchToProps = dispatch => ({

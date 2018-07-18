@@ -27,19 +27,18 @@ export const getAvailableWidgets = () => axiosInstance().get('/availableWidgets'
   },
 });
 
-export const moveWidget = (options) => {
+export const moveWidget = options =>
   axiosInstance().post('/MoveWidget', qs.stringify({
     widgetId: options.widgetId,
     newParentId: options.newParentId,
     zoneName: options.zoneName,
-  },
-  ));
-};
+  }));
+
 
 export const getTestsData = cids => axiosInstance().get('/abtests/info', {
   params: {
     siteId,
-    isStage: false,
+    isStage: true,
     cids,
   },
   paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' }),

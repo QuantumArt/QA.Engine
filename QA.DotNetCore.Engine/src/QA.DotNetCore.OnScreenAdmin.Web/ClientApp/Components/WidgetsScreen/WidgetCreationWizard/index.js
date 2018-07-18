@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
+import ZoneTypeSelectStep from './ZoneTypeSelectStep';
 import AvailableWidgetsListStep from './AvailableWidgetsListStep';
 import ZonesListStep from './ZonesListStep';
 import EnterCustomZoneNameStep from './EnterCustomZoneNameStep';
@@ -8,30 +9,44 @@ import WizardHeader from '../WizardHeader';
 
 const WidgetCreationWizard = ({
   showZonesList,
+  showZoneTypeSelect,
   showEnterCustomZoneName,
   showAvailableWidgets,
   zones,
   onSelectZone,
-  onSelectCustomZone,
   onClickBack,
   zonesListSearchText,
   onChangeZonesListSearchText,
   onChangeCustomZoneName,
   customZoneName,
   onSelectWidget,
+  onSelectCustomZoneType,
+  onSelectExistingZoneType,
+  showZonesListSearchBox,
+  onToggleZonesListSearchBoxVisibility,
+  showAvailableWidgetsSearchBox,
+  onToggleAvailableWidgetsSearchBox,
 }) => (
   <Fragment>
     <WizardHeader
       text="Widget creation"
       onClickBack={onClickBack}
     />
+    {showZoneTypeSelect
+      ? (<ZoneTypeSelectStep
+        onSelectCustomZone={onSelectCustomZoneType}
+        onSelectExistingZone={onSelectExistingZoneType}
+      />)
+      : null
+    }
     {showZonesList
       ? (<ZonesListStep
         zones={zones}
         onSelectZone={onSelectZone}
-        onSelectCustomZone={onSelectCustomZone}
+        onSearchButtonClick={onToggleZonesListSearchBoxVisibility}
         searchText={zonesListSearchText}
         changeSearchText={onChangeZonesListSearchText}
+        showZonesListSearchBox={showZonesListSearchBox}
       />)
       : null
     }
@@ -46,6 +61,8 @@ const WidgetCreationWizard = ({
     {showAvailableWidgets
       ? (<AvailableWidgetsListStep
         onSelectWidget={onSelectWidget}
+        showSearchBox={showAvailableWidgetsSearchBox}
+        onToggleSearchBox={onToggleAvailableWidgetsSearchBox}
       />)
       : null
     }
@@ -60,16 +77,23 @@ WidgetCreationWizard.propTypes = {
     }).isRequired,
   ).isRequired,
   onSelectZone: PropTypes.func.isRequired,
-  onSelectCustomZone: PropTypes.func.isRequired,
+  onSelectCustomZoneType: PropTypes.func.isRequired,
+  onSelectExistingZoneType: PropTypes.func.isRequired,
   onClickBack: PropTypes.func.isRequired,
+  showZoneTypeSelect: PropTypes.bool.isRequired,
   showZonesList: PropTypes.bool.isRequired,
   showEnterCustomZoneName: PropTypes.bool.isRequired,
   showAvailableWidgets: PropTypes.bool.isRequired,
   zonesListSearchText: PropTypes.string.isRequired,
   onChangeZonesListSearchText: PropTypes.func.isRequired,
+  showZonesListSearchBox: PropTypes.bool.isRequired,
+  onToggleZonesListSearchBoxVisibility: PropTypes.func.isRequired,
   onChangeCustomZoneName: PropTypes.func.isRequired,
   onSelectWidget: PropTypes.func.isRequired,
   customZoneName: PropTypes.string.isRequired,
+  showAvailableWidgetsSearchBox: PropTypes.bool.isRequired,
+  onToggleAvailableWidgetsSearchBox: PropTypes.func.isRequired,
+
 
 };
 

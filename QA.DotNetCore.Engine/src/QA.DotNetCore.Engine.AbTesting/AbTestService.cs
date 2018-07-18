@@ -31,19 +31,25 @@ namespace QA.DotNetCore.Engine.AbTesting
 
         private Dictionary<int, AbTestPersistentData> GetCachedTests()
         {
-            var isStage = _onScreenContextProvider.GetContext()?.AbtestsIsStageOverrided ?? _abTestingSettings.IsStage;
+            var onScreenContext = _onScreenContextProvider.GetContext();
+            var isStage = onScreenContext?.AbtestsIsStageOverrided ?? _abTestingSettings.IsStage;//isStage может быть переопределен для Onscreen
+            var getOnlyActiveTests = onScreenContext == null || !onScreenContext.Enabled;//в режиме Onscreen нам нужны не только активные сейчас тесты
             var cacheTags = new string[1] { _qpContentCacheTagNamingProvider.GetByNetName(_abTestRepository.AbTestNetName, _abTestingSettings.SiteId, isStage) }
                 .Where(t => t != null)
                 .ToArray();
-            return _cacheProvider.GetOrAdd($"AbTestService.GetCachedTests_{_abTestingSettings.SiteId}_{isStage}",
+            return _cacheProvider.GetOrAdd($"AbTestService.GetCachedTests_{_abTestingSettings.SiteId}_{isStage}_{getOnlyActiveTests}",
                 cacheTags,
                 _abTestingSettings.TestsCachePeriod,
-                () => _abTestRepository.GetActiveTests(_abTestingSettings.SiteId, isStage).ToDictionary(_ => _.Id));
+                () => getOnlyActiveTests ?
+                    _abTestRepository.GetActiveTests(_abTestingSettings.SiteId, isStage).ToDictionary(_ => _.Id) :
+                    _abTestRepository.GetAllTests(_abTestingSettings.SiteId, isStage).ToDictionary(_ => _.Id));
         }
 
         private AbTestContainersByPaths GetCachedContainers()
         {
-            var isStage = _onScreenContextProvider.GetContext()?.AbtestsIsStageOverrided ?? _abTestingSettings.IsStage;
+            var onScreenContext = _onScreenContextProvider.GetContext();
+            var isStage = onScreenContext?.AbtestsIsStageOverrided ?? _abTestingSettings.IsStage;//isStage может быть переопределен для Onscreen
+            var getOnlyActiveTests = onScreenContext == null;//в режиме Onscreen нам нужны не только активные сейчас тесты
             var cacheTags = new string[4] {
                 _abTestRepository.AbTestNetName,
                 _abTestRepository.AbTestContainerNetName,
@@ -53,10 +59,13 @@ namespace QA.DotNetCore.Engine.AbTesting
             .Where(t => t != null)
             .ToArray();
 
-            return _cacheProvider.GetOrAdd($"AbTestService.GetCachedContainers_{_abTestingSettings.SiteId}_{isStage}",
+            return _cacheProvider.GetOrAdd($"AbTestService.GetCachedContainers_{_abTestingSettings.SiteId}_{isStage}_{getOnlyActiveTests}",
                 cacheTags,
                 _abTestingSettings.ContainersCachePeriod,
-                () => new AbTestContainersByPaths(_abTestRepository.GetActiveTestsContainers(_abTestingSettings.SiteId, isStage)));
+                () => new AbTestContainersByPaths(getOnlyActiveTests ?
+                    _abTestRepository.GetActiveTestsContainers(_abTestingSettings.SiteId, isStage) :
+                    _abTestRepository.GetAllTestsContainers(_abTestingSettings.SiteId, isStage))
+                    );
         }
 
         public AbTestPersistentData GetTestById(int testId)

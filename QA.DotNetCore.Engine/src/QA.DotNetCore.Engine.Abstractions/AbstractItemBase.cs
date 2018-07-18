@@ -40,6 +40,8 @@ namespace QA.DotNetCore.Engine.Abstractions
         /// <returns></returns>
         public abstract IEnumerable<IAbstractItem> GetChildren(ITargetingFilter filter = null);
 
+        public abstract object GetMetadata(string key);
+
         /// <summary>
         /// Получить значение таргетирования по ключу (ключ определяет систему таргетирования, например, регион, культура итп)
         /// </summary>

@@ -174,8 +174,8 @@ const TestCaseDetails = (props) => {
       }
       <ExpansionPanelActions className={classes.panelActions}>
         <Button
-          raised
-          dense
+          variant="raised"
+          dense="true"
           style={{ backgroundColor: teal[500], color: 'white' }}
         >
           Some future action

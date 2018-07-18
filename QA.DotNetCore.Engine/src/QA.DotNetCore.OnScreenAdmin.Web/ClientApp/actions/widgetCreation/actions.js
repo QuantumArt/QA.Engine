@@ -1,11 +1,14 @@
 import {
   BEGIN_WIDGET_CREATION,
   SELECT_TARGET_ZONE,
-  SELECT_CUSTOM_ZONE,
   GO_TO_PREV_STEP,
   CHANGE_ZONES_LIST_SEARCH_TEXT,
   CHANGE_CUSTOM_ZONE_NAME,
   SELECT_WIDGET_TYPE,
+  SELECT_ZONE_TYPE_EXISTING,
+  SELECT_ZONE_TYPE_CUSTOM,
+  TOGGLE_ZONES_LIST_SEARCH_BOX,
+  TOGGLE_AVAILABLE_WIDGETS_SEARCH_BOX,
 } from './actionTypes';
 
 export function selectTargetZone(targetZoneName) {
@@ -17,9 +20,16 @@ export function selectTargetZone(targetZoneName) {
   };
 }
 
-export function selectCustomZone() {
+
+export function selectCustomZoneType() {
   return {
-    type: SELECT_CUSTOM_ZONE,
+    type: SELECT_ZONE_TYPE_CUSTOM,
+  };
+}
+
+export function selectExistingZoneType() {
+  return {
+    type: SELECT_ZONE_TYPE_EXISTING,
   };
 }
 
@@ -52,6 +62,18 @@ export function changeZonesListSearchText(newValue) {
   };
 }
 
+export function toggleZonesListSearchBox() {
+  return {
+    type: TOGGLE_ZONES_LIST_SEARCH_BOX,
+  };
+}
+
+export function toggleAvailableWidgetsSearchBox() {
+  return {
+    type: TOGGLE_AVAILABLE_WIDGETS_SEARCH_BOX,
+  };
+}
+
 export function changeCustomZoneName(newValue) {
   return {
     type: CHANGE_CUSTOM_ZONE_NAME,
@@ -66,3 +88,4 @@ export function goToPrevStep() {
     type: GO_TO_PREV_STEP,
   };
 }
+

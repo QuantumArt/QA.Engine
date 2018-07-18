@@ -6,10 +6,7 @@ import App from './App';
 import './qpInteraction/QP8BackendApi.Interaction';
 import init from './init';
 
-
 const { store, persistor } = configureStore();
-init();
-
 const render = (Root) => {
   ReactDOM.render(
     <AppContainer>
@@ -19,6 +16,7 @@ const render = (Root) => {
   );
 };
 
+init();
 render(App);
 
 if (module.hot) {

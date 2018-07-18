@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import scrollToElement from 'scroll-to-element';
@@ -5,26 +6,56 @@ import { withStyles } from 'material-ui/styles';
 import {
   ListItem,
   ListItemText,
-  ListItemIcon,
   ListItemSecondaryAction,
 } from 'material-ui/List';
+import Avatar from 'material-ui/Avatar';
+import Tooltip from 'material-ui/Tooltip';
 import ExpandLess from 'material-ui-icons/ExpandLess';
 import ExpandMore from 'material-ui-icons/ExpandMore';
 import Widgets from 'material-ui-icons/Widgets';
-import PanoramaHorizontal from 'material-ui-icons/PanoramaHorizontal';
+import NewWidget from 'material-ui-icons/NewReleases';
 import IconButton from 'material-ui/IconButton';
+import Icon from 'material-ui/Icon';
+import ZoneIcon from 'Components/Icons/Zone';
 import Collapse from 'material-ui/transitions/Collapse';
-import { deepPurple } from 'material-ui/colors';
+import { deepPurple, red } from 'material-ui/colors';
 import ComponentControlMenu from 'containers/WidgetsScreen/componentControlMenu';
+import { MAX_COMPONENT_PRIMARY_TEXT_LENGTH } from 'constants/general';
 
 const styles = (theme) => {
   console.log(theme);
   return {
+    componentAvatar: {
+      borderRadius: 0,
+      color: 'inherit',
+      width: theme.typography.pxToRem(30),
+      height: theme.typography.pxToRem(30),
+    },
+    componentAvatarSelected: {
+      borderRadius: 0,
+      color: deepPurple[500],
+      fontWeight: 'bold',
+      width: theme.typography.pxToRem(30),
+      height: theme.typography.pxToRem(30),
+    },
+    newWidgetOverlay: {
+      width: theme.typography.pxToRem(25),
+      height: theme.typography.pxToRem(25),
+      marginLeft: '-10px',
+      marginTop: '-20px',
+      color: red[500],
+    },
     listItem: {
       height: theme.typography.pxToRem(76.8),
     },
-    listItemText: {
+    listItemTextRoot: {
+      marginLeft: theme.spacing.unit * 2,
       fontSize: 14,
+      justifyContent: 'flex-start',
+    },
+    listItemTextSelected: {
+      fontWeight: 'bold',
+      color: deepPurple[500],
     },
     listItemIconSelected: {
       color: deepPurple[500],
@@ -39,12 +70,16 @@ const styles = (theme) => {
     expandNodeRoot: {
       verticalAlign: 'bottom',
     },
+    tooltip: {
+      fontSize: theme.typography.pxToRem(20),
+    },
   };
 };
-
+/* eslint-disable react/sort-comp */
 class ComponentItem extends Component {
   handleToggleClick = () => {
     const { isMovingWidget, onScreenId, onToggleComponent, onMovingWidgetSelectTargetZone } = this.props;
+
     if (isMovingWidget) {
       onMovingWidgetSelectTargetZone(onScreenId);
     } else {
@@ -67,11 +102,6 @@ class ComponentItem extends Component {
     this.props.onToggleSubtree(this.props.onScreenId);
   }
 
-
-  renderPrimaryText = (type, properties) => (type === 'zone'
-    ? `${properties.zoneName}`
-    : `${properties.title}`);
-
   renderSecondaryText = (type, properties) => {
     if (type === 'zone') {
       let zoneSettings = '';
@@ -82,6 +112,38 @@ class ComponentItem extends Component {
     }
 
     return `${type}: ID - ${properties.widgetId}`;
+  }
+
+  renderListItemText = (primaryText, isSelected, classes) => (
+    <ListItemText
+      primary={primaryText}
+      classes={{
+        root: classes.listItemTextRoot,
+        primary: isSelected ? classes.listItemTextSelected : classes.primary,
+      }}
+    />
+  )
+
+  renderListItemTextWrapper = (type, properties, isSelected, classes) => {
+    const primaryText = type === 'zone'
+      ? properties.zoneName
+      : `#${properties.widgetId} ${properties.title}`;
+    const isPrimaryTextTruncated = primaryText.length > MAX_COMPONENT_PRIMARY_TEXT_LENGTH;
+    const textToRender = isPrimaryTextTruncated
+      ? `${primaryText.substring(0, MAX_COMPONENT_PRIMARY_TEXT_LENGTH)}…`
+      : primaryText;
+
+    return (
+      <Tooltip
+        title={isPrimaryTextTruncated ? primaryText : ''}
+        classes={{ tooltip: classes.tooltip }}
+        disableTriggerFocus={!isPrimaryTextTruncated}
+        disableTriggerHover={!isPrimaryTextTruncated}
+        disableTriggerTouch={!isPrimaryTextTruncated}
+      >
+        {this.renderListItemText(textToRender, isSelected, classes)}
+      </Tooltip>
+    );
   }
 
   renderContextMenu = (isSelected) => {
@@ -103,32 +165,66 @@ class ComponentItem extends Component {
     );
   }
 
-  renderCollapseButton = (isOpened, subtree, classes) => {
+  hasChildWidgets = (children) => {
+    if (!children || children.length === 0) { return false; }
+
+    return _.some(children, c => c.type === 'widget' || this.hasChildWidgets(c.children));
+  }
+
+  renderCollapseButton = (isOpened, subtree, showOnlyWidgets, hasChildWidgets, classes) => {
     if (!subtree) {
       return null;
     }
+
+    if (showOnlyWidgets && !hasChildWidgets) { return null; }
     return (
       <IconButton
         onClick={this.handleSubtreeClick}
-        classes={{ icon: classes.expandNodeIcon, root: classes.expandNodeRoot }}
+        classes={{ root: classes.expandNodeRoot }}
       >
-        {isOpened ? <ExpandLess /> : <ExpandMore />}
+        <Icon classes={{ root: classes.expandNodeIcon }}>
+          {isOpened ? <ExpandLess /> : <ExpandMore />}
+        </Icon>
       </IconButton>
     );
   }
 
-  renderListItem = (subtree) => {
+  renderListItemIcon = (type, properties, isSelected, classes) => {
+    const className = isSelected ? classes.componentAvatarSelected : classes.componentAvatar;
+    if (type === 'zone') {
+      return (
+        <ZoneIcon className={className} />
+      );
+    }
+
+    if (properties.widgetTypeIconSrc) {
+      return (
+        <Fragment>
+          {properties.widgetTypeIconSrc
+            ? (<Avatar className={className} src={properties.widgetTypeIconSrc} />)
+            : (<Avatar className={className}><Widgets /></Avatar>)
+          }
+          {!properties.published && (<NewWidget className={classes.newWidgetOverlay} />)}
+        </Fragment>
+      );
+    }
+    return (<Avatar className={className}><Widgets /></Avatar>);
+  }
+
+  renderListItem = (subtree, hasChildWidgets) => {
     const {
       onScreenId,
       properties,
       selectedComponentId,
       classes,
-      nestLevel,
+      itemLevel,
       isOpened,
       isDisabled,
       type,
+      showOnlyWidgets,
     } = this.props;
     const isSelected = selectedComponentId === onScreenId;
+    if (showOnlyWidgets && type === 'zone') { return null; }
 
     return (
       <ListItem
@@ -137,28 +233,15 @@ class ComponentItem extends Component {
           root: classes.listItem,
           secondaryAction: classes.listItemSecondaryAction,
         }}
-        style={{ paddingLeft: nestLevel > 1 ? `${nestLevel * 0.8}em` : '16px' }}
+        style={{ paddingLeft: itemLevel > 1 ? `${itemLevel * 1}em` : '16px' }}
         onClick={this.handleToggleClick}
         button
       >
-        <ListItemIcon
-          className={isSelected
-            ? classes.listItemIconSelected
-            : ''}
-        >
-          {type === 'zone'
-            ? <PanoramaHorizontal />
-            : <Widgets />
-          }
-        </ListItemIcon>
-        <ListItemText
-          primary={this.renderPrimaryText(type, properties, isDisabled)}
-          // secondary={this.renderSecondaryText(type, properties)}
-          classes={{ dense: classes.listItemText }}
-        />
+        {this.renderListItemIcon(type, properties, isSelected, classes)}
+        {this.renderListItemTextWrapper(type, properties, isSelected, classes)}
         <ListItemSecondaryAction>
           { this.renderContextMenu(isSelected) }
-          { this.renderCollapseButton(isOpened, subtree, classes) }
+          { this.renderCollapseButton(isOpened, subtree, showOnlyWidgets, hasChildWidgets, classes) }
         </ListItemSecondaryAction>
       </ListItem>
     );
@@ -174,11 +257,18 @@ class ComponentItem extends Component {
       children,
       classes,
       isOpened,
-      maxNestLevel,
       isMovingWidget,
       onMovingWidgetSelectTargetZone,
+      showOnlyWidgets,
+      type,
+      itemLevel,
     } = this.props;
     let subtree = null;
+
+    const renderItem = !(showOnlyWidgets && type === 'zone');
+    const childNestLevel = renderItem ? itemLevel + 1 : itemLevel;
+    const hasChildWidgets = this.hasChildWidgets(children);
+
 
     if (children.length > 0) {
       subtree = children.map(child => (
@@ -193,12 +283,11 @@ class ComponentItem extends Component {
           onToggleFullSubtree={onToggleFullSubtree}
           selectedComponentId={selectedComponentId}
           classes={classes}
-          nestLevel={child.nestLevel}
-          maxNestLevel={maxNestLevel}
           isDisabled={child.isDisabled}
           isMovingWidget={isMovingWidget}
           onMovingWidgetSelectTargetZone={onMovingWidgetSelectTargetZone}
-          // showListItem={showListItem}
+          showOnlyWidgets={showOnlyWidgets}
+          itemLevel={childNestLevel}
         >
           {child.children}
         </ComponentItem>
@@ -207,7 +296,7 @@ class ComponentItem extends Component {
 
     return (
       <Fragment>
-        { this.renderListItem(subtree) }
+        { renderItem && this.renderListItem(subtree, hasChildWidgets) }
         { this.renderSubtree(isOpened, subtree) }
       </Fragment>
     );
@@ -236,11 +325,12 @@ ComponentItem.propTypes = {
   ]).isRequired,
   children: PropTypes.arrayOf(PropTypes.object).isRequired,
   classes: PropTypes.object.isRequired,
-  nestLevel: PropTypes.number.isRequired,
-  maxNestLevel: PropTypes.number.isRequired,
+  itemLevel: PropTypes.number.isRequired,
+  // maxNestLevel: PropTypes.number.isRequired,
   isMovingWidget: PropTypes.bool.isRequired,
   isDisabled: PropTypes.bool.isRequired,
   onMovingWidgetSelectTargetZone: PropTypes.func.isRequired,
+  showOnlyWidgets: PropTypes.bool.isRequired,
   // showListItem: PropTypes.bool.isRequired,
 };
 

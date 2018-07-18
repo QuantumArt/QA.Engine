@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import Menu, { MenuItem } from 'material-ui/Menu';
 import IconButton from 'material-ui/IconButton';
-import MoreHoriz from 'material-ui-icons/MoreHoriz';
+import MoreVertIcon from 'material-ui-icons/MoreVert';
 
 const styles = theme => ({
   menuItem: {
@@ -58,7 +58,7 @@ class ComponentControlMenu extends Component {
           aria-haspopup="true"
           onClick={this.handleClick}
         >
-          <MoreHoriz />
+          <MoreVertIcon />
         </IconButton>
         <Menu
           id="long-menu"
@@ -96,7 +96,7 @@ class ComponentControlMenu extends Component {
           aria-haspopup="true"
           onClick={this.handleClick}
         >
-          <MoreHoriz />
+          <MoreVertIcon />
         </IconButton>
         <Menu
           id="long-menu"

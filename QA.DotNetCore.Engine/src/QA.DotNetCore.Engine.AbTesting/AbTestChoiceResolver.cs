@@ -45,8 +45,15 @@ namespace QA.DotNetCore.Engine.AbTesting
             }
 
             //нужно понять включен ли на самом деле тест
-            //он может быть включен\выключен в QP. Это может быть переопределено для текущего запроса (с помощью специальной force-куки)
+            //он может быть включен\выключен в QP; еще у теста есть дата начала и окончания, они тоже влияют на его включенность
             var enabled = test.Enabled;
+            if (enabled)
+            {
+                var now = DateTime.Now;
+                enabled = (!test.StartDate.HasValue || test.StartDate.Value < now) && (!test.EndDate.HasValue || now < test.EndDate.Value);
+            }
+
+            //включенность может быть переопределена для текущего запроса (с помощью специальной force-куки)
             var forceCookie = request.Cookies[ForceCookieNamePrefix + test.Id];
             if (forceCookie != null)
             {

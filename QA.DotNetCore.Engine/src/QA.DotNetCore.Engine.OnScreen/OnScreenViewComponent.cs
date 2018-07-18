@@ -1,10 +1,9 @@
-using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
-using QA.DotNetCore.Engine.Routing;
-using QA.DotNetCore.Engine.OnScreen.Configuration;
+using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.OnScreen;
+using QA.DotNetCore.Engine.OnScreen.Configuration;
+using QA.DotNetCore.Engine.Routing;
 using System;
-using System.Text;
 
 namespace QA.DotNetCore.Engine.OnScreen
 {
@@ -17,7 +16,7 @@ namespace QA.DotNetCore.Engine.OnScreen
             _onScreenSettings = onScreenSettings;
         }
 
-        public HtmlString Invoke()
+        public IViewComponentResult Invoke()
         {
             var ctx = ((IOnScreenContextProvider)ViewContext.HttpContext.RequestServices.GetService(typeof(IOnScreenContextProvider)))?.GetContext();
             if (ctx == null)
@@ -25,31 +24,22 @@ namespace QA.DotNetCore.Engine.OnScreen
 
             if (ctx.Enabled)
             {
-                var startPage = ViewContext.GetStartPage();
-                var ai = ViewContext.GetCurrentItem();
-                var markup = new StringBuilder($@"<div id='sidebarplaceholder'></div>
-                <script type='text/javascript'>
-                    window.onScreenAdminBaseUrl = '{_onScreenSettings.AdminSiteBaseUrl}';
-                    window.currentPageId='{ai?.Id}';
-                    window.startPageId='{startPage?.Id}';
-                    window.siteId='{_onScreenSettings.SiteId}';
-                    window.isStage={_onScreenSettings.IsStage.ToString().ToLower()};
-                    window.onScreenFeatures = '{ctx.Features}';
-                    window.onScreenTokenCookieName = '{_onScreenSettings.AuthCookieName}';
-                    window.onScreenOverrideAbTestStageModeCookieName = '{_onScreenSettings.OverrideAbTestStageModeCookieName}';
-                 </script>
-                <script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/pmrpc.js'></script>
-                <script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/vendor.js'></script><script src='{ _onScreenSettings.AdminSiteBaseUrl}/dist/main.js'></script>");
-                
-                if (ctx.HasFeature(OnScreenFeatures.AbTests))
-                {
-                    markup.AppendLine($"<script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/cookies.js' defer></script>");
-                    markup.AppendLine($"<script src='{_onScreenSettings.AdminSiteBaseUrl}/dist/onScreenAbTestApi.js' defer></script>");
-                }
-
-                return new HtmlString(markup.ToString());
+                OnScreenViewModel model = new OnScreenViewModel();
+                model.StartPage = ViewContext.GetStartPage();
+                model.AI = ViewContext.GetCurrentItem();
+                model.OnScreenSettings = _onScreenSettings;
+                model.Ctx = ctx;
+                return View(model);
             }
-            return HtmlString.Empty;
+            return Content(string.Empty);
         }
+    }
+
+    public class OnScreenViewModel
+    {
+        public IStartPage StartPage { get; internal set; }
+        public IAbstractItem AI { get; internal set; }
+        public OnScreenSettings OnScreenSettings { get; set; }
+        public OnScreenContext Ctx { get; set; }
     }
 }

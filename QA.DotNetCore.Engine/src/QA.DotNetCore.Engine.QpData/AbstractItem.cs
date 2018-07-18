@@ -1,4 +1,5 @@
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.Abstractions.OnScreen;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using System;
@@ -29,6 +30,19 @@ namespace QA.DotNetCore.Engine.QpData
             return filter == null ? Children : Children.Pipe(filter);
         }
 
+        public override object GetMetadata(string key)
+        {
+            switch (key)
+            {
+                case OnScreenWidgetMetadataKeys.Type:
+                    return Discriminator;
+                case OnScreenWidgetMetadataKeys.Published:
+                    return Published;
+                default:
+                    return null;
+            }
+        }
+
         internal void AddChild(AbstractItem child)
         {
             Children.Add(child);
@@ -44,6 +58,8 @@ namespace QA.DotNetCore.Engine.QpData
             ExtensionId = persistentItem.ExtensionId;
             ParentId = persistentItem.ParentId;
             VersionOfId = persistentItem.VersionOfId;
+            Discriminator = persistentItem.Discriminator;
+            Published = persistentItem.Published;
         }
 
         internal virtual void MapVersionOf(AbstractItem main)
@@ -61,6 +77,8 @@ namespace QA.DotNetCore.Engine.QpData
         internal int? ExtensionId { get; set; }
         internal int? ParentId { get; set; }
         internal int? VersionOfId { get; set; }
+        internal string Discriminator { get; set; }
+        internal bool Published { get; set; }
         internal AbstractItemExtensionCollection Details { get; set; }
         internal M2mRelations M2mRelations { get; set; }
 

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import {
   TOGGLE_COMPONENT,
   TOGGLE_SUBTREE,
@@ -13,10 +14,12 @@ import buildFlatList from '../utils/buildFlatList';
 const components = buildFlatList();
 
 const getMaxNestLevel = comps => comps.map(c => c.nestLevel).reduce((max, cur) => Math.max(max, cur));
+// const getMaxNestLevel = () => 1;
 
 const initialState = {
   selectedComponentId: '',
   components,
+  // component: [],
   maxNestLevel: getMaxNestLevel(components),
   searchText: '',
   showOnlyWidgets: false,

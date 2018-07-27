@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import List from 'material-ui/List';
 import ComponentItem from '../ComponentItem';
@@ -17,24 +17,22 @@ export default function ComponentTree(props) {
   } = props;
 
   return (
-    <Fragment>
-      <List dense>
-        {components.map(component => (
-          <ComponentItem
-            {...component}
-            selectedComponentId={selectedComponentId}
-            isOpened={component.isOpened}
-            key={component.onScreenId}
-            onToggleComponent={onToggleComponent}
-            onToggleSubtree={onToggleSubtree}
-            onToggleFullSubtree={onToggleFullSubtree}
-            isMovingWidget={isMovingWidget}
-            onMovingWidgetSelectTargetZone={onMovingWidgetSelectTargetZone}
-            showOnlyWidgets={showOnlyWidgets}
-            itemLevel={1}
-          />))}
-      </List>
-    </Fragment>
+    <List dense>
+      {components.map(component => (
+        <ComponentItem
+          {...component}
+          selectedComponentId={selectedComponentId}
+          isOpened={component.isOpened}
+          key={component.onScreenId}
+          onToggleComponent={onToggleComponent}
+          onToggleSubtree={onToggleSubtree}
+          onToggleFullSubtree={onToggleFullSubtree}
+          isMovingWidget={isMovingWidget}
+          onMovingWidgetSelectTargetZone={onMovingWidgetSelectTargetZone}
+          showOnlyWidgets={showOnlyWidgets}
+          itemLevel={1}
+        />))}
+    </List>
   );
 }
 

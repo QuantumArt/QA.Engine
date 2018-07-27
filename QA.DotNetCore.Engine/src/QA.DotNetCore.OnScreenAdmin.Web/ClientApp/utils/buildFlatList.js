@@ -1,6 +1,7 @@
+/* eslint-disable */
 import _ from 'lodash';
 import { getSubtreeState } from './componentTreeStateStorage';
-/* eslint-disable no-param-reassign */
+import parseWidgetsAndZones from './parseWidgetsAndZones';
 
 const findParentComponent = (component) => {
   let currentElement = component;
@@ -85,8 +86,6 @@ const getComponentOnScreenId = (component, parentComponent) => {
   return parentComponentOnScreenId + thisComponentPart;
 };
 
-// const getComponentParentAbstractItemId = () => '';
-
 const getComponentParentAbstractItemId = (component) => {
   const data = component.dataset;
   let parentComponent = findParentComponent(component);
@@ -129,8 +128,13 @@ const buildList = () => {
   });
 
   const components = _.map(allComponents, mapComponent);
+  // console.log(components, 'old');
 
   return components;
 };
+
+console.log(
+  parseWidgetsAndZones()
+);
 
 export default buildList;

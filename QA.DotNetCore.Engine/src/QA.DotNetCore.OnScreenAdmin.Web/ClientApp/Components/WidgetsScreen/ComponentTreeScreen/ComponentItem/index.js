@@ -172,11 +172,9 @@ class ComponentItem extends Component {
   }
 
   renderCollapseButton = (isOpened, subtree, showOnlyWidgets, hasChildWidgets, classes) => {
-    if (!subtree) {
-      return null;
-    }
-
+    if (!subtree) { return null; }
     if (showOnlyWidgets && !hasChildWidgets) { return null; }
+
     return (
       <IconButton
         onClick={this.handleSubtreeClick}
@@ -224,7 +222,6 @@ class ComponentItem extends Component {
       showOnlyWidgets,
     } = this.props;
     const isSelected = selectedComponentId === onScreenId;
-    if (showOnlyWidgets && type === 'zone') { return null; }
 
     return (
       <ListItem

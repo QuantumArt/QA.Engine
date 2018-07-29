@@ -128,7 +128,7 @@ const buildList = () => {
   });
 
   const components = _.map(allComponents, mapComponent);
-  // console.log(components, 'old');
+  console.log(components, 'old');
 
   return components;
 };

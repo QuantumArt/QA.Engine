@@ -13,16 +13,35 @@ const endZone = val => val.startsWith(endZonePrefix);
 const isWidget = val => val.startsWith(startWidgetPrefix);
 const endWidget = val => val.startsWith(endWidgetPrefix);
 
+const mapProperties = (val) => {
+  const pair = val.match(/(\w+)='([^']+)'/g);
+  const initObj = {};
+  if (isWidget(val)) {
+    initObj.widgetId = Number(val.match(/(\d+)(?!(widget))/g)[0]);
+  } else {
+    initObj.title = val.match(/zone (\w+)/g)[0];
+  }
+
+  return _.reduce(pair, (prev, cur) => {
+    const parsed = cur.split('=');
+    const key = parsed[0];
+    const value = parsed[1].replace(/'/g, '');
+
+    return {
+      ...prev,
+      [key]: (value === 'true' || value === 'false') ? value === 'true' : value,
+    };
+  }, initObj);
+};
 const constructElement = (type, val, id, parentId, nestLevel) => ({
   isSelected: false,
   isOpened: false,
   isDisabled: false,
   type,
   nestLevel,
-  properties: {},
   id,
   parentId,
-  val: val.trim(),
+  properties: mapProperties(val),
 });
 
 const parseWidgetsAndZones = () => {
@@ -38,7 +57,7 @@ const parseWidgetsAndZones = () => {
       const type = isZone(val) ? 'zone' : 'widget';
 
       ctx.enqueue(
-        constructElement(type, val, _.uniqueId(type), parentId, ctx.length),
+        constructElement(type, val, _.uniqueId(type), parentId, ctx.length + 1),
       );
     } else if (endZone(val) || endWidget(val)) {
       result.push(ctx.peek());

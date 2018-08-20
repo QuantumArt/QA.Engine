@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import _ from 'lodash';
-import Queue from './queue';
+import { Queue } from './structures';
 
 
 const startZonePrefix = 'start zone ';
@@ -50,7 +50,7 @@ const parseWidgetsAndZones = () => {
   const mapEl = (node) => {
     const val = node.nodeValue;
     if (isZone(val) || isWidget(val)) {
-      let parentId = 'page';
+      let parentId = null;
       if (ctx.length !== 0) {
         parentId = ctx.peekLast().id;
       }

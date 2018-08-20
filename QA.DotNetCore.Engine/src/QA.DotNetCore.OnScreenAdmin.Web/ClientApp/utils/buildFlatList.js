@@ -2,6 +2,7 @@
 import _ from 'lodash';
 import { getSubtreeState } from './componentTreeStateStorage';
 import parseWidgetsAndZones from './parseWidgetsAndZones';
+import buildTreeNew from './buildTreeNew';
 
 const findParentComponent = (component) => {
   let currentElement = component;
@@ -133,8 +134,11 @@ const buildList = () => {
   return components;
 };
 
+const list = parseWidgetsAndZones();
+const tree = buildTreeNew(list);
 console.log(
-  parseWidgetsAndZones()
+  list,
+  tree
 );
 
 export default buildList;

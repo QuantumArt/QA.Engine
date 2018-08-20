@@ -1,4 +1,38 @@
-export default class Queue {
+export class Stack {
+  constructor() {
+    this.value = [];
+  }
+
+  get length() {
+    return this.value.length;
+  }
+
+  push(val) {
+    return this.value.push(val);
+  }
+
+  pop() {
+    return this.value.pop();
+  }
+
+  peek() {
+    return this.value[this.value.length - 1];
+  }
+
+  contains(val) {
+    return this.value.indexOf(val) !== -1;
+  }
+
+  toArray() {
+    return this.value;
+  }
+
+  toString() {
+    return this.value.toString();
+  }
+}
+
+export class Queue {
   constructor() {
     this.value = [];
   }

@@ -1,8 +1,6 @@
 /* eslint-disable */
 import _ from 'lodash';
 import { getSubtreeState } from './componentTreeStateStorage';
-import parseWidgetsAndZones from './parseWidgetsAndZones';
-import buildTreeNew from './buildTreeNew';
 
 const findParentComponent = (component) => {
   let currentElement = component;
@@ -65,7 +63,6 @@ const mapComponent = domElement => ({
   isDisabled: false,
 });
 
-
 const getComponentOnScreenId = (component, parentComponent) => {
   let thisComponentPart = '';
   const data = component.dataset;
@@ -88,16 +85,26 @@ const getComponentOnScreenId = (component, parentComponent) => {
 };
 
 const getComponentParentAbstractItemId = (component) => {
+  console.log(
+    component.dataset
+  );
   const data = component.dataset;
   let parentComponent = findParentComponent(component);
+
   if (data.qaComponentType === 'zone') {
     while (parentComponent && parentComponent.dataset.qaComponentType !== 'widget') {
       parentComponent = findParentComponent(parentComponent);
     }
     if (!parentComponent) { // зона от страницы
+      console.log(
+        getZoneParentPageId(data)
+      );
       return getZoneParentPageId(data);
     }
     // нашли виджет
+    console.log(
+      parentComponent.dataset.qaWidgetId
+    );
     return parentComponent.dataset.qaWidgetId;
   }
   // пока возвращаем только для зон, при необходимости - допилить
@@ -133,12 +140,5 @@ const buildList = () => {
 
   return components;
 };
-
-const list = parseWidgetsAndZones();
-const tree = buildTreeNew(list);
-console.log(
-  list,
-  tree
-);
 
 export default buildList;

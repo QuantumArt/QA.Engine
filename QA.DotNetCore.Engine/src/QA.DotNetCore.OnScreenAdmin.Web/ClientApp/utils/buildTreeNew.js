@@ -1,8 +1,9 @@
 import _ from 'lodash';
 
 export default function buildTreeNew(list) {
+  const _list = _.cloneDeep(list);
   const hashMap = {};
-  _.forEach(list, (el) => {
+  _.forEach(_list, (el) => {
     el.children = [];
     hashMap[el.id] = el;
   });

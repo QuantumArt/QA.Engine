@@ -9,9 +9,17 @@ import {
   TOGGLE_COMPONENT_TREE_SEARCH_BOX,
 } from '../actions/actionTypes';
 import buildFlatList from '../utils/buildFlatList';
+import buildFlatListNew from '../utils/buildFlatListNew';
 
 
 const components = buildFlatList();
+const components_ = buildFlatListNew();
+console.log(
+  components, 'old',
+);
+console.log(
+  components_, 'new'
+);
 
 const getMaxNestLevel = comps => comps.map(c => c.nestLevel).reduce((max, cur) => Math.max(max, cur));
 // const getMaxNestLevel = () => 1;
@@ -19,7 +27,6 @@ const getMaxNestLevel = comps => comps.map(c => c.nestLevel).reduce((max, cur) =
 const initialState = {
   selectedComponentId: '',
   components,
-  // component: [],
   maxNestLevel: getMaxNestLevel(components),
   searchText: '',
   showOnlyWidgets: false,

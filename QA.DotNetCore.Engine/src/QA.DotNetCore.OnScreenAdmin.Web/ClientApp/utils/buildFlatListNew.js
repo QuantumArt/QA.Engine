@@ -1,8 +1,7 @@
-/* eslint-disable no-unused-vars */
 import _ from 'lodash';
 import { Queue } from './structures';
 
-
+/** @namespace window.startPageId */
 const startZonePrefix = 'start zone ';
 const endZonePrefix = 'end zone ';
 const startWidgetPrefix = 'start widget ';
@@ -33,18 +32,30 @@ const mapProperties = (val) => {
     };
   }, initObj);
 };
-const constructElement = (type, val, id, parentId, nestLevel) => ({
-  isSelected: false,
-  isOpened: false,
-  isDisabled: false,
-  type,
-  nestLevel,
-  id,
-  parentId,
-  properties: mapProperties(val),
-});
 
-const parseWidgetsAndZones = () => {
+const constructElement = (type, val, id, parentId, nestLevel) => {
+  const properties = mapProperties(val);
+  if (type === 'zone') {
+    if (nestLevel === 1) {
+      properties.abstractItemId = properties.isGlobal ? window.startPageId : window.currentPageId;
+    } else {
+      properties.abstractItemId = 1; // TBD
+    }
+  }
+
+  return {
+    isSelected: false,
+    isOpened: false,
+    isDisabled: false,
+    type,
+    nestLevel,
+    id,
+    parentId,
+    properties,
+  };
+};
+
+const buildFlatListNew = () => {
   const result = [];
   const ctx = new Queue();
   const mapEl = (node) => {
@@ -81,4 +92,4 @@ const parseWidgetsAndZones = () => {
   return _.compact(result);
 };
 
-export default parseWidgetsAndZones;
+export default buildFlatListNew;

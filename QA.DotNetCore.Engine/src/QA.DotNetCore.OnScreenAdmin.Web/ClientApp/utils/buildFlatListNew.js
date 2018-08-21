@@ -33,24 +33,20 @@ const mapProperties = (val) => {
   }, initObj);
 };
 
-const constructElement = (type, val, id, parentId, nestLevel) => {
-  const properties = mapProperties(val);
-
-
-  return {
-    isSelected: false,
-    isOpened: false,
-    isDisabled: false,
-    type,
-    nestLevel,
-    id,
-    parentId,
-    properties,
-  };
-};
+const constructElement = (type, val, id, parentId, nestLevel) => ({
+  isSelected: false,
+  isOpened: false,
+  isDisabled: false,
+  type,
+  nestLevel,
+  id,
+  parentId,
+  properties: mapProperties(val),
+});
 
 export default function buildFlatListNew() {
-  const result = [];
+  const list = [];
+  const hashMap = {};
   const ctx = new Queue();
   const mapEl = (node) => {
     const val = node.nodeValue;
@@ -59,13 +55,22 @@ export default function buildFlatListNew() {
       if (ctx.length !== 0) {
         parentId = ctx.peekLast().id;
       }
-      const type = isZone(val) ? 'zone' : 'widget';
 
-      ctx.enqueue(
-        constructElement(type, val, _.uniqueId(type), parentId, ctx.length + 1),
-      );
+      const type = isZone(val) ? 'zone' : 'widget';
+      const el = constructElement(type, val, _.uniqueId(type), parentId, ctx.length + 1);
+      hashMap[el.id] = el;
+
+      if (type === 'zone') {
+        if (el.nestLevel === 1) {
+          el.properties.parentAbstractItemId = el.properties.isGlobal ? window.startPageId : window.currentPageId;
+        } else {
+          el.properties.parentAbstractItemId = hashMap[el.parentId].properties.widgetId;
+        }
+      }
+
+      ctx.enqueue(el);
     } else if (endZone(val) || endWidget(val)) {
-      result.push(ctx.peek());
+      list.push(ctx.peek());
       ctx.dequeue();
     }
   };
@@ -83,5 +88,5 @@ export default function buildFlatListNew() {
     mapEl(curNode);
   }
 
-  return _.compact(result);
-};
+  return _.compact(list);
+}

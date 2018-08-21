@@ -10,19 +10,9 @@ export default function buildTreeNew(list) {
 
   const tree = [];
   _.forEach(hashMap, (el) => {
-    // fill children
     if (hashMap[el.parentId]) {
       hashMap[el.parentId].children.push(el);
     }
-    // fill parentAbstractId
-    if (el.type === 'zone') {
-      if (el.nestLevel === 1) {
-        el.properties.parentAbstractItemId = el.properties.isGlobal ? window.startPageId : window.currentPageId;
-      } else {
-        el.properties.parentAbstractItemId = hashMap[el.parentId].properties.widgetId; // TBD
-      }
-    }
-    // form a tree
     if (!el.parentId) {
       tree.push(el);
     }

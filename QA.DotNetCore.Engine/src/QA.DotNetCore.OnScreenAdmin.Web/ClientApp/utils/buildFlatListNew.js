@@ -35,13 +35,7 @@ const mapProperties = (val) => {
 
 const constructElement = (type, val, id, parentId, nestLevel) => {
   const properties = mapProperties(val);
-  if (type === 'zone') {
-    if (nestLevel === 1) {
-      properties.abstractItemId = properties.isGlobal ? window.startPageId : window.currentPageId;
-    } else {
-      properties.abstractItemId = 1; // TBD
-    }
-  }
+
 
   return {
     isSelected: false,
@@ -55,7 +49,7 @@ const constructElement = (type, val, id, parentId, nestLevel) => {
   };
 };
 
-const buildFlatListNew = () => {
+export default function buildFlatListNew() {
   const result = [];
   const ctx = new Queue();
   const mapEl = (node) => {
@@ -91,5 +85,3 @@ const buildFlatListNew = () => {
 
   return _.compact(result);
 };
-
-export default buildFlatListNew;

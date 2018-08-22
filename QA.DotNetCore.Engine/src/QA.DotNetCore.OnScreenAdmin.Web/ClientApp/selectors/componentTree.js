@@ -1,10 +1,13 @@
+/* eslint-disable */
 import { createSelector, createSelectorCreator } from 'reselect';
 import _ from 'lodash';
-import buildTree from '../utils/buildTree';
+import buildTree from 'utils/buildTree';
+import buildTreeNew from 'utils/buildTreeNew';
 import { allAvailableWidgets as allAvailableWidgetsSelector } from './availableWidgets';
 
 
-const getComponentTreeSelector = state => buildTree(state.componentTree.components);
+// const getComponentTreeSelector = state => buildTree(state.componentTree.components);
+const getComponentTreeSelector = state => buildTreeNew(state.componentTree.components);
 const getFlatComponentsSelector = state => state.componentTree.components;
 const getMaxNestLevelSelector = state => state.componentTree.maxNestLevel;
 const getSelectedComponentIdSelector = state => state.componentTree.selectedComponentId;
@@ -35,8 +38,10 @@ const getParentComponents = (allComponents, component) => {
 };
 
 const filterFunction = (componentsFlat, keyword, disabledComponents, showOnlyWidgets, availableWidgets) => {
-  console.log('showOnlyWidgets', showOnlyWidgets);
-  if (keyword === '') { return buildTree(componentsFlat, disabledComponents, false, availableWidgets); }
+  if (keyword === '') {
+    return buildTree(componentsFlat, disabledComponents, false, availableWidgets);
+  }
+
   const searchText = _.toLower(keyword);
   const searchResults = _.filter(componentsFlat, (c) => {
     switch (c.type) {
@@ -52,7 +57,8 @@ const filterFunction = (componentsFlat, keyword, disabledComponents, showOnlyWid
     }
   });
   const searchResultIds = _.map(searchResults, 'onScreenId');
-  console.log('searchResultIds', searchResultIds);
+  console.log('searchResultIds', searchResults);
+
   let parentComponentIds = [];
   _.each(searchResults, (c) => {
     const parents = getParentComponents(componentsFlat, c);
@@ -61,47 +67,20 @@ const filterFunction = (componentsFlat, keyword, disabledComponents, showOnlyWid
   const uniqResults = _.uniq(_.concat(searchResultIds, parentComponentIds));
 
 
-  // console.log('uniqResults', uniqResults);
-
-
   const filteredFlatComponents = _.filter(componentsFlat, c =>
     _.some(uniqResults, componentId => componentId === c.onScreenId),
   );
 
-  // console.log(keyword, filteredFlatComponents);
-
   return buildTree(filteredFlatComponents, disabledComponents, true, availableWidgets);
 };
 
+export const getComponentTree = createSelector(getComponentTreeSelector, _.identity);
+export const getMaxNestLevel = createSelector(getMaxNestLevelSelector, _.identity);
+export const getSelectedComponentId = createSelector(getSelectedComponentIdSelector, _.identity);
+export const getSearchText = createSelector(getSearchTextSelector, _.identity);
+export const getShowSearchBox = createSelector(getShowSearchBoxSelector, _.identity);
+
 const isMoving = movingWidget => !(movingWidget == null || !movingWidget.isActive || !movingWidget.onScreenId);
-
-
-export const getComponentTree = createSelector(
-  [getComponentTreeSelector],
-  components => components,
-);
-
-export const getMaxNestLevel = createSelector(
-  [getMaxNestLevelSelector],
-  maxNestLevel => maxNestLevel,
-);
-
-export const getSelectedComponentId = createSelector(
-  [getSelectedComponentIdSelector],
-  selectedComponentId => selectedComponentId,
-);
-
-export const getSearchText = createSelector(
-  [getSearchTextSelector],
-  searchText => searchText,
-);
-
-export const getShowSearchBox = createSelector(
-  [getShowSearchBoxSelector],
-  show => show,
-);
-
-
 export const getIsMovingWidget = createSelector(
   [getMovingWidgetSelector],
   movingWidget => isMoving(movingWidget),
@@ -129,21 +108,25 @@ export const getDisabledComponents = createSelector(
   },
 );
 
-export const filteredComponentTree = createJSONEqualSelector(
-  [
-    getSearchTextSelector,
-    getFlatComponentsSelector,
-    getDisabledComponents,
-    getShowOnlyWidgetsSelector,
-    getMovingWidgetSelector,
-    allAvailableWidgetsSelector,
-  ],
-  (searchText, componentsFlat, disabledComponents, showOnlyWidgets, movingWidget, availableWidgets) =>
-    filterFunction(componentsFlat,
-      searchText,
-      disabledComponents,
-      showOnlyWidgets && !isMoving(movingWidget),
-      availableWidgets),
+// export const filteredComponentTree = createJSONEqualSelector(
+//   [
+//     getSearchTextSelector,
+//     getFlatComponentsSelector,
+//     getDisabledComponents,
+//     getShowOnlyWidgetsSelector,
+//     getMovingWidgetSelector,
+//     allAvailableWidgetsSelector,
+//   ],
+//   (searchText, componentsFlat, disabledComponents, showOnlyWidgets, movingWidget, availableWidgets) =>
+//     filterFunction(componentsFlat,
+//       searchText,
+//       disabledComponents,
+//       showOnlyWidgets && !isMoving(movingWidget),
+//       availableWidgets),
+// );
+export const filteredComponentTree = createSelector(
+  getComponentTreeSelector,
+  _.identity
 );
 
 export const getMovingWidgetTargetZoneSelector = createSelector(

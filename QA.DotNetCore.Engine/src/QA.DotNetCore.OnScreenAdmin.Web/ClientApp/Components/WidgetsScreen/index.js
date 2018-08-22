@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Paper from 'material-ui/Paper';
@@ -32,17 +33,15 @@ const WidgetsScreen = ({
       </Paper>
     }
     {showComponentTree &&
-      <Fragment>
-        <ComponentTreeScreen />
-      </Fragment>
+      <ComponentTreeScreen />
     }
-    {showWidgetCreationWizard &&
-      <WidgetCreationWizard />
-    }
-    {showMoveWidgetScreen &&
-      <MoveWidgetScreen />
-    }
-    <EditComponentTree />
+    {/* {showWidgetCreationWizard && */}
+    {/* <WidgetCreationWizard /> */}
+    {/* } */}
+    {/* {showMoveWidgetScreen && */}
+    {/* <MoveWidgetScreen /> */}
+    {/* } */}
+    {/* <EditComponentTree /> */}
   </Fragment>
 );
 

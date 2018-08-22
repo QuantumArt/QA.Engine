@@ -73,7 +73,6 @@ namespace QA.DotNetCore.Engine.Widgets
             var onScreenContext = ((IOnScreenContextProvider)html.ViewContext.HttpContext.RequestServices.GetService(typeof(IOnScreenContextProvider)))?.GetContext();
             var isWidgetEditMode = onScreenContext != null ? onScreenContext.HasFeature(OnScreenFeatures.Widgets) : false;
         
-            builder.AppendHtml($"<!--start zone {zoneName} -->");
             RenderOnScreenModeZoneWrapperStart(isWidgetEditMode, zoneName, builder);
             if (widgets != null)
             {
@@ -82,7 +81,6 @@ namespace QA.DotNetCore.Engine.Widgets
                 foreach (var widget in widgets.OfType<IAbstractWidget>().OrderBy(x => x.SortOrder))
                 {
                     var name = mapper.Map(widget);
-                    builder.AppendHtml($"<!-- start render widget {widget.Id} -->");
                     RenderOnScreenModeWidgetWrapperStart(isWidgetEditMode, builder, widget);
                     var renderingStack = html.ViewContext.HttpContext.PushWidgetToRenderingStack(new WidgetRenderingContext { CurrentWidget = widget, ShouldUseCustomInvoker = true });
                     try
@@ -94,13 +92,11 @@ namespace QA.DotNetCore.Engine.Widgets
                     {
                         renderingStack.Pop();
 
-                        RenderOnScreenModeWidgetWrapperEnd(isWidgetEditMode, builder);
-                        builder.AppendHtml($"<!-- finish render widget {widget.Id} -->");
+                        RenderOnScreenModeWidgetWrapperEnd(isWidgetEditMode, builder, widget);
                     }
                 }
             }
-            RenderOnScreenModeZoneWrapperEnd(isWidgetEditMode, builder);
-            builder.AppendHtml($"<!--end zone {zoneName} -->");
+            RenderOnScreenModeZoneWrapperEnd(isWidgetEditMode, zoneName, builder);
             return builder;
         }
 
@@ -182,29 +178,31 @@ namespace QA.DotNetCore.Engine.Widgets
             return zoneName.StartsWith("Site");
         }
 
-        
+
         private static void RenderOnScreenModeWidgetWrapperStart(bool isWidgetEditMode, IHtmlContentBuilder builder, IAbstractItem widget)
         {
-            if (!isWidgetEditMode) return;
-            builder.AppendHtml($"<div data-qa-component-type=\"widget\" data-qa-widget-id=\"{widget.Id}\" data-qa-widget-alias=\"{widget.Alias}\" data-qa-widget-title=\"{widget.Title}\" data-qa-widget-type=\"{widget.GetMetadata(OnScreenWidgetMetadataKeys.Type)}\" data-qa-widget-published=\"{widget.GetMetadata(OnScreenWidgetMetadataKeys.Published)?.ToString()?.ToLower()}\">");
+            if (isWidgetEditMode)
+                builder.AppendHtml($"<!--start widget {widget.Id} {{ alias='{widget.Alias}' title='{widget.Title.Replace("'", "").Replace("}", "").Replace("{", "")}' type='{widget.GetMetadata(OnScreenWidgetMetadataKeys.Type)}' published='{widget.GetMetadata(OnScreenWidgetMetadataKeys.Published)?.ToString()?.ToLower()}' }}-->");
+            else
+                builder.AppendHtml($"<!--start widget {widget.Id}-->");
         }
 
         private static void RenderOnScreenModeZoneWrapperStart(bool isWidgetEditMode, string zoneName, IHtmlContentBuilder builder)
         {
-            if (!isWidgetEditMode) return;
-            builder.AppendHtml($"<div data-qa-component-type=\"zone\" data-qa-zone-name=\"{zoneName}\" data-qa-zone-is-recursive=\"{ZoneIsRecursive(zoneName).ToString().ToLowerInvariant()}\" data-qa-zone-is-global=\"{ZoneIsGlobal(zoneName).ToString().ToLowerInvariant()}\">");
+            if (isWidgetEditMode)
+                builder.AppendHtml($"<!--start zone {zoneName} {{ isRecursive='{ZoneIsRecursive(zoneName).ToString().ToLowerInvariant()}' isGlobal='{ZoneIsGlobal(zoneName).ToString().ToLowerInvariant()}' }}-->");
+            else
+                builder.AppendHtml($"<!--start zone {zoneName}-->");
         }
 
-        private static void RenderOnScreenModeZoneWrapperEnd(bool isWidgetEditMode, IHtmlContentBuilder builder)
+        private static void RenderOnScreenModeWidgetWrapperEnd(bool isWidgetEditMode, IHtmlContentBuilder builder, IAbstractItem widget)
         {
-            if (!isWidgetEditMode) return;
-            builder.AppendHtml("</div>");
+            builder.AppendHtml($"<!--end widget {widget.Id}-->");
         }
 
-        private static void RenderOnScreenModeWidgetWrapperEnd(bool isWidgetEditMode, IHtmlContentBuilder builder)
+        private static void RenderOnScreenModeZoneWrapperEnd(bool isWidgetEditMode, string zoneName, IHtmlContentBuilder builder)
         {
-            if (!isWidgetEditMode) return;
-            builder.AppendHtml("</div>");
+            builder.AppendHtml($"<!--end zone {zoneName}-->");
         }
 
         /// <summary>

@@ -1,6 +1,6 @@
+/* eslint-disable */
 import _ from 'lodash';
 import { getSubtreeState } from './componentTreeStateStorage';
-/* eslint-disable no-param-reassign */
 
 const findParentComponent = (component) => {
   let currentElement = component;
@@ -63,7 +63,6 @@ const mapComponent = domElement => ({
   isDisabled: false,
 });
 
-
 const getComponentOnScreenId = (component, parentComponent) => {
   let thisComponentPart = '';
   const data = component.dataset;
@@ -85,11 +84,10 @@ const getComponentOnScreenId = (component, parentComponent) => {
   return parentComponentOnScreenId + thisComponentPart;
 };
 
-// const getComponentParentAbstractItemId = () => '';
-
 const getComponentParentAbstractItemId = (component) => {
   const data = component.dataset;
   let parentComponent = findParentComponent(component);
+
   if (data.qaComponentType === 'zone') {
     while (parentComponent && parentComponent.dataset.qaComponentType !== 'widget') {
       parentComponent = findParentComponent(parentComponent);

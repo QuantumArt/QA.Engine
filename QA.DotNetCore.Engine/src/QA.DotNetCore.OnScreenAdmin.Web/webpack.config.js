@@ -37,60 +37,61 @@ module.exports = {
   },
   devtool: 'cheap-module-source-map',
   module: {
-    rules: [{
-      enforce: 'pre',
-      test: /\.(js|jsx)?$/,
-      exclude: /node_modules/,
-      loader: 'eslint-loader',
-      options: {
-        failOnError: false,
-      },
-    },
-    {
-      test: /\.(js|jsx)?$/,
-      use: ['react-hot-loader/webpack', 'babel-loader'],
-      exclude: /node_modules/,
-    },
-    {
-      test: /\.css$/,
-      use: ['style-loader', 'css-loader'],
-    },
-    {
-      test: /\.(woff|woff2|eot|ttf|otf)?$/,
-      use: 'url-loader',
-    },
-    {
-      test: /\.(png|gif)?$/,
-      use: 'url-loader',
-    },
-    {
-      test: /\.svg$/,
-      use: [{
-        loader: 'url-loader',
+    rules: [
+      // {
+      //   enforce: 'pre',
+      //   test: /\.(js|jsx)?$/,
+      //   exclude: /node_modules/,
+      //   loader: 'eslint-loader',
+      //   options: {
+      //     failOnError: false,
+      //   },
+      // },
+      {
+        test: /\.(js|jsx)?$/,
+        use: ['react-hot-loader/webpack', 'babel-loader'],
+        exclude: /node_modules/,
       },
       {
-        loader: 'svgo-loader',
-        options: {
-          plugins: [{
-            removeTitle: true,
-          },
-          {
-            convertColors: {
-              shorthex: false,
-            },
-          },
-          {
-            convertPathData: false,
-          },
-          ],
-        },
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
       },
-      ],
-    },
-    {
-      test: /\.(jpg|jpeg)?$/,
-      use: 'file-loader?name=[name].[ext]&outputPath=images/',
-    },
+      {
+        test: /\.(woff|woff2|eot|ttf|otf)?$/,
+        use: 'url-loader',
+      },
+      {
+        test: /\.(png|gif)?$/,
+        use: 'url-loader',
+      },
+      {
+        test: /\.svg$/,
+        use: [{
+          loader: 'url-loader',
+        },
+        {
+          loader: 'svgo-loader',
+          options: {
+            plugins: [{
+              removeTitle: true,
+            },
+            {
+              convertColors: {
+                shorthex: false,
+              },
+            },
+            {
+              convertPathData: false,
+            },
+            ],
+          },
+        },
+        ],
+      },
+      {
+        test: /\.(jpg|jpeg)?$/,
+        use: 'file-loader?name=[name].[ext]&outputPath=images/',
+      },
     ],
   },
   plugins: [

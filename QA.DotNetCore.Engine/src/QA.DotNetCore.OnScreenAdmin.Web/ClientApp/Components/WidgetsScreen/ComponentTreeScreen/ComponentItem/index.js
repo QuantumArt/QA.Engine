@@ -1,3 +1,4 @@
+/* eslint-disable */
 import _ from 'lodash';
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
@@ -75,7 +76,7 @@ const styles = (theme) => {
     },
   };
 };
-/* eslint-disable react/sort-comp */
+
 class ComponentItem extends Component {
   handleToggleClick = () => {
     const { isMovingWidget, onScreenId, onToggleComponent, onMovingWidgetSelectTargetZone } = this.props;
@@ -86,7 +87,7 @@ class ComponentItem extends Component {
       onToggleComponent(onScreenId);
       scrollToElement(`[data-qa-component-on-screen-id="${onScreenId}"]`,
         { offset: -100,
-          ease: 'in-out-expo', // https://github.com/component/ease#aliases
+          ease: 'in-out-expo',
           duration: 1500,
         },
       );
@@ -172,11 +173,9 @@ class ComponentItem extends Component {
   }
 
   renderCollapseButton = (isOpened, subtree, showOnlyWidgets, hasChildWidgets, classes) => {
-    if (!subtree) {
-      return null;
-    }
-
+    if (!subtree) { return null; }
     if (showOnlyWidgets && !hasChildWidgets) { return null; }
+
     return (
       <IconButton
         onClick={this.handleSubtreeClick}
@@ -224,7 +223,6 @@ class ComponentItem extends Component {
       showOnlyWidgets,
     } = this.props;
     const isSelected = selectedComponentId === onScreenId;
-    if (showOnlyWidgets && type === 'zone') { return null; }
 
     return (
       <ListItem

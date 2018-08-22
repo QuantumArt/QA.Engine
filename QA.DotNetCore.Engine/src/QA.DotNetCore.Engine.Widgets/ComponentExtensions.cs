@@ -182,7 +182,7 @@ namespace QA.DotNetCore.Engine.Widgets
         private static void RenderOnScreenModeWidgetWrapperStart(bool isWidgetEditMode, IHtmlContentBuilder builder, IAbstractItem widget)
         {
             if (isWidgetEditMode)
-                builder.AppendHtml($"<!--start widget {widget.Id} {{ alias='{widget.Alias}' title='{widget.Title.Replace("'", "").Replace("}", "").Replace("{", "")}' type='{widget.GetMetadata(OnScreenWidgetMetadataKeys.Type)}' }}-->");
+                builder.AppendHtml($"<!--start widget {widget.Id} {{ alias='{widget.Alias}' title='{widget.Title.Replace("'", "").Replace("}", "").Replace("{", "")}' type='{widget.GetMetadata(OnScreenWidgetMetadataKeys.Type)}' published='{widget.GetMetadata(OnScreenWidgetMetadataKeys.Published)?.ToString()?.ToLower()}' }}-->");
             else
                 builder.AppendHtml($"<!--start widget {widget.Id}-->");
         }

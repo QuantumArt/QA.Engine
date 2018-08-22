@@ -13,17 +13,8 @@ import buildFlatListNew from 'utils/buildFlatListNew';
 import buildTreeNew from 'utils/buildTreeNew';
 
 
-const components = buildFlatList();
-const components_ = buildFlatListNew();
-console.log(
-  components, 'old',
-);
-console.log(
-  components_, 'new'
-);
-console.log(
-  buildTreeNew(components_), 'tree'
-);
+// const components = buildFlatList();
+const components = buildFlatListNew();
 
 const getMaxNestLevel = comps => comps.map(c => c.nestLevel).reduce((max, cur) => Math.max(max, cur));
 // const getMaxNestLevel = () => 1;

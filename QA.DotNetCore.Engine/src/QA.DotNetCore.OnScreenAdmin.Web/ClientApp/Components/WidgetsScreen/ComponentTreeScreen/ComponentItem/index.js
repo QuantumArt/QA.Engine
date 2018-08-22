@@ -1,3 +1,4 @@
+/* eslint-disable */
 import _ from 'lodash';
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
@@ -75,7 +76,7 @@ const styles = (theme) => {
     },
   };
 };
-/* eslint-disable react/sort-comp */
+
 class ComponentItem extends Component {
   handleToggleClick = () => {
     const { isMovingWidget, onScreenId, onToggleComponent, onMovingWidgetSelectTargetZone } = this.props;
@@ -86,7 +87,7 @@ class ComponentItem extends Component {
       onToggleComponent(onScreenId);
       scrollToElement(`[data-qa-component-on-screen-id="${onScreenId}"]`,
         { offset: -100,
-          ease: 'in-out-expo', // https://github.com/component/ease#aliases
+          ease: 'in-out-expo',
           duration: 1500,
         },
       );

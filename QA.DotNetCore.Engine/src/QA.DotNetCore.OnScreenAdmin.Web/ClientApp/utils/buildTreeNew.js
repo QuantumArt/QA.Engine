@@ -5,7 +5,7 @@ export default function buildTreeNew(list) {
   const hashMap = {};
   _.forEach(_list, (el) => {
     el.children = [];
-    hashMap[el.id] = el;
+    hashMap[el.onScreenId] = el;
   });
 
   const tree = [];

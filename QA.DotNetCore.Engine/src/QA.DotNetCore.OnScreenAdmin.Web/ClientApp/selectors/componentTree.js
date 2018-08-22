@@ -1,10 +1,13 @@
+/* eslint-disable */
 import { createSelector, createSelectorCreator } from 'reselect';
 import _ from 'lodash';
-import buildTree from '../utils/buildTree';
+import buildTree from 'utils/buildTree';
+import buildTreeNew from 'utils/buildTreeNew';
 import { allAvailableWidgets as allAvailableWidgetsSelector } from './availableWidgets';
 
 
-const getComponentTreeSelector = state => buildTree(state.componentTree.components);
+// const getComponentTreeSelector = state => buildTree(state.componentTree.components);
+const getComponentTreeSelector = state => buildTreeNew(state.componentTree.components);
 const getFlatComponentsSelector = state => state.componentTree.components;
 const getMaxNestLevelSelector = state => state.componentTree.maxNestLevel;
 const getSelectedComponentIdSelector = state => state.componentTree.selectedComponentId;
@@ -105,21 +108,25 @@ export const getDisabledComponents = createSelector(
   },
 );
 
-export const filteredComponentTree = createJSONEqualSelector(
-  [
-    getSearchTextSelector,
-    getFlatComponentsSelector,
-    getDisabledComponents,
-    getShowOnlyWidgetsSelector,
-    getMovingWidgetSelector,
-    allAvailableWidgetsSelector,
-  ],
-  (searchText, componentsFlat, disabledComponents, showOnlyWidgets, movingWidget, availableWidgets) =>
-    filterFunction(componentsFlat,
-      searchText,
-      disabledComponents,
-      showOnlyWidgets && !isMoving(movingWidget),
-      availableWidgets),
+// export const filteredComponentTree = createJSONEqualSelector(
+//   [
+//     getSearchTextSelector,
+//     getFlatComponentsSelector,
+//     getDisabledComponents,
+//     getShowOnlyWidgetsSelector,
+//     getMovingWidgetSelector,
+//     allAvailableWidgetsSelector,
+//   ],
+//   (searchText, componentsFlat, disabledComponents, showOnlyWidgets, movingWidget, availableWidgets) =>
+//     filterFunction(componentsFlat,
+//       searchText,
+//       disabledComponents,
+//       showOnlyWidgets && !isMoving(movingWidget),
+//       availableWidgets),
+// );
+export const filteredComponentTree = createSelector(
+  getComponentTreeSelector,
+  _.identity
 );
 
 export const getMovingWidgetTargetZoneSelector = createSelector(

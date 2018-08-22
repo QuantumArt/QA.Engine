@@ -18,7 +18,7 @@ const mapProperties = (val) => {
   if (isWidget(val)) {
     initObj.widgetId = Number(val.match(/(\d+)(?!(widget))/g)[0]);
   } else {
-    initObj.title = val.match(/zone (\w+)/g)[0];
+    initObj.zoneName = val.match(/zone (\w+)/g)[0].replace('zone ', '');
   }
 
   return _.reduce(pair, (prev, cur) => {
@@ -33,13 +33,13 @@ const mapProperties = (val) => {
   }, initObj);
 };
 
-const constructElement = (type, val, id, parentId, nestLevel) => ({
+const constructElement = (type, val, onScreenId, parentId, nestLevel) => ({
   isSelected: false,
   isOpened: false,
   isDisabled: false,
   type,
   nestLevel,
-  id,
+  onScreenId,
   parentId,
   properties: mapProperties(val),
 });
@@ -53,12 +53,12 @@ export default function buildFlatListNew() {
     if (isZone(val) || isWidget(val)) {
       let parentId = null;
       if (ctx.length !== 0) {
-        parentId = ctx.peekLast().id;
+        parentId = ctx.peekLast().onScreenId;
       }
 
       const type = isZone(val) ? 'zone' : 'widget';
       const el = constructElement(type, val, _.uniqueId(type), parentId, ctx.length + 1);
-      hashMap[el.id] = el;
+      hashMap[el.onScreenId] = el;
 
       if (type === 'zone') {
         if (el.nestLevel === 1) {

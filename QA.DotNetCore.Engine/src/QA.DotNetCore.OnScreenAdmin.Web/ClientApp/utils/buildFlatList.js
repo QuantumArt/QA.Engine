@@ -85,9 +85,6 @@ const getComponentOnScreenId = (component, parentComponent) => {
 };
 
 const getComponentParentAbstractItemId = (component) => {
-  console.log(
-    component.dataset
-  );
   const data = component.dataset;
   let parentComponent = findParentComponent(component);
 
@@ -96,15 +93,9 @@ const getComponentParentAbstractItemId = (component) => {
       parentComponent = findParentComponent(parentComponent);
     }
     if (!parentComponent) { // зона от страницы
-      console.log(
-        getZoneParentPageId(data)
-      );
       return getZoneParentPageId(data);
     }
     // нашли виджет
-    console.log(
-      parentComponent.dataset.qaWidgetId
-    );
     return parentComponent.dataset.qaWidgetId;
   }
   // пока возвращаем только для зон, при необходимости - допилить
@@ -136,7 +127,6 @@ const buildList = () => {
   });
 
   const components = _.map(allComponents, mapComponent);
-  console.log(components, 'old');
 
   return components;
 };

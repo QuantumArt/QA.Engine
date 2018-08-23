@@ -6,7 +6,7 @@ using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Threading;
 using Quantumart.QP8.CodeGeneration.Services;
-
+/* place your custom usings here */
 
 namespace QA.DemoSite.DAL
 {

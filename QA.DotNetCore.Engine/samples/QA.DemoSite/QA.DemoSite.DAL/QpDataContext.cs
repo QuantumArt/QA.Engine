@@ -2,7 +2,7 @@ using System;
 using System.Data.Entity;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;	
-
+/* place your custom usings here */
 
 namespace QA.DemoSite.DAL
 {
@@ -18,7 +18,7 @@ namespace QA.DemoSite.DAL
         }
 
         public QpDataContext()
-            : base("name=QpDataContext")
+            : base("name=qp_database")
         {
             MappingResolver = GetDefaultMappingResolver();
             this.Configuration.LazyLoadingEnabled = true;

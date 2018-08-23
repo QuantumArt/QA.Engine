@@ -15,7 +15,12 @@ using Quantumart.QPublishing.Info;
 using System.Data.Entity.Core;
 using System.Collections;
 using System.Globalization;
-
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using System.Threading.Tasks;
+using System.Threading;
+/* place your custom usings here */
 
 namespace QA.DemoSite.DAL
 {
@@ -79,7 +84,7 @@ namespace QA.DemoSite.DAL
         private const string sitePlaceholder = "<%=site_url%>";
         private static string _defaultSiteName = "main_site";
         private static string _defaultConnectionString;
-        private static string _defaultConnectionStringName = "QpDataContext";
+        private static string _defaultConnectionStringName = "qp_database";
         private bool _shouldRemoveSchema = false;
         private string _siteName;
         private DBConnector _cnn;
@@ -113,7 +118,12 @@ namespace QA.DemoSite.DAL
 			{
 				if (_cnn == null) 
 				{
-					_cnn = new DBConnector(Database.Connection);
+					_cnn = new DBConnector(
+						Database.Connection,
+						new DbConnectorSettings(),
+						new MemoryCache(new MemoryCacheOptions()),
+						new HttpContextAccessor { HttpContext = new DefaultHttpContext() }
+						);
 					_cnn.UpdateManyToMany = false;
 				}
 				return _cnn;
@@ -132,16 +142,15 @@ namespace QA.DemoSite.DAL
 				}
 			}
 		}
+		public static IConfiguration AppConfiguration { get; set; }
 		public static string DefaultConnectionString 
 		{ 
 			get
 			{
 				if (_defaultConnectionString == null)
 				{
-					var obj = System.Configuration.ConfigurationManager.ConnectionStrings[_defaultConnectionStringName];
-					if (obj == null)
-						throw new ApplicationException(string.Format("Connection string '{0}' is not specified", _defaultConnectionStringName));
-					_defaultConnectionString = obj.ConnectionString;
+                    var connectionString = AppConfiguration.GetConnectionString(_defaultConnectionStringName);
+                    _defaultConnectionString = connectionString ?? throw new ApplicationException(string.Format("Connection string '{0}' is not specified", _defaultConnectionStringName));
 				}
 				return _defaultConnectionString;
 			}
@@ -319,6 +328,8 @@ namespace QA.DemoSite.DAL
         }
 
         #region Save changes
+
+        #region #Sync
         public override int SaveChanges()
         {
             return OnSaveChanges2();
@@ -360,7 +371,7 @@ namespace QA.DemoSite.DAL
             return 0;
         }
 
-      private void UpdateObjectStateEntries(IEnumerable<ObjectStateEntry> entries, Func<ContentInfo, ObjectStateEntry, string[]> getProperties, bool passNullValues)
+        private void UpdateObjectStateEntries(IEnumerable<ObjectStateEntry> entries, Func<ContentInfo, ObjectStateEntry, string[]> getProperties, bool passNullValues)
         {
             foreach (var group in entries.Where(e => !e.IsRelationship).GroupBy(m => m.Entity.GetType().Name))
             {
@@ -429,6 +440,120 @@ namespace QA.DemoSite.DAL
                 Cnn.MassUpdate(relation.ContentId, values, 1);
             }
         }
+        #endregion
+
+        #region #Async
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+        {
+            return await OnSaveChangesAsync(cancellationToken);
+        }
+
+        private async Task<int> OnSaveChangesAsync(CancellationToken cancellationToken)
+        {
+            ChangeTracker.DetectChanges();
+
+            var manager = CurrentObjectContext.ObjectStateManager;
+            var modified = manager.GetObjectStateEntries(EntityState.Modified);
+            var added = manager.GetObjectStateEntries(EntityState.Added);
+            var deleted = manager.GetObjectStateEntries(EntityState.Deleted);
+
+            if (Database.Connection.State == System.Data.ConnectionState.Closed)
+            {
+                Database.Connection.Open();
+            }
+
+            using (var transaction = Database.Connection.BeginTransaction())
+            {
+                Cnn.ExternalTransaction = transaction;
+
+                await UpdateObjectStateEntriesAsync(modified, (content, item) => item.GetModifiedProperties().ToArray(), true, cancellationToken);
+                await UpdateObjectStateEntriesAsync(added, (content, item) => GetProperties(content), false, cancellationToken);
+
+                foreach (var deletedItem in deleted)
+                {
+                    var article = (IQPArticle)deletedItem.Entity;
+                    Cnn.DeleteContentItem(article.Id);
+                }
+
+                transaction.Commit();
+                Cnn.ExternalTransaction = null;
+            }
+
+            Database.Connection.Close();
+
+            return 0;
+        }
+
+        private async Task UpdateObjectStateEntriesAsync(IEnumerable<ObjectStateEntry> entries, Func<ContentInfo, ObjectStateEntry, string[]> getProperties, bool passNullValues, CancellationToken cancellationToken)
+        {
+            foreach (var group in entries.Where(e => !e.IsRelationship).GroupBy(m => m.Entity.GetType().Name))
+            {
+                var contentName = group.Key;
+                var content = MappingResolver.GetContent(contentName);
+                if (!content.IsVirtual)
+                {
+                    var items = group
+                        .Where(item => item.Entity is IQPArticle)
+                        .Select(item => {
+
+                            var article = (IQPArticle)item.Entity;
+                            var properties = getProperties(content, item);
+                            var fieldValues = GetFieldValues(contentName, article, properties, passNullValues);
+
+                            return new
+                            {
+                                article,
+                                fieldValues
+                            };
+                        })
+                        .ToArray();
+
+                    await Cnn.MassUpdateAsync(content.Id, items.Select(item => item.fieldValues), 1, cancellationToken);
+
+                    foreach (var item in items)
+                    {
+                        SyncArticle(item.article, item.fieldValues);
+                    }
+                }
+            }
+
+            var relations = (from e in entries
+                             where e.IsRelationship
+                             let entityKey = (EntityKey)e.CurrentValues[0]
+                             let relatedEntityKey = (EntityKey)e.CurrentValues[1]
+                             let entry = e.ObjectStateManager.GetObjectStateEntry(entityKey)
+                             let relatedEntry = e.ObjectStateManager.GetObjectStateEntry(relatedEntityKey)
+                             let id = ((IQPArticle)entry.Entity).Id
+                             let relatedId = ((IQPArticle)relatedEntry.Entity).Id
+                             let attribute = MappingResolver.GetAttribute(e.EntitySet.Name)
+                             let item = new
+                             {
+                                 Id = id,
+                                 RelatedId = relatedId,
+                                 ContentId = attribute.ContentId,
+                                 Field = attribute.MappedName
+                             }
+                             group item by item.ContentId into g
+                             select new { ContentId = g.Key, Items = g.ToArray() }
+                    )
+                    .ToArray();
+
+            foreach (var relation in relations)
+            {
+                var values = relation.Items
+                    .GroupBy(r => r.Id)
+                    .Select(g =>
+                    {
+                        var d = g.GroupBy(x => x.Field).ToDictionary(x => x.Key, x => string.Join(",", x.Select(y => y.RelatedId)));
+                        d[SystemColumnNames.Id] = g.Key.ToString();
+                        return d;
+                    })
+                    .ToArray();
+
+                await Cnn.MassUpdateAsync(relation.ContentId, values, 1, cancellationToken);
+            }
+        }
+        #endregion
 
         private void SyncArticle(IQPArticle article, Dictionary<string, string> fieldValues)
         {

@@ -17,6 +17,9 @@ using QA.DotNetCore.Engine.QpData.Configuration;
 using QA.DotNetCore.Engine.QpData.Settings;
 using QA.DotNetCore.Engine.Routing.Configuration;
 using System;
+using QA.DotNetCore.Engine.OnScreen.Configuration;
+using QA.DotNetCore.Engine.Abstractions.OnScreen;
+using Quantumart.QPublishing.Database;
 
 namespace QA.DemoSite
 {
@@ -31,7 +34,7 @@ namespace QA.DemoSite
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();// .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            var mvc = services.AddMvc();// .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddLogging();
             services.AddSingleton<ILogger>(provider => provider.GetRequiredService<ILogger<Program>>());
 
@@ -74,6 +77,20 @@ namespace QA.DemoSite
                     options.InvalidateByTimer(TimeSpan.FromSeconds(30));
                 }
             });
+
+            //возможность работы с режимом onscreen
+            services.AddOnScreenIntegration(mvc, options =>
+            {
+                options.Settings.AdminSiteBaseUrl = Configuration.GetSection("OnScreen").Get<OnScreenSettings>().AdminSiteBaseUrl;
+                options.Settings.SiteId = qpSettings.SiteId;
+                options.Settings.IsStage = qpSettings.IsStage;
+                options.Settings.AvailableFeatures = OnScreenFeatures.Widgets;
+                options.DbConnectorSettings = new DbConnectorSettings
+                {
+                    ConnectionString = qpConnection,
+                    IsLive = !qpSettings.IsStage
+                };
+            });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILogger logger)
@@ -85,7 +102,7 @@ namespace QA.DemoSite
                 invalidation.RegisterScoped<QpContentCacheTracker>();
             });
             app.UseSiteStructure();
-
+            app.UseOnScreenMode();
             app.UseMvc(routes =>
             {
                 routes.MapContentRoute("default", "{controller}/{action=Index}/{id?}");

@@ -52,7 +52,7 @@
 
   @await Component.WidgetZone(Html, "SiteFooterZone")
 
-  @*<script src="~/js/demosite.min.js"></script>*@
+  @await Component.InvokeAsync("OnScreen")
 
   <!-- ==== jQuery Library ==== -->
   <script src="~/js/jquery-3.1.0.min.js"></script>

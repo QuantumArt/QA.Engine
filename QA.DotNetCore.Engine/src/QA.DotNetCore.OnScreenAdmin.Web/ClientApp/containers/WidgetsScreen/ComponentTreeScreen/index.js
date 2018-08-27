@@ -1,11 +1,11 @@
 import { connect } from 'react-redux';
 import ComponentTreeScreen from 'Components/WidgetsScreen/ComponentTreeScreen';
-import { getShowSearchBox, getShowOnlyWidgets } from 'selectors/componentTree';
+import { getShowSearchBoxSelector, getShowOnlyWidgetsSelector } from 'selectors/componentTree';
 import { toggleComponentTreeSearchBox } from 'actions/componentTreeActions';
 
 const mapStateToProps = state => ({
-  showSearchBox: getShowSearchBox(state),
-  showOnlyWidgets: getShowOnlyWidgets(state),
+  showSearchBox: getShowSearchBoxSelector(state),
+  showOnlyWidgets: getShowOnlyWidgetsSelector(state),
 });
 
 const mapDispatchToProps = dispatch => ({

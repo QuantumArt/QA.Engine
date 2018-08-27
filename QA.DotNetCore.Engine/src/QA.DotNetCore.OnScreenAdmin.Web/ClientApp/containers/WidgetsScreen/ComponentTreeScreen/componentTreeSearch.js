@@ -1,11 +1,11 @@
 import { connect } from 'react-redux';
 import ComponentTreeSearch from 'Components/WidgetsScreen/ComponentTreeScreen/ComponentTreeSearch';
-import { getSearchText } from 'selectors/componentTree';
+import { getSearchTextSelector } from 'selectors/componentTree';
 import { changeSearchText } from 'actions/componentTreeActions';
 
 
 const mapStateToProps = state => ({
-  searchText: getSearchText(state),
+  searchText: getSearchTextSelector(state),
 });
 
 const mapDispatchToProps = dispatch => ({

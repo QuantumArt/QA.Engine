@@ -1,12 +1,11 @@
-/* eslint-disable */
 import { connect } from 'react-redux';
 import {
-  getMaxNestLevel,
-  getSelectedComponentId,
+  getMaxNestLevelSelector,
+  getSelectedComponentIdSelector,
   filteredComponentTree,
-  getDisabledComponents,
-  getIsMovingWidget,
-  getShowOnlyWidgets
+  getDisabledComponentsSelector,
+  getIsMovingWidgetSelector,
+  getShowOnlyWidgetsSelector,
 } from 'selectors/componentTree';
 import {
   toggleComponent,
@@ -18,20 +17,15 @@ import {
 import ComponentTree from 'Components/WidgetsScreen/ComponentTreeScreen/ComponentTree';
 
 
-const mapStateToProps = state => {
-  console.log(
-    filteredComponentTree(state)
-  );
-  return {
-    components: filteredComponentTree(state),
-    maxNestLevel: getMaxNestLevel(state),
-    selectedComponentId: getSelectedComponentId(state),
-    searchText: state.sidebar.widgetScreenSearchText,
-    isMovingWidget: getIsMovingWidget(state),
-    disabledComponents: getDisabledComponents(state),
-    showOnlyWidgets: getShowOnlyWidgets(state),
-  };
-};
+const mapStateToProps = state => ({
+  components: filteredComponentTree(state),
+  maxNestLevel: getMaxNestLevelSelector(state),
+  selectedComponentId: getSelectedComponentIdSelector(state),
+  searchText: state.sidebar.widgetScreenSearchText,
+  isMovingWidget: getIsMovingWidgetSelector(state),
+  disabledComponents: getDisabledComponentsSelector(state),
+  showOnlyWidgets: getShowOnlyWidgetsSelector(state),
+});
 
 const mapDispatchToProps = dispatch => ({
   onToggleComponent: (id) => {

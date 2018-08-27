@@ -35,13 +35,13 @@ const WidgetsScreen = ({
     {showComponentTree &&
       <ComponentTreeScreen />
     }
-    {/* {showWidgetCreationWizard && */}
-    {/* <WidgetCreationWizard /> */}
-    {/* } */}
-    {/* {showMoveWidgetScreen && */}
-    {/* <MoveWidgetScreen /> */}
-    {/* } */}
-    {/* <EditComponentTree /> */}
+    {showWidgetCreationWizard &&
+      <WidgetCreationWizard />
+    }
+    {showMoveWidgetScreen &&
+      <MoveWidgetScreen />
+    }
+    {/*<EditComponentTree />*/}
   </Fragment>
 );
 

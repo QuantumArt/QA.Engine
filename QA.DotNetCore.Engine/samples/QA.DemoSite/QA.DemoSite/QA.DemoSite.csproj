@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net471</TargetFramework>
+    <MvcRazorCompileOnPublish>false</MvcRazorCompileOnPublish>
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,12 +36,4 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
-  <Target Name="UpdateOriginalItemSpecs" AfterTargets="ResolveAssemblyReferences">
-    <ItemGroup>
-      <ReferencePath>
-        <OriginalItemSpec>%(ReferencePath.FileName)</OriginalItemSpec>
-      </ReferencePath>
-    </ItemGroup>
-  </Target>
 </Project>

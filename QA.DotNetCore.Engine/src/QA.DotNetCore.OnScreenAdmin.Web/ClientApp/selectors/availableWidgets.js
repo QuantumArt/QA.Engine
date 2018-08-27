@@ -1,8 +1,8 @@
 import { createSelector } from 'reselect';
 import _ from 'lodash';
 
-const getSearchTextSelector = state => state.availableWidgets.searchText;
-const availableWidgetsSelector = state => state.metaInfo.availableWidgets;
+const getSearchText = state => state.availableWidgets.searchText;
+const getAvailableWidgets = state => state.metaInfo.availableWidgets;
 
 const filterFunction = (widgets, keyword) => {
   const lowerSearchText = _.toLower(keyword);
@@ -11,17 +11,17 @@ const filterFunction = (widgets, keyword) => {
   );
 };
 
-export const getSearchText = createSelector(
-  [getSearchTextSelector],
+export const getSearchTextSelector = createSelector(
+  getSearchText,
   searchText => searchText,
 );
 
-export const allAvailableWidgets = createSelector(
-  [availableWidgetsSelector],
+export const allAvailableWidgetsSelector = createSelector(
+  getAvailableWidgets,
   widgets => widgets,
 );
 
 export const filteredAvailableWidgets = createSelector(
-  [getSearchTextSelector, availableWidgetsSelector],
+  [getSearchText, getAvailableWidgets],
   (searchText, availableWidgets) => filterFunction(availableWidgets, searchText),
 );

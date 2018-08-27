@@ -1,16 +1,16 @@
 import { connect } from 'react-redux';
-import { getComponentTree, getMaxNestLevel, getSelectedComponentId } from '../../selectors/componentTree';
-import { getShowAllZones, getShowAllWidgets } from '../../selectors/componentsHighlight';
-import { getSidebarSide } from '../../selectors/sidebar';
-import EditComponentTree from '../../Components/EditComponentTree';
-import onScreenToggleComponent from '../../actions/editComponentTreeActions';
+import { getComponentTreeSelector, getMaxNestLevelSelector, getSelectedComponentIdSelector } from 'selectors/componentTree';
+import { getShowAllZones, getShowAllWidgets } from 'selectors/componentsHighlight';
+import { getSidebarSide } from 'selectors/sidebar';
+import EditComponentTree from 'Components/EditComponentTree';
+import onScreenToggleComponent from 'actions/editComponentTreeActions';
 
 const mapStateToProps = state => ({
-  components: getComponentTree(state),
+  components: getComponentTreeSelector(state),
   showAllZones: getShowAllZones(state),
   showAllWidgets: getShowAllWidgets(state),
-  maxNestLevel: getMaxNestLevel(state),
-  selectedComponentId: getSelectedComponentId(state),
+  maxNestLevel: getMaxNestLevelSelector(state),
+  selectedComponentId: getSelectedComponentIdSelector(state),
   side: getSidebarSide(state),
 });
 

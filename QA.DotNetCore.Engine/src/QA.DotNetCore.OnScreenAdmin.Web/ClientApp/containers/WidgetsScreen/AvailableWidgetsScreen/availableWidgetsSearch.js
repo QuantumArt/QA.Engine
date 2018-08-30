@@ -1,10 +1,10 @@
 import { connect } from 'react-redux';
 import AvailableWidgetsSearch from 'Components/WidgetsScreen/WidgetCreationWizard/AvailableWidgetsListStep/AvailableWidgetsSearch';
-import { getSearchText } from 'selectors/availableWidgets';
+import { getSearchTextSelector } from 'selectors/availableWidgets';
 import { changeSearchText } from 'actions/availableWidgetsActions';
 
 const mapStateToProps = state => ({
-  searchText: getSearchText(state),
+  searchText: getSearchTextSelector(state),
 });
 
 const mapDispatchToProps = dispatch => ({

@@ -6,11 +6,14 @@ import {
   UPDATE_COMPONENTS,
   TOGGLE_SHOW_ONLY_WIDGETS,
   TOGGLE_COMPONENT_TREE_SEARCH_BOX,
-} from '../actions/actionTypes';
-import buildFlatList from '../utils/buildFlatList';
+} from 'actions/actionTypes';
+import buildFlatListNew from 'utils/buildFlatListNew';
+import buildFlatList from 'utils/buildFlatList';
+import buildTreeNew from 'utils/buildTreeNew';
 
 
-const components = buildFlatList();
+// const components = buildFlatList();
+const components = buildFlatListNew();
 
 const getMaxNestLevel = comps => comps.map(c => c.nestLevel).reduce((max, cur) => Math.max(max, cur));
 
@@ -97,7 +100,6 @@ export default function componentTreeReducer(state = initialState, action) {
         ...state,
         searchText: action.value,
       };
-
     case TOGGLE_SHOW_ONLY_WIDGETS:
       return {
         ...state,

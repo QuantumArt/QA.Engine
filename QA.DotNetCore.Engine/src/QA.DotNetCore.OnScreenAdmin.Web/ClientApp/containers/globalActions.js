@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { toggleAllWidgets, toggleAllZones } from 'actions/componentHighlightActions';
 import { getShowAllZones, getShowAllWidgets } from 'selectors/componentsHighlight';
 import { getEnabledMenuKeys } from 'selectors/globalContextMenu';
-import { getShowOnlyWidgets } from 'selectors/componentTree';
+import { getShowOnlyWidgetsSelector } from 'selectors/componentTree';
 import { beginWidgetCreation } from 'actions/widgetCreation/actions';
 import { toggleShowOnlyWidgets } from 'actions/componentTreeActions';
 import { WIDGET_CREATION_MODE } from 'constants/widgetCreation';
@@ -13,7 +13,7 @@ const mapStateToProps = state => ({
   showAllZones: getShowAllZones(state),
   showAllWidgets: getShowAllWidgets(state),
   enabledMenuKeys: getEnabledMenuKeys(state),
-  showOnlyWidgets: getShowOnlyWidgets(state),
+  showOnlyWidgets: getShowOnlyWidgetsSelector(state),
 });
 
 const mapDispatchToProps = dispatch => ({

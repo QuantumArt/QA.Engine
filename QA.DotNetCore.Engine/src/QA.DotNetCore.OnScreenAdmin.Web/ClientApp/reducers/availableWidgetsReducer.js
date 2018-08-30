@@ -1,6 +1,4 @@
-import {
-  CHANGE_AVAILABLE_WIDGETS_SEARCH_TEXT,
-} from '../actions/actionTypes';
+import { CHANGE_AVAILABLE_WIDGETS_SEARCH_TEXT } from '../actions/actionTypes';
 
 const initialState = {
   searchText: '',

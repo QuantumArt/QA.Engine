@@ -23,6 +23,8 @@
       "numbers": true
     }],
     "no-param-reassign": 0,
+    "no-cond-assign": 0,
+    "no-underscore-dangle": 0,
     "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
     "jsx-a11y/no-noninteractive-element-interactions": 0,
     "react/forbid-prop-types": 0,

@@ -240,12 +240,12 @@ const fake = {
 function* loadTestsData() {
   const fakeEnv = process.env.NODE_ENV !== 'production' && window.location.port === '5000';
   const avalaibleTests = fakeEnv ? fake.window : window.abTestingContext;
-
+  const isTestsAvailable = window.onScreenFeatures.indexOf('AbTests') !== -1;
   try {
     yield put({ type: GET_AVALAIBLE_TESTS, payload: avalaibleTests });
-    if (fakeEnv) {
+    if (fakeEnv && isTestsAvailable) {
       yield put({ type: API_GET_TESTS_DATA_SUCCESS, payload: fake.api });
-    } else {
+    } else if (isTestsAvailable) {
       const cids = _.reduce(avalaibleTests, (result, value) => (result.concat(value.cids)), []);
       const testsInfo = yield call(getTestsData, cids);
       yield put({ type: API_GET_TESTS_DATA_SUCCESS, payload: testsInfo.data.data });

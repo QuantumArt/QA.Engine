@@ -17,6 +17,8 @@
     <PackageReference Include="QA.DotNetCore.Engine.CacheTags" Version="0.3.3" />
     <PackageReference Include="QA.DotNetCore.Engine.QpData.Configuration" Version="0.3.3" />
     <PackageReference Include="QA.DotNetCore.Engine.OnScreen" Version="0.3.3" />
+    <PackageReference Include="QA.DotNetCore.Engine.AbTesting.Configuration" Version="0.3.3" />
+    <PackageReference Include="QA.DotNetCore.Engine.Targeting" Version="0.3.3" />
   </ItemGroup>
 
   <ItemGroup>

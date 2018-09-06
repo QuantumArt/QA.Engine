@@ -52,8 +52,6 @@
 
   @await Component.WidgetZone(Html, "SiteFooterZone")
 
-  @await Component.InvokeAsync("OnScreen")
-
   <!-- ==== jQuery Library ==== -->
   <script src="~/js/jquery-3.1.0.min.js"></script>
 
@@ -102,5 +100,10 @@
   <!-- ==== Main JavaScript ==== -->
   <script src="~/js/main.js"></script>
 
+  <!-- инициализация аб-тестов -->
+  @await Component.InvokeAsync("AbTest")
+
+  <!-- инициализационные скрипты для OnScreen (если используются аб-тесты, должен быть после их инициализации) -->
+  @await Component.InvokeAsync("OnScreen")
 </body>
 </html>

@@ -11,15 +11,17 @@ using QA.DemoSite.Services;
 using QA.DemoSite.Templates;
 using QA.DemoSite.ViewModels.Builders;
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.Abstractions.OnScreen;
+using QA.DotNetCore.Engine.AbTesting.Configuration;
 using QA.DotNetCore.Engine.CacheTags;
 using QA.DotNetCore.Engine.CacheTags.Configuration;
+using QA.DotNetCore.Engine.OnScreen.Configuration;
 using QA.DotNetCore.Engine.QpData.Configuration;
 using QA.DotNetCore.Engine.QpData.Settings;
 using QA.DotNetCore.Engine.Routing.Configuration;
-using System;
-using QA.DotNetCore.Engine.OnScreen.Configuration;
-using QA.DotNetCore.Engine.Abstractions.OnScreen;
+using QA.DotNetCore.Engine.Targeting.Configuration;
 using Quantumart.QPublishing.Database;
+using System;
 
 namespace QA.DemoSite
 {
@@ -42,7 +44,7 @@ namespace QA.DemoSite
             var qpConnection = Configuration.GetConnectionString("DatabaseQP");
 
             //структура сайта виджетной платформы
-            var siteStructure = services.AddSiteStructureEngine(options =>
+            services.AddSiteStructureEngine(options =>
             {
                 options.QpConnectionString = qpConnection;
                 options.QpSettings = qpSettings;
@@ -64,6 +66,16 @@ namespace QA.DemoSite
             services.AddScoped<FaqWidgetViewModelBuilder>();
             services.AddSingleton<MenuViewModelBuilder>();
 
+            //подключение self-hosted аб-тестов
+            services.AddTargeting();//чтобы аб-тесты работали нужно зарегистрировать сервисы таргетирования
+            services.AddAbTestServices(options =>
+            {
+                //дублируются некоторые опции из AddSiteStructureEngine, потому что АБ-тесты могут быть или не быть независимо от структуры сайта
+                options.QpConnectionString = qpConnection;
+                options.AbTestingSettings.SiteId = qpSettings.SiteId;
+                options.AbTestingSettings.IsStage = qpSettings.IsStage;
+            });
+
             //работа с кеш-тэгами
             services.AddScoped<CacheTagUtilities>();
             services.AddCacheTagServices(options =>
@@ -84,7 +96,7 @@ namespace QA.DemoSite
                 options.Settings.AdminSiteBaseUrl = Configuration.GetSection("OnScreen").Get<OnScreenSettings>().AdminSiteBaseUrl;
                 options.Settings.SiteId = qpSettings.SiteId;
                 options.Settings.IsStage = qpSettings.IsStage;
-                options.Settings.AvailableFeatures = OnScreenFeatures.Widgets;
+                options.Settings.AvailableFeatures = OnScreenFeatures.Widgets | OnScreenFeatures.AbTests;
                 options.DbConnectorSettings = new DbConnectorSettings
                 {
                     ConnectionString = qpConnection,

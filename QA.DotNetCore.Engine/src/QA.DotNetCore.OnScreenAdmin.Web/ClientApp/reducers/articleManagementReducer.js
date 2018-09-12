@@ -1,4 +1,9 @@
-import { EDIT_WIDGET_ACTIONS, ADD_WIDGET_ACTIONS, QP_FORM_ACTIONS } from 'actions/actionTypes';
+import { 
+  EDIT_WIDGET_ACTIONS,
+  ADD_WIDGET_ACTIONS,
+  QP_FORM_ACTIONS,
+  EDIT_PAGE_ACTIONS,
+} from 'actions/actionTypes';
 
 
 const initialState = {
@@ -106,7 +111,11 @@ export default function articleManagementReducer(state = initialState, action) {
           targetZoneId: null,
         },
       };
-
+    case EDIT_PAGE_ACTIONS.SHOW_QP_FORM:
+      return {
+        ...state,
+        qpFormOpened: true,
+      };
     default:
       return state;
   }

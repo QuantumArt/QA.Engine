@@ -3,8 +3,10 @@ import _ from 'lodash';
 import { getAvailableFeatures } from 'utils/features';
 import { ONSCREEN_FEATURES } from 'constants/features';
 import { ABTESTS_TAB, WIDGET_TAB } from 'constants/general';
+import checkIsIframe from 'utils/checkIsIframe';
 
 export const availableFeatures = getAvailableFeatures();
+export const isIframe = checkIsIframe();
 
 const getShowTabsSelector = () => availableFeatures && availableFeatures.length > 1;
 const getWidgetsTabAvailableSelector = () => availableFeatures &&
@@ -16,7 +18,6 @@ const getSidebarSideSelector = state => state.sidebar.side;
 const getOpenedSelector = state => state.sidebar.opened;
 const getActiveTabIndexSelector = state => state.sidebar.activeTab;
 const getCordsSelector = state => state.sidebar.cords;
-
 
 export const getSidebarSide = createSelector(getSidebarSideSelector, _.identity);
 export const getOpened = createSelector(getOpenedSelector, _.identity);

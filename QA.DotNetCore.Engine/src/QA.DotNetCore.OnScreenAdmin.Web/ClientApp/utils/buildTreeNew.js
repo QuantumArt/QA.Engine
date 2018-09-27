@@ -12,13 +12,33 @@ const getWidgetTypeIconSrc = (component, availableWidgets) => {
   return null;
 };
 
-export default function buildTreeNew(list, disabledComponents = [], allOpened = false, availableWidgets = []) {
+export default function buildTreeNew(
+  list,
+  disabledComponents = [],
+  allOpened = false,
+  availableWidgets = [],
+  showOnlyWidgets = false) {
   const _list = _.cloneDeep(list);
   const hashMap = {};
   _.forEach(_list, (component) => {
     component.children = [];
     hashMap[component.onScreenId] = component;
   });
+  if (showOnlyWidgets) {
+    const shiftParentOnscreenID = () => _.forEach(hashMap, (component) => {
+      function findParentWidget(parentID) {
+        if (hashMap[parentID] && !(hashMap[parentID].type === 'widget' || parentID === null)) {
+          return findParentWidget(hashMap[parentID].parentOnScreenId);
+        }
+        return parentID;
+      }
+      if (component.parentOnScreenId !== null) {
+        component.parentOnScreenId = findParentWidget(component.parentOnScreenId);
+      }
+    });
+    shiftParentOnscreenID();
+    _.filter(hashMap, c => c.type === 'widget');
+  }
 
   const tree = [];
   _.forEach(hashMap, (component) => {
@@ -36,6 +56,5 @@ export default function buildTreeNew(list, disabledComponents = [], allOpened = 
       tree.push(component);
     }
   });
-
   return tree;
 }

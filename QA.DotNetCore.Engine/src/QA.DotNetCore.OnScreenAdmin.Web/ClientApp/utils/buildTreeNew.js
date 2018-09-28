@@ -17,29 +17,30 @@ export default function buildTreeNew(
   disabledComponents = [],
   allOpened = false,
   availableWidgets = [],
-  showOnlyWidgets = false) {
+  showOnlyWidgets = false,
+) {
   const _list = _.cloneDeep(list);
   const hashMap = {};
   _.forEach(_list, (component) => {
     component.children = [];
     hashMap[component.onScreenId] = component;
   });
-  if (showOnlyWidgets) {
-    const shiftParentOnscreenID = () => _.forEach(hashMap, (component) => {
-      function findParentWidget(parentID) {
-        if (hashMap[parentID] && !(hashMap[parentID].type === 'widget' || parentID === null)) {
-          return findParentWidget(hashMap[parentID].parentOnScreenId);
-        }
-        return parentID;
-      }
-      if (component.parentOnScreenId !== null) {
-        component.parentOnScreenId = findParentWidget(component.parentOnScreenId);
-      }
-    });
-    shiftParentOnscreenID();
-    _.filter(hashMap, c => c.type === 'widget');
-  }
-
+  // if (showOnlyWidgets) {
+  //   const shiftParentOnscreenID = () => _.forEach(hashMap, (component) => {
+  //     function findParentWidget(parentID) {
+  //       if (hashMap[parentID] && !(hashMap[parentID].type === 'widget' || parentID === null)) {
+  //         return findParentWidget(hashMap[parentID].parentOnScreenId);
+  //       }
+  //       return parentID;
+  //     }
+  //
+  //     if (component.parentOnScreenId !== null) {
+  //       component.parentOnScreenId = findParentWidget(component.parentOnScreenId);
+  //     }
+  //   });
+  //   shiftParentOnscreenID();
+  //   _.filter(hashMap, c => c.type === 'widget');
+  // }
   const tree = [];
   _.forEach(hashMap, (component) => {
     component.isDisabled = _.indexOf(disabledComponents, component.onScreenId) !== -1;
@@ -49,11 +50,30 @@ export default function buildTreeNew(
     if (component.type === 'widget') {
       component.properties.widgetTypeIconSrc = getWidgetTypeIconSrc(component, availableWidgets);
     }
-    if (hashMap[component.parentOnScreenId]) {
-      hashMap[component.parentOnScreenId].children.push(component);
+
+    const parent = hashMap[component.parentOnScreenId];
+
+    if (showOnlyWidgets && parent && component.type === 'widget') {
+      component.parentOnScreenId = parent.parentOnScreenId;
+    }
+
+    if (parent) {
+      if (showOnlyWidgets) {
+        if (component.type === 'widget') {
+          parent.children.push(component);
+        }
+      } else {
+        parent.children.push(component);
+      }
     }
     if (component.parentOnScreenId === null) {
-      tree.push(component);
+      if (showOnlyWidgets) {
+        if (component.type === 'widget') {
+          tree.push(component);
+        }
+      } else {
+        tree.push(component);
+      }
     }
   });
   return tree;

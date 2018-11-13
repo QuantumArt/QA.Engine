@@ -75,6 +75,7 @@ const filterFunction = (componentsList, keyword, disabledComponents, showOnlyWid
 };
 
 export const getComponentTreeSelector = createSelector(getComponentTree, _.identity);
+export const getComponentsListSelector = createSelector(getComponentsList, _.identity);
 export const getMaxNestLevelSelector = createSelector(getMaxNestLevel, _.identity);
 export const getSelectedComponentIdSelector = createSelector(getSelectedComponentId, _.identity);
 export const getSearchTextSelector = createSelector(getSearchText, _.identity);

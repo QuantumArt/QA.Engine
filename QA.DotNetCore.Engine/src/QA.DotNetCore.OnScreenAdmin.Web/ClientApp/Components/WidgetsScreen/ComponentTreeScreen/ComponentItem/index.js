@@ -85,12 +85,15 @@ class ComponentItem extends Component {
       onMovingWidgetSelectTargetZone(onScreenId);
     } else {
       onToggleComponent(onScreenId);
-      scrollToElement(`[data-qa-component-on-screen-id="${onScreenId}"]`,
-        { offset: -100,
-          ease: 'in-out-expo',
-          duration: 1500,
-        },
-      );
+      const outlineElem = document.querySelector(`.component--${onScreenId}`);
+      if (outlineElem) {
+        scrollToElement(`.component--${onScreenId}`,
+          { offset: -100,
+            ease: 'in-out-expo',
+            duration: 1500,
+          },
+        );
+      }
     }
   }
 

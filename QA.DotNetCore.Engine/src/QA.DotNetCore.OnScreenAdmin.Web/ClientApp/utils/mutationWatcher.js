@@ -1,7 +1,7 @@
 import MutationSummary from 'mutation-summary';
 import _ from 'lodash';
 import { updateComponents } from 'actions/componentTreeActions';
-import buildFlatList from 'utils/buildFlatList';
+import buildFlatList from 'utils/buildFlatListNew';
 
 function MutationWatcher(store) {
   const mutationCallback = (summaries) => {
@@ -14,7 +14,7 @@ function MutationWatcher(store) {
   new MutationSummary({
     callback: _.debounce(mutationCallback, 1000),
     queries: [{
-      element: '[data-qa-component-type]',
+      element: 'body',
     }],
   });
 }

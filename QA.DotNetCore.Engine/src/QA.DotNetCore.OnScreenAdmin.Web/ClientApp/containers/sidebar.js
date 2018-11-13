@@ -16,6 +16,7 @@ import {
   getActiveTabIndex,
   getCords,
 } from 'selectors/sidebar';
+import { getComponentsListSelector } from 'selectors/componentTree';
 import Sidebar from 'Components/Sidebar';
 
 
@@ -31,6 +32,7 @@ const mapStateToProps = state => ({
   widgetTabAvailable: getWidgetsTabAvailable(),
   abTestsTabAvailable: getAbTestsTabAvailable(),
   cords: getCords(state),
+  components: getComponentsListSelector(state),
 });
 
 const bindActions = {

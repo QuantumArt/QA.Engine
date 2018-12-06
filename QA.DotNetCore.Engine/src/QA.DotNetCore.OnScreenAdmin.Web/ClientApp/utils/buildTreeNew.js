@@ -25,22 +25,6 @@ export default function buildTreeNew(
     component.children = [];
     hashMap[component.onScreenId] = component;
   });
-  // if (showOnlyWidgets) {
-  //   const shiftParentOnscreenID = () => _.forEach(hashMap, (component) => {
-  //     function findParentWidget(parentID) {
-  //       if (hashMap[parentID] && !(hashMap[parentID].type === 'widget' || parentID === null)) {
-  //         return findParentWidget(hashMap[parentID].parentOnScreenId);
-  //       }
-  //       return parentID;
-  //     }
-  //
-  //     if (component.parentOnScreenId !== null) {
-  //       component.parentOnScreenId = findParentWidget(component.parentOnScreenId);
-  //     }
-  //   });
-  //   shiftParentOnscreenID();
-  //   _.filter(hashMap, c => c.type === 'widget');
-  // }
   const tree = [];
   _.forEach(hashMap, (component) => {
     component.isDisabled = _.indexOf(disabledComponents, component.onScreenId) !== -1;
@@ -51,10 +35,18 @@ export default function buildTreeNew(
       component.properties.widgetTypeIconSrc = getWidgetTypeIconSrc(component, availableWidgets);
     }
 
-    const parent = hashMap[component.parentOnScreenId];
+    let parent = hashMap[component.parentOnScreenId];
+
+    // function findParentWidget(parentID) {
+    //   if (hashMap[parentID] && !(hashMap[parentID].type === 'widget' || parentID === null)) {
+    //     return findParentWidget(hashMap[parentID].parentOnScreenId);
+    //   }
+    //   return parentID;
+    // }
 
     if (showOnlyWidgets && parent && component.type === 'widget') {
       component.parentOnScreenId = parent.parentOnScreenId;
+      parent = hashMap[component.parentOnScreenId];
     }
 
     if (parent) {
@@ -76,5 +68,6 @@ export default function buildTreeNew(
       }
     }
   });
+  // console.log(tree);
   return tree;
 }

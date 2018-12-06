@@ -1,23 +1,19 @@
 import _ from 'lodash';
 import { getTestsData, setGlobalTestState } from 'api';
 import { delay } from 'redux-saga';
+import { all, call, put, takeEvery, } from 'redux-saga/effects';
 import {
-  put,
-  takeEvery,
-  call,
-  all,
-} from 'redux-saga/effects';
-import {
+  API_GET_TESTS_DATA_ERROR,
+  API_GET_TESTS_DATA_SUCCESS,
   APP_STARTED,
   GET_AVALAIBLE_TESTS,
-  API_GET_TESTS_DATA_SUCCESS,
-  API_GET_TESTS_DATA_ERROR,
-  LAUNCH_TEST,
   LAUNCH_SESSION_TEST,
-  STOP_TEST,
-  STOP_SESSION_TEST,
+  LAUNCH_TEST,
   SET_TEST_CASE,
+  STOP_SESSION_TEST,
+  STOP_TEST,
 } from 'actions/actionTypes';
+import { isTestsAvailable } from 'utils/features';
 
 function reload() {
   window.location.reload();
@@ -243,15 +239,14 @@ function* loadTestsData() {
 
   try {
     yield put({ type: GET_AVALAIBLE_TESTS, payload: avalaibleTests });
-    if (fakeEnv) {
+    if (fakeEnv && isTestsAvailable()) {
       yield put({ type: API_GET_TESTS_DATA_SUCCESS, payload: fake.api });
-    } else {
+    } else if (isTestsAvailable()) {
       const cids = _.reduce(avalaibleTests, (result, value) => (result.concat(value.cids)), []);
       const testsInfo = yield call(getTestsData, cids);
       yield put({ type: API_GET_TESTS_DATA_SUCCESS, payload: testsInfo.data.data });
     }
   } catch (error) {
-    console.log(error);
     yield put({ type: API_GET_TESTS_DATA_ERROR, payload: error });
   }
 }

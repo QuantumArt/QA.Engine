@@ -1,14 +1,10 @@
 import { select, put, takeEvery, all } from 'redux-saga/effects';
-import _ from 'lodash';
 import { EDIT_PAGE_ACTIONS, CONTENT_META_INFO_ACTION } from '../actions/actionTypes';
 import { qpFormCallback } from './qpFormSagas';
-
 import { editPage as editPageQpForm } from '../articleManagement';
-
 
 const abstractItemMetaInfoSelector = state => state.metaInfo.abstractItemMetaInfo;
 const selfSource = 'meta_info_edit_page';
-
 
 function* editPage() {
   console.log('editPage saga');
@@ -29,7 +25,6 @@ function* showQpForm(action) {
   yield put({ type: EDIT_PAGE_ACTIONS.SHOW_QP_FORM });
 }
 
-
 function* watchEditPage() {
   yield takeEvery(EDIT_PAGE_ACTIONS.EDIT_PAGE, editPage);
 }
@@ -37,7 +32,6 @@ function* watchEditPage() {
 function* watchGetAbstractItemInfoSuccess() {
   yield takeEvery(CONTENT_META_INFO_ACTION.GET_ABSTRACT_ITEM_INFO_SUCCESS, showQpForm);
 }
-
 
 export default function* rootSaga() {
   yield all([

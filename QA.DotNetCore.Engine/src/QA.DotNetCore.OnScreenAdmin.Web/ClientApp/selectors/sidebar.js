@@ -3,10 +3,8 @@ import _ from 'lodash';
 import { getAvailableFeatures } from 'utils/features';
 import { ONSCREEN_FEATURES } from 'constants/features';
 import { ABTESTS_TAB, WIDGET_TAB } from 'constants/general';
-import checkIsIframe from 'utils/checkIsIframe';
 
 export const availableFeatures = getAvailableFeatures();
-export const isIframe = checkIsIframe();
 
 const getShowTabsSelector = () => availableFeatures && availableFeatures.length > 1;
 const getWidgetsTabAvailableSelector = () => availableFeatures &&

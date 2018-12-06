@@ -8,15 +8,15 @@ import { toggleShowOnlyWidgets } from 'actions/componentTreeActions';
 import editPage from 'actions/editPage';
 import { WIDGET_CREATION_MODE } from 'constants/widgetCreation';
 import GlobalActions from 'Components/Sidebar/GlobalActions';
+import checkIsIframe from 'utils/checkIsIframe';
 
-import { isIframe } from 'selectors/sidebar';
 
 const mapStateToProps = state => ({
   showAllZones: getShowAllZones(state),
   showAllWidgets: getShowAllWidgets(state),
   enabledMenuKeys: getEnabledMenuKeys(state),
   showOnlyWidgets: getShowOnlyWidgetsSelector(state),
-  isIframe,
+  isIframe: checkIsIframe(),
 });
 
 const mapDispatchToProps = dispatch => ({

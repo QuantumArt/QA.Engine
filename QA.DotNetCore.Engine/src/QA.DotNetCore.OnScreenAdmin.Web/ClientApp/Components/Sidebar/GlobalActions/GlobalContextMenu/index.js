@@ -85,7 +85,7 @@ class GlobalContextMenu extends Component {
           { showToggleShowOnlyWidgets &&
           <MenuItem
             key={TOGGLE_SHOW_ONLY_WIDGETS_KEY}
-            onClick={this.handleEditPage}
+            onClick={this.handleToggleShowOnlyWidgets}
             classes={{ root: classes.menuItem }}
           >
             {showOnlyWidgets ? 'Tree view: zones and widgets' : 'Tree view: only widgets'}

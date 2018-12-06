@@ -29,3 +29,6 @@ export const getAvailableFeatures = () => {
   const withoutNulls = _.reject(mapped, _.isNull);
   return _.sortBy(withoutNulls, [f => sortOrder(f)]);
 };
+
+export const isTestsAvailable = () => window.onScreenFeatures.indexOf('AbTests') !== -1;
+export const isWidgetsAvailable = () => window.onScreenFeatures.indexOf('Widgets') !== -1;

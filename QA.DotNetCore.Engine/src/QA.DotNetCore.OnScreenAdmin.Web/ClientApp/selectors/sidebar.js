@@ -17,7 +17,6 @@ const getOpenedSelector = state => state.sidebar.opened;
 const getActiveTabIndexSelector = state => state.sidebar.activeTab;
 const getCordsSelector = state => state.sidebar.cords;
 
-
 export const getSidebarSide = createSelector(getSidebarSideSelector, _.identity);
 export const getOpened = createSelector(getOpenedSelector, _.identity);
 export const getShowTabs = createSelector(getShowTabsSelector, _.identity);

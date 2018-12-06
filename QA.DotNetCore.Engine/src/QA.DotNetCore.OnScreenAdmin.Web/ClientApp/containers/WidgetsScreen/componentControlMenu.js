@@ -1,13 +1,10 @@
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import {
-  editWidget,
-  // addWidgetToZone,
-  moveWidget,
-} from 'actions/componentControlMenuActions';
+import { editWidget, moveWidget, } from 'actions/componentControlMenuActions';
 import { WIDGET_CREATION_MODE } from 'constants/widgetCreation';
 import { beginWidgetCreation } from 'actions/widgetCreation/actions';
 import ComponentControlMenu from 'Components/WidgetsScreen/ComponentTreeScreen/ComponentControlMenu';
+import checkIsIframe from 'utils/checkIsIframe';
 
 const mapStateToProps = (state, ownProps) => {
   const component = _.find(state.componentTree.components, { onScreenId: ownProps.onScreenId });
@@ -16,6 +13,7 @@ const mapStateToProps = (state, ownProps) => {
   return {
     type,
     zoneName,
+    isIframe: checkIsIframe(),
   };
 };
 

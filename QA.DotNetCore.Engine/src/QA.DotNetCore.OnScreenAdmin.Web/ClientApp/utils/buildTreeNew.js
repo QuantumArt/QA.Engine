@@ -35,10 +35,18 @@ export default function buildTreeNew(
       component.properties.widgetTypeIconSrc = getWidgetTypeIconSrc(component, availableWidgets);
     }
 
-    const parent = hashMap[component.parentOnScreenId];
+    let parent = hashMap[component.parentOnScreenId];
+
+    // function findParentWidget(parentID) {
+    //   if (hashMap[parentID] && !(hashMap[parentID].type === 'widget' || parentID === null)) {
+    //     return findParentWidget(hashMap[parentID].parentOnScreenId);
+    //   }
+    //   return parentID;
+    // }
 
     if (showOnlyWidgets && parent && component.type === 'widget') {
       component.parentOnScreenId = parent.parentOnScreenId;
+      parent = hashMap[component.parentOnScreenId];
     }
 
     if (parent) {
@@ -60,5 +68,6 @@ export default function buildTreeNew(
       }
     }
   });
+  // console.log(tree);
   return tree;
 }

@@ -14,6 +14,8 @@ const GlobalActions = (props) => {
     addWidgetToPage,
     toggleShowOnlyWidgets,
     showOnlyWidgets,
+    isIframe,
+    editPage,
   } = props;
 
   return (
@@ -23,6 +25,8 @@ const GlobalActions = (props) => {
         addWidgetToPage={addWidgetToPage}
         toggleShowOnlyWidgets={toggleShowOnlyWidgets}
         showOnlyWidgets={showOnlyWidgets}
+        isIframe={isIframe}
+        editPage={editPage}
       />
       <ToggleButtons
         showAllWidgets={showAllWidgets}
@@ -43,6 +47,8 @@ GlobalActions.propTypes = {
   addWidgetToPage: PropTypes.func.isRequired,
   toggleShowOnlyWidgets: PropTypes.func.isRequired,
   showOnlyWidgets: PropTypes.bool.isRequired,
+  isIframe: PropTypes.bool.isRequired,
+  editPage: PropTypes.func.isRequired,
 };
 
 export default GlobalActions;

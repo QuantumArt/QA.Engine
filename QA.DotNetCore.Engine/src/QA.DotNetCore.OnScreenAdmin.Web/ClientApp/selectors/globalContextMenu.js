@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect';
-import { ADD_WIDGET_TO_PAGE_KEY, TOGGLE_SHOW_ONLY_WIDGETS_KEY } from 'constants/globalContextMenu';
+import { ADD_WIDGET_TO_PAGE_KEY, TOGGLE_SHOW_ONLY_WIDGETS_KEY, EDIT_PAGE_KEY } from 'constants/globalContextMenu';
 import { WIDGET_TAB } from 'constants/general';
 import { getShowComponentTree } from './widgetsScreen';
 import { getActiveTab } from './sidebar';
@@ -13,6 +13,7 @@ export const getEnabledMenuKeys = createSelector(
     if (showComponentTree && activeTab === WIDGET_TAB) {
       result.push(ADD_WIDGET_TO_PAGE_KEY);
       result.push(TOGGLE_SHOW_ONLY_WIDGETS_KEY);
+      result.push(EDIT_PAGE_KEY);
     }
     return result;
   },

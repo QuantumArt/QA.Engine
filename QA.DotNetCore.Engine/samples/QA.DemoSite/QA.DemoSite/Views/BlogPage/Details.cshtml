@@ -1,0 +1,62 @@
+﻿@model QA.DemoSite.ViewModels.BlogDetailsViewModel
+
+<div id="pageTitle" class="bg--overlay">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="section-title">
+          <h2>@Model.Title</h2>
+        </div>
+      </div>
+
+      @await Component.InvokeAsync("Breadcrumbs", Model.Title)
+    </div>
+  </div>
+</div>
+
+<div id="blog" class="page">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 blog-page-content">
+        <div class="blog-item full-post">
+          @if (!String.IsNullOrWhiteSpace(Model.YoutubeVideoCode))
+          {
+            <div class="blog-page-post-video embed-responsive embed-responsive-16by9">
+              <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/@(Model.YoutubeVideoCode)?showinfo=0&controls=0&rel=0&wmode=transparent"></iframe>
+            </div>
+          }
+          else if (!String.IsNullOrWhiteSpace(Model.Image))
+          {
+            <div class="blog-item-img">
+              <img src="@Model.Image" alt="" class="img-responsive">
+            </div>
+          }
+          <div class="blog-item-content">
+            <h2>@Model.Title</h2>
+            <div class="metadata">
+              <i class="fa fa-calendar"></i> @Model.Date
+              <span class="separator">|</span>
+              <i class="fa fa-user"></i> @Model.CategoryName
+            </div>
+            @Html.Raw(Model.Text)
+          </div>
+
+          <p><span class="post-category-text">КАТЕГОРИЯ:</span><a href="#" class="category-link">@Model.CategoryName</a></p>
+
+          @if (Model.Tags.Any())
+          {
+            <div class="tags">
+              <ul>
+                <li><strong>Tags:</strong></li>
+                @foreach (var tag in Model.Tags)
+                {
+                  <li><a href="#" class="btn btn-custom">@tag</a></li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

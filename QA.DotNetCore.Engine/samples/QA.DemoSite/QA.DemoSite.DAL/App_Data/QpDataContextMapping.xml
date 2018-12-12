@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<schema connectionStringName="qp_database" class="QpDataContext" namespace="QA.DemoSite.DAL" useLongUrls="true" replaceUrls="true" dbIndependent="true" isPartial="false" sendNotifications="false" siteName="main_site">
+  <content id="537" name="AbstractItem" mapped_name="QPAbstractItem" plural_mapped_name="QPAbstractItems" use_default_filtration="true">
+    <attribute name="Title" />
+    <attribute name="Name" />
+    <attribute name="Parent" mapped_back_name="Children" />
+    <attribute name="IsVisible" />
+    <attribute name="IsPage" />
+    <attribute name="ZoneName" />
+    <attribute name="AllowedUrlPatterns" />
+    <attribute name="DeniedUrlPatterns" />
+    <attribute name="Description" />
+    <attribute name="Discriminator" mapped_back_name="Items" />
+    <attribute name="VersionOf" mapped_back_name="Versions" />
+    <attribute name="Culture" mapped_back_name="AbstractItems" />
+    <attribute name="Keywords" />
+    <attribute name="MetaDescription" />
+    <attribute name="Tags" />
+    <attribute name="IsInSiteMap" />
+    <attribute name="IndexOrder" />
+    <attribute name="ExtensionId" />
+    <attribute name="ContentId" />
+    <attribute name="TitleFormat" mapped_back_name="Item" />
+  </content>
+  <content id="538" name="ItemDefinition" mapped_name="QPDiscriminator" plural_mapped_name="QPDiscriminators" use_default_filtration="true">
+    <attribute name="Title" />
+    <attribute name="Name" />
+    <attribute name="PreferredContentId" />
+    <attribute name="TypeName" />
+    <attribute name="CategoryName" />
+    <attribute name="Description" />
+    <attribute name="IconUrl" />
+    <attribute name="IsPage" />
+    <attribute name="AllowedZones" />
+    <attribute name="AllowedItemDefinitions1" />
+    <attribute name="FilterPartByUrl" />
+    <attribute name="AllowedItemDefinitions" />
+  </content>
+  <content id="540" name="Локализация" mapped_name="QPCulture" plural_mapped_name="QPCultures" use_default_filtration="true">
+    <attribute name="Title" />
+    <attribute name="Name" />
+    <attribute name="Icon" />
+  </content>
+  <content id="10609" name="ItemDefinitionConstraint" mapped_name="QPItemDefinitionConstraint" plural_mapped_name="QPItemDefinitionConstraints" use_default_filtration="true">
+    <attribute name="Target" mapped_back_name="AllowDefinition" />
+    <attribute name="Source" mapped_back_name="QPItemDefinitionConstraints_2" />
+  </content>
+  <content id="30745" name="Блог Посты" mapped_name="BlogPost" plural_mapped_name="BlogPosts" use_default_filtration="true">
+    <attribute name="Title" />
+    <attribute name="Brief" />
+    <attribute name="PostDate" />
+    <attribute name="Category" mapped_back_name="PostsInCategory" />
+    <attribute name="Text" />
+    <attribute name="Tags" />
+    <attribute name="Image" />
+    <attribute name="YoutubeVideoCode" />
+  </content>
+  <content id="30746" name="Блог Категории" mapped_name="BlogCategory" plural_mapped_name="BlogCategories" use_default_filtration="true">
+    <attribute name="Title" />
+    <attribute name="SortOrder" />
+  </content>
+  <content id="30747" name="Блог Теги" mapped_name="BlogTag" plural_mapped_name="BlogTags" use_default_filtration="true">
+    <attribute name="Title" />
+  </content>
+  <content id="30749" name="FAQ Вопросы и ответы" mapped_name="FaqItem" plural_mapped_name="FaqItems" use_default_filtration="true">
+    <attribute name="Question" />
+    <attribute name="Answer" />
+    <attribute name="SortOrder" />
+  </content>
+</schema>

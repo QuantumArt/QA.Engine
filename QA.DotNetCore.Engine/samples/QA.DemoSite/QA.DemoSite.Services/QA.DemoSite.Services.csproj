@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net471</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="QA.DotNetCore.Caching" Version="0.3.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\QA.DemoSite.DAL\QA.DemoSite.DAL.csproj" />
+    <ProjectReference Include="..\QA.DemoSite.Interfaces\QA.DemoSite.Interfaces.csproj" />
+    <ProjectReference Include="..\QA.DemoSite.Templates\QA.DemoSite.Templates.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -19,21 +19,18 @@ const zoneToAddSelector = state =>
 
 
 function* addWidget() {
-  console.log('addWidget saga');
   // см metaInfoSagas.js
   yield put({ type: CONTENT_META_INFO_ACTION.GET_AVAILABLE_WIDGETS_REQUESTED, source: selfSource });
   yield put({ type: CONTENT_META_INFO_ACTION.GET_ABSTRACT_ITEM_INFO_REQUESTED, source: selfSource });
 }
 
 function* widgetSelected() {
-  console.log('widget selected saga');
   const zoneToAdd = yield select(zoneToAddSelector);
   const widgetToAdd = yield select(widgetToAddSelector);
   const abstractItemInfo = yield select(abstractItemMetaInfoSelector);
   yield put({ type: WIDGETS_SCREEN_MODE_ACTIONS.HIDE_WIDGET_CREATION_WIZARD });
   addWidgetQpForm(widgetToAdd, zoneToAdd, abstractItemInfo, qpFormCallback);
   yield put({ type: ADD_WIDGET_ACTIONS.SHOW_QP_FORM });
-  console.log(zoneToAdd, widgetToAdd, abstractItemInfo);
 }
 
 function* showAvailableWidgets(action) {

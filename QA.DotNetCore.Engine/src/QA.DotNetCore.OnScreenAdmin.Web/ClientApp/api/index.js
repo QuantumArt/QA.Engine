@@ -1,15 +1,12 @@
-
 import axios from 'axios';
 import qs from 'qs';
 import * as Cookies from 'js-cookie';
 
 const siteId = window.siteId;
 const baseUrl = window.onScreenAdminBaseUrl;
-const onScreenTokenCookieName = window.onScreenTokenCookieName;
-
 const axiosConfig = {
   baseURL: `${baseUrl}/api`,
-  headers: { 'X-QP8-Access-Token': Cookies.get(onScreenTokenCookieName) },
+  headers: { 'X-QP8-Access-Token': Cookies.get(window.onScreenTokenCookieName) },
 };
 
 const axiosInstance = () => axios.create(axiosConfig);

@@ -40,7 +40,6 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   onSelectZone: (targetZoneName) => {
-    console.log('onSelectZone');
     dispatch(selectTargetZone(targetZoneName));
   },
   onSelectCustomZoneType: () => {

@@ -13,7 +13,6 @@ const selfSource = 'meta_info_edit_widget';
 
 
 function* editWidget(action) {
-  console.log('editWidget saga');
   // см metaInfoSagas.js
   yield put({
     type: CONTENT_META_INFO_ACTION.GET_ABSTRACT_ITEM_INFO_REQUESTED,
@@ -23,10 +22,8 @@ function* editWidget(action) {
 }
 
 function* showQpForm(action) {
-  console.log('showQpForm');
   if (action.source !== selfSource) { return; }
   const widget = yield select(currentEditingWidgetSelector);
-  console.log('widget', widget);
   const widgetId = widget.properties.widgetId;
   const abstractItemInfo = yield select(abstractItemMetaInfoSelector);
   editWidgetQpForm(widgetId, qpFormCallback, abstractItemInfo);

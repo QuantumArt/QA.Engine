@@ -37,13 +37,6 @@ export default function buildTreeNew(
 
     let parent = hashMap[component.parentOnScreenId];
 
-    // function findParentWidget(parentID) {
-    //   if (hashMap[parentID] && !(hashMap[parentID].type === 'widget' || parentID === null)) {
-    //     return findParentWidget(hashMap[parentID].parentOnScreenId);
-    //   }
-    //   return parentID;
-    // }
-
     if (showOnlyWidgets && parent && component.type === 'widget') {
       component.parentOnScreenId = parent.parentOnScreenId;
       parent = hashMap[component.parentOnScreenId];

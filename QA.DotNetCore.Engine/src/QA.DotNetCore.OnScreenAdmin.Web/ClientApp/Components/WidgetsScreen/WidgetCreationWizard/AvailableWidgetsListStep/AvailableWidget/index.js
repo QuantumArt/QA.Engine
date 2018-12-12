@@ -8,31 +8,28 @@ import {
 } from 'material-ui/List';
 import Avatar from 'material-ui/Avatar';
 
-const styles = (theme) => {
-  console.log(theme);
-  return {
-    listItem: {
-      height: theme.spacing.unit * 7.5,
-      minWidth: 350,
-    },
-    listItemText: {
-      fontSize: theme.typography.fontSize,
-    },
-    listItemSecondaryAction: {
-      paddingRight: 80,
-    },
+const styles = theme => ({
+  listItem: {
+    height: theme.spacing.unit * 7.5,
+    minWidth: 350,
+  },
+  listItemText: {
+    fontSize: theme.typography.fontSize,
+  },
+  listItemSecondaryAction: {
+    paddingRight: 80,
+  },
 
-    componentAvatar: {
-      borderRadius: 0,
-      color: 'inherit',
-      backgroundColor: 'inherit',
-      width: theme.typography.pxToRem(30),
-      height: theme.typography.pxToRem(30),
-      marginRight: theme.spacing.unit,
-    },
+  componentAvatar: {
+    borderRadius: 0,
+    color: 'inherit',
+    backgroundColor: 'inherit',
+    width: theme.typography.pxToRem(30),
+    height: theme.typography.pxToRem(30),
+    marginRight: theme.spacing.unit,
+  },
 
-  };
-};
+});
 
 class AvailableWidget extends Component {
   handleSelectClick = () => {

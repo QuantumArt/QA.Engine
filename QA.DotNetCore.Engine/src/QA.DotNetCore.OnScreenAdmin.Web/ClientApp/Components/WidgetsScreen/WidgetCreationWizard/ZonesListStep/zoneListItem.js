@@ -8,18 +8,14 @@ import {
 } from 'material-ui/List';
 import ZoneIcon from 'Components/Icons/Zone';
 
-const styles = (theme) => {
-  console.log(theme);
-  return {
-    listItem: {
-      height: theme.typography.pxToRem(76.8),
-    },
-    listItemText: {
-      fontSize: theme.typography.fontSize,
-    },
-
-  };
-};
+const styles = theme => ({
+  listItem: {
+    height: theme.typography.pxToRem(76.8),
+  },
+  listItemText: {
+    fontSize: theme.typography.fontSize,
+  },
+});
 
 class ZoneListItem extends Component {
   handleClick = () => {

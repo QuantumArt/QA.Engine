@@ -7,14 +7,10 @@ import {
   TOGGLE_SHOW_ONLY_WIDGETS,
   TOGGLE_COMPONENT_TREE_SEARCH_BOX,
 } from 'actions/actionTypes';
-import buildFlatListNew from 'utils/buildFlatListNew';
 import buildFlatList from 'utils/buildFlatList';
-import buildTreeNew from 'utils/buildTreeNew';
 
 
-// const components = buildFlatList();
-const components = buildFlatListNew();
-
+const components = buildFlatList();
 const getMaxNestLevel = comps => comps.map(c => c.nestLevel).reduce((max, cur) => Math.max(max, cur));
 
 const initialState = {

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import Portal from 'Components/Portal';
 
-import buildFlatListNew from 'utils/buildFlatListNew';
+import buildFlatList from 'utils/buildFlatList';
 
 const styles = () => ({
   highlightsWrap: {
@@ -23,10 +23,10 @@ class ComponentsOutlines extends Component {
     documentWidth: 0,
     isResizeHandled: false,
   }
-  componentDidMount = () => {
+  componentWillMount() {
     const { updateComponents } = this.props;
     const resize = () => {
-      const components = buildFlatListNew();
+      const components = buildFlatList();
       updateComponents(components);
     };
     if (!this.state.isResizeHandled) {
@@ -53,7 +53,7 @@ class ComponentsOutlines extends Component {
             const coords = component.properties.componentCoords;
             if (!Object.keys(coords).length) return null;
             const borderWidth = component.isSelected ? '2px' : '1px';
-            const borderColor = component.type === 'widget' ? '#3f51b5' : '#72e272';
+            const borderColor = component.type === 'widget' ? '#29b6f6' : '#66bb6a';
             const nestPadding = (maxNestLevel + 2) - component.nestLevel;
             return (
               <div

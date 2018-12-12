@@ -1,11 +1,10 @@
 import MutationSummary from 'mutation-summary';
 import _ from 'lodash';
 import { updateComponents } from 'actions/componentTreeActions';
-import buildFlatList from 'utils/buildFlatListNew';
+import buildFlatList from 'utils/buildFlatList';
 
 function MutationWatcher(store) {
   const mutationCallback = (summaries) => {
-    console.log('mutation callback fired', summaries);
     const newComponentTree = buildFlatList();
     store.dispatch(updateComponents(newComponentTree));
   };

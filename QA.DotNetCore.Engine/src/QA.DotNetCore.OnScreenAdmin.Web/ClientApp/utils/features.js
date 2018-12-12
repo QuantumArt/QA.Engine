@@ -23,10 +23,9 @@ const mapFeature = (featureString) => {
 export const getAvailableFeatures = () => {
   const features = window.onScreenFeatures;
   const splittedFeatures = _.split(features, ',');
-  console.log('splittedFeatures', splittedFeatures);
   const mapped = _.map(splittedFeatures, f => mapFeature(f));
-  console.log(mapped);
   const withoutNulls = _.reject(mapped, _.isNull);
+
   return _.sortBy(withoutNulls, [f => sortOrder(f)]);
 };
 

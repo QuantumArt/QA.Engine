@@ -1,7 +1,6 @@
 import { connect } from 'react-redux';
 import { getComponentsListSelector, getMaxNestLevelSelector } from 'selectors/componentTree';
 import ComponentsOutlines from 'Components/ComponentsOutlines';
-
 import { updateComponents } from 'actions/componentTreeActions';
 
 
@@ -11,9 +10,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  updateComponents: (components) => {
-    dispatch(updateComponents(components));
-  },
+  updateComponents: components => dispatch(updateComponents(components)),
 });
 
 const ComponentsOutlinesContainer = connect(

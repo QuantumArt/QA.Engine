@@ -10,10 +10,12 @@ const styles = () => ({
     position: 'absolute',
     top: 0,
     left: 0,
+    pointerEvents: 'none',
   },
   highlightsItem: {
     position: 'absolute',
-    pointerEvents: 'none',
+    pointerEvents: 'auto',
+    cursor: 'pointer',
   },
 });
 
@@ -23,6 +25,7 @@ class ComponentsOutlines extends Component {
     documentWidth: 0,
     isResizeHandled: false,
   }
+
   componentWillMount() {
     const { updateComponents } = this.props;
     const resize = () => {
@@ -38,6 +41,11 @@ class ComponentsOutlines extends Component {
       isResizeHandled: true,
     });
   }
+
+  clickHandler() {
+    console.log(1);
+  }
+
   render() {
     const { components, classes, maxNestLevel } = this.props;
     return (
@@ -54,19 +62,25 @@ class ComponentsOutlines extends Component {
             if (!Object.keys(coords).length) return null;
             const borderWidth = component.isSelected ? '2px' : '1px';
             const borderColor = component.type === 'widget' ? '#29b6f6' : '#66bb6a';
-            const nestPadding = (maxNestLevel + 2) - component.nestLevel;
+            const nestPadding = (maxNestLevel / component.nestLevel) - component.nestLevel;
+            const paddingFactor = 2;
             return (
               <div
                 key={component.onScreenId}
                 className={`${classes.highlightsItem} component--${component.onScreenId}`}
+                onClick={this.clickHandler}
+                role="button"
+                tabIndex={0}
                 style={{
-                  top: `${coords.top - nestPadding}px`,
-                  left: `${coords.left - nestPadding}px`,
-                  width: `${coords.width + (nestPadding * 2)}px`,
-                  height: `${coords.height + (nestPadding * 2)}px`,
+                  top: `${coords.top - nestPadding - paddingFactor}px`,
+                  left: `${coords.left - nestPadding - paddingFactor}px`,
+                  width: `${coords.width + (nestPadding * 2) + (paddingFactor * 2)}px`,
+                  height: `${coords.height + (nestPadding * 2) + (paddingFactor * 2)}px`,
                   border: `${borderWidth} dashed ${borderColor}`,
                 }}
-              />
+              >
+                <span style={{ position: 'absolute', left: '30%' }}>{component.nestLevel}</span>
+              </div>
             );
           })
           }

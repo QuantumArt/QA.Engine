@@ -270,7 +270,7 @@ class ComponentItem extends Component {
       type,
       showOnlyWidgets,
     } = this.props;
-    console.log(properties);
+
     const isSelected = selectedComponentId === onScreenId;
 
     return (

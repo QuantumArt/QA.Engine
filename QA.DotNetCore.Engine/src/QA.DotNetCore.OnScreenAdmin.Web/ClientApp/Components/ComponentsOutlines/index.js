@@ -15,8 +15,8 @@ const styles = () => ({
   },
   highlightsItem: {
     position: 'absolute',
-    pointerEvents: 'auto',
-    cursor: 'pointer',
+    pointerEvents: 'none',
+    outline: 'none',
   },
 });
 

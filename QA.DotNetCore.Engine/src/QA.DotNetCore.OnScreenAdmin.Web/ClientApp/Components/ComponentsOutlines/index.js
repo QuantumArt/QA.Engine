@@ -11,6 +11,7 @@ const styles = () => ({
     top: 0,
     left: 0,
     pointerEvents: 'none',
+    zIndex: 999,
   },
   highlightsItem: {
     position: 'absolute',
@@ -42,12 +43,8 @@ class ComponentsOutlines extends Component {
     });
   }
 
-  clickHandler() {
-    console.log(1);
-  }
-
   render() {
-    const { components, classes, maxNestLevel } = this.props;
+    const { components, classes } = this.props;
     return (
       <Portal>
         <div
@@ -60,27 +57,23 @@ class ComponentsOutlines extends Component {
           {components.map((component) => {
             const coords = component.properties.componentCoords;
             if (!Object.keys(coords).length) return null;
-            const borderWidth = component.isSelected ? '2px' : '1px';
+            const borderWidth = component.isSelected ? '2px' : '0px';
             const borderColor = component.type === 'widget' ? '#29b6f6' : '#66bb6a';
-            const nestPadding = (maxNestLevel / component.nestLevel) - component.nestLevel;
-            const paddingFactor = 2;
+            // const nestPadding = (maxNestLevel / component.nestLevel) - component.nestLevel;
             return (
               <div
                 key={component.onScreenId}
                 className={`${classes.highlightsItem} component--${component.onScreenId}`}
-                onClick={this.clickHandler}
                 role="button"
                 tabIndex={0}
                 style={{
-                  top: `${coords.top - nestPadding - paddingFactor}px`,
-                  left: `${coords.left - nestPadding - paddingFactor}px`,
-                  width: `${coords.width + (nestPadding * 2) + (paddingFactor * 2)}px`,
-                  height: `${coords.height + (nestPadding * 2) + (paddingFactor * 2)}px`,
+                  top: `${coords.top}px`,
+                  left: `${coords.left}px`,
+                  width: `${coords.width}px`,
+                  height: `${coords.height}px`,
                   border: `${borderWidth} dashed ${borderColor}`,
                 }}
-              >
-                <span style={{ position: 'absolute', left: '30%' }}>{component.nestLevel}</span>
-              </div>
+              />
             );
           })
           }

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import Portal from 'Components/Portal';
-
 import buildFlatList from 'utils/buildFlatList';
 
 const styles = () => ({
@@ -10,37 +9,29 @@ const styles = () => ({
     position: 'absolute',
     top: 0,
     left: 0,
-    pointerEvents: 'none',
+    // pointerEvents: 'none',
     zIndex: 999,
   },
   highlightsItem: {
     position: 'absolute',
-    pointerEvents: 'none',
+    // pointerEvents: 'none',
     outline: 'none',
   },
 });
 
 class ComponentsOutlines extends Component {
-  state = {
-    documentHeight: 0,
-    documentWidth: 0,
-    isResizeHandled: false,
+  componentDidMount() {
+    window.addEventListener('resize', this.update);
   }
 
-  componentWillMount() {
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.update);
+  }
+
+  update = () => {
     const { updateComponents } = this.props;
-    const resize = () => {
-      const components = buildFlatList();
-      updateComponents(components);
-    };
-    if (!this.state.isResizeHandled) {
-      window.onresize = resize;
-    }
-    this.setState({
-      documentHeight: document.body.offsetHeight,
-      documentWidth: document.body.offsetWidth,
-      isResizeHandled: true,
-    });
+    const components = buildFlatList();
+    updateComponents(components);
   }
 
   render() {
@@ -50,8 +41,10 @@ class ComponentsOutlines extends Component {
         <div
           className={classes.highlightsWrap}
           style={{
-            height: `${document.body.offsetHeight}px`,
-            width: `${document.body.offsetWidth}px`,
+            // height: `${document.body.offsetHeight}px`,
+            // width: `${document.body.offsetWidth}px`,
+            // height: '100%',
+            // width: '100%',
           }}
         >
           {components.map((component) => {
@@ -59,7 +52,6 @@ class ComponentsOutlines extends Component {
             if (!Object.keys(coords).length) return null;
             const borderWidth = component.isSelected ? '2px' : '0px';
             const borderColor = component.type === 'widget' ? '#29b6f6' : '#66bb6a';
-            // const nestPadding = (maxNestLevel / component.nestLevel) - component.nestLevel;
             return (
               <div
                 key={component.onScreenId}
@@ -85,7 +77,6 @@ class ComponentsOutlines extends Component {
 
 ComponentsOutlines.propTypes = {
   components: PropTypes.arrayOf(PropTypes.object).isRequired,
-  maxNestLevel: PropTypes.number.isRequired,
   updateComponents: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired,
 };

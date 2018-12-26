@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 
 export default class Portal extends React.Component {
   render() {
+    console.log(typeof document);
     const doc = typeof document === 'undefined' ? {} : document;
     const body = doc.body;
 

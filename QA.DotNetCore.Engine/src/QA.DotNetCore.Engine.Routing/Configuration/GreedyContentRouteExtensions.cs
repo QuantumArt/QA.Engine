@@ -1,33 +1,19 @@
-// Based on https://github.com/aspnet/JavaScriptServices/blob/dev/src/Microsoft.AspNetCore.SpaServices/Routing/SpaRouteExtensions.cs
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
+using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.Abstractions.Targeting;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace QA.DotNetCore.Engine.Routing.Configuration
 {
-    /// <summary>
-    /// Extension methods useful for configuring routing in a single-page application (SPA).
-    /// </summary>
     public static class GreedyContentRouteExtensions
     {
         private const string tailRouteTokenName = "tail";
 
         public static string TailRouteTokenName => tailRouteTokenName;
 
-        /// <summary>
-        /// Configures a route that is automatically bypassed if the requested URL appears to be for a static file
-        /// (e.g., if it has a filename extension).
-        /// </summary>
-        /// <param name="routeBuilder">The <see cref="IRouteBuilder"/>.</param>
-        /// <param name="name">The route name.</param>
-        /// <param name="templatePrefix">The template prefix.</param>
-        /// <param name="defaults">Default route parameters.</param>
-        /// <param name="constraints">Route constraints.</param>
-        /// <param name="dataTokens">Route data tokens.</param>
-        public static void MapGreedyContentRoute(
+        public static IRouteBuilder MapGreedyContentRoute(
             this IRouteBuilder routeBuilder,
             string name,
             string templatePrefix,
@@ -35,11 +21,23 @@ namespace QA.DotNetCore.Engine.Routing.Configuration
             object constraints = null,
             object dataTokens = null)
         {
+            IInlineConstraintResolver requiredService = routeBuilder.ServiceProvider.GetRequiredService<IInlineConstraintResolver>();
+            IControllerMapper controllerMapper = routeBuilder.ServiceProvider.GetRequiredService<IControllerMapper>();
+            ITargetingFilterAccessor targetingAccessor = routeBuilder.ServiceProvider.GetService<ITargetingFilterAccessor>();
+
             var template = CreateRouteTemplate(templatePrefix);
             var constraintsDict = ObjectToDictionary(constraints);
             constraintsDict.Add(TailRouteTokenName, new GreedyRouteConstraint(TailRouteTokenName));
 
-            routeBuilder.MapContentRoute(name, template, defaults, constraintsDict, dataTokens);
+            var route = new GreedyContentRoute(controllerMapper, targetingAccessor, routeBuilder.DefaultHandler, name, template,
+                    new RouteValueDictionary(defaults),
+                    constraintsDict,
+                    new RouteValueDictionary(dataTokens),
+                    requiredService);
+
+            routeBuilder.Routes.Add(route);
+
+            return routeBuilder;
         }
 
         private static string CreateRouteTemplate(string templatePrefix)

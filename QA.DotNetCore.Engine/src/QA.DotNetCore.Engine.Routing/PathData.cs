@@ -2,10 +2,10 @@ using QA.DotNetCore.Engine.Abstractions;
 
 namespace QA.DotNetCore.Engine.Routing
 {
-    internal class PathData
+    public class PathData
     {
-        private IAbstractItem abstractItem;
-        private string remainingUrl;
+        private readonly IAbstractItem abstractItem;
+        private readonly string remainingUrl;
 
         public PathData(IAbstractItem abstractItem, string remainingUrl)
         {

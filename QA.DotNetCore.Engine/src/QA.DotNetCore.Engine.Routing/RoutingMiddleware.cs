@@ -18,11 +18,13 @@ namespace QA.DotNetCore.Engine.Routing
 
         public Task Invoke(HttpContext context, IAbstractItemStorageProvider provider)
         {
-            var startPage = provider
-                .Get()
+            var abstractItems = provider
+                .Get();
+            var startPage = abstractItems
                 .GetStartPage(context.Request.Host.Value, _filterAccessor?.Get());
 
             context.Items[RoutingKeys.StartPage] = startPage;
+            context.Items[RoutingKeys.AbstractItemStorage] = abstractItems;
 
             // Call the next delegate/middleware in the pipeline
             return _next(context);

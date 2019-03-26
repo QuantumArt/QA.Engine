@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.Abstractions.OnScreen;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
 
 namespace QA.DotNetCore.Engine.Routing
@@ -60,8 +61,20 @@ namespace QA.DotNetCore.Engine.Routing
             var targetingFilter = TargetingProvider?.Get();
 
             PathData data = null;
+
             if (SavePathDataInHttpContext)
                 data = context.HttpContext.Items["current-page"] as PathData;
+
+            var onScreenContext = context.HttpContext.Items[OnScreenModeKeys.OnScreenContext] as OnScreenContext;
+            var abstractItemStorage = context.HttpContext.Items[RoutingKeys.AbstractItemStorage] as AbstractItemStorage;
+            //если находимся в режиме onScreen и передан id страницы (abstractItem'а), то используем переданный abstractItem
+            if (onScreenContext?.Enabled == true && onScreenContext?.PageId.HasValue == true && abstractItemStorage != null)
+            {
+                var abstractItem = abstractItemStorage.Get(onScreenContext.PageId.Value);
+                var isContainInStartPage = IsStartPageContainAbstractItem(startPage, abstractItem);
+                if (isContainInStartPage)
+                    data = new PathData(abstractItem, "");
+            }
 
             if (data == null)
                 data = CreatePathFinder().Find(path, startPage, targetingFilter);
@@ -240,6 +253,22 @@ namespace QA.DotNetCore.Engine.Routing
         protected override async Task OnRouteMatched(RouteContext context)
         {
             await base.OnRouteMatched(context);
+        }
+
+        /// <summary>
+        /// Определяем, что abstractItem принадлежит стартовой странице startPage
+        /// </summary>
+        private bool IsStartPageContainAbstractItem(IStartPage startPage, IAbstractItem abstractItem)
+        {
+            if (startPage == null || abstractItem == null)
+                return false;
+            while (abstractItem.Parent != null)
+            {
+                if (abstractItem.Id == startPage.Id)
+                    return true;
+                abstractItem = abstractItem.Parent;
+            }
+            return false;
         }
     }
 }

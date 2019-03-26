@@ -62,6 +62,11 @@ namespace QA.DotNetCore.Engine.OnScreen
                 //если аутентифицировать юзера QP не удалось
                 if (context.User == null)
                     context.Features = OnScreenFeatures.None;
+
+                //получаем параметр id страницы (abstractItem'а) и сохраняем в контексте
+                //этот параметр передается при вызове custom action из QP
+                var queryPageId = httpContext.Request.Query[onScreenSettings.PageIdQueryParamName].ToString();
+                context.PageId = int.TryParse(queryPageId, out int pageId) ? pageId : (int?)null;
             }
 
             if (context.HasFeature(OnScreenFeatures.AbTests))

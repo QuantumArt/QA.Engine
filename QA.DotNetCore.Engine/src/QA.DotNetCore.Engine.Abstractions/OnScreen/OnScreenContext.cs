@@ -27,5 +27,10 @@ namespace QA.DotNetCore.Engine.Abstractions.OnScreen
         /// Переопределенное для режима onscreen значение isStage для получения данных по АБ-тестам
         /// </summary>
         public bool? AbtestsIsStageOverrided { get; set; }
+
+        /// <summary>
+        /// Id страницы
+        /// </summary>
+        public int? PageId { get; set; }
     }
 }

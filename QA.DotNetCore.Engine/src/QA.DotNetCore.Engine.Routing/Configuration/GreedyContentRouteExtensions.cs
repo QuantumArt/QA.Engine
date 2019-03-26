@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.Abstractions.OnScreen;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,7 @@ namespace QA.DotNetCore.Engine.Routing.Configuration
             IInlineConstraintResolver requiredService = routeBuilder.ServiceProvider.GetRequiredService<IInlineConstraintResolver>();
             IControllerMapper controllerMapper = routeBuilder.ServiceProvider.GetRequiredService<IControllerMapper>();
             ITargetingFilterAccessor targetingAccessor = routeBuilder.ServiceProvider.GetService<ITargetingFilterAccessor>();
+            IOnScreenContextProvider onScreenContextProvider = routeBuilder.ServiceProvider.GetService<IOnScreenContextProvider>();
 
             var template = CreateRouteTemplate(templatePrefix);
             var constraintsDict = ObjectToDictionary(constraints);
@@ -33,7 +35,8 @@ namespace QA.DotNetCore.Engine.Routing.Configuration
                     new RouteValueDictionary(defaults),
                     constraintsDict,
                     new RouteValueDictionary(dataTokens),
-                    requiredService);
+                    requiredService,
+                    onScreenContextProvider);
 
             routeBuilder.Routes.Add(route);
 

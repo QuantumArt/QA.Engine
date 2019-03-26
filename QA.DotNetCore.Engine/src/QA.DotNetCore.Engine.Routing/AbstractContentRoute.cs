@@ -67,6 +67,7 @@ namespace QA.DotNetCore.Engine.Routing
 
             var onScreenContext = context.HttpContext.Items[OnScreenModeKeys.OnScreenContext] as OnScreenContext;
             var abstractItemStorage = context.HttpContext.Items[RoutingKeys.AbstractItemStorage] as AbstractItemStorage;
+            //если находимся в режиме onScreen и передан id страницы (abstractItem'а), то используем переданный abstractItem
             if (onScreenContext?.Enabled == true && onScreenContext?.PageId.HasValue == true && abstractItemStorage != null)
             {
                 var abstractItem = abstractItemStorage.Get(onScreenContext.PageId.Value);
@@ -254,6 +255,9 @@ namespace QA.DotNetCore.Engine.Routing
             await base.OnRouteMatched(context);
         }
 
+        /// <summary>
+        /// Определяем, что abstractItem принадлежит стартовой странице startPage
+        /// </summary>
         private bool IsStartPageContainAbstractItem(IStartPage startPage, IAbstractItem abstractItem)
         {
             if (startPage == null || abstractItem == null)

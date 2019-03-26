@@ -63,7 +63,7 @@ namespace QA.DotNetCore.Engine.OnScreen
                 if (context.User == null)
                     context.Features = OnScreenFeatures.None;
 
-                var queryPageId = httpContext.Request.Query[onScreenSettings.PageId].ToString();
+                var queryPageId = httpContext.Request.Query[onScreenSettings.PageIdQueryParamName].ToString();
                 context.PageId = int.TryParse(queryPageId, out int pageId) ? pageId : (int?)null;
             }
 

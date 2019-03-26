@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using QA.DotNetCore.Engine.Abstractions;
-using QA.DotNetCore.Engine.Abstractions.OnScreen;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
 
 namespace QA.DotNetCore.Engine.Routing.Configuration
@@ -28,14 +27,12 @@ namespace QA.DotNetCore.Engine.Routing.Configuration
             IInlineConstraintResolver requiredService = routes.ServiceProvider.GetRequiredService<IInlineConstraintResolver>();
             IControllerMapper controllerMapper = routes.ServiceProvider.GetRequiredService<IControllerMapper>();
             ITargetingFilterAccessor targetingAccessor = routes.ServiceProvider.GetService<ITargetingFilterAccessor>();
-            IOnScreenContextProvider onScreenContextProvider = routes.ServiceProvider.GetService<IOnScreenContextProvider>();
 
             routes.Routes.Add(new ContentRoute(controllerMapper, targetingAccessor, routes.DefaultHandler, name, template,
                     new RouteValueDictionary(defaults),
                     new RouteValueDictionary(constraints),
                     new RouteValueDictionary(dataTokens),
-                    requiredService,
-                    onScreenContextProvider));
+                    requiredService));
 
             return routes;
         }

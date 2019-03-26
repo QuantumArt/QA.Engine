@@ -22,24 +22,22 @@ namespace QA.DotNetCore.Engine.Routing
         protected TemplateBinder Binder;
         protected readonly IControllerMapper ControllerMapper;
         protected readonly ITargetingFilterAccessor TargetingProvider;
-        protected readonly IOnScreenContextProvider OnScreenContextProvider;
 
-        public AbstractContentRoute(IControllerMapper controllerMapper, ITargetingFilterAccessor targetingProvider, IRouter target, string routeTemplate, IInlineConstraintResolver inlineConstraintResolver, IOnScreenContextProvider onScreenContextProvider)
-            : this(controllerMapper, targetingProvider, target, routeTemplate, null, null, null, inlineConstraintResolver, onScreenContextProvider)
+        public AbstractContentRoute(IControllerMapper controllerMapper, ITargetingFilterAccessor targetingProvider, IRouter target, string routeTemplate, IInlineConstraintResolver inlineConstraintResolver)
+            : this(controllerMapper, targetingProvider, target, routeTemplate, null, null, null, inlineConstraintResolver)
         {
         }
 
-        public AbstractContentRoute(IControllerMapper controllerMapper, ITargetingFilterAccessor targetingProvider, IRouter target, string routeTemplate, RouteValueDictionary defaults, IDictionary<string, object> constraints, RouteValueDictionary dataTokens, IInlineConstraintResolver inlineConstraintResolver, IOnScreenContextProvider onScreenContextProvider)
-            : this(controllerMapper, targetingProvider, target, null, routeTemplate, defaults, constraints, dataTokens, inlineConstraintResolver, onScreenContextProvider)
+        public AbstractContentRoute(IControllerMapper controllerMapper, ITargetingFilterAccessor targetingProvider, IRouter target, string routeTemplate, RouteValueDictionary defaults, IDictionary<string, object> constraints, RouteValueDictionary dataTokens, IInlineConstraintResolver inlineConstraintResolver)
+            : this(controllerMapper, targetingProvider, target, null, routeTemplate, defaults, constraints, dataTokens, inlineConstraintResolver)
         {
         }
 
-        public AbstractContentRoute(IControllerMapper controllerMapper, ITargetingFilterAccessor targetingProvider, IRouter target, string routeName, string routeTemplate, RouteValueDictionary defaults, IDictionary<string, object> constraints, RouteValueDictionary dataTokens, IInlineConstraintResolver inlineConstraintResolver, IOnScreenContextProvider onScreenContextProvider)
+        public AbstractContentRoute(IControllerMapper controllerMapper, ITargetingFilterAccessor targetingProvider, IRouter target, string routeName, string routeTemplate, RouteValueDictionary defaults, IDictionary<string, object> constraints, RouteValueDictionary dataTokens, IInlineConstraintResolver inlineConstraintResolver)
             : base(target, routeName, routeTemplate, defaults, constraints, dataTokens, inlineConstraintResolver)
         {
             ControllerMapper = controllerMapper;
             TargetingProvider = targetingProvider;
-            OnScreenContextProvider = onScreenContextProvider;
         }
 
         protected abstract PathFinder CreatePathFinder();
@@ -67,12 +65,14 @@ namespace QA.DotNetCore.Engine.Routing
             if (SavePathDataInHttpContext)
                 data = context.HttpContext.Items["current-page"] as PathData;
 
-            var onScreenContext = OnScreenContextProvider.GetContext();
+            var onScreenContext = context.HttpContext.Items[OnScreenModeKeys.OnScreenContext] as OnScreenContext;
             var abstractItemStorage = context.HttpContext.Items[RoutingKeys.AbstractItemStorage] as AbstractItemStorage;
-            if (onScreenContext.Enabled && abstractItemStorage != null && onScreenContext.PageId.HasValue)
+            if (onScreenContext?.Enabled == true && onScreenContext?.PageId.HasValue == true && abstractItemStorage != null)
             {
                 var abstractItem = abstractItemStorage.Get(onScreenContext.PageId.Value);
-                data = new PathData(abstractItem, "");
+                var isContainInStartPage = IsStartPageContainAbstractItem(startPage, abstractItem);
+                if (isContainInStartPage)
+                    data = new PathData(abstractItem, "");
             }
 
             if (data == null)
@@ -252,6 +252,19 @@ namespace QA.DotNetCore.Engine.Routing
         protected override async Task OnRouteMatched(RouteContext context)
         {
             await base.OnRouteMatched(context);
+        }
+
+        private bool IsStartPageContainAbstractItem(IStartPage startPage, IAbstractItem abstractItem)
+        {
+            if (startPage == null || abstractItem == null)
+                return false;
+            while (abstractItem.Parent != null)
+            {
+                if (abstractItem.Id == startPage.Id)
+                    return true;
+                abstractItem = abstractItem.Parent;
+            }
+            return false;
         }
     }
 }

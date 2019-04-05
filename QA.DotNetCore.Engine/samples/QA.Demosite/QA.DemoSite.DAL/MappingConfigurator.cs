@@ -567,7 +567,7 @@ namespace QA.DemoSite.DAL
                 .HasForeignKey(bc => bc.BlogPostItemId);
 
             modelBuilder.Entity<BlogPost2BlogTagForTags>()
-                .HasOne<BlogTag>(bc => bc.BlogTagLinkedItem)
+                .HasOne(bc => bc.BlogTagLinkedItem)
                 .WithMany(c => c.BackwardForTags)
                 .HasForeignKey(bc => bc.BlogTagLinkedItemId);
             modelBuilder.Entity<BlogPost>().Ignore(p => p.ImageUrl);

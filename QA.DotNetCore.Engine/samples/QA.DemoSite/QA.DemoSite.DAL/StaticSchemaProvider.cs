@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
-using Quantumart.QP8.CodeGeneration.Services;
+using Quantumart.QP8.CoreCodeGeneration.Services;
+using Quantumart.QP8.EntityFrameworkCore;
 /* place your custom usings here */
 
 namespace QA.DemoSite.DAL
@@ -356,6 +357,240 @@ namespace QA.DemoSite.DAL
                 },
                 new AttributeInfo
                 {
+                    Id = 48204,
+                    ContentId = 10663,
+                    Name = "Title",
+                    MappedName = "Title",
+                    LinkId = 0,
+                    Type = "String"
+                },
+                new AttributeInfo
+                {
+                    Id = 48205,
+                    ContentId = 10663,
+                    Name = "Enabled",
+                    MappedName = "Enabled",
+                    LinkId = 0,
+                    Type = "Boolean"
+                },
+                new AttributeInfo
+                {
+                    Id = 48206,
+                    ContentId = 10663,
+                    Name = "Percentage",
+                    MappedName = "Percentage",
+                    LinkId = 0,
+                    Type = "String"
+                },
+                new AttributeInfo
+                {
+                    Id = 48207,
+                    ContentId = 10663,
+                    Name = "StartDate",
+                    MappedName = "StartDate",
+                    LinkId = 0,
+                    Type = "DateTime"
+                },
+                new AttributeInfo
+                {
+                    Id = 48208,
+                    ContentId = 10663,
+                    Name = "EndDate",
+                    MappedName = "EndDate",
+                    LinkId = 0,
+                    Type = "DateTime"
+                },
+                new AttributeInfo
+                {
+                    Id = 48209,
+                    ContentId = 10663,
+                    Name = "Comment",
+                    MappedName = "Comment",
+                    LinkId = 0,
+                    Type = "Textbox"
+                },
+                new AttributeInfo
+                {
+                    Id = 48212,
+                    ContentId = 10663,
+                    Name = "ABTestContainers",
+                    MappedName = "ABTestContainers",
+                    LinkId = 0,
+                    Type = "M2O"
+                },
+                new AttributeInfo
+                {
+                    Id = 48211,
+                    ContentId = 10664,
+                    Name = "ParentTest",
+                    MappedName = "ParentTest",
+                    LinkId = 0,
+                    Type = "O2M"
+                },
+                new AttributeInfo
+                {
+                    Id = 48213,
+                    ContentId = 10664,
+                    Name = "Description",
+                    MappedName = "Description",
+                    LinkId = 0,
+                    Type = "String"
+                },
+                new AttributeInfo
+                {
+                    Id = 48214,
+                    ContentId = 10664,
+                    Name = "AllowedUrlPatterns",
+                    MappedName = "AllowedUrlPatterns",
+                    LinkId = 0,
+                    Type = "Textbox"
+                },
+                new AttributeInfo
+                {
+                    Id = 48215,
+                    ContentId = 10664,
+                    Name = "DeniedUrlPatterns",
+                    MappedName = "DeniedUrlPatterns",
+                    LinkId = 0,
+                    Type = "Textbox"
+                },
+                new AttributeInfo
+                {
+                    Id = 48216,
+                    ContentId = 10664,
+                    Name = "Domain",
+                    MappedName = "Domain",
+                    LinkId = 0,
+                    Type = "String"
+                },
+                new AttributeInfo
+                {
+                    Id = 48217,
+                    ContentId = 10664,
+                    Name = "Precondition",
+                    MappedName = "Precondition",
+                    LinkId = 0,
+                    Type = "Textbox"
+                },
+                new AttributeInfo
+                {
+                    Id = 48218,
+                    ContentId = 10664,
+                    Name = "Arguments",
+                    MappedName = "Arguments",
+                    LinkId = 0,
+                    Type = "Textbox"
+                },
+                new AttributeInfo
+                {
+                    Id = 48220,
+                    ContentId = 10664,
+                    Name = "Type",
+                    MappedName = "Type",
+                    LinkId = 0,
+                    Type = "Numeric"
+                },
+                new AttributeInfo
+                {
+                    Id = 48225,
+                    ContentId = 10665,
+                    Name = "Container",
+                    MappedName = "Container",
+                    LinkId = 0,
+                    Type = "O2M"
+                },
+                new AttributeInfo
+                {
+                    Id = 48228,
+                    ContentId = 10665,
+                    Name = "Description",
+                    MappedName = "Description",
+                    LinkId = 0,
+                    Type = "String"
+                },
+                new AttributeInfo
+                {
+                    Id = 48226,
+                    ContentId = 10665,
+                    Name = "VersionNumber",
+                    MappedName = "VersionNumber",
+                    LinkId = 0,
+                    Type = "Numeric"
+                },
+                new AttributeInfo
+                {
+                    Id = 48227,
+                    ContentId = 10665,
+                    Name = "ScriptText",
+                    MappedName = "ScriptText",
+                    LinkId = 0,
+                    Type = "Textbox"
+                },
+                new AttributeInfo
+                {
+                    Id = 48224,
+                    ContentId = 10666,
+                    Name = "BaseContainer",
+                    MappedName = "BaseContainer",
+                    LinkId = 0,
+                    Type = "O2M"
+                },
+                new AttributeInfo
+                {
+                    Id = 48229,
+                    ContentId = 10666,
+                    Name = "Scripts",
+                    MappedName = "ScriptsInContainer",
+                    LinkId = 0,
+                    Type = "M2O"
+                },
+                new AttributeInfo
+                {
+                    Id = 48230,
+                    ContentId = 10667,
+                    Name = "BaseContainer",
+                    MappedName = "BaseContainer",
+                    LinkId = 0,
+                    Type = "O2M"
+                },
+                new AttributeInfo
+                {
+                    Id = 48232,
+                    ContentId = 10667,
+                    Name = "ClientRedirects",
+                    MappedName = "ClientRedirectsInContainer",
+                    LinkId = 0,
+                    Type = "M2O"
+                },
+                new AttributeInfo
+                {
+                    Id = 48231,
+                    ContentId = 10668,
+                    Name = "Container",
+                    MappedName = "Container",
+                    LinkId = 0,
+                    Type = "O2M"
+                },
+                new AttributeInfo
+                {
+                    Id = 48233,
+                    ContentId = 10668,
+                    Name = "VersionNumber",
+                    MappedName = "VersionNumber",
+                    LinkId = 0,
+                    Type = "String"
+                },
+                new AttributeInfo
+                {
+                    Id = 48234,
+                    ContentId = 10668,
+                    Name = "RedirectUrl",
+                    MappedName = "RedirectUrl",
+                    LinkId = 0,
+                    Type = "String"
+                },
+                new AttributeInfo
+                {
                     Id = 68556,
                     ContentId = 30745,
                     Name = "Title",
@@ -528,6 +763,24 @@ namespace QA.DemoSite.DAL
                 new AttributeInfo
                 {
                     Id = 68582,
+                    ContentId = 10664,
+                    Name = "ScriptContainers",
+                    MappedName = "ScriptContainers",
+                    LinkId = 0,
+                    Type = "M2O"
+                },
+                new AttributeInfo
+                {
+                    Id = 68583,
+                    ContentId = 10664,
+                    Name = "ClientRedirectContainers",
+                    MappedName = "ClientRedirectContainers",
+                    LinkId = 0,
+                    Type = "M2O"
+                },
+                new AttributeInfo
+                {
+                    Id = 68584,
                     ContentId = 30746,
                     Name = "PostsInCategory",
                     MappedName = "PostsInCategory",
@@ -536,7 +789,7 @@ namespace QA.DemoSite.DAL
                 },
                 new AttributeInfo
                 {
-                    Id = 68583,
+                    Id = 68585,
                     ContentId = 538,
                     Name = "BackwardForAllowedItemDefinitions1",
                     MappedName = "BackwardForAllowedItemDefinitions1",
@@ -545,7 +798,7 @@ namespace QA.DemoSite.DAL
                 },
                 new AttributeInfo
                 {
-                    Id = 68584,
+                    Id = 68586,
                     ContentId = 30747,
                     Name = "BackwardForTags",
                     MappedName = "BackwardForTags",
@@ -588,6 +841,54 @@ namespace QA.DemoSite.DAL
                    MappedName = "QPItemDefinitionConstraint",
                    UseDefaultFiltration = true,
                    Attributes = new List<AttributeInfo>(attributesLookup[10609]),
+                   IsVirtual = false
+                },
+                new ContentInfo
+                {
+                   Id = 10663,
+                   MappedName = "AbTest",
+                   UseDefaultFiltration = true,
+                   Attributes = new List<AttributeInfo>(attributesLookup[10663]),
+                   IsVirtual = false
+                },
+                new ContentInfo
+                {
+                   Id = 10664,
+                   MappedName = "AbTestBaseContainer",
+                   UseDefaultFiltration = true,
+                   Attributes = new List<AttributeInfo>(attributesLookup[10664]),
+                   IsVirtual = false
+                },
+                new ContentInfo
+                {
+                   Id = 10665,
+                   MappedName = "AbTestScript",
+                   UseDefaultFiltration = true,
+                   Attributes = new List<AttributeInfo>(attributesLookup[10665]),
+                   IsVirtual = false
+                },
+                new ContentInfo
+                {
+                   Id = 10666,
+                   MappedName = "AbTestScriptContainer",
+                   UseDefaultFiltration = true,
+                   Attributes = new List<AttributeInfo>(attributesLookup[10666]),
+                   IsVirtual = false
+                },
+                new ContentInfo
+                {
+                   Id = 10667,
+                   MappedName = "AbTestClientRedirectContainer",
+                   UseDefaultFiltration = true,
+                   Attributes = new List<AttributeInfo>(attributesLookup[10667]),
+                   IsVirtual = false
+                },
+                new ContentInfo
+                {
+                   Id = 10668,
+                   MappedName = "AbTestClientRedirect",
+                   UseDefaultFiltration = true,
+                   Attributes = new List<AttributeInfo>(attributesLookup[10668]),
                    IsVirtual = false
                 },
                 new ContentInfo
@@ -636,3 +937,4 @@ namespace QA.DemoSite.DAL
         #endregion
     }
 }
+	

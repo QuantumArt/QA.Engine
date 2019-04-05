@@ -1,12 +1,12 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace QA.DemoSite.DAL
+namespace Quantumart.QP8.EntityFrameworkCore
 {
     public partial class User
     {
         public User()
         {
-            UserGroups = new HashSet<UserGroup>();
+            UserGroupBinds = new HashSet<UserGroupBind>();
         }
 
         public virtual int Id { get; set; }
@@ -16,6 +16,6 @@ namespace QA.DemoSite.DAL
         public virtual string FirstName { get; set; }
         public virtual string LastName { get; set; }
         public virtual string Email { get; set; }
-        public virtual ICollection<UserGroup> UserGroups { get; set; }
+        public virtual ICollection<UserGroupBind> UserGroupBinds { get; set; }
     }
 }

@@ -108,6 +108,111 @@
       <Association Name="StatusType_ContentItem" Member="StatusType" ThisKey="StatusTypeId" OtherKey="Id" Type="StatusType" IsForeignKey="true" />
     </Type>
   </Table>
+  <Table Name="dbo.CONTENT_10663_LIVE" Member="AbTests">
+    <Type Name="AbTest">
+      <Column Name="CONTENT_ITEM_ID" Type="System.Int32" Member="Id" DbType="Decimal(18,0) IDENTITY NOT NULL" IsPrimaryKey="true" CanBeNull="false" IsDbGenerated="true" />
+      <Column Name="STATUS_TYPE_ID" Type="System.Int32" Member="StatusTypeId" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="VISIBLE" Type="System.Boolean" Member="Visible" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="ARCHIVE" Type="System.Boolean" Member="Archive" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="CREATED" Type="System.DateTime" Member="Created" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="MODIFIED" Type="System.DateTime" Member="Modified" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="LAST_MODIFIED_BY" Type="System.Int32" Member="LastModifiedBy" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="[Title]" Member="Title" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="[Enabled]" Member="Enabled" Type="System.Boolean" DbType="Decimal(18,0)" CanBeNull="true" />
+      <Column Name="[Percentage]" Member="Percentage" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="[StartDate]" Member="StartDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="[EndDate]" Member="EndDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="[Comment]" Member="Comment" Type="System.String" DbType="NText" CanBeNull="true" UpdateCheck="Never" />
+      <Association Name="ParentTest_AbTestBaseContainer" Member="ABTestContainers" ThisKey="Id" OtherKey="ParentTest_ID" Type="AbTestBaseContainer" />
+      <Association Name="StatusType_ContentItem" Member="StatusType" ThisKey="StatusTypeId" OtherKey="Id" Type="StatusType" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.CONTENT_10664_LIVE" Member="AbTestBaseContainers">
+    <Type Name="AbTestBaseContainer">
+      <Column Name="CONTENT_ITEM_ID" Type="System.Int32" Member="Id" DbType="Decimal(18,0) IDENTITY NOT NULL" IsPrimaryKey="true" CanBeNull="false" IsDbGenerated="true" />
+      <Column Name="STATUS_TYPE_ID" Type="System.Int32" Member="StatusTypeId" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="VISIBLE" Type="System.Boolean" Member="Visible" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="ARCHIVE" Type="System.Boolean" Member="Archive" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="CREATED" Type="System.DateTime" Member="Created" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="MODIFIED" Type="System.DateTime" Member="Modified" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="LAST_MODIFIED_BY" Type="System.Int32" Member="LastModifiedBy" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="[ParentTest]" Member="ParentTest_ID" Storage="_ParentTest" Type="System.Int32" DbType="Decimal(18,0)" CanBeNull="true" />
+      <Column Name="[Description]" Member="Description" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="[AllowedUrlPatterns]" Member="AllowedUrlPatterns" Type="System.String" DbType="NText" CanBeNull="true" UpdateCheck="Never" />
+      <Column Name="[DeniedUrlPatterns]" Member="DeniedUrlPatterns" Type="System.String" DbType="NText" CanBeNull="true" UpdateCheck="Never" />
+      <Column Name="[Domain]" Member="Domain" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="[Precondition]" Member="Precondition" Type="System.String" DbType="NText" CanBeNull="true" UpdateCheck="Never" />
+      <Column Name="[Arguments]" Member="Arguments" Type="System.String" DbType="NText" CanBeNull="true" UpdateCheck="Never" />
+      <Column Name="[Type]" Member="Type" Type="System.Int32" DbType="Decimal(38,0)" CanBeNull="true" />
+      <Association Name="ParentTest_AbTestBaseContainer" Member="ParentTest" Storage="_ParentTest1" ThisKey="ParentTest_ID" OtherKey="Id" Type="AbTest" IsForeignKey="true" />
+      <Association Name="BaseContainer_AbTestScriptContainer" Member="ScriptContainers" ThisKey="Id" OtherKey="BaseContainer_ID" Type="AbTestScriptContainer" />
+      <Association Name="BaseContainer_AbTestClientRedirectContainer" Member="ClientRedirectContainers" ThisKey="Id" OtherKey="BaseContainer_ID" Type="AbTestClientRedirectContainer" />
+      <Association Name="StatusType_ContentItem" Member="StatusType" ThisKey="StatusTypeId" OtherKey="Id" Type="StatusType" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.CONTENT_10665_LIVE" Member="AbTestScripts">
+    <Type Name="AbTestScript">
+      <Column Name="CONTENT_ITEM_ID" Type="System.Int32" Member="Id" DbType="Decimal(18,0) IDENTITY NOT NULL" IsPrimaryKey="true" CanBeNull="false" IsDbGenerated="true" />
+      <Column Name="STATUS_TYPE_ID" Type="System.Int32" Member="StatusTypeId" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="VISIBLE" Type="System.Boolean" Member="Visible" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="ARCHIVE" Type="System.Boolean" Member="Archive" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="CREATED" Type="System.DateTime" Member="Created" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="MODIFIED" Type="System.DateTime" Member="Modified" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="LAST_MODIFIED_BY" Type="System.Int32" Member="LastModifiedBy" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="[Container]" Member="Container_ID" Storage="_Container" Type="System.Int32" DbType="Decimal(18,0)" CanBeNull="true" />
+      <Column Name="[Description]" Member="Description" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="[VersionNumber]" Member="VersionNumber" Type="System.Int32" DbType="Decimal(38,0)" CanBeNull="true" />
+      <Column Name="[ScriptText]" Member="ScriptText" Type="System.String" DbType="NText" CanBeNull="true" UpdateCheck="Never" />
+      <Association Name="Container_AbTestScript" Member="Container" Storage="_Container1" ThisKey="Container_ID" OtherKey="Id" Type="AbTestScriptContainer" IsForeignKey="true" />
+      <Association Name="StatusType_ContentItem" Member="StatusType" ThisKey="StatusTypeId" OtherKey="Id" Type="StatusType" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.CONTENT_10666_LIVE" Member="AbTestScriptContainers">
+    <Type Name="AbTestScriptContainer">
+      <Column Name="CONTENT_ITEM_ID" Type="System.Int32" Member="Id" DbType="Decimal(18,0) IDENTITY NOT NULL" IsPrimaryKey="true" CanBeNull="false" IsDbGenerated="true" />
+      <Column Name="STATUS_TYPE_ID" Type="System.Int32" Member="StatusTypeId" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="VISIBLE" Type="System.Boolean" Member="Visible" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="ARCHIVE" Type="System.Boolean" Member="Archive" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="CREATED" Type="System.DateTime" Member="Created" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="MODIFIED" Type="System.DateTime" Member="Modified" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="LAST_MODIFIED_BY" Type="System.Int32" Member="LastModifiedBy" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="[BaseContainer]" Member="BaseContainer_ID" Storage="_BaseContainer" Type="System.Int32" DbType="Decimal(18,0)" CanBeNull="true" />
+      <Association Name="BaseContainer_AbTestScriptContainer" Member="BaseContainer" Storage="_BaseContainer1" ThisKey="BaseContainer_ID" OtherKey="Id" Type="AbTestBaseContainer" IsForeignKey="true" />
+      <Association Name="Container_AbTestScript" Member="ScriptsInContainer" ThisKey="Id" OtherKey="Container_ID" Type="AbTestScript" />
+      <Association Name="StatusType_ContentItem" Member="StatusType" ThisKey="StatusTypeId" OtherKey="Id" Type="StatusType" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.CONTENT_10667_LIVE" Member="AbTestClientRedirectContainers">
+    <Type Name="AbTestClientRedirectContainer">
+      <Column Name="CONTENT_ITEM_ID" Type="System.Int32" Member="Id" DbType="Decimal(18,0) IDENTITY NOT NULL" IsPrimaryKey="true" CanBeNull="false" IsDbGenerated="true" />
+      <Column Name="STATUS_TYPE_ID" Type="System.Int32" Member="StatusTypeId" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="VISIBLE" Type="System.Boolean" Member="Visible" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="ARCHIVE" Type="System.Boolean" Member="Archive" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="CREATED" Type="System.DateTime" Member="Created" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="MODIFIED" Type="System.DateTime" Member="Modified" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="LAST_MODIFIED_BY" Type="System.Int32" Member="LastModifiedBy" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="[BaseContainer]" Member="BaseContainer_ID" Storage="_BaseContainer" Type="System.Int32" DbType="Decimal(18,0)" CanBeNull="true" />
+      <Association Name="BaseContainer_AbTestClientRedirectContainer" Member="BaseContainer" Storage="_BaseContainer1" ThisKey="BaseContainer_ID" OtherKey="Id" Type="AbTestBaseContainer" IsForeignKey="true" />
+      <Association Name="Container_AbTestClientRedirect" Member="ClientRedirectsInContainer" ThisKey="Id" OtherKey="Container_ID" Type="AbTestClientRedirect" />
+      <Association Name="StatusType_ContentItem" Member="StatusType" ThisKey="StatusTypeId" OtherKey="Id" Type="StatusType" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.CONTENT_10668_LIVE" Member="AbTestClientRedirects">
+    <Type Name="AbTestClientRedirect">
+      <Column Name="CONTENT_ITEM_ID" Type="System.Int32" Member="Id" DbType="Decimal(18,0) IDENTITY NOT NULL" IsPrimaryKey="true" CanBeNull="false" IsDbGenerated="true" />
+      <Column Name="STATUS_TYPE_ID" Type="System.Int32" Member="StatusTypeId" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="VISIBLE" Type="System.Boolean" Member="Visible" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="ARCHIVE" Type="System.Boolean" Member="Archive" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="CREATED" Type="System.DateTime" Member="Created" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="MODIFIED" Type="System.DateTime" Member="Modified" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="LAST_MODIFIED_BY" Type="System.Int32" Member="LastModifiedBy" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="[Container]" Member="Container_ID" Storage="_Container" Type="System.Int32" DbType="Decimal(18,0)" CanBeNull="true" />
+      <Column Name="[VersionNumber]" Member="VersionNumber" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="[RedirectUrl]" Member="RedirectUrl" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Association Name="Container_AbTestClientRedirect" Member="Container" Storage="_Container1" ThisKey="Container_ID" OtherKey="Id" Type="AbTestClientRedirectContainer" IsForeignKey="true" />
+      <Association Name="StatusType_ContentItem" Member="StatusType" ThisKey="StatusTypeId" OtherKey="Id" Type="StatusType" IsForeignKey="true" />
+    </Type>
+  </Table>
   <Table Name="dbo.CONTENT_30745_LIVE" Member="BlogPosts">
     <Type Name="BlogPost">
       <Column Name="CONTENT_ITEM_ID" Type="System.Int32" Member="Id" DbType="Decimal(18,0) IDENTITY NOT NULL" IsPrimaryKey="true" CanBeNull="false" IsDbGenerated="true" />

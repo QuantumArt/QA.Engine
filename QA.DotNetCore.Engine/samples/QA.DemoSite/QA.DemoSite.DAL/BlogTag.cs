@@ -3,13 +3,14 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using Quantumart.QP8.EntityFrameworkCore;
 namespace QA.DemoSite.DAL
 {
     public partial class BlogTag: IQPArticle
     {
         public BlogTag()
         {
-		    BackwardForTags = new HashSet<BlogPost>();
+			BackwardForTags = new HashSet<BlogTag2BlogPostForBackwardForTags>();
         }
 
         public virtual Int32 Id { get; set; }
@@ -21,11 +22,16 @@ namespace QA.DemoSite.DAL
         public virtual Int32 LastModifiedBy { get; set; }
         public virtual StatusType StatusType { get; set; }
 
-        public virtual String Title { get; set; }
+		private String _Title;
+		public virtual String Title 
+		{ 
+			get { return _Title; }
+			set { _Title = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
 		/// <summary>
 		/// Auto-generated backing property for 68571/Tags
 		/// </summary>
-		public  ICollection<BlogPost> BackwardForTags { get; set; }
+		public  ICollection<BlogTag2BlogPostForBackwardForTags> BackwardForTags { get; set; }
 	}
 }
 	

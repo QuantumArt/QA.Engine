@@ -20,6 +20,7 @@ using QA.DotNetCore.Engine.QpData.Configuration;
 using QA.DotNetCore.Engine.QpData.Settings;
 using QA.DotNetCore.Engine.Routing.Configuration;
 using QA.DotNetCore.Engine.Targeting.Configuration;
+using Quantumart.QP8.EntityFrameworkCore;
 using Quantumart.QPublishing.Database;
 using System;
 
@@ -54,12 +55,11 @@ namespace QA.DemoSite
 
             //ef контекст
             services.AddScoped(sp => QpDataContext.CreateWithStaticMapping(ContentAccess.Live,
-                new System.Data.SqlClient.SqlConnection(qpConnection),
-                true));
+                new System.Data.SqlClient.SqlConnection(qpConnection)));
 
             //сервисы слоя данных
-            services.AddScoped<IFaqService, FaqService>();
-            services.AddScoped<IBlogService, BlogService>();
+            services.AddScoped<FaqService>();
+            services.AddScoped<BlogService>();
 
             //сервисы построения view-model
             services.AddScoped<BlogPageViewModelBuilder>();

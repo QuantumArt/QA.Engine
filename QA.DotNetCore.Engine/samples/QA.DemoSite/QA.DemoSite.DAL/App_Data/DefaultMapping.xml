@@ -57,14 +57,53 @@
     <attribute name="ItemId" mapped_back_name="RootPageExtensionArticles" />
     <attribute name="DefaultStartPageId" />
   </content>
+  <content id="10663" name="AB тесты" mapped_name="AbTest" plural_mapped_name="AbTests" use_default_filtration="true">
+    <attribute name="Title" />
+    <attribute name="Enabled" />
+    <attribute name="Percentage" />
+    <attribute name="StartDate" />
+    <attribute name="EndDate" />
+    <attribute name="Comment" />
+    <attribute name="ABTestContainers" />
+  </content>
+  <content id="10664" name="Контейнер AB тестирования" mapped_name="AbTestBaseContainer" plural_mapped_name="AbTestBaseContainers" use_default_filtration="true">
+    <attribute name="ParentTest" mapped_back_name="AbTestBaseContainers" />
+    <attribute name="Description" />
+    <attribute name="AllowedUrlPatterns" />
+    <attribute name="DeniedUrlPatterns" />
+    <attribute name="Domain" />
+    <attribute name="Precondition" />
+    <attribute name="Arguments" />
+    <attribute name="Type" />
+  </content>
+  <content id="10665" name="Скрипт AB тестирования" mapped_name="AbTestScript" plural_mapped_name="AbTestScripts" use_default_filtration="true">
+    <attribute name="Container" mapped_back_name="AbTestScripts" />
+    <attribute name="Description" />
+    <attribute name="VersionNumber" />
+    <attribute name="ScriptText" />
+  </content>
+  <content id="10666" name="Контейнер скриптов" mapped_name="AbTestScriptContainer" plural_mapped_name="AbTestScriptContainers" use_default_filtration="true">
+    <attribute name="BaseContainer" mapped_back_name="AbTestScriptContainers" />
+    <attribute name="Scripts" />
+  </content>
+  <content id="10667" name="Контейнер клиентских редиректов" mapped_name="AbTestClientRedirectContainer" plural_mapped_name="AbTestClientRedirectContainers" use_default_filtration="true">
+    <attribute name="BaseContainer" mapped_back_name="AbTestClientRedirectContainers" />
+    <attribute name="ClientRedirects" />
+  </content>
+  <content id="10668" name="Клиентский редирект AB тестирования" mapped_name="AbTestClientRedirect" plural_mapped_name="AbTestClientRedirects" use_default_filtration="true">
+    <attribute name="Container" mapped_back_name="AbTestClientRedirects" />
+    <attribute name="VersionNumber" />
+    <attribute name="RedirectUrl" />
+  </content>
   <content id="30736" name="ItemTitleFormat" mapped_name="ItemTitleFormatArticle" plural_mapped_name="ItemTitleFormatArticles" use_default_filtration="true">
     <attribute name="Title" />
     <attribute name="Value" />
     <attribute name="Description" />
   </content>
   <content id="30738" name="TextPageExtension" mapped_name="TextPageExtensionArticle" plural_mapped_name="TextPageExtensionArticles" use_default_filtration="true">
-    <attribute name="Text" />
     <attribute name="ItemId" mapped_back_name="TextPageExtensionArticles" />
+    <attribute name="Text" />
+    <attribute name="HideTitle" />
   </content>
   <content id="30739" name="HtmlWidgetExtension" mapped_name="HtmlWidgetExtensionArticle" plural_mapped_name="HtmlWidgetExtensionArticles" use_default_filtration="true">
     <attribute name="ItemId" mapped_back_name="HtmlWidgetExtensionArticles" />
@@ -111,6 +150,33 @@
     <attribute name="ItemId" mapped_back_name="FaqWidgetExtensionArticles" />
     <attribute name="Header" />
     <attribute name="Questions" />
+  </content>
+  <content id="30751" name="RedirectPageExtension" mapped_name="RedirectPageExtensionArticle" plural_mapped_name="RedirectPageExtensionArticles" use_default_filtration="true">
+    <attribute name="ItemId" mapped_back_name="RedirectPageExtensionArticles" />
+    <attribute name="RedirectTo" />
+  </content>
+  <content id="30752" name="TopMenuWidgetExtension" mapped_name="TopMenuWidgetExtensionArticle" plural_mapped_name="TopMenuWidgetExtensionArticles" use_default_filtration="true">
+    <attribute name="ItemId" mapped_back_name="TopMenuWidgetExtensionArticles" />
+  </content>
+  <content id="30753" name="TestContentExtension" mapped_name="TestContentExtensionArticle" plural_mapped_name="TestContentExtensionArticles" use_default_filtration="true">
+    <attribute name="ItemId" mapped_back_name="TestContentExtensionArticles" />
+    <attribute name="Title" />
+    <attribute name="BoolField" />
+    <attribute name="dateField" />
+    <attribute name="TimeField" />
+    <attribute name="DateTimeField" />
+    <attribute name="VisualEditField" />
+    <attribute name="ImageField" />
+    <attribute name="FileField" />
+    <attribute name="RelationField" mapped_back_name="TestContentExtensionArticles" />
+    <attribute name="RelationField1" mapped_back_name="TestContentExtensionArticles" />
+    <attribute name="RelationManyToOneField" />
+  </content>
+  <content id="30754" name="SecondTestContentExtension" mapped_name="SecondTestContentExtensionArticle" plural_mapped_name="SecondTestContentExtensionArticles" use_default_filtration="true">
+    <attribute name="ItemId" mapped_back_name="SecondTestContentExtensionArticles" />
+    <attribute name="Title" />
+    <attribute name="RelatedOneToManyField" mapped_back_name="SecondTestContentExtensionArticles" />
+    <attribute name="TextField" />
   </content>
   <link id="88" self="1" content_id="538" linked_content_id="538" mapped_name="ItemDefinitionItemDefinitionArticle" plural_mapped_name="ItemDefinitionItemDefinitionArticles" />
   <link id="139" self="0" content_id="30750" linked_content_id="30749" mapped_name="FaqWidgetExtensionFAQVoprosyiotvetyArticle" plural_mapped_name="FaqWidgetExtensionFAQVoprosyiotvetyArticles" />

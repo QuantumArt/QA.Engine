@@ -1,4 +1,4 @@
-namespace QA.DemoSite.DAL
+﻿namespace Quantumart.QP8.EntityFrameworkCore
 {
     public interface IQPFormService
     {

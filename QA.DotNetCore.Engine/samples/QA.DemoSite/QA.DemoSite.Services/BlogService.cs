@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using QA.DemoSite.DAL;
 using QA.DemoSite.Interfaces;
 using QA.DemoSite.Interfaces.Dto;

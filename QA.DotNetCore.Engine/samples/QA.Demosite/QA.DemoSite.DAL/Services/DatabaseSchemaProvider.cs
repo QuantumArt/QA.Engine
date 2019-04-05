@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Quantumart.QP8.CodeGeneration.Services;
 using System.Data.Common;
 using Quantumart.QPublishing.Database;
 using System.Data.SqlClient;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.AspNetCore.Http;
+using Quantumart.QP8.CoreCodeGeneration.Services;
 
-namespace QA.DemoSite.DAL
+namespace Quantumart.QP8.EntityFrameworkCore
 {
     public class DatabaseSchemaProvider : ISchemaProvider
     {

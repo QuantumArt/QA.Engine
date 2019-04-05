@@ -1,7 +1,7 @@
-using System;
+﻿using System;
 using System.Collections;
 
-namespace QA.DemoSite.DAL
+namespace Quantumart.QP8.EntityFrameworkCore
 {
     public interface IQPArticle
     {
@@ -14,8 +14,7 @@ namespace QA.DemoSite.DAL
         int LastModifiedBy { get; set; }
         StatusType StatusType { get; set; }
 
-        void OnMaterialized(IQPLibraryService context);
-
         Hashtable Pack(IQPFormService context, params string[] propertyNames);
-    }  
+    }
+
 }

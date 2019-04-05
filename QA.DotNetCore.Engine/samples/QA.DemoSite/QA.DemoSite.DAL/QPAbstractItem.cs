@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using Quantumart.QP8.EntityFrameworkCore;
 namespace QA.DemoSite.DAL
 {
     public partial class QPAbstractItem: IQPArticle
@@ -22,17 +23,62 @@ namespace QA.DemoSite.DAL
         public virtual Int32 LastModifiedBy { get; set; }
         public virtual StatusType StatusType { get; set; }
 
-        public virtual String Title { get; set; }
-        public virtual String Name { get; set; }
+		private String _Title;
+		public virtual String Title 
+		{ 
+			get { return _Title; }
+			set { _Title = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
+		private String _Name;
+		public virtual String Name 
+		{ 
+			get { return _Name; }
+			set { _Name = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
         public virtual Boolean? IsVisible { get; set; }
         public virtual Boolean? IsPage { get; set; }
-        public virtual String ZoneName { get; set; }
-        public virtual String AllowedUrlPatterns { get; set; }
-        public virtual String DeniedUrlPatterns { get; set; }
-        public virtual String Description { get; set; }
-        public virtual String Keywords { get; set; }
-        public virtual String MetaDescription { get; set; }
-        public virtual String Tags { get; set; }
+		private String _ZoneName;
+		public virtual String ZoneName 
+		{ 
+			get { return _ZoneName; }
+			set { _ZoneName = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
+		private String _AllowedUrlPatterns;
+		public virtual String AllowedUrlPatterns 
+		{ 
+			get { return _AllowedUrlPatterns; }
+			set { _AllowedUrlPatterns = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
+		private String _DeniedUrlPatterns;
+		public virtual String DeniedUrlPatterns 
+		{ 
+			get { return _DeniedUrlPatterns; }
+			set { _DeniedUrlPatterns = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
+		private String _Description;
+		public virtual String Description 
+		{ 
+			get { return _Description; }
+			set { _Description = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
+		private String _Keywords;
+		public virtual String Keywords 
+		{ 
+			get { return _Keywords; }
+			set { _Keywords = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
+		private String _MetaDescription;
+		public virtual String MetaDescription 
+		{ 
+			get { return _MetaDescription; }
+			set { _MetaDescription = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
+		private String _Tags;
+		public virtual String Tags 
+		{ 
+			get { return _Tags; }
+			set { _Tags = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
         public virtual Boolean? IsInSiteMap { get; set; }
         public virtual Int32? IndexOrder { get; set; }
         public virtual Int32? ExtensionId { get; set; }
@@ -78,15 +124,6 @@ namespace QA.DemoSite.DAL
 		/// Auto-generated backing property for field (id: 27520)/VersionOf Versions
 		/// </summary>
 		public  ICollection<QPAbstractItem> Versions { get; set; }
-		#region Generated Content properties
-        // public Boolean IsVisibleExact { get { return this.IsVisible == null ? default(Boolean) : this.IsVisible.Value; } }
-        // public Boolean IsPageExact { get { return this.IsPage == null ? default(Boolean) : this.IsPage.Value; } }
-        // public Boolean IsInSiteMapExact { get { return this.IsInSiteMap == null ? default(Boolean) : this.IsInSiteMap.Value; } }
-        // public Int32 IndexOrderExact { get { return this.IndexOrder == null ? default(Int32) : this.IndexOrder.Value; } }
-        // public Int32 ExtensionIdExact { get { return this.ExtensionId == null ? default(Int32) : this.ExtensionId.Value; } }
-        // public Int32 ContentIdExact { get { return this.ContentId == null ? default(Int32) : this.ContentId.Value; } }
-        // public Int32 TitleFormat_IDExact { get { return this.TitleFormat_ID == null ? default(Int32) : this.TitleFormat_ID.Value; } }
-		#endregion
 	}
 }
 	

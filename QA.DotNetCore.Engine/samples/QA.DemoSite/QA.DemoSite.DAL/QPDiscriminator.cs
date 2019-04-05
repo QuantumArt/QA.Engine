@@ -3,17 +3,18 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using Quantumart.QP8.EntityFrameworkCore;
 namespace QA.DemoSite.DAL
 {
     public partial class QPDiscriminator: IQPArticle
     {
         public QPDiscriminator()
         {
-		    AllowedItemDefinitions1 = new HashSet<QPDiscriminator>();
 		    AllowedItemDefinitions = new HashSet<QPItemDefinitionConstraint>();
 		    Items = new HashSet<QPAbstractItem>();
 		    AllowDefinition = new HashSet<QPItemDefinitionConstraint>();
-		    BackwardForAllowedItemDefinitions1 = new HashSet<QPDiscriminator>();
+		    AllowedItemDefinitions1 = new HashSet<QPDiscriminator2QPDiscriminatorForAllowedItemDefinitions1>();
+			BackwardForAllowedItemDefinitions1 = new HashSet<QPDiscriminator2QPDiscriminatorForBackwardForAllowedItemDefinitions1>();
         }
 
         public virtual Int32 Id { get; set; }
@@ -25,20 +26,46 @@ namespace QA.DemoSite.DAL
         public virtual Int32 LastModifiedBy { get; set; }
         public virtual StatusType StatusType { get; set; }
 
-        public virtual String Title { get; set; }
-        public virtual String Name { get; set; }
+		private String _Title;
+		public virtual String Title 
+		{ 
+			get { return _Title; }
+			set { _Title = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
+		private String _Name;
+		public virtual String Name 
+		{ 
+			get { return _Name; }
+			set { _Name = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
         public virtual Int32? PreferredContentId { get; set; }
-        public virtual String TypeName { get; set; }
-        public virtual String CategoryName { get; set; }
-        public virtual String Description { get; set; }
+		private String _TypeName;
+		public virtual String TypeName 
+		{ 
+			get { return _TypeName; }
+			set { _TypeName = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
+		private String _CategoryName;
+		public virtual String CategoryName 
+		{ 
+			get { return _CategoryName; }
+			set { _CategoryName = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
+		private String _Description;
+		public virtual String Description 
+		{ 
+			get { return _Description; }
+			set { _Description = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
         public virtual String IconUrl { get; set; }
         public virtual Boolean? IsPage { get; set; }
-        public virtual String AllowedZones { get; set; }
+		private String _AllowedZones;
+		public virtual String AllowedZones 
+		{ 
+			get { return _AllowedZones; }
+			set { _AllowedZones = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
         public virtual Boolean? FilterPartByUrl { get; set; }
-		/// <summary>
-		/// 
-		/// </summary>
-		public  ICollection<QPDiscriminator> AllowedItemDefinitions1 { get; set; }
 		/// <summary>
 		/// 
 		/// </summary>
@@ -52,16 +79,13 @@ namespace QA.DemoSite.DAL
 		/// </summary>
 		public  ICollection<QPItemDefinitionConstraint> AllowDefinition { get; set; }
 		/// <summary>
+		/// 
+		/// </summary>
+		public  ICollection<QPDiscriminator2QPDiscriminatorForAllowedItemDefinitions1> AllowedItemDefinitions1 { get; set; }
+		/// <summary>
 		/// Auto-generated backing property for 27552/AllowedItemDefinitions1
 		/// </summary>
-		public  ICollection<QPDiscriminator> BackwardForAllowedItemDefinitions1 { get; set; }
-		#region Generated Content properties
-        // public string IconUrlUrl { get; set; }
-        // public string IconUrlUploadPath { get; set; }
-        // public Int32 PreferredContentIdExact { get { return this.PreferredContentId == null ? default(Int32) : this.PreferredContentId.Value; } }
-        // public Boolean IsPageExact { get { return this.IsPage == null ? default(Boolean) : this.IsPage.Value; } }
-        // public Boolean FilterPartByUrlExact { get { return this.FilterPartByUrl == null ? default(Boolean) : this.FilterPartByUrl.Value; } }
-		#endregion
+		public  ICollection<QPDiscriminator2QPDiscriminatorForBackwardForAllowedItemDefinitions1> BackwardForAllowedItemDefinitions1 { get; set; }
 	}
 }
 	

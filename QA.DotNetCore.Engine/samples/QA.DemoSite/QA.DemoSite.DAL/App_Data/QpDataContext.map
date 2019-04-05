@@ -108,6 +108,111 @@
       <Association Name="StatusType_ContentItem" Member="StatusType" ThisKey="StatusTypeId" OtherKey="Id" IsForeignKey="true" Storage="_StatusType" />
     </Type>
   </Table>
+  <Table Name="dbo.CONTENT_10663_LIVE" Member="AbTests">
+    <Type Name="QA.DemoSite.DAL.AbTest">
+      <Column Name="CONTENT_ITEM_ID" Member="Id" DbType="Decimal(18,0) IDENTITY NOT NULL" IsPrimaryKey="true" IsDbGenerated="true" AutoSync="OnInsert" Storage="_Id" />
+      <Column Name="STATUS_TYPE_ID" Member="StatusTypeId" DbType="Decimal(18,0) NOT NULL" Storage="_StatusTypeId" />
+      <Column Name="VISIBLE" Member="Visible" DbType="Decimal(18,0) NOT NULL" Storage="_Visible" />
+      <Column Name="ARCHIVE" Member="Archive" DbType="Decimal(18,0) NOT NULL" Storage="_Archive" />
+      <Column Name="CREATED" Member="Created" DbType="DateTime NOT NULL" Storage="_Created" />
+      <Column Name="MODIFIED" Member="Modified" DbType="DateTime NOT NULL" Storage="_Modified" />
+      <Column Name="LAST_MODIFIED_BY" Member="LastModifiedBy" DbType="Decimal(18,0) NOT NULL" Storage="_LastModifiedBy" />
+      <Column Name="[Title]" Member="Title" DbType="NVarChar(255)" Storage="_Title" />
+      <Column Name="[Enabled]" Member="Enabled" DbType="Decimal(18,0)" Storage="_Enabled" />
+      <Column Name="[Percentage]" Member="Percentage" DbType="NVarChar(255)" Storage="_Percentage" />
+      <Column Name="[StartDate]" Member="StartDate" DbType="DateTime" Storage="_StartDate" />
+      <Column Name="[EndDate]" Member="EndDate" DbType="DateTime" Storage="_EndDate" />
+      <Column Name="[Comment]" Member="Comment" DbType="NText" UpdateCheck="Never" Storage="_Comment" />
+      <Association Name="ParentTest_AbTestBaseContainer" Member="ABTestContainers" ThisKey="Id" OtherKey="ParentTest_ID" Storage="_ABTestContainers" />
+      <Association Name="StatusType_ContentItem" Member="StatusType" ThisKey="StatusTypeId" OtherKey="Id" IsForeignKey="true" Storage="_StatusType" />
+    </Type>
+  </Table>
+  <Table Name="dbo.CONTENT_10664_LIVE" Member="AbTestBaseContainers">
+    <Type Name="QA.DemoSite.DAL.AbTestBaseContainer">
+      <Column Name="CONTENT_ITEM_ID" Member="Id" DbType="Decimal(18,0) IDENTITY NOT NULL" IsPrimaryKey="true" IsDbGenerated="true" AutoSync="OnInsert" Storage="_Id" />
+      <Column Name="STATUS_TYPE_ID" Member="StatusTypeId" DbType="Decimal(18,0) NOT NULL" Storage="_StatusTypeId" />
+      <Column Name="VISIBLE" Member="Visible" DbType="Decimal(18,0) NOT NULL" Storage="_Visible" />
+      <Column Name="ARCHIVE" Member="Archive" DbType="Decimal(18,0) NOT NULL" Storage="_Archive" />
+      <Column Name="CREATED" Member="Created" DbType="DateTime NOT NULL" Storage="_Created" />
+      <Column Name="MODIFIED" Member="Modified" DbType="DateTime NOT NULL" Storage="_Modified" />
+      <Column Name="LAST_MODIFIED_BY" Member="LastModifiedBy" DbType="Decimal(18,0) NOT NULL" Storage="_LastModifiedBy" />
+      <Column Name="[ParentTest]" Member="ParentTest_ID" Storage="_ParentTest" DbType="Decimal(18,0)" />
+      <Column Name="[Description]" Member="Description" DbType="NVarChar(255)" Storage="_Description" />
+      <Column Name="[AllowedUrlPatterns]" Member="AllowedUrlPatterns" DbType="NText" UpdateCheck="Never" Storage="_AllowedUrlPatterns" />
+      <Column Name="[DeniedUrlPatterns]" Member="DeniedUrlPatterns" DbType="NText" UpdateCheck="Never" Storage="_DeniedUrlPatterns" />
+      <Column Name="[Domain]" Member="Domain" DbType="NVarChar(255)" Storage="_Domain" />
+      <Column Name="[Precondition]" Member="Precondition" DbType="NText" UpdateCheck="Never" Storage="_Precondition" />
+      <Column Name="[Arguments]" Member="Arguments" DbType="NText" UpdateCheck="Never" Storage="_Arguments" />
+      <Column Name="[Type]" Member="Type" DbType="Decimal(38,0)" Storage="_Type" />
+      <Association Name="ParentTest_AbTestBaseContainer" Member="ParentTest" Storage="_ParentTest1" ThisKey="ParentTest_ID" OtherKey="Id" IsForeignKey="true" />
+      <Association Name="BaseContainer_AbTestScriptContainer" Member="ScriptContainers" ThisKey="Id" OtherKey="BaseContainer_ID" Storage="_ScriptContainers" />
+      <Association Name="BaseContainer_AbTestClientRedirectContainer" Member="ClientRedirectContainers" ThisKey="Id" OtherKey="BaseContainer_ID" Storage="_ClientRedirectContainers" />
+      <Association Name="StatusType_ContentItem" Member="StatusType" ThisKey="StatusTypeId" OtherKey="Id" IsForeignKey="true" Storage="_StatusType" />
+    </Type>
+  </Table>
+  <Table Name="dbo.CONTENT_10665_LIVE" Member="AbTestScripts">
+    <Type Name="QA.DemoSite.DAL.AbTestScript">
+      <Column Name="CONTENT_ITEM_ID" Member="Id" DbType="Decimal(18,0) IDENTITY NOT NULL" IsPrimaryKey="true" IsDbGenerated="true" AutoSync="OnInsert" Storage="_Id" />
+      <Column Name="STATUS_TYPE_ID" Member="StatusTypeId" DbType="Decimal(18,0) NOT NULL" Storage="_StatusTypeId" />
+      <Column Name="VISIBLE" Member="Visible" DbType="Decimal(18,0) NOT NULL" Storage="_Visible" />
+      <Column Name="ARCHIVE" Member="Archive" DbType="Decimal(18,0) NOT NULL" Storage="_Archive" />
+      <Column Name="CREATED" Member="Created" DbType="DateTime NOT NULL" Storage="_Created" />
+      <Column Name="MODIFIED" Member="Modified" DbType="DateTime NOT NULL" Storage="_Modified" />
+      <Column Name="LAST_MODIFIED_BY" Member="LastModifiedBy" DbType="Decimal(18,0) NOT NULL" Storage="_LastModifiedBy" />
+      <Column Name="[Container]" Member="Container_ID" Storage="_Container" DbType="Decimal(18,0)" />
+      <Column Name="[Description]" Member="Description" DbType="NVarChar(255)" Storage="_Description" />
+      <Column Name="[VersionNumber]" Member="VersionNumber" DbType="Decimal(38,0)" Storage="_VersionNumber" />
+      <Column Name="[ScriptText]" Member="ScriptText" DbType="NText" UpdateCheck="Never" Storage="_ScriptText" />
+      <Association Name="Container_AbTestScript" Member="Container" Storage="_Container1" ThisKey="Container_ID" OtherKey="Id" IsForeignKey="true" />
+      <Association Name="StatusType_ContentItem" Member="StatusType" ThisKey="StatusTypeId" OtherKey="Id" IsForeignKey="true" Storage="_StatusType" />
+    </Type>
+  </Table>
+  <Table Name="dbo.CONTENT_10666_LIVE" Member="AbTestScriptContainers">
+    <Type Name="QA.DemoSite.DAL.AbTestScriptContainer">
+      <Column Name="CONTENT_ITEM_ID" Member="Id" DbType="Decimal(18,0) IDENTITY NOT NULL" IsPrimaryKey="true" IsDbGenerated="true" AutoSync="OnInsert" Storage="_Id" />
+      <Column Name="STATUS_TYPE_ID" Member="StatusTypeId" DbType="Decimal(18,0) NOT NULL" Storage="_StatusTypeId" />
+      <Column Name="VISIBLE" Member="Visible" DbType="Decimal(18,0) NOT NULL" Storage="_Visible" />
+      <Column Name="ARCHIVE" Member="Archive" DbType="Decimal(18,0) NOT NULL" Storage="_Archive" />
+      <Column Name="CREATED" Member="Created" DbType="DateTime NOT NULL" Storage="_Created" />
+      <Column Name="MODIFIED" Member="Modified" DbType="DateTime NOT NULL" Storage="_Modified" />
+      <Column Name="LAST_MODIFIED_BY" Member="LastModifiedBy" DbType="Decimal(18,0) NOT NULL" Storage="_LastModifiedBy" />
+      <Column Name="[BaseContainer]" Member="BaseContainer_ID" Storage="_BaseContainer" DbType="Decimal(18,0)" />
+      <Association Name="BaseContainer_AbTestScriptContainer" Member="BaseContainer" Storage="_BaseContainer1" ThisKey="BaseContainer_ID" OtherKey="Id" IsForeignKey="true" />
+      <Association Name="Container_AbTestScript" Member="ScriptsInContainer" ThisKey="Id" OtherKey="Container_ID" Storage="_ScriptsInContainer" />
+      <Association Name="StatusType_ContentItem" Member="StatusType" ThisKey="StatusTypeId" OtherKey="Id" IsForeignKey="true" Storage="_StatusType" />
+    </Type>
+  </Table>
+  <Table Name="dbo.CONTENT_10667_LIVE" Member="AbTestClientRedirectContainers">
+    <Type Name="QA.DemoSite.DAL.AbTestClientRedirectContainer">
+      <Column Name="CONTENT_ITEM_ID" Member="Id" DbType="Decimal(18,0) IDENTITY NOT NULL" IsPrimaryKey="true" IsDbGenerated="true" AutoSync="OnInsert" Storage="_Id" />
+      <Column Name="STATUS_TYPE_ID" Member="StatusTypeId" DbType="Decimal(18,0) NOT NULL" Storage="_StatusTypeId" />
+      <Column Name="VISIBLE" Member="Visible" DbType="Decimal(18,0) NOT NULL" Storage="_Visible" />
+      <Column Name="ARCHIVE" Member="Archive" DbType="Decimal(18,0) NOT NULL" Storage="_Archive" />
+      <Column Name="CREATED" Member="Created" DbType="DateTime NOT NULL" Storage="_Created" />
+      <Column Name="MODIFIED" Member="Modified" DbType="DateTime NOT NULL" Storage="_Modified" />
+      <Column Name="LAST_MODIFIED_BY" Member="LastModifiedBy" DbType="Decimal(18,0) NOT NULL" Storage="_LastModifiedBy" />
+      <Column Name="[BaseContainer]" Member="BaseContainer_ID" Storage="_BaseContainer" DbType="Decimal(18,0)" />
+      <Association Name="BaseContainer_AbTestClientRedirectContainer" Member="BaseContainer" Storage="_BaseContainer1" ThisKey="BaseContainer_ID" OtherKey="Id" IsForeignKey="true" />
+      <Association Name="Container_AbTestClientRedirect" Member="ClientRedirectsInContainer" ThisKey="Id" OtherKey="Container_ID" Storage="_ClientRedirectsInContainer" />
+      <Association Name="StatusType_ContentItem" Member="StatusType" ThisKey="StatusTypeId" OtherKey="Id" IsForeignKey="true" Storage="_StatusType" />
+    </Type>
+  </Table>
+  <Table Name="dbo.CONTENT_10668_LIVE" Member="AbTestClientRedirects">
+    <Type Name="QA.DemoSite.DAL.AbTestClientRedirect">
+      <Column Name="CONTENT_ITEM_ID" Member="Id" DbType="Decimal(18,0) IDENTITY NOT NULL" IsPrimaryKey="true" IsDbGenerated="true" AutoSync="OnInsert" Storage="_Id" />
+      <Column Name="STATUS_TYPE_ID" Member="StatusTypeId" DbType="Decimal(18,0) NOT NULL" Storage="_StatusTypeId" />
+      <Column Name="VISIBLE" Member="Visible" DbType="Decimal(18,0) NOT NULL" Storage="_Visible" />
+      <Column Name="ARCHIVE" Member="Archive" DbType="Decimal(18,0) NOT NULL" Storage="_Archive" />
+      <Column Name="CREATED" Member="Created" DbType="DateTime NOT NULL" Storage="_Created" />
+      <Column Name="MODIFIED" Member="Modified" DbType="DateTime NOT NULL" Storage="_Modified" />
+      <Column Name="LAST_MODIFIED_BY" Member="LastModifiedBy" DbType="Decimal(18,0) NOT NULL" Storage="_LastModifiedBy" />
+      <Column Name="[Container]" Member="Container_ID" Storage="_Container" DbType="Decimal(18,0)" />
+      <Column Name="[VersionNumber]" Member="VersionNumber" DbType="NVarChar(255)" Storage="_VersionNumber" />
+      <Column Name="[RedirectUrl]" Member="RedirectUrl" DbType="NVarChar(255)" Storage="_RedirectUrl" />
+      <Association Name="Container_AbTestClientRedirect" Member="Container" Storage="_Container1" ThisKey="Container_ID" OtherKey="Id" IsForeignKey="true" />
+      <Association Name="StatusType_ContentItem" Member="StatusType" ThisKey="StatusTypeId" OtherKey="Id" IsForeignKey="true" Storage="_StatusType" />
+    </Type>
+  </Table>
   <Table Name="dbo.CONTENT_30745_LIVE" Member="BlogPosts">
     <Type Name="QA.DemoSite.DAL.BlogPost">
       <Column Name="CONTENT_ITEM_ID" Member="Id" DbType="Decimal(18,0) IDENTITY NOT NULL" IsPrimaryKey="true" IsDbGenerated="true" AutoSync="OnInsert" Storage="_Id" />

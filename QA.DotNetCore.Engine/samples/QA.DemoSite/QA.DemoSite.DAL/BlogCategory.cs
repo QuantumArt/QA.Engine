@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using Quantumart.QP8.EntityFrameworkCore;
 namespace QA.DemoSite.DAL
 {
     public partial class BlogCategory: IQPArticle
@@ -21,15 +22,17 @@ namespace QA.DemoSite.DAL
         public virtual Int32 LastModifiedBy { get; set; }
         public virtual StatusType StatusType { get; set; }
 
-        public virtual String Title { get; set; }
+		private String _Title;
+		public virtual String Title 
+		{ 
+			get { return _Title; }
+			set { _Title = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
         public virtual Int32? SortOrder { get; set; }
 		/// <summary>
 		/// Auto-generated backing property for field (id: 68569)/Category PostsInCategory
 		/// </summary>
 		public  ICollection<BlogPost> PostsInCategory { get; set; }
-		#region Generated Content properties
-        // public Int32 SortOrderExact { get { return this.SortOrder == null ? default(Int32) : this.SortOrder.Value; } }
-		#endregion
 	}
 }
 	

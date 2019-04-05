@@ -45,6 +45,44 @@
     <attribute name="Target" mapped_back_name="AllowDefinition" mapped_name="Target" id="47908" type="O2M" is_localization="false" related_content_id="538" has_m2o="false" />
     <attribute name="Source" mapped_back_name="QPItemDefinitionConstraints_2" mapped_name="Source" id="47909" type="O2M" is_localization="false" related_content_id="538" has_m2o="true" />
   </content>
+  <content id="10663" name="AB тесты" mapped_name="AbTest" plural_mapped_name="AbTests" use_default_filtration="true" virtual="0" user_query="0" split_articles="true">
+    <attribute name="Title" mapped_name="Title" id="48204" type="String" is_localization="false" size="255" />
+    <attribute name="Enabled" mapped_name="Enabled" id="48205" type="Boolean" is_localization="false" />
+    <attribute name="Percentage" mapped_name="Percentage" id="48206" type="String" is_localization="false" size="255" />
+    <attribute name="StartDate" mapped_name="StartDate" id="48207" type="DateTime" is_localization="false" />
+    <attribute name="EndDate" mapped_name="EndDate" id="48208" type="DateTime" is_localization="false" />
+    <attribute name="Comment" mapped_name="Comment" id="48209" type="Textbox" is_localization="false" />
+    <attribute name="ABTestContainers" mapped_name="ABTestContainers" id="48212" type="M2O" is_localization="false" related_content_id="10664" related_attribute_id="48211" />
+  </content>
+  <content id="10664" name="Контейнер AB тестирования" mapped_name="AbTestBaseContainer" plural_mapped_name="AbTestBaseContainers" use_default_filtration="true" virtual="0" user_query="0" split_articles="true">
+    <attribute name="ParentTest" mapped_back_name="ABTestContainers" mapped_name="ParentTest" id="48211" type="O2M" is_localization="false" related_content_id="10663" has_m2o="true" />
+    <attribute name="Description" mapped_name="Description" id="48213" type="String" is_localization="false" size="255" />
+    <attribute name="AllowedUrlPatterns" mapped_name="AllowedUrlPatterns" id="48214" type="Textbox" is_localization="false" />
+    <attribute name="DeniedUrlPatterns" mapped_name="DeniedUrlPatterns" id="48215" type="Textbox" is_localization="false" />
+    <attribute name="Domain" mapped_name="Domain" id="48216" type="String" is_localization="false" size="255" />
+    <attribute name="Precondition" mapped_name="Precondition" id="48217" type="Textbox" is_localization="false" />
+    <attribute name="Arguments" mapped_name="Arguments" id="48218" type="Textbox" is_localization="false" />
+    <attribute name="Type" mapped_name="Type" id="48220" type="Numeric" is_localization="false" size="0" is_long="false" is_classifier="true" use_inheritance="true" />
+  </content>
+  <content id="10665" name="Скрипт AB тестирования" mapped_name="AbTestScript" plural_mapped_name="AbTestScripts" use_default_filtration="true" virtual="0" user_query="0" split_articles="true">
+    <attribute name="Container" mapped_back_name="ScriptsInContainer" mapped_name="Container" id="48225" type="O2M" is_localization="false" related_content_id="10666" has_m2o="true" />
+    <attribute name="Description" mapped_name="Description" id="48228" type="String" is_localization="false" size="255" />
+    <attribute name="VersionNumber" mapped_name="VersionNumber" id="48226" type="Numeric" is_localization="false" size="0" is_long="false" />
+    <attribute name="ScriptText" mapped_name="ScriptText" id="48227" type="Textbox" is_localization="false" />
+  </content>
+  <content id="10666" name="Контейнер скриптов" mapped_name="AbTestScriptContainer" plural_mapped_name="AbTestScriptContainers" use_default_filtration="true" virtual="0" user_query="0" split_articles="true">
+    <attribute name="BaseContainer" mapped_back_name="ScriptContainers" mapped_name="BaseContainer" id="48224" type="O2M" is_localization="false" related_content_id="10664" classifier_attribute_id="48220" has_m2o="false" />
+    <attribute name="Scripts" mapped_name="ScriptsInContainer" id="48229" type="M2O" is_localization="false" related_content_id="10665" related_attribute_id="48225" />
+  </content>
+  <content id="10667" name="Контейнер клиентских редиректов" mapped_name="AbTestClientRedirectContainer" plural_mapped_name="AbTestClientRedirectContainers" use_default_filtration="true" virtual="0" user_query="0" split_articles="true">
+    <attribute name="BaseContainer" mapped_back_name="ClientRedirectContainers" mapped_name="BaseContainer" id="48230" type="O2M" is_localization="false" related_content_id="10664" classifier_attribute_id="48220" has_m2o="false" />
+    <attribute name="ClientRedirects" mapped_name="ClientRedirectsInContainer" id="48232" type="M2O" is_localization="false" related_content_id="10668" related_attribute_id="48231" />
+  </content>
+  <content id="10668" name="Клиентский редирект AB тестирования" mapped_name="AbTestClientRedirect" plural_mapped_name="AbTestClientRedirects" use_default_filtration="true" virtual="0" user_query="0" split_articles="true">
+    <attribute name="Container" mapped_back_name="ClientRedirectsInContainer" mapped_name="Container" id="48231" type="O2M" is_localization="false" related_content_id="10667" has_m2o="true" />
+    <attribute name="VersionNumber" mapped_name="VersionNumber" id="48233" type="String" is_localization="false" size="255" />
+    <attribute name="RedirectUrl" mapped_name="RedirectUrl" id="48234" type="String" is_localization="false" size="255" />
+  </content>
   <content id="30745" name="Блог Посты" mapped_name="BlogPost" plural_mapped_name="BlogPosts" use_default_filtration="true" virtual="0" user_query="0" split_articles="true">
     <attribute name="Title" mapped_name="Title" id="68556" type="String" is_localization="false" size="255" />
     <attribute name="Brief" mapped_name="Brief" id="68567" type="Textbox" is_localization="false" />

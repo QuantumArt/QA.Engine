@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using Quantumart.QP8.EntityFrameworkCore;
 
 namespace QA.DemoSite.DAL
 {
@@ -43,20 +44,8 @@ namespace QA.DemoSite.DAL
         public Int32 ContentIdExact { get { return this.ContentId == null ? default(Int32) : this.ContentId.Value; } }
         public Int32 TitleFormat_IDExact { get { return this.TitleFormat_ID == null ? default(Int32) : this.TitleFormat_ID.Value; } }
         #endregion
-        #region Methods
-        void IQPArticle.OnMaterialized(IQPLibraryService context)
-        {
-			this.Title = context.ReplacePlaceholders(this.Title);
-			this.Name = context.ReplacePlaceholders(this.Name);
-			this.ZoneName = context.ReplacePlaceholders(this.ZoneName);
-			this.AllowedUrlPatterns = context.ReplacePlaceholders(this.AllowedUrlPatterns);
-			this.DeniedUrlPatterns = context.ReplacePlaceholders(this.DeniedUrlPatterns);
-			this.Description = context.ReplacePlaceholders(this.Description);
-			this.Keywords = context.ReplacePlaceholders(this.Keywords);
-			this.MetaDescription = context.ReplacePlaceholders(this.MetaDescription);
-			this.Tags = context.ReplacePlaceholders(this.Tags);
-        }
 
+		
         // для Poco перенести из класса куда-нибудь, так как нарушается концепция доступа к БД
         Hashtable IQPArticle.Pack(IQPFormService context, params string[] propertyNames)
         {
@@ -79,7 +68,6 @@ namespace QA.DemoSite.DAL
 
             return table;
         }
-        #endregion
     }
     public partial class QPDiscriminator: IQPArticle
     {
@@ -100,25 +88,20 @@ namespace QA.DemoSite.DAL
 
         #endregion
         #region Genarated properties
-        public string IconUrlUrl { get; set; }
-        public string IconUrlUploadPath { get; set; }
+        public string IconUrlUrl 
+		{ 
+			get { return QpDataContext.Current.GetUrl(this.IconUrl, "QPDiscriminator", "IconUrl"); }
+		}
+        public string IconUrlUploadPath 
+		{ 
+			get { return QpDataContext.Current.GetUploadPath(this.IconUrl, "QPDiscriminator", "IconUrl"); }
+		}
         public Int32 PreferredContentIdExact { get { return this.PreferredContentId == null ? default(Int32) : this.PreferredContentId.Value; } }
         public Boolean IsPageExact { get { return this.IsPage == null ? default(Boolean) : this.IsPage.Value; } }
         public Boolean FilterPartByUrlExact { get { return this.FilterPartByUrl == null ? default(Boolean) : this.FilterPartByUrl.Value; } }
         #endregion
-        #region Methods
-        void IQPArticle.OnMaterialized(IQPLibraryService context)
-        {
-			this.Title = context.ReplacePlaceholders(this.Title);
-			this.Name = context.ReplacePlaceholders(this.Name);
-			this.TypeName = context.ReplacePlaceholders(this.TypeName);
-			this.CategoryName = context.ReplacePlaceholders(this.CategoryName);
-			this.Description = context.ReplacePlaceholders(this.Description);
-			this.AllowedZones = context.ReplacePlaceholders(this.AllowedZones);
-			this.IconUrlUrl = context.GetUrl(this.IconUrl, "QPDiscriminator", "IconUrl");
-			this.IconUrlUploadPath = context.GetUploadPath(this.IconUrl, "QPDiscriminator", "IconUrl");
-        }
 
+		
         // для Poco перенести из класса куда-нибудь, так как нарушается концепция доступа к БД
         Hashtable IQPArticle.Pack(IQPFormService context, params string[] propertyNames)
         {
@@ -141,7 +124,6 @@ namespace QA.DemoSite.DAL
 
             return table;
         }
-        #endregion
     }
     public partial class QPCulture: IQPArticle
     {
@@ -155,18 +137,17 @@ namespace QA.DemoSite.DAL
 
         #endregion
         #region Genarated properties
-        public string IconUrl { get; set; }
-        public string IconUploadPath { get; set; }
+        public string IconUrl 
+		{ 
+			get { return QpDataContext.Current.GetUrl(this.Icon, "QPCulture", "Icon"); }
+		}
+        public string IconUploadPath 
+		{ 
+			get { return QpDataContext.Current.GetUploadPath(this.Icon, "QPCulture", "Icon"); }
+		}
         #endregion
-        #region Methods
-        void IQPArticle.OnMaterialized(IQPLibraryService context)
-        {
-			this.Title = context.ReplacePlaceholders(this.Title);
-			this.Name = context.ReplacePlaceholders(this.Name);
-			this.IconUrl = context.GetUrl(this.Icon, "QPCulture", "Icon");
-			this.IconUploadPath = context.GetUploadPath(this.Icon, "QPCulture", "Icon");
-        }
 
+		
         // для Poco перенести из класса куда-нибудь, так как нарушается концепция доступа к БД
         Hashtable IQPArticle.Pack(IQPFormService context, params string[] propertyNames)
         {
@@ -189,7 +170,6 @@ namespace QA.DemoSite.DAL
 
             return table;
         }
-        #endregion
     }
     public partial class QPItemDefinitionConstraint: IQPArticle
     {
@@ -201,11 +181,8 @@ namespace QA.DemoSite.DAL
         };
 
         #endregion
-        #region Methods
-        void IQPArticle.OnMaterialized(IQPLibraryService context)
-        {
-        }
 
+		
         // для Poco перенести из класса куда-нибудь, так как нарушается концепция доступа к БД
         Hashtable IQPArticle.Pack(IQPFormService context, params string[] propertyNames)
         {
@@ -228,7 +205,236 @@ namespace QA.DemoSite.DAL
 
             return table;
         }
+    }
+    public partial class AbTest: IQPArticle
+    {
+        #region Static members
+        protected static readonly Dictionary<string, Func<AbTest, IQPFormService, string>> _valueExtractors = new Dictionary<string, Func<AbTest,  IQPFormService, string>>
+        {
+			{ "Title", new Func<AbTest, IQPFormService, string>((self, ctx) => self.Title != null ? ctx.ReplacePlaceholders(self.Title) : null) },
+			{ "Enabled", new Func<AbTest, IQPFormService, string>((self, ctx) => self.Enabled != null ? self.Enabled.Value ? "1" : "0" : null) },
+			{ "Percentage", new Func<AbTest, IQPFormService, string>((self, ctx) => self.Percentage != null ? ctx.ReplacePlaceholders(self.Percentage) : null) },
+			{ "StartDate", new Func<AbTest, IQPFormService, string>((self, ctx) => self.StartDate != null ? self.StartDate.ToString() : null) },
+			{ "EndDate", new Func<AbTest, IQPFormService, string>((self, ctx) => self.EndDate != null ? self.EndDate.ToString() : null) },
+			{ "Comment", new Func<AbTest, IQPFormService, string>((self, ctx) => self.Comment != null ? ctx.ReplacePlaceholders(self.Comment) : null) },
+        };
+
         #endregion
+        #region Genarated properties
+        public Boolean EnabledExact { get { return this.Enabled == null ? default(Boolean) : this.Enabled.Value; } }
+        #endregion
+
+		
+        // для Poco перенести из класса куда-нибудь, так как нарушается концепция доступа к БД
+        Hashtable IQPArticle.Pack(IQPFormService context, params string[] propertyNames)
+        {
+            Hashtable table;
+
+            if (propertyNames == null || propertyNames.Length == 0)
+            {
+                // todo: filter null values
+                table = new Hashtable(_valueExtractors.ToDictionary(x => context.GetFormNameByNetNames("AbTest", x.Key), y => y.Value(this, context)));
+            }
+            else
+            {
+                table = new Hashtable();
+                foreach (var prop in propertyNames.Join(_valueExtractors.Keys, x => x, x => x, (x, y) => x))
+                {
+                    string value = _valueExtractors[prop](this, context);
+                    table.Add(prop, value);
+                }
+            }
+
+            return table;
+        }
+    }
+    public partial class AbTestBaseContainer: IQPArticle
+    {
+        #region Static members
+        protected static readonly Dictionary<string, Func<AbTestBaseContainer, IQPFormService, string>> _valueExtractors = new Dictionary<string, Func<AbTestBaseContainer,  IQPFormService, string>>
+        {
+			{ "ParentTest_ID", new Func<AbTestBaseContainer, IQPFormService, string>((self, ctx) => self.ParentTest_ID != null ? self.ParentTest_ID.ToString() : null) },
+			{ "Description", new Func<AbTestBaseContainer, IQPFormService, string>((self, ctx) => self.Description != null ? ctx.ReplacePlaceholders(self.Description) : null) },
+			{ "AllowedUrlPatterns", new Func<AbTestBaseContainer, IQPFormService, string>((self, ctx) => self.AllowedUrlPatterns != null ? ctx.ReplacePlaceholders(self.AllowedUrlPatterns) : null) },
+			{ "DeniedUrlPatterns", new Func<AbTestBaseContainer, IQPFormService, string>((self, ctx) => self.DeniedUrlPatterns != null ? ctx.ReplacePlaceholders(self.DeniedUrlPatterns) : null) },
+			{ "Domain", new Func<AbTestBaseContainer, IQPFormService, string>((self, ctx) => self.Domain != null ? ctx.ReplacePlaceholders(self.Domain) : null) },
+			{ "Precondition", new Func<AbTestBaseContainer, IQPFormService, string>((self, ctx) => self.Precondition != null ? ctx.ReplacePlaceholders(self.Precondition) : null) },
+			{ "Arguments", new Func<AbTestBaseContainer, IQPFormService, string>((self, ctx) => self.Arguments != null ? ctx.ReplacePlaceholders(self.Arguments) : null) },
+			{ "Type", new Func<AbTestBaseContainer, IQPFormService, string>((self, ctx) => self.Type != null ? self.Type.ToString() : null) },
+        };
+
+        #endregion
+        #region Genarated properties
+        public Int32 TypeExact { get { return this.Type == null ? default(Int32) : this.Type.Value; } }
+        #endregion
+
+		
+        // для Poco перенести из класса куда-нибудь, так как нарушается концепция доступа к БД
+        Hashtable IQPArticle.Pack(IQPFormService context, params string[] propertyNames)
+        {
+            Hashtable table;
+
+            if (propertyNames == null || propertyNames.Length == 0)
+            {
+                // todo: filter null values
+                table = new Hashtable(_valueExtractors.ToDictionary(x => context.GetFormNameByNetNames("AbTestBaseContainer", x.Key), y => y.Value(this, context)));
+            }
+            else
+            {
+                table = new Hashtable();
+                foreach (var prop in propertyNames.Join(_valueExtractors.Keys, x => x, x => x, (x, y) => x))
+                {
+                    string value = _valueExtractors[prop](this, context);
+                    table.Add(prop, value);
+                }
+            }
+
+            return table;
+        }
+    }
+    public partial class AbTestScript: IQPArticle
+    {
+        #region Static members
+        protected static readonly Dictionary<string, Func<AbTestScript, IQPFormService, string>> _valueExtractors = new Dictionary<string, Func<AbTestScript,  IQPFormService, string>>
+        {
+			{ "Container_ID", new Func<AbTestScript, IQPFormService, string>((self, ctx) => self.Container_ID != null ? self.Container_ID.ToString() : null) },
+			{ "Description", new Func<AbTestScript, IQPFormService, string>((self, ctx) => self.Description != null ? ctx.ReplacePlaceholders(self.Description) : null) },
+			{ "VersionNumber", new Func<AbTestScript, IQPFormService, string>((self, ctx) => self.VersionNumber != null ? self.VersionNumber.ToString() : null) },
+			{ "ScriptText", new Func<AbTestScript, IQPFormService, string>((self, ctx) => self.ScriptText != null ? ctx.ReplacePlaceholders(self.ScriptText) : null) },
+        };
+
+        #endregion
+        #region Genarated properties
+        public Int32 VersionNumberExact { get { return this.VersionNumber == null ? default(Int32) : this.VersionNumber.Value; } }
+        #endregion
+
+		
+        // для Poco перенести из класса куда-нибудь, так как нарушается концепция доступа к БД
+        Hashtable IQPArticle.Pack(IQPFormService context, params string[] propertyNames)
+        {
+            Hashtable table;
+
+            if (propertyNames == null || propertyNames.Length == 0)
+            {
+                // todo: filter null values
+                table = new Hashtable(_valueExtractors.ToDictionary(x => context.GetFormNameByNetNames("AbTestScript", x.Key), y => y.Value(this, context)));
+            }
+            else
+            {
+                table = new Hashtable();
+                foreach (var prop in propertyNames.Join(_valueExtractors.Keys, x => x, x => x, (x, y) => x))
+                {
+                    string value = _valueExtractors[prop](this, context);
+                    table.Add(prop, value);
+                }
+            }
+
+            return table;
+        }
+    }
+    public partial class AbTestScriptContainer: IQPArticle
+    {
+        #region Static members
+        protected static readonly Dictionary<string, Func<AbTestScriptContainer, IQPFormService, string>> _valueExtractors = new Dictionary<string, Func<AbTestScriptContainer,  IQPFormService, string>>
+        {
+			{ "BaseContainer_ID", new Func<AbTestScriptContainer, IQPFormService, string>((self, ctx) => self.BaseContainer_ID != null ? self.BaseContainer_ID.ToString() : null) },
+        };
+
+        #endregion
+
+		
+        // для Poco перенести из класса куда-нибудь, так как нарушается концепция доступа к БД
+        Hashtable IQPArticle.Pack(IQPFormService context, params string[] propertyNames)
+        {
+            Hashtable table;
+
+            if (propertyNames == null || propertyNames.Length == 0)
+            {
+                // todo: filter null values
+                table = new Hashtable(_valueExtractors.ToDictionary(x => context.GetFormNameByNetNames("AbTestScriptContainer", x.Key), y => y.Value(this, context)));
+            }
+            else
+            {
+                table = new Hashtable();
+                foreach (var prop in propertyNames.Join(_valueExtractors.Keys, x => x, x => x, (x, y) => x))
+                {
+                    string value = _valueExtractors[prop](this, context);
+                    table.Add(prop, value);
+                }
+            }
+
+            return table;
+        }
+    }
+    public partial class AbTestClientRedirectContainer: IQPArticle
+    {
+        #region Static members
+        protected static readonly Dictionary<string, Func<AbTestClientRedirectContainer, IQPFormService, string>> _valueExtractors = new Dictionary<string, Func<AbTestClientRedirectContainer,  IQPFormService, string>>
+        {
+			{ "BaseContainer_ID", new Func<AbTestClientRedirectContainer, IQPFormService, string>((self, ctx) => self.BaseContainer_ID != null ? self.BaseContainer_ID.ToString() : null) },
+        };
+
+        #endregion
+
+		
+        // для Poco перенести из класса куда-нибудь, так как нарушается концепция доступа к БД
+        Hashtable IQPArticle.Pack(IQPFormService context, params string[] propertyNames)
+        {
+            Hashtable table;
+
+            if (propertyNames == null || propertyNames.Length == 0)
+            {
+                // todo: filter null values
+                table = new Hashtable(_valueExtractors.ToDictionary(x => context.GetFormNameByNetNames("AbTestClientRedirectContainer", x.Key), y => y.Value(this, context)));
+            }
+            else
+            {
+                table = new Hashtable();
+                foreach (var prop in propertyNames.Join(_valueExtractors.Keys, x => x, x => x, (x, y) => x))
+                {
+                    string value = _valueExtractors[prop](this, context);
+                    table.Add(prop, value);
+                }
+            }
+
+            return table;
+        }
+    }
+    public partial class AbTestClientRedirect: IQPArticle
+    {
+        #region Static members
+        protected static readonly Dictionary<string, Func<AbTestClientRedirect, IQPFormService, string>> _valueExtractors = new Dictionary<string, Func<AbTestClientRedirect,  IQPFormService, string>>
+        {
+			{ "Container_ID", new Func<AbTestClientRedirect, IQPFormService, string>((self, ctx) => self.Container_ID != null ? self.Container_ID.ToString() : null) },
+			{ "VersionNumber", new Func<AbTestClientRedirect, IQPFormService, string>((self, ctx) => self.VersionNumber != null ? ctx.ReplacePlaceholders(self.VersionNumber) : null) },
+			{ "RedirectUrl", new Func<AbTestClientRedirect, IQPFormService, string>((self, ctx) => self.RedirectUrl != null ? ctx.ReplacePlaceholders(self.RedirectUrl) : null) },
+        };
+
+        #endregion
+
+		
+        // для Poco перенести из класса куда-нибудь, так как нарушается концепция доступа к БД
+        Hashtable IQPArticle.Pack(IQPFormService context, params string[] propertyNames)
+        {
+            Hashtable table;
+
+            if (propertyNames == null || propertyNames.Length == 0)
+            {
+                // todo: filter null values
+                table = new Hashtable(_valueExtractors.ToDictionary(x => context.GetFormNameByNetNames("AbTestClientRedirect", x.Key), y => y.Value(this, context)));
+            }
+            else
+            {
+                table = new Hashtable();
+                foreach (var prop in propertyNames.Join(_valueExtractors.Keys, x => x, x => x, (x, y) => x))
+                {
+                    string value = _valueExtractors[prop](this, context);
+                    table.Add(prop, value);
+                }
+            }
+
+            return table;
+        }
     }
     public partial class BlogPost: IQPArticle
     {
@@ -246,20 +452,17 @@ namespace QA.DemoSite.DAL
 
         #endregion
         #region Genarated properties
-        public string ImageUrl { get; set; }
-        public string ImageUploadPath { get; set; }
+        public string ImageUrl 
+		{ 
+			get { return QpDataContext.Current.GetUrl(this.Image, "BlogPost", "Image"); }
+		}
+        public string ImageUploadPath 
+		{ 
+			get { return QpDataContext.Current.GetUploadPath(this.Image, "BlogPost", "Image"); }
+		}
         #endregion
-        #region Methods
-        void IQPArticle.OnMaterialized(IQPLibraryService context)
-        {
-			this.Title = context.ReplacePlaceholders(this.Title);
-			this.Brief = context.ReplacePlaceholders(this.Brief);
-			this.Text = context.ReplacePlaceholders(this.Text);
-			this.YoutubeVideoCode = context.ReplacePlaceholders(this.YoutubeVideoCode);
-			this.ImageUrl = context.GetUrl(this.Image, "BlogPost", "Image");
-			this.ImageUploadPath = context.GetUploadPath(this.Image, "BlogPost", "Image");
-        }
 
+		
         // для Poco перенести из класса куда-нибудь, так как нарушается концепция доступа к БД
         Hashtable IQPArticle.Pack(IQPFormService context, params string[] propertyNames)
         {
@@ -282,7 +485,6 @@ namespace QA.DemoSite.DAL
 
             return table;
         }
-        #endregion
     }
     public partial class BlogCategory: IQPArticle
     {
@@ -297,12 +499,8 @@ namespace QA.DemoSite.DAL
         #region Genarated properties
         public Int32 SortOrderExact { get { return this.SortOrder == null ? default(Int32) : this.SortOrder.Value; } }
         #endregion
-        #region Methods
-        void IQPArticle.OnMaterialized(IQPLibraryService context)
-        {
-			this.Title = context.ReplacePlaceholders(this.Title);
-        }
 
+		
         // для Poco перенести из класса куда-нибудь, так как нарушается концепция доступа к БД
         Hashtable IQPArticle.Pack(IQPFormService context, params string[] propertyNames)
         {
@@ -325,7 +523,6 @@ namespace QA.DemoSite.DAL
 
             return table;
         }
-        #endregion
     }
     public partial class BlogTag: IQPArticle
     {
@@ -336,12 +533,8 @@ namespace QA.DemoSite.DAL
         };
 
         #endregion
-        #region Methods
-        void IQPArticle.OnMaterialized(IQPLibraryService context)
-        {
-			this.Title = context.ReplacePlaceholders(this.Title);
-        }
 
+		
         // для Poco перенести из класса куда-нибудь, так как нарушается концепция доступа к БД
         Hashtable IQPArticle.Pack(IQPFormService context, params string[] propertyNames)
         {
@@ -364,7 +557,6 @@ namespace QA.DemoSite.DAL
 
             return table;
         }
-        #endregion
     }
     public partial class FaqItem: IQPArticle
     {
@@ -380,13 +572,8 @@ namespace QA.DemoSite.DAL
         #region Genarated properties
         public Int32 SortOrderExact { get { return this.SortOrder == null ? default(Int32) : this.SortOrder.Value; } }
         #endregion
-        #region Methods
-        void IQPArticle.OnMaterialized(IQPLibraryService context)
-        {
-			this.Question = context.ReplacePlaceholders(this.Question);
-			this.Answer = context.ReplacePlaceholders(this.Answer);
-        }
 
+		
         // для Poco перенести из класса куда-нибудь, так как нарушается концепция доступа к БД
         Hashtable IQPArticle.Pack(IQPFormService context, params string[] propertyNames)
         {
@@ -409,6 +596,7 @@ namespace QA.DemoSite.DAL
 
             return table;
         }
-        #endregion
     }
 }
+	
+	

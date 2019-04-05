@@ -1,9 +1,9 @@
-using Quantumart.QP8.CodeGeneration.Services;
-using Quantumart.QP8.EntityFramework.Models;
+﻿using Quantumart.QP8.CoreCodeGeneration.Services;
+using Quantumart.QP8.EntityFrameworkCore;
 using System;
 using System.Linq.Expressions;
 
-namespace QA.DemoSite.DAL
+namespace Quantumart.QP8.EntityFrameworkCore
 {
     public interface IQPSchema
     {

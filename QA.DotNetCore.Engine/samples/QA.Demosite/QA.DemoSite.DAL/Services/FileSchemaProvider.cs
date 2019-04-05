@@ -1,6 +1,7 @@
-using Quantumart.QP8.CodeGeneration.Services;
+﻿
+using Quantumart.QP8.CoreCodeGeneration.Services;
 
-namespace QA.DemoSite.DAL
+namespace Quantumart.QP8.EntityFrameworkCore
 {
     public class FileSchemaProvider : ISchemaProvider
     {

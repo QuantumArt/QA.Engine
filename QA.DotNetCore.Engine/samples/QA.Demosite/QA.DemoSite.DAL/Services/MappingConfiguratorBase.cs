@@ -1,12 +1,15 @@
-using Quantumart.QP8.EntityFramework.Models;
+﻿using Quantumart.QP8.EntityFrameworkCore;
 using System;
 using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Common;
-using System.Data.Entity;
+using Microsoft.EntityFrameworkCore;
 using System.Threading;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Quantumart.QP8.CoreCodeGeneration.Services;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
-namespace QA.DemoSite.DAL
+namespace Quantumart.QP8.EntityFrameworkCore
 {
     public abstract class MappingConfiguratorBase : IMappingConfigurator
     {
@@ -27,24 +30,37 @@ namespace QA.DemoSite.DAL
             _schemaProvider = schemaProvider;
         }
 
-        public virtual MappingInfo GetMappingInfo(DbConnection connection)
+        public virtual MappingInfo GetMappingInfo()
         {
             return _cache.GetOrAdd(GetCacheKey(), a =>
             {
                 var _schema = _schemaProvider.GetSchema();
                 _mappingResolver = new MappingResolver(_schema);
-
-                var builder = new DbModelBuilder();
+                var conventionSet = SqlServerConventionSetBuilder.Build();
+                var builder = new ModelBuilder(conventionSet);
                 OnModelCreating(builder);
-                var builtModel = builder.Build(connection);
+                builder.FinalizeModel();
 
                 return new Lazy<MappingInfo>(
-                    () => new MappingInfo(builtModel.Compile(), _schema),
+                    () => new MappingInfo(builder.Model, _schema),
                     LazyThreadSafetyMode.ExecutionAndPublication);
             }).Value;
         }
 
-        public virtual void OnModelCreating(DbModelBuilder modelBuilder)
+        public ModelReader GetSchema()
+		{
+			return _schemaProvider.GetSchema();
+		}
+
+        protected void AddMappingInfo(IModel model)
+        {
+            var _schema = _schemaProvider.GetSchema();
+            _cache.TryAdd(GetCacheKey(), new Lazy<MappingInfo>(
+                    () => new MappingInfo(model, _schema),
+                    LazyThreadSafetyMode.ExecutionAndPublication));
+        }
+
+        public virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
             if (_mappingResolver == null)
             {
@@ -55,7 +71,7 @@ namespace QA.DemoSite.DAL
             modelBuilder.Entity<StatusType>()
                 .ToTable("STATUS_TYPE_NEW")
                 .Property(x => x.Id)
-                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity)
+                .ValueGeneratedOnAdd()
                 .HasColumnName("id");
 
             modelBuilder.Entity<StatusType>().Property(e => e.SiteId).HasColumnName("site_id");
@@ -67,7 +83,7 @@ namespace QA.DemoSite.DAL
             modelBuilder.Entity<User>()
                 .ToTable("USER_NEW")
                 .Property(e => e.Id)
-                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity)
+                .ValueGeneratedOnAdd()
                 .HasColumnName("id");
 
             modelBuilder.Entity<User>().Property(e => e.FirstName).HasColumnName("first_name");
@@ -79,15 +95,25 @@ namespace QA.DemoSite.DAL
             #region UserGroup
             modelBuilder.Entity<UserGroup>()
                 .ToTable("USER_GROUP_NEW")
-                .Property(e => e.Id)
-                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity)
+                .Property(e => e.Id).ValueGeneratedOnAdd()
                 .HasColumnName("id");
 
+            modelBuilder.Entity<UserGroupBind>()
+                .ToTable("USER_GROUP_BIND_NEW");
 
-            modelBuilder.Entity<UserGroup>()
-                .HasMany(e => e.Users)
-                .WithMany(e => e.UserGroups)
-                .Map(m => m.ToTable("USER_GROUP_BIND_NEW").MapLeftKey("GROUP_ID").MapRightKey("USER_ID"));
+            modelBuilder.Entity<UserGroupBind>().Property(e => e.UserId).HasColumnName("user_id");
+            modelBuilder.Entity<UserGroupBind>().Property(e => e.GroupId).HasColumnName("group_id");
+            modelBuilder.Entity<UserGroupBind>().HasKey(ug => new { ug.UserId, ug.GroupId });
+
+            modelBuilder.Entity<UserGroupBind>()
+                .HasOne(bc => bc.User)
+                .WithMany(b => b.UserGroupBinds)
+                .HasForeignKey(bc => bc.UserId);
+
+            modelBuilder.Entity<UserGroupBind>()
+                .HasOne(bc => bc.UserGroup)
+                .WithMany(c => c.UserGroupBinds)
+                .HasForeignKey(bc => bc.GroupId);
 
             #endregion
         }

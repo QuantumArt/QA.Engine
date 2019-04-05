@@ -1,6 +1,6 @@
-using System;
+﻿using System;
 
-namespace QA.DemoSite.DAL
+namespace Quantumart.QP8.EntityFrameworkCore
 {
     public partial class StatusType
     {

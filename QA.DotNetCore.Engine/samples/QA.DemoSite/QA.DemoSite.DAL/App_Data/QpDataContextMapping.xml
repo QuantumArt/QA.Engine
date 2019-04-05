@@ -45,6 +45,44 @@
     <attribute name="Target" mapped_back_name="AllowDefinition" />
     <attribute name="Source" mapped_back_name="QPItemDefinitionConstraints_2" />
   </content>
+  <content id="10663" name="AB тесты" mapped_name="AbTest" plural_mapped_name="AbTests" use_default_filtration="true">
+    <attribute name="Title" />
+    <attribute name="Enabled" />
+    <attribute name="Percentage" />
+    <attribute name="StartDate" />
+    <attribute name="EndDate" />
+    <attribute name="Comment" />
+    <attribute name="ABTestContainers" />
+  </content>
+  <content id="10664" name="Контейнер AB тестирования" mapped_name="AbTestBaseContainer" plural_mapped_name="AbTestBaseContainers" use_default_filtration="true">
+    <attribute name="ParentTest" mapped_back_name="ABTestContainers" />
+    <attribute name="Description" />
+    <attribute name="AllowedUrlPatterns" />
+    <attribute name="DeniedUrlPatterns" />
+    <attribute name="Domain" />
+    <attribute name="Precondition" />
+    <attribute name="Arguments" />
+    <attribute name="Type" />
+  </content>
+  <content id="10665" name="Скрипт AB тестирования" mapped_name="AbTestScript" plural_mapped_name="AbTestScripts" use_default_filtration="true">
+    <attribute name="Container" mapped_back_name="ScriptsInContainer" />
+    <attribute name="Description" />
+    <attribute name="VersionNumber" />
+    <attribute name="ScriptText" />
+  </content>
+  <content id="10666" name="Контейнер скриптов" mapped_name="AbTestScriptContainer" plural_mapped_name="AbTestScriptContainers" use_default_filtration="true">
+    <attribute name="BaseContainer" mapped_back_name="ScriptContainers" />
+    <attribute name="Scripts" mapped_name="ScriptsInContainer" />
+  </content>
+  <content id="10667" name="Контейнер клиентских редиректов" mapped_name="AbTestClientRedirectContainer" plural_mapped_name="AbTestClientRedirectContainers" use_default_filtration="true">
+    <attribute name="BaseContainer" mapped_back_name="ClientRedirectContainers" />
+    <attribute name="ClientRedirects" mapped_name="ClientRedirectsInContainer" />
+  </content>
+  <content id="10668" name="Клиентский редирект AB тестирования" mapped_name="AbTestClientRedirect" plural_mapped_name="AbTestClientRedirects" use_default_filtration="true">
+    <attribute name="Container" mapped_back_name="ClientRedirectsInContainer" />
+    <attribute name="VersionNumber" />
+    <attribute name="RedirectUrl" />
+  </content>
   <content id="30745" name="Блог Посты" mapped_name="BlogPost" plural_mapped_name="BlogPosts" use_default_filtration="true">
     <attribute name="Title" />
     <attribute name="Brief" />

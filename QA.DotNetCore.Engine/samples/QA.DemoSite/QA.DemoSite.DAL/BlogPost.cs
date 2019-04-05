@@ -3,13 +3,14 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using Quantumart.QP8.EntityFrameworkCore;
 namespace QA.DemoSite.DAL
 {
     public partial class BlogPost: IQPArticle
     {
         public BlogPost()
         {
-		    Tags = new HashSet<BlogTag>();
+		    Tags = new HashSet<BlogPost2BlogTagForTags>();
         }
 
         public virtual Int32 Id { get; set; }
@@ -21,12 +22,32 @@ namespace QA.DemoSite.DAL
         public virtual Int32 LastModifiedBy { get; set; }
         public virtual StatusType StatusType { get; set; }
 
-        public virtual String Title { get; set; }
-        public virtual String Brief { get; set; }
+		private String _Title;
+		public virtual String Title 
+		{ 
+			get { return _Title; }
+			set { _Title = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
+		private String _Brief;
+		public virtual String Brief 
+		{ 
+			get { return _Brief; }
+			set { _Brief = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
         public virtual DateTime? PostDate { get; set; }
-        public virtual String Text { get; set; }
+		private String _Text;
+		public virtual String Text 
+		{ 
+			get { return _Text; }
+			set { _Text = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
         public virtual String Image { get; set; }
-        public virtual String YoutubeVideoCode { get; set; }
+		private String _YoutubeVideoCode;
+		public virtual String YoutubeVideoCode 
+		{ 
+			get { return _YoutubeVideoCode; }
+			set { _YoutubeVideoCode = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
 		/// <summary>
 		/// 
 		/// </summary>			
@@ -38,11 +59,7 @@ namespace QA.DemoSite.DAL
 		/// <summary>
 		/// 
 		/// </summary>
-		public  ICollection<BlogTag> Tags { get; set; }
-		#region Generated Content properties
-        // public string ImageUrl { get; set; }
-        // public string ImageUploadPath { get; set; }
-		#endregion
+		public  ICollection<BlogPost2BlogTagForTags> Tags { get; set; }
 	}
 }
 	

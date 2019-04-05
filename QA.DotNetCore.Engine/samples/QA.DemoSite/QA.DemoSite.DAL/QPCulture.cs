@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using Quantumart.QP8.EntityFrameworkCore;
 namespace QA.DemoSite.DAL
 {
     public partial class QPCulture: IQPArticle
@@ -21,17 +22,23 @@ namespace QA.DemoSite.DAL
         public virtual Int32 LastModifiedBy { get; set; }
         public virtual StatusType StatusType { get; set; }
 
-        public virtual String Title { get; set; }
-        public virtual String Name { get; set; }
+		private String _Title;
+		public virtual String Title 
+		{ 
+			get { return _Title; }
+			set { _Title = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
+		private String _Name;
+		public virtual String Name 
+		{ 
+			get { return _Name; }
+			set { _Name = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
         public virtual String Icon { get; set; }
 		/// <summary>
 		/// Auto-generated backing property for field (id: 27521)/Culture AbstractItems
 		/// </summary>
 		public  ICollection<QPAbstractItem> AbstractItems { get; set; }
-		#region Generated Content properties
-        // public string IconUrl { get; set; }
-        // public string IconUploadPath { get; set; }
-		#endregion
 	}
 }
 	

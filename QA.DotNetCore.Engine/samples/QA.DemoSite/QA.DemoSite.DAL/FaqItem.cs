@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using Quantumart.QP8.EntityFrameworkCore;
 namespace QA.DemoSite.DAL
 {
     public partial class FaqItem: IQPArticle
@@ -20,11 +21,18 @@ namespace QA.DemoSite.DAL
         public virtual Int32 LastModifiedBy { get; set; }
         public virtual StatusType StatusType { get; set; }
 
-        public virtual String Question { get; set; }
-        public virtual String Answer { get; set; }
+		private String _Question;
+		public virtual String Question 
+		{ 
+			get { return _Question; }
+			set { _Question = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
+		private String _Answer;
+		public virtual String Answer 
+		{ 
+			get { return _Answer; }
+			set { _Answer = QpDataContext.Current.ReplacePlaceholders(value);}
+		}
         public virtual Int32? SortOrder { get; set; }
-		#region Generated Content properties
-        // public Int32 SortOrderExact { get { return this.SortOrder == null ? default(Int32) : this.SortOrder.Value; } }
-		#endregion
 	}
 }

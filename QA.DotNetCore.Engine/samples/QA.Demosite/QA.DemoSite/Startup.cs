@@ -58,8 +58,8 @@ namespace QA.DemoSite
                 new System.Data.SqlClient.SqlConnection(qpConnection)));
 
             //сервисы слоя данных
-            services.AddScoped<FaqService>();
-            services.AddScoped<BlogService>();
+            services.AddScoped<IFaqService, FaqService>();
+            services.AddScoped<IBlogService, BlogService>();
 
             //сервисы построения view-model
             services.AddScoped<BlogPageViewModelBuilder>();

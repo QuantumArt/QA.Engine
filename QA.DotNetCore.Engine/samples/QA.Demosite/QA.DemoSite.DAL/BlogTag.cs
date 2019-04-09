@@ -10,7 +10,7 @@ namespace QA.DemoSite.DAL
     {
         public BlogTag()
         {
-			BackwardForTags = new HashSet<BlogTag2BlogPostForBackwardForTags>();
+		    BackwardForTags = new HashSet<BlogPost2BlogTagForTags>();
         }
 
         public virtual Int32 Id { get; set; }
@@ -31,7 +31,7 @@ namespace QA.DemoSite.DAL
 		/// <summary>
 		/// Auto-generated backing property for 68571/Tags
 		/// </summary>
-		public  ICollection<BlogTag2BlogPostForBackwardForTags> BackwardForTags { get; set; }
+		public  ICollection<BlogPost2BlogTagForTags> BackwardForTags { get; set; }
 	}
 }
 	

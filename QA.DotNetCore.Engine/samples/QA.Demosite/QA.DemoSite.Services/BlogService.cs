@@ -61,15 +61,15 @@ namespace QA.DemoSite.Services
             };
         }
 
-        private BlogTagDto Map(BlogTag blogTag)
+        private BlogTagDto Map(BlogPost2BlogTagForTags blogTag)
         {
             if (blogTag == null)
                 return null;
 
             return new BlogTagDto
             {
-                Id = blogTag.Id,
-                Title = blogTag.Title
+                Id = blogTag.BlogTagLinkedItem.Id,
+                Title = blogTag.BlogTagLinkedItem.Title
             };
         }
     }

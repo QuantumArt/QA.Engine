@@ -560,7 +560,11 @@ namespace QA.DemoSite.DAL
             modelBuilder.Entity<BlogPost2BlogTagForTags>().Property(e => e.BlogPostItemId).HasColumnName("id");
             modelBuilder.Entity<BlogPost2BlogTagForTags>().Property(e => e.BlogTagLinkedItemId).HasColumnName("linked_id");
             modelBuilder.Entity<BlogPost2BlogTagForTags>().HasKey(ug => new { ug.BlogPostItemId, ug.BlogTagLinkedItemId });
-
+			modelBuilder.Entity<BlogPost2BlogTagForTags>().Ignore(x=>x.Id);
+			modelBuilder.Entity<BlogPost2BlogTagForTags>().Ignore(x=>x.LinkId);
+			modelBuilder.Entity<BlogPost2BlogTagForTags>().Ignore(x=>x.LinkedItemId);
+			modelBuilder.Entity<BlogPost2BlogTagForTags>().Ignore(x=>x.Item);
+			modelBuilder.Entity<BlogPost2BlogTagForTags>().Ignore(x=>x.LinkedItem);
             modelBuilder.Entity<BlogPost2BlogTagForTags>()
                 .HasOne(bc => bc.BlogPostItem)
                 .WithMany(b => b.Tags)

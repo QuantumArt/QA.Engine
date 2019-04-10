@@ -8,7 +8,7 @@
 <#@ assembly name="EnvDTE"#>
 <#@ assembly name="System.Xml"#>
 <#@ assembly name="System.Xml.Linq"#>
-<#@ assembly name="$(NuGetPackageRoot)QP8.EntityFrameworkCore\1.0.3\lib\netstandard2.0\Quantumart.QP8.CoreCodeGeneration.dll"#>
+<#@ assembly name="$(NuGetPackageRoot)QP8.EntityFrameworkCore\1.0.4\lib\netstandard2.0\Quantumart.QP8.CoreCodeGeneration.dll"#>
 
 <#@ import namespace="System"#>
 <#@ import namespace="System.CodeDom"#>

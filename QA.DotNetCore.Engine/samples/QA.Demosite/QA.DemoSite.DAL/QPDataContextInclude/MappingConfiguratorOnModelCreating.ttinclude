@@ -75,7 +75,11 @@ base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<<#=attribute.M2MClassName#>>().Property(e => e.<#=attribute.M2MPropertyName#>Id).HasColumnName("id");
             modelBuilder.Entity<<#=attribute.M2MClassName#>>().Property(e => e.<#=attribute.M2MRelatedPropertyName#>Id).HasColumnName("linked_id");
             modelBuilder.Entity<<#=attribute.M2MClassName#>>().HasKey(ug => new { ug.<#=attribute.M2MPropertyName#>Id, ug.<#=attribute.M2MRelatedPropertyName#>Id });
-
+			modelBuilder.Entity<<#=attribute.M2MClassName#>>().Ignore(x=>x.Id);
+			modelBuilder.Entity<<#=attribute.M2MClassName#>>().Ignore(x=>x.LinkId);
+			modelBuilder.Entity<<#=attribute.M2MClassName#>>().Ignore(x=>x.LinkedItemId);
+			modelBuilder.Entity<<#=attribute.M2MClassName#>>().Ignore(x=>x.Item);
+			modelBuilder.Entity<<#=attribute.M2MClassName#>>().Ignore(x=>x.LinkedItem);
             modelBuilder.Entity<<#=attribute.M2MClassName#>>()
                 .HasOne(bc => bc.<#=attribute.M2MPropertyName#>)
                 .WithMany(b => b.<#=attribute.MappedName#>)

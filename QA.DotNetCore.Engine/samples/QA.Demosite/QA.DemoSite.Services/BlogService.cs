@@ -21,12 +21,21 @@ namespace QA.DemoSite.Services
 
         public IEnumerable<BlogPostDto> GetAllPosts()
         {
-            return QpDataContext.BlogPosts.Include("Category").Include("Tags").ToList().Select(Map).ToList();
+            return QpDataContext.BlogPosts
+                .Include(c => c.Category)
+                .Include(t => t.Tags)
+                .ThenInclude(ti => ti.BlogTagLinkedItem).ToList()
+                .Select(Map).ToList();
         }
 
         public BlogPostDto GetPost(int id)
         {
-            return Map(QpDataContext.BlogPosts.Include("Category").Include("Tags").FirstOrDefault(bp => bp.Id == id));
+            var post = QpDataContext.BlogPosts
+                .Include(c=>c.Category)
+                .Include(t=>t.Tags)
+                .ThenInclude(ti=>ti.BlogTagLinkedItem)
+                .FirstOrDefault(bp => bp.Id == id);
+            return Map(post);
         }
 
         private BlogPostDto Map(BlogPost blogPost)
@@ -63,7 +72,7 @@ namespace QA.DemoSite.Services
 
         private BlogTagDto Map(BlogPost2BlogTagForTags blogTag)
         {
-            if (blogTag == null)
+            if (blogTag == null || blogTag.BlogTagLinkedItem == null)
                 return null;
 
             return new BlogTagDto

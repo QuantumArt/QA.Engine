@@ -21,7 +21,7 @@ SELECT
     UPLOAD_URL_PREFIX as UploadUrlPrefix,
     UPLOAD_URL as UploadUrl,
     DNS
-FROM [SITE]
+FROM SITE
 WHERE SITE_ID = {0}";
 
         private const string CmdGetContentAttributeByName = @"
@@ -32,7 +32,7 @@ SELECT
     NET_ATTRIBUTE_NAME as NetName,
     USE_SITE_LIBRARY as UseSiteLibrary,
     SUBFOLDER
-FROM [CONTENT_ATTRIBUTE]
+FROM CONTENT_ATTRIBUTE
 WHERE CONTENT_ID={0} AND ATTRIBUTE_NAME='{1}'
 ";
 
@@ -44,22 +44,23 @@ SELECT
     NET_ATTRIBUTE_NAME as NetName,
     USE_SITE_LIBRARY as UseSiteLibrary,
     SUBFOLDER
-FROM [CONTENT_ATTRIBUTE]
+FROM CONTENT_ATTRIBUTE
 WHERE CONTENT_ID={0} AND NET_ATTRIBUTE_NAME='{1}'
 ";
 
         private const string CmdGetContent = @"
 SELECT
     c.CONTENT_NAME as ContentName,
+    c.USE_DEFAULT_FILTRATION as UseDefaultFiltration,
     ca.ATTRIBUTE_ID as Id,
     ca.CONTENT_ID as ContentId,
     ca.ATTRIBUTE_NAME as ColumnName,
     ca.NET_ATTRIBUTE_NAME as NetName,
     ca.USE_SITE_LIBRARY as UseSiteLibrary,
     ca.SUBFOLDER
-FROM [CONTENT] c
-INNER JOIN [CONTENT_ATTRIBUTE] ca on ca.CONTENT_ID = c.CONTENT_ID
-WHERE c.[SITE_ID]={0} AND c.[NET_CONTENT_NAME]='{1}'
+FROM CONTENT c
+INNER JOIN CONTENT_ATTRIBUTE ca on ca.CONTENT_ID = c.CONTENT_ID
+WHERE c.SITE_ID={0} AND c.NET_CONTENT_NAME='{1}'
 ";
 
         public QpSitePersistentData GetSite(int siteId)
@@ -82,13 +83,14 @@ WHERE c.[SITE_ID]={0} AND c.[NET_CONTENT_NAME]='{1}'
             var contentAttributes = _connection.Query<ContentAttributePersistentData>(string.Format(CmdGetContent, siteId, contentNetName)).ToList();
             if (contentAttributes == null || !contentAttributes.Any())
                 return null;
-
+            var contentAttribute = contentAttributes.First();
             return new ContentPersistentData
             {
-                ContentId = contentAttributes.First().ContentId,
-                ContentName = contentAttributes.First().ContentName,
+                ContentId = contentAttribute.ContentId,
+                ContentName = contentAttribute.ContentName,
                 ContentNetName = contentNetName,
-                ContentAttributes = contentAttributes
+                ContentAttributes = contentAttributes,
+                UseDefaultFiltration = contentAttribute.UseDefaultFiltration
             };
         }
     }

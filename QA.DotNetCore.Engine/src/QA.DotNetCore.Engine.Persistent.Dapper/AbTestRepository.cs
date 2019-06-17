@@ -23,37 +23,37 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper
         private const string CmdGetTests = @"
 SELECT
     t.content_item_id AS Id,
-    t.[|AbTest.Title|] as Title,
-    t.[|AbTest.Percentage|] as PercentageStr,
-    t.[|AbTest.StartDate|] as StartDate,
-    t.[|AbTest.EndDate|] as EndDate,
-    t.[|AbTest.Comment|] as Comment,
-    t.[|AbTest.Enabled|] as Enabled
-FROM [|AbTest|] t
+    t.|AbTest.Title| as Title,
+    t.|AbTest.Percentage| as PercentageStr,
+    t.|AbTest.StartDate| as StartDate,
+    t.|AbTest.EndDate| as EndDate,
+    t.|AbTest.Comment| as Comment,
+    t.|AbTest.Enabled| as Enabled
+FROM |AbTest| t
 WHERE @onlyActive = 0 OR (
     @onlyActive = 1 AND
-    (t.[|AbTest.StartDate|] IS NULL OR t.[|AbTest.StartDate|] < @currentDate) AND
-    (t.[|AbTest.EndDate|] IS NULL OR @currentDate < t.[|AbTest.EndDate|]))
+    (t.|AbTest.StartDate| IS NULL OR t.|AbTest.StartDate| < @currentDate) AND
+    (t.|AbTest.EndDate| IS NULL OR @currentDate < t.|AbTest.EndDate|))
 ";
 
         private const string CmdGetTestsContainers = @"
 SELECT
     cont.content_item_id AS Id,
-    cont.[|AbTestBaseContainer.ParentTest|] as TestId,
-    cont.[|AbTestBaseContainer.Description|] as Description,
-    cont.[|AbTestBaseContainer.AllowedUrlPatterns|] as AllowedUrlPatternsStr,
-    cont.[|AbTestBaseContainer.DeniedUrlPatterns|] as DeniedUrlPatternsStr,
-    cont.[|AbTestBaseContainer.Domain|] as Domain,
-    cont.[|AbTestBaseContainer.Precondition|] as Precondition,
-    cont.[|AbTestBaseContainer.Arguments|] as Arguments
-FROM [|AbTestBaseContainer|] cont
-JOIN [|AbTest|] t on t.content_item_id = cont.[|AbTestBaseContainer.ParentTest|]
-WHERE cont.[|AbTestBaseContainer.Type|] = (SELECT TOP 1 CONTENT_ID FROM CONTENT WHERE NET_CONTENT_NAME = @containerType)
+    cont.|AbTestBaseContainer.ParentTest| as TestId,
+    cont.|AbTestBaseContainer.Description| as Description,
+    cont.|AbTestBaseContainer.AllowedUrlPatterns| as AllowedUrlPatternsStr,
+    cont.|AbTestBaseContainer.DeniedUrlPatterns| as DeniedUrlPatternsStr,
+    cont.|AbTestBaseContainer.Domain| as Domain,
+    cont.|AbTestBaseContainer.Precondition| as Precondition,
+    cont.|AbTestBaseContainer.Arguments| as Arguments
+FROM |AbTestBaseContainer| cont
+JOIN |AbTest| t on t.content_item_id = cont.|AbTestBaseContainer.ParentTest|
+WHERE cont.|AbTestBaseContainer.Type| IN (SELECT CONTENT_ID FROM CONTENT WHERE NET_CONTENT_NAME = @containerType)
     AND (
         @onlyActive = 0 OR (
             @onlyActive = 1 AND
-            (t.[|AbTest.StartDate|] IS NULL OR t.[|AbTest.StartDate|] < @currentDate) AND
-            (t.[|AbTest.EndDate|] IS NULL OR @currentDate < t.[|AbTest.EndDate|])
+            (t.|AbTest.StartDate| IS NULL OR t.|AbTest.StartDate| < @currentDate) AND
+            (t.|AbTest.EndDate| IS NULL OR @currentDate < t.|AbTest.EndDate|)
         )
     )
 ";
@@ -61,21 +61,21 @@ WHERE cont.[|AbTestBaseContainer.Type|] = (SELECT TOP 1 CONTENT_ID FROM CONTENT 
         private const string CmdGetAbTestScripts = @"
 SELECT
     s.content_item_id as Id,
-    scont.[|AbTestScriptContainer.BaseContainer|] as ContainerId,
-    s.[|AbTestScript.VersionNumber|] as VersionNumber,
-    s.[|AbTestScript.ScriptText|] as ScriptText,
-    s.[|AbTestScript.Description|] as Description
-FROM [|AbTestScript|] s
-JOIN [|AbTestScriptContainer|] scont on scont.content_item_id = s.[|AbTestScript.Container|]
+    scont.|AbTestScriptContainer.BaseContainer| as ContainerId,
+    s.|AbTestScript.VersionNumber| as VersionNumber,
+    s.|AbTestScript.ScriptText| as ScriptText,
+    s.|AbTestScript.Description| as Description
+FROM |AbTestScript| s
+JOIN |AbTestScriptContainer| scont on scont.content_item_id = s.|AbTestScript.Container|
 ";
         private const string CmdGetAbTestClientRedirects = @"
 SELECT
     r.content_item_id as Id,
-    rcont.[|AbTestClientRedirectContainer.BaseContainer|] as ContainerId,
-    r.[|AbTestClientRedirect.VersionNumber|] as VersionNumber,
-    r.[|AbTestClientRedirect.RedirectUrl|] as RedirectUrl
-FROM [|AbTestClientRedirect|] r
-JOIN [|AbTestClientRedirectContainer|] rcont on rcont.content_item_id = r.[|AbTestClientRedirect.Container|]
+    rcont.|AbTestClientRedirectContainer.BaseContainer| as ContainerId,
+    r.|AbTestClientRedirect.VersionNumber| as VersionNumber,
+    r.|AbTestClientRedirect.RedirectUrl| as RedirectUrl
+FROM |AbTestClientRedirect| r
+JOIN |AbTestClientRedirectContainer| rcont on rcont.content_item_id = r.|AbTestClientRedirect.Container|
 ";
 
         public string AbTestNetName => "AbTest";

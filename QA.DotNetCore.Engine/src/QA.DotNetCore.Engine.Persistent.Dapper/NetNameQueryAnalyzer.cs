@@ -9,7 +9,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
     public class NetNameQueryAnalyzer : INetNameQueryAnalyzer
     {
-        IMetaInfoRepository _metaInfoRepository;
+        readonly IMetaInfoRepository _metaInfoRepository;
 
         public NetNameQueryAnalyzer(IMetaInfoRepository metaInfoRepository)
         {
@@ -19,16 +19,16 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
         public string PrepareQuery(string netNameQuery, int siteId, bool isStage)
         {
             //вычленим из запроса токены с указанными netname таблиц и полей
-            //таблицы указываются как [|tableNetName|]
-            //столюцы указываются как [|tableNetName.columnNetName|]
-            var regexp = new Regex(@"\[\|[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)?\|\]");
+            //таблицы указываются как |tableNetName|
+            //столюцы указываются как |tableNetName.columnNetName|
+            var regexp = new Regex(@"\|[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)?\|");
             var matches = regexp.Matches(netNameQuery);
 
             var columnsByTables = new Dictionary<string, List<string>>();
 
             foreach (var m in matches)
             {
-                var token = m.ToString().Replace("[|", "").Replace("|]", "");
+                var token = m.ToString().Replace("|", "");
                 if (token.Contains("."))
                 {
                     var tokens = token.Split('.');
@@ -73,6 +73,6 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 
             return sb.ToString();
         }
-        
+
     }
 }

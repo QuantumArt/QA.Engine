@@ -1,10 +1,15 @@
 using System;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
+using QA.DotNetCore.Engine.QpData.Settings;
 
 namespace QA.DotNetCore.Engine.AbTesting.Configuration
 {
     public class AbTestOptions
     {
-        public string QpConnectionString { get; set; }
+        /// <summary>
+        /// Настройки взаимодействия с QP
+        /// </summary>
+        public QpSettings QpSettings { get; set; }
 
         public AbTestingSettings AbTestingSettings { get; set; } = DefaultAbTestingSettings;
 

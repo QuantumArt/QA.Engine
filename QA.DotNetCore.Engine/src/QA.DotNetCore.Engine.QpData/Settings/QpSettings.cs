@@ -8,5 +8,8 @@ namespace QA.DotNetCore.Engine.QpData.Settings
         public int SiteId { get; set; }
 
         public bool IsStage { get; set; }
+        public string CustomerCode { get; set; }
+        public string ConfigurationServiceUrl { get; set; }
+        public string ConfigurationServiceToken { get; set; }
     }
 }

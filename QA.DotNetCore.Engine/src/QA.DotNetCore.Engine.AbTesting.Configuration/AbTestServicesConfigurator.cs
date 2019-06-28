@@ -6,6 +6,8 @@ using QA.DotNetCore.Engine.Persistent.Dapper;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 using System;
+using QP.ConfigurationService.Models;
+using Quantumart.QPublishing.Database;
 
 namespace QA.DotNetCore.Engine.AbTesting.Configuration
 {
@@ -19,7 +21,17 @@ namespace QA.DotNetCore.Engine.AbTesting.Configuration
             if (options.AbTestingSettings.SiteId == 0)
                 throw new Exception("AbTestingSettings.SiteId is not configured.");
 
-            services.AddScoped<IUnitOfWork, UnitOfWork>(sp => new UnitOfWork(options.QpConnectionString));
+            services.AddScoped<IUnitOfWork, UnitOfWork>(sp =>
+                {
+                    var config = options.QpSettings;
+                    DBConnector.ConfigServiceUrl = config.ConfigurationServiceUrl;
+                    DBConnector.ConfigServiceToken = config.ConfigurationServiceToken;
+                    CustomerConfiguration dbConfig =
+                        DBConnector.GetCustomerConfiguration(config.CustomerCode).Result;
+                    return new UnitOfWork(dbConfig.ConnectionString, dbConfig.DbType.ToString());
+
+                }
+            );
             services.AddScoped<IMetaInfoRepository, MetaInfoRepository>();
             services.AddScoped<INetNameQueryAnalyzer, NetNameQueryAnalyzer>();
 

@@ -11,23 +11,15 @@ namespace QA.DotNetCore.Engine.Persistent.Interfaces.Data
     /// </summary>
     public class ContentPersistentData
     {
-        public ContentPersistentData()
-        {
-            UseDefaultFiltration = true;
-        }
-
         public string ContentNetName { get; set; }
 
         public int ContentId { get; set; }
 
         public string ContentName { get; set; }
 
-        public string StageTableName => UseDefaultFiltration ? $"CONTENT_{ContentId}_STAGE_NEW" : "_united";
-
-        public string LiveTableName => UseDefaultFiltration ? $"CONTENT_{ContentId}_LIVE_NEW" : "";
-
-        public bool UseDefaultFiltration { private get; set; }
-
+        public string StageTableName => $"CONTENT_{ContentId}_STAGE_NEW";
+        public string LiveTableName => $"CONTENT_{ContentId}_LIVE_NEW";
+        public string UnitedTableName => $"CONTENT_{ContentId}_united";
         public IEnumerable<ContentAttributePersistentData> ContentAttributes { get; set; }
     }
 }

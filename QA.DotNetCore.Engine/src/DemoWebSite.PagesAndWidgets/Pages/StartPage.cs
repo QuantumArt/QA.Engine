@@ -10,7 +10,7 @@ namespace DemoWebSite.PagesAndWidgets.Pages
 {
     public class StartPage : AbstractPage, IStartPage
     {
-        public string Bindings { get { return GetDetail("Bindings", String.Empty); } }
+        public string Bindings => GetDetail("Bindings", String.Empty);
 
         public string[] GetDNSBindings()
         {

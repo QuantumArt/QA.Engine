@@ -65,22 +65,37 @@ WHERE c.SITE_ID={0} AND c.NET_CONTENT_NAME='{1}'
 
         public QpSitePersistentData GetSite(int siteId)
         {
-            return _connection.QueryFirst<QpSitePersistentData>(string.Format(CmdGetSite, siteId));
+            return GetSite(siteId, null);
+        }
+
+        public QpSitePersistentData GetSite(int siteId, IDbTransaction transaction = null)
+        {
+            return _connection.QueryFirst<QpSitePersistentData>(string.Format(CmdGetSite, siteId), transaction: transaction);
         }
 
         public ContentAttributePersistentData GetContentAttribute(int contentId, string fieldName)
         {
-            return _connection.QueryFirstOrDefault<ContentAttributePersistentData>(string.Format(CmdGetContentAttributeByName, contentId, fieldName));
+            return GetContentAttribute(contentId, fieldName, null);
         }
 
-        public ContentAttributePersistentData GetContentAttributeByNetName(int contentId, string fieldNetName)
+        public ContentAttributePersistentData GetContentAttribute(int contentId, string fieldName, IDbTransaction transaction = null)
         {
-            return _connection.QueryFirstOrDefault<ContentAttributePersistentData>(string.Format(CmdGetContentAttributeByNetName, contentId, fieldNetName));
+            return _connection.QueryFirstOrDefault<ContentAttributePersistentData>(
+                string.Format(CmdGetContentAttributeByName, contentId, fieldName), transaction: transaction);
         }
 
-        public ContentPersistentData GetContent(string contentNetName, int siteId)
+        public ContentAttributePersistentData GetContentAttributeByNetName(int contentId, string fieldNetName, IDbTransaction transaction = null)
         {
-            var contentAttributes = _connection.Query<ContentAttributePersistentData>(string.Format(CmdGetContent, siteId, contentNetName)).ToList();
+            return _connection.QueryFirstOrDefault<ContentAttributePersistentData>(
+                string.Format(CmdGetContentAttributeByNetName, contentId, fieldNetName), transaction: transaction);
+        }
+
+        public ContentPersistentData GetContent(string contentNetName, int siteId, IDbTransaction transaction = null)
+        {
+            string query = string.Format(CmdGetContent, siteId, contentNetName);
+            var contentAttributes = _connection
+                .Query<ContentAttributePersistentData>(query, transaction: transaction)
+                .ToList();
             if (contentAttributes == null || !contentAttributes.Any())
                 return null;
             var contentAttribute = contentAttributes.First();
@@ -89,8 +104,7 @@ WHERE c.SITE_ID={0} AND c.NET_CONTENT_NAME='{1}'
                 ContentId = contentAttribute.ContentId,
                 ContentName = contentAttribute.ContentName,
                 ContentNetName = contentNetName,
-                ContentAttributes = contentAttributes,
-                UseDefaultFiltration = contentAttribute.UseDefaultFiltration
+                ContentAttributes = contentAttributes
             };
         }
     }

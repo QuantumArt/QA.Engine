@@ -25,11 +25,8 @@ foreach($csprojFile in $csprojFiles)
         $AssemblyVersionNode.InnerText = $newVersion + ".0"
         $FileVersionNode.InnerText = $newVersion + ".0"
 		if ($suffix) {
-			$PackageVersionNode = $xml.SelectSingleNode("//PackageVersion", $ns)
-			if (!$PackageVersionNode){
-                $PackageVersionNode = $xml.CreateElement("PackageVersion", $ns)
-            }
-            $PackageVersionNode.InnerText = $newVersion + "-" + $suffix
+			$VersionNode.InnerText += "-" + $suffix
+			Write-Host "Версия пакета $newVersion-$suffix"
 		}
         $xml.Save($csprojFilePath)
         Write-Host "Файл $csprojFile обновлен до версии $newVersion"

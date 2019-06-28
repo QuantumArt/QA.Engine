@@ -5,11 +5,12 @@ import * as Cookies from 'js-cookie';
 
 const siteId = window.siteId;
 const baseUrl = window.onScreenAdminBaseUrl;
+const customerCode = window.customerCode;
 const onScreenTokenCookieName = window.onScreenTokenCookieName;
 
 const axiosConfig = {
   baseURL: `${baseUrl}/api`,
-  headers: { 'X-QP8-Access-Token': Cookies.get(onScreenTokenCookieName) },
+  headers: { 'X-QP8-Access-Token': Cookies.get(onScreenTokenCookieName), 'Customer-Code': customerCode },
 };
 
 const axiosInstance = () => axios.create(axiosConfig);

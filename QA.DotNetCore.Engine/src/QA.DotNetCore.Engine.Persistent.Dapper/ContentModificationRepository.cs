@@ -25,9 +25,9 @@ SELECT
 FROM CONTENT_MODIFICATION cm
 INNER JOIN CONTENT c on c.CONTENT_ID = cm.CONTENT_ID";
 
-        public IEnumerable<QpContentModificationPersistentData> GetAll()
+        public IEnumerable<QpContentModificationPersistentData> GetAll(IDbTransaction transaction = null)
         {
-            return _connection.Query<QpContentModificationPersistentData>(CmdGetAll);
+            return _connection.Query<QpContentModificationPersistentData>(CmdGetAll, transaction);
         }
     }
 }

@@ -9,10 +9,12 @@ namespace QA.DotNetCore.Engine.OnScreen
     public class OnScreenModeMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly string _customerCode;
 
-        public OnScreenModeMiddleware(RequestDelegate next)
+        public OnScreenModeMiddleware(RequestDelegate next, string customerCode)
         {
             _next = next;
+            _customerCode = customerCode;
         }
 
         public Task Invoke(HttpContext httpContext, OnScreenSettings onScreenSettings, Quantumart.QPublishing.Authentication.IAuthenticationService authenticationService)
@@ -27,6 +29,7 @@ namespace QA.DotNetCore.Engine.OnScreen
         private void SetContext(HttpContext httpContext, OnScreenSettings onScreenSettings, Quantumart.QPublishing.Authentication.IAuthenticationService authenticationService)
         {
             var context = new OnScreenContext { Features = onScreenSettings.AvailableFeatures };
+            context.CustomerCode = _customerCode;
             if (onScreenSettings.AvailableFeatures > OnScreenFeatures.None)
             {
                 //если предполагается наличие хотя бы одной фичи OnScreen, нужно аутентифицировать пользователя QP и авторизовать для него API OnScreen

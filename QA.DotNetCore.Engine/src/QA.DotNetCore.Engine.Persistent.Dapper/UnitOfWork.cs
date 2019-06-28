@@ -12,13 +12,13 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
         public IDbConnection Connection { get; private set; }
         public DatabaseType DatabaseType { get; }
 
-        public UnitOfWork(string connectionString, string dbType = "mssql")
+        public UnitOfWork(string connectionString, string dbType = "MSSQL")
         {
-            switch (dbType)
+            switch (dbType.ToUpperInvariant())
             {
-                case "postgresql":
-                case "postgres":
-                case "pg":
+                case "POSTGRESQL":
+                case "POSTGRES":
+                case "PG":
                     Connection = new NpgsqlConnection(connectionString);
                     DatabaseType = DatabaseType.Postgres;
                     break;

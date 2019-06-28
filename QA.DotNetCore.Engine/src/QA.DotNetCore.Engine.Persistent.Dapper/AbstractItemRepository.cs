@@ -56,16 +56,16 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
 
         public string AbstractItemNetName => "QPAbstractItem";
 
-        public IEnumerable<AbstractItemPersistentData> GetPlainAllAbstractItems(int siteId, bool isStage)
+        public IEnumerable<AbstractItemPersistentData> GetPlainAllAbstractItems(int siteId, bool isStage, IDbTransaction transaction = null)
         {
             var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAbstractItem, siteId, isStage);
-            return _uow.Connection.Query<AbstractItemPersistentData>(query);
+            return _uow.Connection.Query<AbstractItemPersistentData>(query, transaction);
         }
 
         public IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionContentId,
-            IEnumerable<int> ids, bool loadAbstractItemFields, bool isStage)
+            IEnumerable<int> ids, bool loadAbstractItemFields, bool isStage, IDbTransaction transaction = null)
         {
-            var extensionUseFiltration = DoesContentUseDefaultFiltration(extensionContentId);
+            var extensionUseFiltration = DoesContentUseDefaultFiltration(extensionContentId, transaction);
             string tablesSuffux = extensionUseFiltration ?
                 isStage ? "_STAGE_NEW" : "_LIVE_NEW"
                 : isStage ? "_united" : string.Empty;
@@ -77,10 +77,10 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
                 table);
             if (loadAbstractItemFields)
             {
-                var baseContentId = GetBaseContentId(extensionContentId);
+                var baseContentId = GetBaseContentId(extensionContentId, transaction);
                 if (baseContentId > 0)
                 {
-                    var doesBaseContentUseFiltration = DoesContentUseDefaultFiltration(baseContentId);
+                    var doesBaseContentUseFiltration = DoesContentUseDefaultFiltration(baseContentId, transaction);
                     string abstractItemViewName =
                         $"CONTENT_{baseContentId + (doesBaseContentUseFiltration ? tablesSuffux : string.Empty)}";
                     fieldsQuery = fieldsQuery +
@@ -92,6 +92,7 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
             {
                 command.CommandText = fieldsQuery;
                 command.Parameters.Add(SqlQuerySyntaxHelper.GetIdsDatatableParam("@Ids", ids, _uow.DatabaseType));
+                command.Transaction = transaction;
                 return LoadAbstractItemExtension(command);
             }
         }
@@ -111,7 +112,7 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
                     {
                         var column = reader.GetName(i);
                         if (string.Equals(column, "Id", StringComparison.OrdinalIgnoreCase))
-                            id = reader.GetInt32(i);
+                            id = Decimal.ToInt32(reader.GetDecimal(i));
                         else
                         {
                             var val = reader.GetValue(i);
@@ -126,12 +127,13 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
             }
         }
 
-        private bool DoesContentUseDefaultFiltration(int contentId)
+        private bool DoesContentUseDefaultFiltration(int contentId, IDbTransaction transaction)
         {
             using (var command = _uow.Connection.CreateCommand())
             {
                 command.CommandText = CmdUseDefaultFiltration + " WHERE CONTENT.CONTENT_ID = @contentid";
                 command.CommandType = CommandType.Text;
+                command.Transaction = transaction;
                 var contentParameter = command.CreateParameter();
                 contentParameter.ParameterName = "@contentId";
                 contentParameter.Value = contentId;
@@ -144,12 +146,13 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
             }
         }
 
-        private int GetBaseContentId(int extensionId)
+        private int GetBaseContentId(int extensionId, IDbTransaction transaction)
         {
             using (var command = _uow.Connection.CreateCommand())
             {
                 command.CommandText = CmdGetBaseContentId;
                 command.CommandType = CommandType.Text;
+                command.Transaction = transaction;
                 var extensionIdParameter = command.CreateParameter();
                 extensionIdParameter.ParameterName = "@contentId";
                 extensionIdParameter.Value = extensionId;
@@ -162,7 +165,7 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
             }
         }
 
-        public IDictionary<int, M2mRelations> GetManyToManyData(IEnumerable<int> ids, bool isStage)
+        public IDictionary<int, M2mRelations> GetManyToManyData(IEnumerable<int> ids, bool isStage, IDbTransaction transaction = null)
         {
             string tablesSuffux = isStage ? "_united" : string.Empty;
             var idList = SqlQuerySyntaxHelper.IdList(_uow.DatabaseType, "@ids", "ids");
@@ -175,7 +178,7 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
             {
                 command.CommandText = query;
                 command.Parameters.Add(SqlQuerySyntaxHelper.GetIdsDatatableParam("@Ids", ids, _uow.DatabaseType));
-
+                command.Transaction = transaction;
                 var result = new Dictionary<int, M2mRelations>();
 
                 using (var reader = command.ExecuteReader())

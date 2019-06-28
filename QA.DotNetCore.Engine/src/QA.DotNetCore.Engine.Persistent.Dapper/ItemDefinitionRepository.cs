@@ -33,10 +33,10 @@ FROM |QPDiscriminator|
 
         public string ItemDefinitionNetName => "QPDiscriminator";
 
-        public IEnumerable<ItemDefinitionPersistentData> GetAllItemDefinitions(int siteId, bool isStage)
+        public IEnumerable<ItemDefinitionPersistentData> GetAllItemDefinitions(int siteId, bool isStage, IDbTransaction transaction = null)
         {
             var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAll, siteId, isStage);
-            return _connection.Query<ItemDefinitionPersistentData>(query).ToList();
+            return _connection.Query<ItemDefinitionPersistentData>(query, transaction).ToList();
         }
     }
 }

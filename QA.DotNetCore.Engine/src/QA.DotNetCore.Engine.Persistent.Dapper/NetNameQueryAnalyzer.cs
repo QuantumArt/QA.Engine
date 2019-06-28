@@ -16,7 +16,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             _metaInfoRepository = metaInfoRepository;
         }
 
-        public string PrepareQuery(string netNameQuery, int siteId, bool isStage)
+        public string PrepareQuery(string netNameQuery, int siteId, bool isStage, bool useUnited = false)
         {
             //вычленим из запроса токены с указанными netname таблиц и полей
             //таблицы указываются как |tableNetName|
@@ -57,7 +57,8 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
                     throw new Exception($"Content with netname '{tableNetName}' was not found for site {siteId}");
                 }
 
-                sb.Replace($"|{tableNetName}|", isStage ? contentMetaInfo.StageTableName : contentMetaInfo.LiveTableName);
+                sb.Replace($"|{tableNetName}|", useUnited ? contentMetaInfo.UnitedTableName :
+                    isStage ? contentMetaInfo.StageTableName : contentMetaInfo.LiveTableName);
 
                 foreach (var columnNetName in columnsByTables[tableNetName])
                 {

@@ -1,5 +1,6 @@
 using System;
 using QA.DotNetCore.Engine.Abstractions.OnScreen;
+using QA.DotNetCore.Engine.QpData.Settings;
 using Quantumart.QPublishing.Database;
 
 namespace QA.DotNetCore.Engine.OnScreen.Configuration
@@ -8,7 +9,7 @@ namespace QA.DotNetCore.Engine.OnScreen.Configuration
     {
         public OnScreenSettings Settings { get; set; } = DefaultSettings;
 
-        public DbConnectorSettings DbConnectorSettings { get; set; }
+        public QpSettings QpSettings { get; set; }
 
         /// <summary>
         /// Дефолтная конфигурация

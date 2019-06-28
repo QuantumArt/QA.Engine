@@ -19,6 +19,7 @@ using Quantumart.QPublishing.Authentication;
 using Quantumart.QPublishing.Database;
 using System;
 using System.Collections.Generic;
+using QP.ConfigurationService.Models;
 
 namespace QA.DotNetCore.OnScreenAdmin.Web
 {
@@ -40,14 +41,26 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
             services.AddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            var dbConnectorSettings = Configuration.GetSection("DbConnectorSettings").Get<DbConnectorSettings>();
-            dbConnectorSettings.ConnectionString = Configuration.GetConnectionString("QpConnection");
-            services.AddSingleton(typeof(DbConnectorSettings), dbConnectorSettings);
-            services.AddScoped<DBConnector>();
+            services.AddScoped(sp =>
+            {
+                var uow = sp.GetService<IUnitOfWork>();
+                return new DBConnector(uow.Connection);
+            });
             services.AddScoped<IAuthenticationService, AuthenticationService>();
 
-
-            services.AddScoped<IUnitOfWork, UnitOfWork>(sp => new UnitOfWork(Configuration.GetConnectionString("QpConnection")));
+            services.AddScoped<IUnitOfWork, UnitOfWork>(sp =>
+            {
+                var httpContextAccessor = sp.GetService<IHttpContextAccessor>();
+                if (!httpContextAccessor.HttpContext.Request.Headers.TryGetValue("Customer-Code", out var customerCode))
+                {
+                    throw new Exception("CustomerCode header must be provided.");
+                }
+                var config = Configuration.GetSection("ConfigurationService").Get<ConfigurationServiceConfig>();
+                DBConnector.ConfigServiceUrl = config.Url;
+                DBConnector.ConfigServiceToken = config.Token;
+                CustomerConfiguration dbConfig = DBConnector.GetCustomerConfiguration(customerCode.ToString()).Result;
+                return new UnitOfWork(dbConfig.ConnectionString, dbConfig.DbType.ToString());
+            });
             services.AddScoped<IMetaInfoRepository, MetaInfoRepository>();
             services.AddScoped<INetNameQueryAnalyzer, NetNameQueryAnalyzer>();
             services.AddScoped<IItemDefinitionRepository, ItemDefinitionRepository>();

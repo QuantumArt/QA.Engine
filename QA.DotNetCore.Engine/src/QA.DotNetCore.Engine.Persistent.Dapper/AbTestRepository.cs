@@ -86,34 +86,34 @@ JOIN |AbTestClientRedirectContainer| rcont on rcont.content_item_id = r.|AbTestC
 
         public string AbTestRedirectNetName => "AbTestClientRedirect";
 
-        public IEnumerable<AbTestPersistentData> GetActiveTests(int siteId, bool isStage)
+        public IEnumerable<AbTestPersistentData> GetActiveTests(int siteId, bool isStage, IDbTransaction transaction = null)
         {
-            return GetTests(siteId, isStage, true);
+            return GetTests(siteId, isStage, true, transaction);
         }
 
-        public IEnumerable<AbTestPersistentData> GetAllTests(int siteId, bool isStage)
+        public IEnumerable<AbTestPersistentData> GetAllTests(int siteId, bool isStage, IDbTransaction transaction = null)
         {
-            return GetTests(siteId, isStage, false);
+            return GetTests(siteId, isStage, false, transaction);
         }
 
-        public IEnumerable<AbTestContainerBasePersistentData> GetActiveTestsContainers(int siteId, bool isStage)
+        public IEnumerable<AbTestContainerBasePersistentData> GetActiveTestsContainers(int siteId, bool isStage, IDbTransaction transaction = null)
         {
-            return GetTestsContainers(siteId, isStage, true);
+            return GetTestsContainers(siteId, isStage, true, transaction);
         }
 
-        public IEnumerable<AbTestContainerBasePersistentData> GetAllTestsContainers(int siteId, bool isStage)
+        public IEnumerable<AbTestContainerBasePersistentData> GetAllTestsContainers(int siteId, bool isStage, IDbTransaction transaction = null)
         {
-            return GetTestsContainers(siteId, isStage, false);
+            return GetTestsContainers(siteId, isStage, false, transaction);
         }
 
-        private IEnumerable<AbTestContainerBasePersistentData> GetTestsContainers(int siteId, bool isStage, bool onlyActive)
+        private IEnumerable<AbTestContainerBasePersistentData> GetTestsContainers(int siteId, bool isStage, bool onlyActive, IDbTransaction transaction = null)
         {
             var currentDate = DateTime.Now;
             var scriptContainersQuery = _netNameQueryAnalyzer.PrepareQuery(CmdGetTestsContainers, siteId, isStage);
-            var scriptContainersDict = _connection.Query<AbTestScriptContainerPersistentData>(scriptContainersQuery, new { currentDate, onlyActive = (onlyActive ? 1 : 0), containerType = "AbTestScriptContainer" }).ToDictionary(_ => _.Id);
+            var scriptContainersDict = _connection.Query<AbTestScriptContainerPersistentData>(scriptContainersQuery, new { currentDate, onlyActive = (onlyActive ? 1 : 0), containerType = "AbTestScriptContainer" }, transaction).ToDictionary(_ => _.Id);
 
             var scriptQuery = _netNameQueryAnalyzer.PrepareQuery(CmdGetAbTestScripts, siteId, isStage);
-            var scripts = _connection.Query<AbTestScriptPersistentData>(scriptQuery);
+            var scripts = _connection.Query<AbTestScriptPersistentData>(scriptQuery, transaction: transaction);
 
             foreach (var s in scripts)
             {
@@ -124,10 +124,10 @@ JOIN |AbTestClientRedirectContainer| rcont on rcont.content_item_id = r.|AbTestC
             }
 
             var redirectContainersQuery = _netNameQueryAnalyzer.PrepareQuery(CmdGetTestsContainers, siteId, isStage);
-            var redirectContainersDict = _connection.Query<AbTestClientRedirectContainerPersistentData>(redirectContainersQuery, new { currentDate, onlyActive = (onlyActive ? 1 : 0), containerType = "AbTestClientRedirectContainer" }).ToDictionary(_ => _.Id);
+            var redirectContainersDict = _connection.Query<AbTestClientRedirectContainerPersistentData>(redirectContainersQuery, new { currentDate, onlyActive = (onlyActive ? 1 : 0), containerType = "AbTestClientRedirectContainer" }, transaction).ToDictionary(_ => _.Id);
 
             var redirectQuery = _netNameQueryAnalyzer.PrepareQuery(CmdGetAbTestClientRedirects, siteId, isStage);
-            var redirects = _connection.Query<AbTestClientRedirectPersistentData>(redirectQuery);
+            var redirects = _connection.Query<AbTestClientRedirectPersistentData>(redirectQuery, transaction: transaction);
 
             foreach (var r in redirects)
             {
@@ -141,10 +141,10 @@ JOIN |AbTestClientRedirectContainer| rcont on rcont.content_item_id = r.|AbTestC
                 .Concat(redirectContainersDict.Values.Cast<AbTestContainerBasePersistentData>());
         }
 
-        private IEnumerable<AbTestPersistentData> GetTests(int siteId, bool isStage, bool onlyActive)
+        private IEnumerable<AbTestPersistentData> GetTests(int siteId, bool isStage, bool onlyActive, IDbTransaction transaction)
         {
             var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetTests, siteId, isStage);
-            return _connection.Query<AbTestPersistentData>(query, new { currentDate = DateTime.Now, onlyActive = (onlyActive ? 1 : 0) });
+            return _connection.Query<AbTestPersistentData>(query, new { currentDate = DateTime.Now, onlyActive = (onlyActive ? 1 : 0) }, transaction);
         }
     }
 }

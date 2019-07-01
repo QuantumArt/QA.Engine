@@ -20,11 +20,14 @@ using Quantumart.QPublishing.Database;
 using System;
 using System.Collections.Generic;
 using QP.ConfigurationService.Models;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace QA.DotNetCore.OnScreenAdmin.Web
 {
     public class Startup
     {
+        const string SWAGGER_VERSION = "v1";
+        const string SWAGGER_TITLE = "OnScreen Web Api";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -37,6 +40,17 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
         {
             services.AddMvc();
 
+            services.AddSwaggerGen(o =>
+            {
+                o.SwaggerDoc(SWAGGER_VERSION, new Info
+                {
+                    Title = SWAGGER_TITLE,
+                    Version = SWAGGER_VERSION
+                });
+                var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = System.IO.Path.Combine(AppContext.BaseDirectory, xmlFile);
+                o.IncludeXmlComments(xmlPath);
+            });
             services.AddMemoryCache();
             services.AddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -53,7 +67,7 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
                 var httpContextAccessor = sp.GetService<IHttpContextAccessor>();
                 if (!httpContextAccessor.HttpContext.Request.Headers.TryGetValue("Customer-Code", out var customerCode))
                 {
-                    throw new Exception("CustomerCode header must be provided.");
+                    throw new Exception("Customer-Code header must be provided.");
                 }
                 var config = Configuration.GetSection("ConfigurationService").Get<ConfigurationServiceConfig>();
                 DBConnector.ConfigServiceUrl = config.Url;
@@ -89,6 +103,9 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
             });
 
             services.AddCacheTagServices(options => options.InvalidateByMiddleware(@"^(?!\/api\/).+$"));//инвалидировать только если запрос начинается с /api/
+
+            services.AddHealthChecks();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -130,6 +147,15 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            app.UseHealthChecks("/ready");
+
+            app.UseSwagger();
+            app.UseSwaggerUI(o =>
+            {
+                o.SwaggerEndpoint("/swagger/v1/swagger.json", $"{SWAGGER_TITLE} {SWAGGER_VERSION}");
+            });
+
         }
     }
 }

@@ -10,6 +10,14 @@ namespace DemoWebSite.PagesAndWidgets.Pages
 {
     public class StartPage : AbstractPage, IStartPage
     {
+        private UrlTokenResolverFactory _urlTokenResolverFactory;
+        private UrlTokenConfig _urlTokenConfig;
+        public StartPage(UrlTokenResolverFactory urlTokenResolverFactory,
+            UrlTokenConfig urlTokenConfig)
+        {
+            _urlTokenResolverFactory = urlTokenResolverFactory;
+            _urlTokenConfig = urlTokenConfig;
+        }
         public string Bindings => GetDetail("Bindings", String.Empty);
 
         public string[] GetDNSBindings()
@@ -22,10 +30,7 @@ namespace DemoWebSite.PagesAndWidgets.Pages
 
         public ITargetingUrlResolver GetUrlResolver()
         {
-            var factory = Storage.ServiceProvider.GetService<UrlTokenResolverFactory>();
-            var config = Storage.ServiceProvider.GetService<UrlTokenConfig>();
-            return factory.Create(config);
-            //return null;
+            return _urlTokenResolverFactory.Create(_urlTokenConfig);
         }
     }
 }

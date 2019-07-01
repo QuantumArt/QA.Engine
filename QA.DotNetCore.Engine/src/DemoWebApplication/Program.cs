@@ -14,8 +14,17 @@ namespace DemoWebApplication
     {
         public static void Main(string[] args)
         {
-            // NLog: setup the logger first to catch all errors
-            var logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
+            var configuringFileName = "nlog.config";
+
+            var aspnetEnvironment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+            var environmentSpecificLogFileName = $"nlog.{aspnetEnvironment}.config";
+
+            if (File.Exists(environmentSpecificLogFileName))
+            {
+                configuringFileName = environmentSpecificLogFileName;
+            }
+            var logger = NLogBuilder.ConfigureNLog(configuringFileName).GetCurrentClassLogger();
             try
             {
                 logger.Debug("init main");

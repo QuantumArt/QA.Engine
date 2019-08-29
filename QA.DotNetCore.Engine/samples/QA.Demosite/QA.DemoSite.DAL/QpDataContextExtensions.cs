@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Data.Common;
-using System.Data.SqlClient;
+using Npgsql;
 using Quantumart.QPublishing.Database;
 using Quantumart.QP8.CoreCodeGeneration.Services;
 using System.Linq.Expressions;
@@ -14,7 +14,6 @@ using System.Collections.Generic;
 using Quantumart.QPublishing.Info;
 using System.Collections;
 using System.Globalization;
-using Quantumart.QP8.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.Transactions;
 /* place your custom usings here */
@@ -128,21 +127,21 @@ namespace QA.DemoSite.DAL
 		#endregion
 
 		#region Factory methods
-		public static QpDataContext Create(SqlConnection connection)
+		public static QpDataContext Create(DbConnection connection)
 		{
 			var optionsBuilder = new DbContextOptionsBuilder<QpDataContext>();
-            optionsBuilder.UseSqlServer<QpDataContext>(connection);
+      optionsBuilder.UseNpgsql<QpDataContext>(connection);
             var ctx = new QpDataContext(optionsBuilder.Options);
 			ctx.SiteName = DefaultSiteName;
 		    ctx.ConnectionString = connection.ConnectionString;
 			return ctx;
 		}
 
-		public static QpDataContext Create(IMappingConfigurator configurator, SqlConnection connection)
+		public static QpDataContext Create(IMappingConfigurator configurator, DbConnection connection)
         {
 		    var mapping = configurator.GetMappingInfo();
             var optionsBuilder = new DbContextOptionsBuilder<QpDataContext>();
-            optionsBuilder.UseSqlServer<QpDataContext>(connection);
+                  optionsBuilder.UseNpgsql<QpDataContext>(connection);
 			optionsBuilder.UseModel(mapping.DbCompiledModel);
             QpDataContext ctx = new QpDataContext(optionsBuilder.Options, mapping.Schema);
             ctx.SiteName = mapping.Schema.Schema.SiteName;
@@ -153,7 +152,9 @@ namespace QA.DemoSite.DAL
 
         public static QpDataContext Create(IMappingConfigurator configurator)
         {
-            return Create(configurator, new SqlConnection(DefaultConnectionString));
+				DbConnection connection;
+      connection = new NpgsqlConnection(DefaultConnectionString);
+            return Create(configurator, connection);
         }
 
 		public static QpDataContext Create(string connection, string siteName) 
@@ -162,7 +163,7 @@ namespace QA.DemoSite.DAL
 			if(connection.IndexOf("metadata", StringComparison.InvariantCultureIgnoreCase) == -1)
 			{
 				var optionsBuilder = new DbContextOptionsBuilder<QpDataContext>();
-                optionsBuilder.UseSqlServer<QpDataContext>(new SqlConnection(connection));
+      optionsBuilder.UseNpgsql<QpDataContext>(connection);
                 ctx = new QpDataContext(optionsBuilder.Options);
 				ctx.SiteName = siteName;
 				ctx.ConnectionString = connection;
@@ -171,7 +172,7 @@ namespace QA.DemoSite.DAL
 			else
 			{
 				var optionsBuilder = new DbContextOptionsBuilder<QpDataContext>();
-                optionsBuilder.UseSqlServer<QpDataContext>(connection);
+      optionsBuilder.UseNpgsql<QpDataContext>(connection);
                 ctx = new QpDataContext(optionsBuilder.Options);
 				ctx.SiteName = siteName;
 				ctx.ConnectionString = connection;
@@ -192,10 +193,12 @@ namespace QA.DemoSite.DAL
 
 		public static QpDataContext CreateWithStaticMapping(ContentAccess contentAccess)
         {
-            return CreateWithStaticMapping(contentAccess, new SqlConnection(DefaultConnectionString));
+				DbConnection connection;
+      connection = new NpgsqlConnection(DefaultConnectionString);
+            return CreateWithStaticMapping(contentAccess, connection);
         }
 
-        public static QpDataContext CreateWithStaticMapping(ContentAccess contentAccess, SqlConnection connection)
+        public static QpDataContext CreateWithStaticMapping(ContentAccess contentAccess, DbConnection connection)
         {
 			var schemaProvider = new StaticSchemaProvider();
             var configurator = new MappingConfigurator(contentAccess, schemaProvider);
@@ -209,10 +212,12 @@ namespace QA.DemoSite.DAL
 
         public static QpDataContext CreateWithDatabaseMapping(ContentAccess contentAccess, string siteName)
         {
-            return CreateWithDatabaseMapping(contentAccess, siteName, new SqlConnection(DefaultConnectionString));
+				DbConnection connection;
+      connection = new NpgsqlConnection(DefaultConnectionString);
+            return CreateWithDatabaseMapping(contentAccess, siteName, connection);
         }
 
-        public static QpDataContext CreateWithDatabaseMapping(ContentAccess contentAccess, string siteName, SqlConnection connection)
+        public static QpDataContext CreateWithDatabaseMapping(ContentAccess contentAccess, string siteName, DbConnection connection)
         {
             var schemaProvider = new DatabaseSchemaProvider(siteName, connection);
             var configurator = new MappingConfigurator(contentAccess, schemaProvider);         
@@ -223,10 +228,12 @@ namespace QA.DemoSite.DAL
 
         public static QpDataContext CreateWithFileMapping(ContentAccess contentAccess, string path)
         {
-            return CreateWithFileMapping(contentAccess, path, new SqlConnection(DefaultConnectionString));
+				DbConnection connection;
+      connection = new NpgsqlConnection(DefaultConnectionString);
+            return CreateWithFileMapping(contentAccess, path, connection);
         }
 
-        public static QpDataContext CreateWithFileMapping(ContentAccess contentAccess, string path, SqlConnection connection)
+        public static QpDataContext CreateWithFileMapping(ContentAccess contentAccess, string path, DbConnection connection)
         {
             var schemaProvider = new FileSchemaProvider(path);
             var configurator = new MappingConfigurator(contentAccess, schemaProvider);

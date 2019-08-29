@@ -1,4 +1,3 @@
-﻿using Quantumart.QP8.EntityFrameworkCore;
 using System;
 using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -8,8 +7,10 @@ using System.Threading;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Quantumart.QP8.CoreCodeGeneration.Services;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using QP.ConfigurationService.Models;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata.Conventions;
 
-namespace Quantumart.QP8.EntityFrameworkCore
+namespace QA.DemoSite.DAL
 {
     public abstract class MappingConfiguratorBase : IMappingConfigurator
     {
@@ -36,7 +37,15 @@ namespace Quantumart.QP8.EntityFrameworkCore
             {
                 var _schema = _schemaProvider.GetSchema();
                 _mappingResolver = new MappingResolver(_schema);
-                var conventionSet = SqlServerConventionSetBuilder.Build();
+                ConventionSet conventionSet;
+                if (_schema.Schema.DBType == DatabaseType.Postgres)
+                {
+                    conventionSet = NpgsqlConventionSetBuilder.Build();
+                }
+                else
+                {
+                    conventionSet = SqlServerConventionSetBuilder.Build();
+                }
                 var builder = new ModelBuilder(conventionSet);
                 OnModelCreating(builder);
                 builder.FinalizeModel();
@@ -69,7 +78,7 @@ namespace Quantumart.QP8.EntityFrameworkCore
 
             #region StatusType
             modelBuilder.Entity<StatusType>()
-                .ToTable("STATUS_TYPE_NEW")
+                .ToTable("status_type_new")
                 .Property(x => x.Id)
                 .ValueGeneratedOnAdd()
                 .HasColumnName("id");
@@ -81,7 +90,7 @@ namespace Quantumart.QP8.EntityFrameworkCore
 
             #region User
             modelBuilder.Entity<User>()
-                .ToTable("USER_NEW")
+                .ToTable("user_new")
                 .Property(e => e.Id)
                 .ValueGeneratedOnAdd()
                 .HasColumnName("id");
@@ -90,16 +99,19 @@ namespace Quantumart.QP8.EntityFrameworkCore
             modelBuilder.Entity<User>().Property(e => e.LastName).HasColumnName("last_name");
             modelBuilder.Entity<User>().Property(e => e.NTLogin).HasColumnName("nt_login");
             modelBuilder.Entity<User>().Property(e => e.ISOCode).HasColumnName("iso_code");
+            modelBuilder.Entity<User>().Property(e => e.Email).HasColumnName("email");
             #endregion
 
             #region UserGroup
             modelBuilder.Entity<UserGroup>()
-                .ToTable("USER_GROUP_NEW")
+                .ToTable("user_group_new")
                 .Property(e => e.Id).ValueGeneratedOnAdd()
                 .HasColumnName("id");
 
+            modelBuilder.Entity<UserGroup>().Property(e => e.Name).HasColumnName("name");
+
             modelBuilder.Entity<UserGroupBind>()
-                .ToTable("USER_GROUP_BIND_NEW");
+                .ToTable("user_group_bind_new");
 
             modelBuilder.Entity<UserGroupBind>().Property(e => e.UserId).HasColumnName("user_id");
             modelBuilder.Entity<UserGroupBind>().Property(e => e.GroupId).HasColumnName("group_id");
@@ -126,13 +138,13 @@ namespace Quantumart.QP8.EntityFrameworkCore
         #region Dynamic mapping
         protected string GetFieldName(string contentMappedName, string fieldMappedName)
         {
-            return _mappingResolver.GetAttribute(contentMappedName, fieldMappedName).Name;
+            return _mappingResolver.GetAttribute(contentMappedName, fieldMappedName).Name.ToLowerInvariant();
         }
 
         protected string GetTableName(string mappedName)
         {
             var content = _mappingResolver.GetContent(mappedName);
-            return GetTableName(content.Id, content.UseDefaultFiltration);
+            return GetTableName(content.Id, content.UseDefaultFiltration).ToLowerInvariant();
         }
 
         protected string GetLinkTableName( string contentMappedName, string fieldMappedName)

@@ -3,7 +3,18 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
   </PropertyGroup>
-
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+    <PackageReference Include="QP8.EntityFrameworkCore" Version="1.1.4-beta21" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="*.cs">
+      <DependentUpon>QPDataContextGenerator.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
   <ItemGroup>
     <None Update="QPDataContextGenerator.log">
       <DesignTime>True</DesignTime>
@@ -14,44 +25,5 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>QPDataContextGenerator.log</LastGenOutput>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="QPDataContextInclude\BaseM2MClasses.ttinclude" />
-    <None Remove="QPDataContextInclude\Classes.ttinclude" />
-    <None Remove="QPDataContextInclude\ClassesM2M.ttinclude" />
-    <None Remove="QPDataContextInclude\ClassExtensions.ttinclude" />
-    <None Remove="QPDataContextInclude\ConnectionScope.ttinclude" />
-    <None Remove="QPDataContextInclude\Manager.ttinclude" />
-    <None Remove="QPDataContextInclude\MappingConfigurator.ttinclude" />
-    <None Remove="QPDataContextInclude\MappingConfiguratorOnModelCreating.ttinclude" />
-    <None Remove="QPDataContextInclude\Model.ttinclude" />
-    <None Remove="QPDataContextInclude\ModelExtensions.ttinclude" />
-    <None Remove="QPDataContextInclude\StaticSchemaProvider.ttinclude" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="QPDataContextInclude\BaseM2MClasses.ttinclude" />
-    <EmbeddedResource Include="QPDataContextInclude\ClassesM2M.ttinclude" />
-    <EmbeddedResource Include="QPDataContextInclude\Classes.ttinclude" />
-    <EmbeddedResource Include="QPDataContextInclude\ClassExtensions.ttinclude" />
-    <EmbeddedResource Include="QPDataContextInclude\ConnectionScope.ttinclude" />
-    <EmbeddedResource Include="QPDataContextInclude\Manager.ttinclude" />
-    <EmbeddedResource Include="QPDataContextInclude\MappingConfigurator.ttinclude" />
-    <EmbeddedResource Include="QPDataContextInclude\MappingConfiguratorOnModelCreating.ttinclude" />
-    <EmbeddedResource Include="QPDataContextInclude\Model.ttinclude" />
-    <EmbeddedResource Include="QPDataContextInclude\ModelExtensions.ttinclude" />
-    <EmbeddedResource Include="QPDataContextInclude\StaticSchemaProvider.ttinclude" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
-    <PackageReference Include="QP8.EntityFrameworkCore" Version="1.0.4" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="*.cs">
-      <DependentUpon>QPDataContextGenerator.tt</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 </Project>

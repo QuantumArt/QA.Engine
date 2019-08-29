@@ -1,7 +1,7 @@
-﻿using Quantumart.QP8.CoreCodeGeneration.Services;
+using Quantumart.QP8.CoreCodeGeneration.Services;
 using System.Linq;
 
-namespace Quantumart.QP8.EntityFrameworkCore
+namespace QA.DemoSite.DAL
 {
     public interface IMappingResolver
     {

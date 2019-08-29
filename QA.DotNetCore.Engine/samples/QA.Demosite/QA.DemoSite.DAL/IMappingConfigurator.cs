@@ -1,9 +1,9 @@
-﻿using System.Data.Common;
+using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Quantumart.QP8.CoreCodeGeneration.Services;
 
-namespace Quantumart.QP8.EntityFrameworkCore
+namespace QA.DemoSite.DAL
 {
     public interface IMappingConfigurator
     {

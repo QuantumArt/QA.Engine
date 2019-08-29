@@ -3,14 +3,15 @@
 <#+ void AddModel(GenerationContext context){
 var model = context.Model;
 var settings = context.Settings;
+var isPostgres = context.IsPostgres;
 #>
 using System;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;	
 using Microsoft.AspNetCore.Http;
-using Quantumart.QP8.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+
 <#= settings.Usings#>
 
 namespace <#=System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("NamespaceHint")#>
@@ -128,7 +129,11 @@ namespace <#=System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Names
 						.Build();
 			var connectionString = configuration.GetConnectionString("<#=model.Schema.ConnectionStringName#>");
             var optionsBuilder = new DbContextOptionsBuilder<<#=model.Schema.ClassName#>>();
-            optionsBuilder.UseSqlServer<<#=model.Schema.ClassName#>>(connectionString);
+<#+ if (isPostgres) {#>
+      optionsBuilder.UseNpgsql<<#=model.Schema.ClassName#>>(connectionString);
+<#+ } else { #>
+      optionsBuilder.UseSqlServer<<#=model.Schema.ClassName#>>(connectionString);
+<#+ } #>
             return optionsBuilder.Options;
         }
 		
@@ -136,7 +141,11 @@ namespace <#=System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Names
         {
 		    var connectionString = configuration.GetConnectionString("<#=model.Schema.ConnectionStringName#>");
             var optionsBuilder = new DbContextOptionsBuilder<<#=model.Schema.ClassName#>>();
-            optionsBuilder.UseSqlServer<<#=model.Schema.ClassName#>>(connectionString);
+<#+ if (isPostgres) {#>
+      optionsBuilder.UseNpgsql<<#=model.Schema.ClassName#>>(connectionString);
+<#+ } else { #>
+      optionsBuilder.UseSqlServer<<#=model.Schema.ClassName#>>(connectionString);
+<#+ } #>
             return optionsBuilder.Options;
         }
 		

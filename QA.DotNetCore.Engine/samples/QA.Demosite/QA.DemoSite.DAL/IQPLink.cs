@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Collections;
 
-namespace Quantumart.QP8.EntityFrameworkCore
+namespace QA.DemoSite.DAL
 {
     public interface IQPLink
     {

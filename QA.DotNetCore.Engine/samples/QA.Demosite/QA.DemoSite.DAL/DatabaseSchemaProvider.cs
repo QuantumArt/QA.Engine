@@ -8,7 +8,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.AspNetCore.Http;
 using Quantumart.QP8.CoreCodeGeneration.Services;
 
-namespace Quantumart.QP8.EntityFrameworkCore
+namespace QA.DemoSite.DAL
 {
     public class DatabaseSchemaProvider : ISchemaProvider
     {
@@ -32,7 +32,7 @@ namespace Quantumart.QP8.EntityFrameworkCore
                 a.ATTRIBUTE_NAME,
 	            a.NET_ATTRIBUTE_NAME,
 	            a.link_id,
-                t.[TYPE_NAME]
+                t.TYPE_NAME
             from
 	            CONTENT_ATTRIBUTE a
 	            join CONTENT c on a.CONTENT_ID = c.CONTENT_ID
@@ -57,7 +57,7 @@ namespace Quantumart.QP8.EntityFrameworkCore
             int siteId = connector.GetSiteId(_siteName);
             bool replaceUrls;
 
-            using (var cmd = new SqlCommand("SELECT TOP 1 REPLACE_URLS FROM SITE WHERE SITE_ID = @siteId"))
+            using (var cmd = connector.CreateDbCommand($"SELECT {SqlQuerySyntaxHelper.Top(connector.DatabaseType, "1")} REPLACE_URLS FROM SITE WHERE SITE_ID = @siteId"))
             {
                 cmd.Parameters.AddWithValue("@siteId", siteId);
                 replaceUrls = (bool)connector.GetRealScalarData(cmd);
@@ -68,6 +68,7 @@ namespace Quantumart.QP8.EntityFrameworkCore
 
             var model = new ModelReader();
 
+            model.Schema.DBType = connector.DatabaseType;
             model.Schema.ReplaceUrls = replaceUrls;
             model.Schema.SiteName = _siteName;
             model.Attributes.AddRange(attributes);
@@ -95,7 +96,7 @@ namespace Quantumart.QP8.EntityFrameworkCore
 
         private ContentInfo[] GetContents(DBConnector connector, int siteId, AttributeInfo[] attributes)
         {
-            var command = new SqlCommand(ContentQuery);
+            var command = connector.CreateDbCommand(ContentQuery);
             command.Parameters.AddWithValue("@siteId", siteId);
 
             var attributesLookup = attributes.ToLookup(a => a.ContentId, a => a);
@@ -129,7 +130,7 @@ namespace Quantumart.QP8.EntityFrameworkCore
 
         private AttributeInfo[] GetAttributes(DBConnector connector, int siteId)
         {
-            var command = new SqlCommand(AttributeQuery);
+            var command = connector.CreateDbCommand(AttributeQuery);
             command.Parameters.AddWithValue("@siteId", siteId);
 
             var attributes = connector

@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using Quantumart.QP8.EntityFrameworkCore;
+
 namespace QA.DemoSite.DAL
 {
     public partial class AbTestClientRedirect: IQPArticle
@@ -21,17 +21,17 @@ namespace QA.DemoSite.DAL
         public virtual Int32 LastModifiedBy { get; set; }
         public virtual StatusType StatusType { get; set; }
 
-		private String _VersionNumber;
+		private String _internalVersionNumber;
 		public virtual String VersionNumber 
 		{ 
-			get { return _VersionNumber; }
-			set { _VersionNumber = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalVersionNumber; }
+			set { _internalVersionNumber = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
-		private String _RedirectUrl;
+		private String _internalRedirectUrl;
 		public virtual String RedirectUrl 
 		{ 
-			get { return _RedirectUrl; }
-			set { _RedirectUrl = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalRedirectUrl; }
+			set { _internalRedirectUrl = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
 		/// <summary>
 		/// 

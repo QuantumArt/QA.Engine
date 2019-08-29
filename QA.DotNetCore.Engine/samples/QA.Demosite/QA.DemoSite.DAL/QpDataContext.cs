@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;	
 using Microsoft.AspNetCore.Http;
-using Quantumart.QP8.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+
 /* place your custom usings here */
 
 namespace QA.DemoSite.DAL
@@ -115,7 +115,7 @@ namespace QA.DemoSite.DAL
 						.Build();
 			var connectionString = configuration.GetConnectionString("qp_database");
             var optionsBuilder = new DbContextOptionsBuilder<QpDataContext>();
-            optionsBuilder.UseSqlServer<QpDataContext>(connectionString);
+      optionsBuilder.UseNpgsql<QpDataContext>(connectionString);
             return optionsBuilder.Options;
         }
 		
@@ -123,7 +123,7 @@ namespace QA.DemoSite.DAL
         {
 		    var connectionString = configuration.GetConnectionString("qp_database");
             var optionsBuilder = new DbContextOptionsBuilder<QpDataContext>();
-            optionsBuilder.UseSqlServer<QpDataContext>(connectionString);
+      optionsBuilder.UseNpgsql<QpDataContext>(connectionString);
             return optionsBuilder.Options;
         }
 		

@@ -14,7 +14,7 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using Quantumart.QP8.EntityFrameworkCore;
+
 <#+
 	}
 	 #>
@@ -28,7 +28,7 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using Quantumart.QP8.EntityFrameworkCore;
+
 <#+
 	}
 #>
@@ -63,11 +63,11 @@ namespace <#=System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Names
 <#+     foreach(var attribute in content.Attributes.Where(x => !x.IsM2M && !x.IsM2O && !x.IsO2M)) { 
 			if(model.Schema.ReplaceUrls && attribute.CanContainPlaceholders) {
 #>
-		private <#= attribute.NetType#> _<#=attribute.MappedName#>;
+		private <#= attribute.NetType#> _internal<#=attribute.MappedName#>;
 		public virtual <#= attribute.NetType#> <#=attribute.MappedName#> 
 		{ 
-			get { return _<#=attribute.MappedName#>; }
-			set { _<#=attribute.MappedName#> = <#=model.Schema.ClassName#>.Current.ReplacePlaceholders(value);}
+			get { return _internal<#=attribute.MappedName#>; }
+			set { _internal<#=attribute.MappedName#> = <#=model.Schema.ClassName#>.Current.ReplacePlaceholders(value);}
 		}
 <#+			} else { #>
         public virtual <#= attribute.NetType#> <#=attribute.MappedName#> { get; set; }

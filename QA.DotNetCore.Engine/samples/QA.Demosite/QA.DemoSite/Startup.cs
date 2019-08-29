@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 using QA.DemoSite.DAL;
 using QA.DemoSite.Interfaces;
 using QA.DemoSite.Models.Pages;
@@ -16,11 +17,12 @@ using QA.DotNetCore.Engine.AbTesting.Configuration;
 using QA.DotNetCore.Engine.CacheTags;
 using QA.DotNetCore.Engine.CacheTags.Configuration;
 using QA.DotNetCore.Engine.OnScreen.Configuration;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Configuration;
+using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 using QA.DotNetCore.Engine.QpData.Settings;
 using QA.DotNetCore.Engine.Routing.Configuration;
 using QA.DotNetCore.Engine.Targeting.Configuration;
-using Quantumart.QP8.EntityFrameworkCore;
 using Quantumart.QPublishing.Database;
 using System;
 
@@ -55,7 +57,7 @@ namespace QA.DemoSite
 
             //ef контекст
             services.AddScoped(sp => QpDataContext.CreateWithStaticMapping(ContentAccess.Live,
-                new System.Data.SqlClient.SqlConnection(qpConnection)));
+                new NpgsqlConnection(qpConnection)));
 
             //сервисы слоя данных
             services.AddScoped<IFaqService, FaqService>();
@@ -90,6 +92,16 @@ namespace QA.DemoSite
                 }
             });
 
+            services.AddScoped(sp =>
+            {
+                var uow = sp.GetService<IUnitOfWork>();
+                return new DBConnector(uow.Connection);
+            });
+            services.AddScoped<IUnitOfWork, UnitOfWork>(sp =>
+            {
+                var dbType = Configuration.GetValue<string>("DbType");
+                return new UnitOfWork(qpConnection, dbType);
+            });
             //возможность работы с режимом onscreen
             services.AddOnScreenIntegration(mvc, options =>
             {

@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using Quantumart.QP8.EntityFrameworkCore;
+
 namespace QA.DemoSite.DAL
 {
     public partial class BlogPost: IQPArticle
@@ -22,31 +22,31 @@ namespace QA.DemoSite.DAL
         public virtual Int32 LastModifiedBy { get; set; }
         public virtual StatusType StatusType { get; set; }
 
-		private String _Title;
+		private String _internalTitle;
 		public virtual String Title 
 		{ 
-			get { return _Title; }
-			set { _Title = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalTitle; }
+			set { _internalTitle = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
-		private String _Brief;
+		private String _internalBrief;
 		public virtual String Brief 
 		{ 
-			get { return _Brief; }
-			set { _Brief = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalBrief; }
+			set { _internalBrief = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
         public virtual DateTime? PostDate { get; set; }
-		private String _Text;
+		private String _internalText;
 		public virtual String Text 
 		{ 
-			get { return _Text; }
-			set { _Text = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalText; }
+			set { _internalText = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
         public virtual String Image { get; set; }
-		private String _YoutubeVideoCode;
+		private String _internalYoutubeVideoCode;
 		public virtual String YoutubeVideoCode 
 		{ 
-			get { return _YoutubeVideoCode; }
-			set { _YoutubeVideoCode = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalYoutubeVideoCode; }
+			set { _internalYoutubeVideoCode = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
 		/// <summary>
 		/// 

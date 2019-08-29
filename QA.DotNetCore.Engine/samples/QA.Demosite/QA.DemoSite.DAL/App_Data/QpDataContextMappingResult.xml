@@ -1,5 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<schema connectionStringName="qp_database" class="QpDataContext" namespace="QA.DemoSite.DAL" useLongUrls="true" replaceUrls="true" dbIndependent="true" isPartial="false" sendNotifications="false" siteName="main_site" siteId="52" forStage="false" connectionString="Data Source=SPBDEVSQL01\DEV;Initial Catalog=qa_demosite;User ID=publishing;Password=QuantumartHost.SQL;Connect Timeout=120;Application Name=QP8Backend" connectionStringObject="System.Configuration.ConfigurationManager.ConnectionStrings">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<schema connectionStringName="qp_database" class="QpDataContext" namespace="QA.DemoSite.DAL" useLongUrls="true" replaceUrls="true" dbIndependent="true" isPartial="false" sendNotifications="false" siteName="main_site" siteId="52" forStage="false" connectionString="Data Source=MSCPGSQL01;Initial Catalog=qa_demosite;User ID=postgres;Password=1q2w-p=[;Connect Timeout=120;Application Name=QP8Backend" connectionStringObject="System.Configuration.ConfigurationManager.ConnectionStrings" dbType="postgres">
   <content id="537" name="AbstractItem" mapped_name="QPAbstractItem" plural_mapped_name="QPAbstractItems" use_default_filtration="true" virtual="0" user_query="0" split_articles="true">
     <attribute name="Title" mapped_name="Title" id="27505" type="String" is_localization="false" size="255" />
     <attribute name="Name" mapped_name="Name" id="27507" type="String" is_localization="false" size="255" />

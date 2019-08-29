@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using Quantumart.QP8.EntityFrameworkCore;
+
 namespace QA.DemoSite.DAL
 {
     public partial class BlogTag: IQPArticle
@@ -22,11 +22,11 @@ namespace QA.DemoSite.DAL
         public virtual Int32 LastModifiedBy { get; set; }
         public virtual StatusType StatusType { get; set; }
 
-		private String _Title;
+		private String _internalTitle;
 		public virtual String Title 
 		{ 
-			get { return _Title; }
-			set { _Title = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalTitle; }
+			set { _internalTitle = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
 		/// <summary>
 		/// Auto-generated backing property for 68571/Tags

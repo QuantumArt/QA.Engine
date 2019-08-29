@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using Quantumart.QP8.EntityFrameworkCore;
+
 namespace QA.DemoSite.DAL
 {
     public partial class AbTest: IQPArticle
@@ -22,26 +22,26 @@ namespace QA.DemoSite.DAL
         public virtual Int32 LastModifiedBy { get; set; }
         public virtual StatusType StatusType { get; set; }
 
-		private String _Title;
+		private String _internalTitle;
 		public virtual String Title 
 		{ 
-			get { return _Title; }
-			set { _Title = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalTitle; }
+			set { _internalTitle = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
         public virtual Boolean? Enabled { get; set; }
-		private String _Percentage;
+		private String _internalPercentage;
 		public virtual String Percentage 
 		{ 
-			get { return _Percentage; }
-			set { _Percentage = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalPercentage; }
+			set { _internalPercentage = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
         public virtual DateTime? StartDate { get; set; }
         public virtual DateTime? EndDate { get; set; }
-		private String _Comment;
+		private String _internalComment;
 		public virtual String Comment 
 		{ 
-			get { return _Comment; }
-			set { _Comment = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalComment; }
+			set { _internalComment = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
 		/// <summary>
 		/// 

@@ -14,5 +14,6 @@ namespace QA.DotNetCore.Engine.OnScreen.Configuration
         public TimeSpan AuthCookieLifetime { get; set; }
         public string ApiApplicationNameInQp { get; set; }
         public string OverrideAbTestStageModeCookieName { get; set; }
+        public string PageIdQueryParamName { get; set; } = "pageId";
     }
 }

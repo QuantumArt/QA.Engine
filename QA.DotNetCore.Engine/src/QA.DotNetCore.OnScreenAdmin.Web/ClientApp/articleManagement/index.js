@@ -21,6 +21,15 @@ export const editWidget = (widgetId, callback, abstractItemMetaInfo) => {
   showQPForm(options);
 };
 
+export const editPage = (currentPageId, callback, abstractItemMetaInfo) => {
+  const options = {
+    id: currentPageId,
+    contentId: abstractItemMetaInfo.contentId,
+    callback,
+  };
+  showQPForm(options);
+};
+
 export const addWidget = (widgetToAdd, zoneName, parentAbstractItemId, abstractItemMetaInfo, callback) => {
   const fieldsToSet = [
     { fieldName: fieldNameResolver(abstractItemMetaInfo, 'Parent'), value: parentAbstractItemId },

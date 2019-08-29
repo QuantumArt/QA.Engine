@@ -9,10 +9,12 @@ namespace QA.DotNetCore.Engine.OnScreen
     public class OnScreenModeMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly string _customerCode;
 
-        public OnScreenModeMiddleware(RequestDelegate next)
+        public OnScreenModeMiddleware(RequestDelegate next, string customerCode)
         {
             _next = next;
+            _customerCode = customerCode;
         }
 
         public Task Invoke(HttpContext httpContext, OnScreenSettings onScreenSettings, Quantumart.QPublishing.Authentication.IAuthenticationService authenticationService)
@@ -27,6 +29,7 @@ namespace QA.DotNetCore.Engine.OnScreen
         private void SetContext(HttpContext httpContext, OnScreenSettings onScreenSettings, Quantumart.QPublishing.Authentication.IAuthenticationService authenticationService)
         {
             var context = new OnScreenContext { Features = onScreenSettings.AvailableFeatures };
+            context.CustomerCode = _customerCode;
             if (onScreenSettings.AvailableFeatures > OnScreenFeatures.None)
             {
                 //если предполагается наличие хотя бы одной фичи OnScreen, нужно аутентифицировать пользователя QP и авторизовать для него API OnScreen
@@ -62,6 +65,11 @@ namespace QA.DotNetCore.Engine.OnScreen
                 //если аутентифицировать юзера QP не удалось
                 if (context.User == null)
                     context.Features = OnScreenFeatures.None;
+
+                //получаем параметр id страницы (abstractItem'а) и сохраняем в контексте
+                //этот параметр передается при вызове custom action из QP
+                var queryPageId = httpContext.Request.Query[onScreenSettings.PageIdQueryParamName].ToString();
+                context.PageId = int.TryParse(queryPageId, out int pageId) ? pageId : (int?)null;
             }
 
             if (context.HasFeature(OnScreenFeatures.AbTests))

@@ -48,7 +48,7 @@ class ComponentControlMenu extends Component {
   }
 
   renderZoneMenu = () => {
-    const { classes } = this.props;
+    const { classes, isIframe } = this.props;
     const open = Boolean(this.state.anchorEl);
     return (
       <Fragment>
@@ -70,6 +70,7 @@ class ComponentControlMenu extends Component {
             key="addWidget"
             onClick={this.handleAddWidgetToZone}
             classes={{ root: classes.menuItem }}
+            disabled={!isIframe}
           >
             Add widget
           </MenuItem>
@@ -86,7 +87,7 @@ class ComponentControlMenu extends Component {
   }
 
   renderWidgetMenu = () => {
-    const { classes } = this.props;
+    const { classes, isIframe } = this.props;
     const open = Boolean(this.state.anchorEl);
     return (
       <Fragment>
@@ -108,6 +109,7 @@ class ComponentControlMenu extends Component {
             key="editWidget"
             onClick={this.handleEditWidget}
             classes={{ root: classes.menuItem }}
+            disabled={!isIframe}
           >
             Edit
           </MenuItem>
@@ -115,6 +117,7 @@ class ComponentControlMenu extends Component {
             key="addChildWidget"
             onClick={this.handleAddChildWidget}
             classes={{ root: classes.menuItem }}
+            disabled={!isIframe}
           >
             Add child widget
           </MenuItem>
@@ -122,6 +125,7 @@ class ComponentControlMenu extends Component {
             key="moveWidget"
             onClick={this.handleMoveWidget}
             classes={{ root: classes.menuItem }}
+            disabled={!isIframe}
           >
             Move
           </MenuItem>
@@ -153,6 +157,7 @@ ComponentControlMenu.propTypes = {
   zoneName: PropTypes.string.isRequired,
   onScreenId: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
+  isIframe: PropTypes.bool.isRequired,
 };
 
 export default withStyles(styles)(ComponentControlMenu);

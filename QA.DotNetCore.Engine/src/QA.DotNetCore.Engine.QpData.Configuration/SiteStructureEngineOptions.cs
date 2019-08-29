@@ -26,11 +26,6 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
         public ControllerMapperConvention ControllerMapperConvention { get; set; } = ControllerMapperConvention.Name;
 
         /// <summary>
-        /// Строка подключения к QP
-        /// </summary>
-        public string QpConnectionString { get; set; }
-
-        /// <summary>
         /// Настройки взаимодействия с QP
         /// </summary>
         public QpSettings QpSettings { get; set; }

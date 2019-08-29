@@ -5,7 +5,8 @@ namespace QA.DotNetCore.Engine.Abstractions.OnScreen
         /// <summary>
         /// Доступен ли OnScreen
         /// </summary>
-        public bool Enabled { get { return Features != OnScreenFeatures.None; } }
+        public bool Enabled => Features != OnScreenFeatures.None;
+
         /// <summary>
         /// Доступные фичи OnScreen
         /// </summary>
@@ -27,5 +28,13 @@ namespace QA.DotNetCore.Engine.Abstractions.OnScreen
         /// Переопределенное для режима onscreen значение isStage для получения данных по АБ-тестам
         /// </summary>
         public bool? AbtestsIsStageOverrided { get; set; }
+
+        /// <summary>
+        /// Id страницы
+        /// </summary>
+        public int? PageId { get; set; }
+
+        public string CustomerCode { get; set; }
+
     }
 }

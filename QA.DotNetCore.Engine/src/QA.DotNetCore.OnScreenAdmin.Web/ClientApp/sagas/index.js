@@ -9,6 +9,8 @@ import watchMoveWidget from './moveWidgetSagas';
 import watchAbTests from './abTestsSagas';
 import watchWidgetCreationWizard from './widgetCreationWizardSagas';
 import watchWidgetScreen from './widgetScreenSagas';
+import watchEditPage from './editPageSagas';
+
 
 export default function* rootSaga() {
   yield all([
@@ -22,5 +24,6 @@ export default function* rootSaga() {
     watchMoveWidget(),
     watchWidgetCreationWizard(),
     watchWidgetScreen(),
+    watchEditPage(),
   ]);
 }

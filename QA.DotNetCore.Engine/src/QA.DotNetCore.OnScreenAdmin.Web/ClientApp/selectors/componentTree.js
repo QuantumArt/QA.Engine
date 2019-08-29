@@ -170,7 +170,7 @@ export const filteredComponentTree = createSelector(
   ],
   (componentsList, keyword, disabledComponents, showOnlyWidgets, availableWidgets) => {
     if (keyword === '') {
-      return buildTree(componentsList, disabledComponents, false, availableWidgets);
+      return buildTree(componentsList, disabledComponents, false, availableWidgets, showOnlyWidgets);
     }
 
     const searchText = _.toLower(keyword);
@@ -214,10 +214,10 @@ export const filteredComponentTree = createSelector(
       _.some(uniqResults, componentId => componentId === c.onScreenId),
     );
     console.log(
-      buildTree(filteredFlatComponents, disabledComponents, true, availableWidgets)
+      buildTree(filteredFlatComponents, disabledComponents, true, availableWidgets, showOnlyWidgets)
     );
 
-    return buildTree(filteredFlatComponents, disabledComponents, true, availableWidgets);
+    return buildTree(filteredFlatComponents, disabledComponents, true, availableWidgets, showOnlyWidgets);
   }
 );
 

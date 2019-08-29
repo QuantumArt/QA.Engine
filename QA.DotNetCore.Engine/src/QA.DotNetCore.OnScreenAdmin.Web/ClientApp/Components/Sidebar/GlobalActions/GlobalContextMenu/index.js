@@ -5,7 +5,7 @@ import Menu, { MenuItem } from 'material-ui/Menu';
 import IconButton from 'material-ui/IconButton';
 import MenuIcon from 'material-ui-icons/Menu';
 import _ from 'lodash';
-import { ADD_WIDGET_TO_PAGE_KEY, TOGGLE_SHOW_ONLY_WIDGETS_KEY } from 'constants/globalContextMenu';
+import { ADD_WIDGET_TO_PAGE_KEY, TOGGLE_SHOW_ONLY_WIDGETS_KEY, EDIT_PAGE_KEY } from 'constants/globalContextMenu';
 
 
 const styles = theme => ({
@@ -38,12 +38,18 @@ class GlobalContextMenu extends Component {
     toggleShowOnlyWidgets();
   }
 
+  handleEditPage = () => {
+    const { editPage } = this.props;
+    this.handleRequestClose();
+    editPage();
+  }
+
   render() {
     const {
       classes,
       enabledMenuKeys,
       showOnlyWidgets,
-
+      isIframe,
     } = this.props;
     const open = Boolean(this.state.anchorEl);
     console.log(enabledMenuKeys);
@@ -71,6 +77,7 @@ class GlobalContextMenu extends Component {
             key={ADD_WIDGET_TO_PAGE_KEY}
             onClick={this.handleAddWidgetToPage}
             classes={{ root: classes.menuItem }}
+            disabled={!isIframe}
           >
           Add widget
           </MenuItem>
@@ -84,6 +91,14 @@ class GlobalContextMenu extends Component {
             {showOnlyWidgets ? 'Tree view: zones and widgets' : 'Tree view: only widgets'}
           </MenuItem>
           }
+          <MenuItem
+            key={EDIT_PAGE_KEY}
+            onClick={this.handleEditPage}
+            classes={{ root: classes.menuItem }}
+            disabled={!isIframe}
+          >
+            Edit page
+          </MenuItem>
         </Menu>
       </Fragment>
     );
@@ -98,6 +113,9 @@ GlobalContextMenu.propTypes = {
   addWidgetToPage: PropTypes.func.isRequired,
   showOnlyWidgets: PropTypes.bool.isRequired,
   classes: PropTypes.object.isRequired,
+  isIframe: PropTypes.bool.isRequired,
+  editPage: PropTypes.func.isRequired,
+  onScreenId: PropTypes.string.isRequired,
 };
 
 export default withStyles(styles)(GlobalContextMenu);

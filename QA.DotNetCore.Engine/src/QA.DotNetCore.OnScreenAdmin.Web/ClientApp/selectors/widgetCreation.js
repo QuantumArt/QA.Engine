@@ -111,7 +111,7 @@ export const getZonesList = createSelector(
       case WIDGET_CREATION_MODE.PAGE_CHILD:
         return _.filter(flatComponents, component =>
           component.type === 'zone'
-          && component.parentOnScreenId === 'page'
+          && component.parentOnScreenId === null
           && _.includes(_.toLower(component.properties.zoneName), _.toLower(searchText)));
       default:
         return [];

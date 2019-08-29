@@ -5,8 +5,15 @@ using System.Linq;
 
 namespace QA.DotNetCore.Engine.Routing
 {
-    internal class PathFinder
+    public class PathFinder
     {
+        public PathFinder(Func<IAbstractItem, bool> stopCondition = null)
+        {
+            StopCondition = stopCondition;
+        }
+
+        public Func<IAbstractItem, bool> StopCondition { get; }
+
         public PathData Find(string path, IStartPage root, ITargetingFilter targetingFilter)
         {
             var targetingUrlResolver = root.GetUrlResolver();
@@ -28,9 +35,10 @@ namespace QA.DotNetCore.Engine.Routing
             int index = 0;
             foreach (var token in tokens)
             {
-                index++;
+                if (StopCondition != null && StopCondition(node)) break;
                 node = node.Get(token, targetingFilter);
                 if (node == null) break;
+                index++;
                 stopItem = node;
                 remainingPath = $"/{string.Join("/", tokens.Select((x, i) => i < index ? (string)null : x).Where(x => x != null))}";
             }

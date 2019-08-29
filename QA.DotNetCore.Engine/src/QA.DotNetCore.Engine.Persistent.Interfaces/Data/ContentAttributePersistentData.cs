@@ -19,6 +19,8 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces.Data
 
         public string SubFolder { get; set; }
 
+        public bool UseDefaultFiltration { get; set; }
+
         public string InvariantName { get { return $"field_{Id}"; } }
     }
 }

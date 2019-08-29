@@ -142,9 +142,9 @@ namespace <#=System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Names
 		{
 			var optionsBuilder = new DbContextOptionsBuilder<<#= model.Schema.ClassName#>>();
 <#+ if (isPostgres) {#>
-      optionsBuilder.UseNpgsql<<#=model.Schema.ClassName#>>(connection);
+			optionsBuilder.UseNpgsql<<#=model.Schema.ClassName#>>(connection);
 <#+ } else { #>
-      optionsBuilder.UseSqlServer<<#=model.Schema.ClassName#>>(connection);
+			optionsBuilder.UseSqlServer<<#=model.Schema.ClassName#>>(connection);
 <#+ } #>
             var ctx = new <#= model.Schema.ClassName#>(optionsBuilder.Options);
 			ctx.SiteName = DefaultSiteName;
@@ -156,10 +156,10 @@ namespace <#=System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Names
         {
 		    var mapping = configurator.GetMappingInfo();
             var optionsBuilder = new DbContextOptionsBuilder<<#= model.Schema.ClassName#>>();
-            <#+ if (isPostgres) {#>
-      optionsBuilder.UseNpgsql<<#=model.Schema.ClassName#>>(connection);
+<#+ if (isPostgres) {#>
+            optionsBuilder.UseNpgsql<<#=model.Schema.ClassName#>>(connection);
 <#+ } else { #>
-      optionsBuilder.UseSqlServer<<#=model.Schema.ClassName#>>(connection);
+            optionsBuilder.UseSqlServer<<#=model.Schema.ClassName#>>(connection);
 <#+ } #>
 			optionsBuilder.UseModel(mapping.DbCompiledModel);
             <#= model.Schema.ClassName#> ctx = new <#= model.Schema.ClassName#>(optionsBuilder.Options, mapping.Schema);
@@ -171,11 +171,11 @@ namespace <#=System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Names
 
         public static <#= model.Schema.ClassName#> Create(IMappingConfigurator configurator)
         {
-				DbConnection connection;
+			DbConnection connection;
 <#+ if (isPostgres) {#>
-      connection = new NpgsqlConnection(DefaultConnectionString);
+			connection = new NpgsqlConnection(DefaultConnectionString);
 <#+ } else { #>
-      connection = new SqlConnection(DefaultConnectionString);
+			connection = new SqlConnection(DefaultConnectionString);
 <#+ } #>
             return Create(configurator, connection);
         }
@@ -187,9 +187,9 @@ namespace <#=System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Names
 			{
 				var optionsBuilder = new DbContextOptionsBuilder<<#= model.Schema.ClassName#>>();
 <#+ if (isPostgres) {#>
-      optionsBuilder.UseNpgsql<<#=model.Schema.ClassName#>>(connection);
+				optionsBuilder.UseNpgsql<<#=model.Schema.ClassName#>>(connection);
 <#+ } else { #>
-      optionsBuilder.UseSqlServer<<#=model.Schema.ClassName#>>(connection);
+				optionsBuilder.UseSqlServer<<#=model.Schema.ClassName#>>(connection);
 <#+ } #>                ctx = new <#= model.Schema.ClassName#>(optionsBuilder.Options);
 				ctx.SiteName = siteName;
 				ctx.ConnectionString = connection;
@@ -199,9 +199,9 @@ namespace <#=System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Names
 			{
 				var optionsBuilder = new DbContextOptionsBuilder<<#= model.Schema.ClassName#>>();
 <#+ if (isPostgres) {#>
-      optionsBuilder.UseNpgsql<<#=model.Schema.ClassName#>>(connection);
+				optionsBuilder.UseNpgsql<<#=model.Schema.ClassName#>>(connection);
 <#+ } else { #>
-      optionsBuilder.UseSqlServer<<#=model.Schema.ClassName#>>(connection);
+				optionsBuilder.UseSqlServer<<#=model.Schema.ClassName#>>(connection);
 <#+ } #>                ctx = new <#= model.Schema.ClassName#>(optionsBuilder.Options);
 				ctx.SiteName = siteName;
 				ctx.ConnectionString = connection;
@@ -222,11 +222,11 @@ namespace <#=System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Names
 
 		public static <#= model.Schema.ClassName#> CreateWithStaticMapping(ContentAccess contentAccess)
         {
-				DbConnection connection;
+			DbConnection connection;
 <#+ if (isPostgres) {#>
-      connection = new NpgsqlConnection(DefaultConnectionString);
+			connection = new NpgsqlConnection(DefaultConnectionString);
 <#+ } else { #>
-      connection = new SqlConnection(DefaultConnectionString);
+			connection = new SqlConnection(DefaultConnectionString);
 <#+ } #>
             return CreateWithStaticMapping(contentAccess, connection);
         }
@@ -245,11 +245,11 @@ namespace <#=System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Names
 
         public static <#= model.Schema.ClassName#> CreateWithDatabaseMapping(ContentAccess contentAccess, string siteName)
         {
-				DbConnection connection;
+			DbConnection connection;
 <#+ if (isPostgres) {#>
-      connection = new NpgsqlConnection(DefaultConnectionString);
+			connection = new NpgsqlConnection(DefaultConnectionString);
 <#+ } else { #>
-      connection = new SqlConnection(DefaultConnectionString);
+			connection = new SqlConnection(DefaultConnectionString);
 <#+ } #>
             return CreateWithDatabaseMapping(contentAccess, siteName, connection);
         }
@@ -265,11 +265,11 @@ namespace <#=System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Names
 
         public static <#= model.Schema.ClassName#> CreateWithFileMapping(ContentAccess contentAccess, string path)
         {
-				DbConnection connection;
+			DbConnection connection;
 <#+ if (isPostgres) {#>
-      connection = new NpgsqlConnection(DefaultConnectionString);
+			connection = new NpgsqlConnection(DefaultConnectionString);
 <#+ } else { #>
-      connection = new SqlConnection(DefaultConnectionString);
+			connection = new SqlConnection(DefaultConnectionString);
 <#+ } #>
             return CreateWithFileMapping(contentAccess, path, connection);
         }

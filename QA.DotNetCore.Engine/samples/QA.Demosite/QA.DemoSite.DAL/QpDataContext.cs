@@ -115,7 +115,7 @@ namespace QA.DemoSite.DAL
 						.Build();
 			var connectionString = configuration.GetConnectionString("qp_database");
             var optionsBuilder = new DbContextOptionsBuilder<QpDataContext>();
-      optionsBuilder.UseNpgsql<QpDataContext>(connectionString);
+            optionsBuilder.UseNpgsql<QpDataContext>(connectionString);
             return optionsBuilder.Options;
         }
 		
@@ -123,7 +123,7 @@ namespace QA.DemoSite.DAL
         {
 		    var connectionString = configuration.GetConnectionString("qp_database");
             var optionsBuilder = new DbContextOptionsBuilder<QpDataContext>();
-      optionsBuilder.UseNpgsql<QpDataContext>(connectionString);
+            optionsBuilder.UseNpgsql<QpDataContext>(connectionString);
             return optionsBuilder.Options;
         }
 		

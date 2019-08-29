@@ -23,7 +23,7 @@ namespace QA.DemoSite.DAL
 
             #region QPAbstractItem mappings
             modelBuilder.Entity<QPAbstractItem>()
-                .ToTable(GetTableName("QPAbstractItem").ToLowerInvariant())
+                .ToTable(GetTableName("QPAbstractItem"))
                 .Property(x => x.Id)
                 .HasColumnName("content_item_id");
 
@@ -38,19 +38,19 @@ namespace QA.DemoSite.DAL
                 .Property(x => x.StatusTypeId)
                 .HasColumnName("status_type_id");
 
-				  	modelBuilder.Entity<QPAbstractItem>()
+			modelBuilder.Entity<QPAbstractItem>()
                 .Property(x => x.Archive)
                 .HasColumnName("archive");
 
-									modelBuilder.Entity<QPAbstractItem>()
+			modelBuilder.Entity<QPAbstractItem>()
                 .Property(x => x.Created)
                 .HasColumnName("created");
 
-									modelBuilder.Entity<QPAbstractItem>()
+			modelBuilder.Entity<QPAbstractItem>()
                 .Property(x => x.Modified)
                 .HasColumnName("modified");
 
-								modelBuilder.Entity<QPAbstractItem>()
+			modelBuilder.Entity<QPAbstractItem>()
                 .Property(x => x.Visible)
                 .HasColumnName("visible");
 
@@ -62,52 +62,52 @@ namespace QA.DemoSite.DAL
 
             modelBuilder.Entity<QPAbstractItem>()
                 .Property(x => x.Title)
-                .HasColumnName(GetFieldName("QPAbstractItem", "Title").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPAbstractItem", "Title"));
             modelBuilder.Entity<QPAbstractItem>()
                 .Property(x => x.Name)
-                .HasColumnName(GetFieldName("QPAbstractItem", "Name").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPAbstractItem", "Name"));
             modelBuilder.Entity<QPAbstractItem>()
                 .Property(x => x.IsVisible)
-                .HasColumnName(GetFieldName("QPAbstractItem", "IsVisible").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPAbstractItem", "IsVisible"));
             modelBuilder.Entity<QPAbstractItem>()
                 .Property(x => x.IsPage)
-                .HasColumnName(GetFieldName("QPAbstractItem", "IsPage").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPAbstractItem", "IsPage"));
             modelBuilder.Entity<QPAbstractItem>()
                 .Property(x => x.ZoneName)
-                .HasColumnName(GetFieldName("QPAbstractItem", "ZoneName").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPAbstractItem", "ZoneName"));
             modelBuilder.Entity<QPAbstractItem>()
                 .Property(x => x.AllowedUrlPatterns)
-                .HasColumnName(GetFieldName("QPAbstractItem", "AllowedUrlPatterns").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPAbstractItem", "AllowedUrlPatterns"));
             modelBuilder.Entity<QPAbstractItem>()
                 .Property(x => x.DeniedUrlPatterns)
-                .HasColumnName(GetFieldName("QPAbstractItem", "DeniedUrlPatterns").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPAbstractItem", "DeniedUrlPatterns"));
             modelBuilder.Entity<QPAbstractItem>()
                 .Property(x => x.Description)
-                .HasColumnName(GetFieldName("QPAbstractItem", "Description").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPAbstractItem", "Description"));
             modelBuilder.Entity<QPAbstractItem>()
                 .Property(x => x.Keywords)
-                .HasColumnName(GetFieldName("QPAbstractItem", "Keywords").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPAbstractItem", "Keywords"));
             modelBuilder.Entity<QPAbstractItem>()
                 .Property(x => x.MetaDescription)
-                .HasColumnName(GetFieldName("QPAbstractItem", "MetaDescription").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPAbstractItem", "MetaDescription"));
             modelBuilder.Entity<QPAbstractItem>()
                 .Property(x => x.Tags)
-                .HasColumnName(GetFieldName("QPAbstractItem", "Tags").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPAbstractItem", "Tags"));
             modelBuilder.Entity<QPAbstractItem>()
                 .Property(x => x.IsInSiteMap)
-                .HasColumnName(GetFieldName("QPAbstractItem", "IsInSiteMap").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPAbstractItem", "IsInSiteMap"));
             modelBuilder.Entity<QPAbstractItem>()
                 .Property(x => x.IndexOrder)
-                .HasColumnName(GetFieldName("QPAbstractItem", "IndexOrder").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPAbstractItem", "IndexOrder"));
             modelBuilder.Entity<QPAbstractItem>()
                 .Property(x => x.ExtensionId)
-                .HasColumnName(GetFieldName("QPAbstractItem", "ExtensionId").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPAbstractItem", "ExtensionId"));
             modelBuilder.Entity<QPAbstractItem>()
                 .Property(x => x.ContentId)
-                .HasColumnName(GetFieldName("QPAbstractItem", "ContentId").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPAbstractItem", "ContentId"));
             modelBuilder.Entity<QPAbstractItem>()
                 .Property(x => x.TitleFormat_ID)
-                .HasColumnName(GetFieldName("QPAbstractItem", "TitleFormat_ID").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPAbstractItem", "TitleFormat_ID"));
             modelBuilder.Entity<QPAbstractItem>()
                 .HasOne<QPAbstractItem>(mp => mp.Parent)
                 .WithMany(mp => mp.Children)
@@ -145,7 +145,7 @@ namespace QA.DemoSite.DAL
 
             #region QPDiscriminator mappings
             modelBuilder.Entity<QPDiscriminator>()
-                .ToTable(GetTableName("QPDiscriminator").ToLowerInvariant())
+                .ToTable(GetTableName("QPDiscriminator"))
                 .Property(x => x.Id)
                 .HasColumnName("content_item_id");
 
@@ -160,19 +160,19 @@ namespace QA.DemoSite.DAL
                 .Property(x => x.StatusTypeId)
                 .HasColumnName("status_type_id");
 
-				  	modelBuilder.Entity<QPDiscriminator>()
+			modelBuilder.Entity<QPDiscriminator>()
                 .Property(x => x.Archive)
                 .HasColumnName("archive");
 
-									modelBuilder.Entity<QPDiscriminator>()
+			modelBuilder.Entity<QPDiscriminator>()
                 .Property(x => x.Created)
                 .HasColumnName("created");
 
-									modelBuilder.Entity<QPDiscriminator>()
+			modelBuilder.Entity<QPDiscriminator>()
                 .Property(x => x.Modified)
                 .HasColumnName("modified");
 
-								modelBuilder.Entity<QPDiscriminator>()
+			modelBuilder.Entity<QPDiscriminator>()
                 .Property(x => x.Visible)
                 .HasColumnName("visible");
 
@@ -184,34 +184,34 @@ namespace QA.DemoSite.DAL
 
             modelBuilder.Entity<QPDiscriminator>()
                 .Property(x => x.Title)
-                .HasColumnName(GetFieldName("QPDiscriminator", "Title").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPDiscriminator", "Title"));
             modelBuilder.Entity<QPDiscriminator>()
                 .Property(x => x.Name)
-                .HasColumnName(GetFieldName("QPDiscriminator", "Name").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPDiscriminator", "Name"));
             modelBuilder.Entity<QPDiscriminator>()
                 .Property(x => x.PreferredContentId)
-                .HasColumnName(GetFieldName("QPDiscriminator", "PreferredContentId").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPDiscriminator", "PreferredContentId"));
             modelBuilder.Entity<QPDiscriminator>()
                 .Property(x => x.TypeName)
-                .HasColumnName(GetFieldName("QPDiscriminator", "TypeName").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPDiscriminator", "TypeName"));
             modelBuilder.Entity<QPDiscriminator>()
                 .Property(x => x.CategoryName)
-                .HasColumnName(GetFieldName("QPDiscriminator", "CategoryName").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPDiscriminator", "CategoryName"));
             modelBuilder.Entity<QPDiscriminator>()
                 .Property(x => x.Description)
-                .HasColumnName(GetFieldName("QPDiscriminator", "Description").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPDiscriminator", "Description"));
             modelBuilder.Entity<QPDiscriminator>()
                 .Property(x => x.IconUrl)
-                .HasColumnName(GetFieldName("QPDiscriminator", "IconUrl").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPDiscriminator", "IconUrl"));
             modelBuilder.Entity<QPDiscriminator>()
                 .Property(x => x.IsPage)
-                .HasColumnName(GetFieldName("QPDiscriminator", "IsPage").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPDiscriminator", "IsPage"));
             modelBuilder.Entity<QPDiscriminator>()
                 .Property(x => x.AllowedZones)
-                .HasColumnName(GetFieldName("QPDiscriminator", "AllowedZones").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPDiscriminator", "AllowedZones"));
             modelBuilder.Entity<QPDiscriminator>()
                 .Property(x => x.FilterPartByUrl)
-                .HasColumnName(GetFieldName("QPDiscriminator", "FilterPartByUrl").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPDiscriminator", "FilterPartByUrl"));
 
              modelBuilder.Entity<QPDiscriminator2QPDiscriminatorForAllowedItemDefinitions1>()
                 .ToTable(GetLinkTableName("QPDiscriminator", "AllowedItemDefinitions1"));
@@ -264,7 +264,7 @@ namespace QA.DemoSite.DAL
 
             #region QPCulture mappings
             modelBuilder.Entity<QPCulture>()
-                .ToTable(GetTableName("QPCulture").ToLowerInvariant())
+                .ToTable(GetTableName("QPCulture"))
                 .Property(x => x.Id)
                 .HasColumnName("content_item_id");
 
@@ -279,19 +279,19 @@ namespace QA.DemoSite.DAL
                 .Property(x => x.StatusTypeId)
                 .HasColumnName("status_type_id");
 
-				  	modelBuilder.Entity<QPCulture>()
+			modelBuilder.Entity<QPCulture>()
                 .Property(x => x.Archive)
                 .HasColumnName("archive");
 
-									modelBuilder.Entity<QPCulture>()
+			modelBuilder.Entity<QPCulture>()
                 .Property(x => x.Created)
                 .HasColumnName("created");
 
-									modelBuilder.Entity<QPCulture>()
+			modelBuilder.Entity<QPCulture>()
                 .Property(x => x.Modified)
                 .HasColumnName("modified");
 
-								modelBuilder.Entity<QPCulture>()
+			modelBuilder.Entity<QPCulture>()
                 .Property(x => x.Visible)
                 .HasColumnName("visible");
 
@@ -303,13 +303,13 @@ namespace QA.DemoSite.DAL
 
             modelBuilder.Entity<QPCulture>()
                 .Property(x => x.Title)
-                .HasColumnName(GetFieldName("QPCulture", "Title").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPCulture", "Title"));
             modelBuilder.Entity<QPCulture>()
                 .Property(x => x.Name)
-                .HasColumnName(GetFieldName("QPCulture", "Name").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPCulture", "Name"));
             modelBuilder.Entity<QPCulture>()
                 .Property(x => x.Icon)
-                .HasColumnName(GetFieldName("QPCulture", "Icon").ToLowerInvariant());
+                .HasColumnName(GetFieldName("QPCulture", "Icon"));
             modelBuilder.Entity<QPCulture>().Ignore(p => p.IconUrl);
             modelBuilder.Entity<QPCulture>().Ignore(p => p.IconUploadPath);
  
@@ -317,7 +317,7 @@ namespace QA.DemoSite.DAL
 
             #region QPItemDefinitionConstraint mappings
             modelBuilder.Entity<QPItemDefinitionConstraint>()
-                .ToTable(GetTableName("QPItemDefinitionConstraint").ToLowerInvariant())
+                .ToTable(GetTableName("QPItemDefinitionConstraint"))
                 .Property(x => x.Id)
                 .HasColumnName("content_item_id");
 
@@ -332,19 +332,19 @@ namespace QA.DemoSite.DAL
                 .Property(x => x.StatusTypeId)
                 .HasColumnName("status_type_id");
 
-				  	modelBuilder.Entity<QPItemDefinitionConstraint>()
+			modelBuilder.Entity<QPItemDefinitionConstraint>()
                 .Property(x => x.Archive)
                 .HasColumnName("archive");
 
-									modelBuilder.Entity<QPItemDefinitionConstraint>()
+			modelBuilder.Entity<QPItemDefinitionConstraint>()
                 .Property(x => x.Created)
                 .HasColumnName("created");
 
-									modelBuilder.Entity<QPItemDefinitionConstraint>()
+			modelBuilder.Entity<QPItemDefinitionConstraint>()
                 .Property(x => x.Modified)
                 .HasColumnName("modified");
 
-								modelBuilder.Entity<QPItemDefinitionConstraint>()
+			modelBuilder.Entity<QPItemDefinitionConstraint>()
                 .Property(x => x.Visible)
                 .HasColumnName("visible");
 
@@ -375,7 +375,7 @@ namespace QA.DemoSite.DAL
 
             #region AbTest mappings
             modelBuilder.Entity<AbTest>()
-                .ToTable(GetTableName("AbTest").ToLowerInvariant())
+                .ToTable(GetTableName("AbTest"))
                 .Property(x => x.Id)
                 .HasColumnName("content_item_id");
 
@@ -390,19 +390,19 @@ namespace QA.DemoSite.DAL
                 .Property(x => x.StatusTypeId)
                 .HasColumnName("status_type_id");
 
-				  	modelBuilder.Entity<AbTest>()
+			modelBuilder.Entity<AbTest>()
                 .Property(x => x.Archive)
                 .HasColumnName("archive");
 
-									modelBuilder.Entity<AbTest>()
+			modelBuilder.Entity<AbTest>()
                 .Property(x => x.Created)
                 .HasColumnName("created");
 
-									modelBuilder.Entity<AbTest>()
+			modelBuilder.Entity<AbTest>()
                 .Property(x => x.Modified)
                 .HasColumnName("modified");
 
-								modelBuilder.Entity<AbTest>()
+			modelBuilder.Entity<AbTest>()
                 .Property(x => x.Visible)
                 .HasColumnName("visible");
 
@@ -414,28 +414,28 @@ namespace QA.DemoSite.DAL
 
             modelBuilder.Entity<AbTest>()
                 .Property(x => x.Title)
-                .HasColumnName(GetFieldName("AbTest", "Title").ToLowerInvariant());
+                .HasColumnName(GetFieldName("AbTest", "Title"));
             modelBuilder.Entity<AbTest>()
                 .Property(x => x.Enabled)
-                .HasColumnName(GetFieldName("AbTest", "Enabled").ToLowerInvariant());
+                .HasColumnName(GetFieldName("AbTest", "Enabled"));
             modelBuilder.Entity<AbTest>()
                 .Property(x => x.Percentage)
-                .HasColumnName(GetFieldName("AbTest", "Percentage").ToLowerInvariant());
+                .HasColumnName(GetFieldName("AbTest", "Percentage"));
             modelBuilder.Entity<AbTest>()
                 .Property(x => x.StartDate)
-                .HasColumnName(GetFieldName("AbTest", "StartDate").ToLowerInvariant());
+                .HasColumnName(GetFieldName("AbTest", "StartDate"));
             modelBuilder.Entity<AbTest>()
                 .Property(x => x.EndDate)
-                .HasColumnName(GetFieldName("AbTest", "EndDate").ToLowerInvariant());
+                .HasColumnName(GetFieldName("AbTest", "EndDate"));
             modelBuilder.Entity<AbTest>()
                 .Property(x => x.Comment)
-                .HasColumnName(GetFieldName("AbTest", "Comment").ToLowerInvariant());
+                .HasColumnName(GetFieldName("AbTest", "Comment"));
  
             #endregion
 
             #region AbTestBaseContainer mappings
             modelBuilder.Entity<AbTestBaseContainer>()
-                .ToTable(GetTableName("AbTestBaseContainer").ToLowerInvariant())
+                .ToTable(GetTableName("AbTestBaseContainer"))
                 .Property(x => x.Id)
                 .HasColumnName("content_item_id");
 
@@ -450,19 +450,19 @@ namespace QA.DemoSite.DAL
                 .Property(x => x.StatusTypeId)
                 .HasColumnName("status_type_id");
 
-				  	modelBuilder.Entity<AbTestBaseContainer>()
+			modelBuilder.Entity<AbTestBaseContainer>()
                 .Property(x => x.Archive)
                 .HasColumnName("archive");
 
-									modelBuilder.Entity<AbTestBaseContainer>()
+			modelBuilder.Entity<AbTestBaseContainer>()
                 .Property(x => x.Created)
                 .HasColumnName("created");
 
-									modelBuilder.Entity<AbTestBaseContainer>()
+			modelBuilder.Entity<AbTestBaseContainer>()
                 .Property(x => x.Modified)
                 .HasColumnName("modified");
 
-								modelBuilder.Entity<AbTestBaseContainer>()
+			modelBuilder.Entity<AbTestBaseContainer>()
                 .Property(x => x.Visible)
                 .HasColumnName("visible");
 
@@ -474,25 +474,25 @@ namespace QA.DemoSite.DAL
 
             modelBuilder.Entity<AbTestBaseContainer>()
                 .Property(x => x.Description)
-                .HasColumnName(GetFieldName("AbTestBaseContainer", "Description").ToLowerInvariant());
+                .HasColumnName(GetFieldName("AbTestBaseContainer", "Description"));
             modelBuilder.Entity<AbTestBaseContainer>()
                 .Property(x => x.AllowedUrlPatterns)
-                .HasColumnName(GetFieldName("AbTestBaseContainer", "AllowedUrlPatterns").ToLowerInvariant());
+                .HasColumnName(GetFieldName("AbTestBaseContainer", "AllowedUrlPatterns"));
             modelBuilder.Entity<AbTestBaseContainer>()
                 .Property(x => x.DeniedUrlPatterns)
-                .HasColumnName(GetFieldName("AbTestBaseContainer", "DeniedUrlPatterns").ToLowerInvariant());
+                .HasColumnName(GetFieldName("AbTestBaseContainer", "DeniedUrlPatterns"));
             modelBuilder.Entity<AbTestBaseContainer>()
                 .Property(x => x.Domain)
-                .HasColumnName(GetFieldName("AbTestBaseContainer", "Domain").ToLowerInvariant());
+                .HasColumnName(GetFieldName("AbTestBaseContainer", "Domain"));
             modelBuilder.Entity<AbTestBaseContainer>()
                 .Property(x => x.Precondition)
-                .HasColumnName(GetFieldName("AbTestBaseContainer", "Precondition").ToLowerInvariant());
+                .HasColumnName(GetFieldName("AbTestBaseContainer", "Precondition"));
             modelBuilder.Entity<AbTestBaseContainer>()
                 .Property(x => x.Arguments)
-                .HasColumnName(GetFieldName("AbTestBaseContainer", "Arguments").ToLowerInvariant());
+                .HasColumnName(GetFieldName("AbTestBaseContainer", "Arguments"));
             modelBuilder.Entity<AbTestBaseContainer>()
                 .Property(x => x.Type)
-                .HasColumnName(GetFieldName("AbTestBaseContainer", "Type").ToLowerInvariant());
+                .HasColumnName(GetFieldName("AbTestBaseContainer", "Type"));
             modelBuilder.Entity<AbTestBaseContainer>()
                 .HasOne<AbTest>(mp => mp.ParentTest)
                 .WithMany(mp => mp.ABTestContainers)
@@ -506,7 +506,7 @@ namespace QA.DemoSite.DAL
 
             #region AbTestScript mappings
             modelBuilder.Entity<AbTestScript>()
-                .ToTable(GetTableName("AbTestScript").ToLowerInvariant())
+                .ToTable(GetTableName("AbTestScript"))
                 .Property(x => x.Id)
                 .HasColumnName("content_item_id");
 
@@ -521,19 +521,19 @@ namespace QA.DemoSite.DAL
                 .Property(x => x.StatusTypeId)
                 .HasColumnName("status_type_id");
 
-				  	modelBuilder.Entity<AbTestScript>()
+			modelBuilder.Entity<AbTestScript>()
                 .Property(x => x.Archive)
                 .HasColumnName("archive");
 
-									modelBuilder.Entity<AbTestScript>()
+			modelBuilder.Entity<AbTestScript>()
                 .Property(x => x.Created)
                 .HasColumnName("created");
 
-									modelBuilder.Entity<AbTestScript>()
+			modelBuilder.Entity<AbTestScript>()
                 .Property(x => x.Modified)
                 .HasColumnName("modified");
 
-								modelBuilder.Entity<AbTestScript>()
+			modelBuilder.Entity<AbTestScript>()
                 .Property(x => x.Visible)
                 .HasColumnName("visible");
 
@@ -545,13 +545,13 @@ namespace QA.DemoSite.DAL
 
             modelBuilder.Entity<AbTestScript>()
                 .Property(x => x.Description)
-                .HasColumnName(GetFieldName("AbTestScript", "Description").ToLowerInvariant());
+                .HasColumnName(GetFieldName("AbTestScript", "Description"));
             modelBuilder.Entity<AbTestScript>()
                 .Property(x => x.VersionNumber)
-                .HasColumnName(GetFieldName("AbTestScript", "VersionNumber").ToLowerInvariant());
+                .HasColumnName(GetFieldName("AbTestScript", "VersionNumber"));
             modelBuilder.Entity<AbTestScript>()
                 .Property(x => x.ScriptText)
-                .HasColumnName(GetFieldName("AbTestScript", "ScriptText").ToLowerInvariant());
+                .HasColumnName(GetFieldName("AbTestScript", "ScriptText"));
             modelBuilder.Entity<AbTestScript>()
                 .HasOne<AbTestScriptContainer>(mp => mp.Container)
                 .WithMany(mp => mp.ScriptsInContainer)
@@ -565,7 +565,7 @@ namespace QA.DemoSite.DAL
 
             #region AbTestScriptContainer mappings
             modelBuilder.Entity<AbTestScriptContainer>()
-                .ToTable(GetTableName("AbTestScriptContainer").ToLowerInvariant())
+                .ToTable(GetTableName("AbTestScriptContainer"))
                 .Property(x => x.Id)
                 .HasColumnName("content_item_id");
 
@@ -580,19 +580,19 @@ namespace QA.DemoSite.DAL
                 .Property(x => x.StatusTypeId)
                 .HasColumnName("status_type_id");
 
-				  	modelBuilder.Entity<AbTestScriptContainer>()
+			modelBuilder.Entity<AbTestScriptContainer>()
                 .Property(x => x.Archive)
                 .HasColumnName("archive");
 
-									modelBuilder.Entity<AbTestScriptContainer>()
+			modelBuilder.Entity<AbTestScriptContainer>()
                 .Property(x => x.Created)
                 .HasColumnName("created");
 
-									modelBuilder.Entity<AbTestScriptContainer>()
+			modelBuilder.Entity<AbTestScriptContainer>()
                 .Property(x => x.Modified)
                 .HasColumnName("modified");
 
-								modelBuilder.Entity<AbTestScriptContainer>()
+			modelBuilder.Entity<AbTestScriptContainer>()
                 .Property(x => x.Visible)
                 .HasColumnName("visible");
 
@@ -615,7 +615,7 @@ namespace QA.DemoSite.DAL
 
             #region AbTestClientRedirectContainer mappings
             modelBuilder.Entity<AbTestClientRedirectContainer>()
-                .ToTable(GetTableName("AbTestClientRedirectContainer").ToLowerInvariant())
+                .ToTable(GetTableName("AbTestClientRedirectContainer"))
                 .Property(x => x.Id)
                 .HasColumnName("content_item_id");
 
@@ -630,19 +630,19 @@ namespace QA.DemoSite.DAL
                 .Property(x => x.StatusTypeId)
                 .HasColumnName("status_type_id");
 
-				  	modelBuilder.Entity<AbTestClientRedirectContainer>()
+			modelBuilder.Entity<AbTestClientRedirectContainer>()
                 .Property(x => x.Archive)
                 .HasColumnName("archive");
 
-									modelBuilder.Entity<AbTestClientRedirectContainer>()
+			modelBuilder.Entity<AbTestClientRedirectContainer>()
                 .Property(x => x.Created)
                 .HasColumnName("created");
 
-									modelBuilder.Entity<AbTestClientRedirectContainer>()
+			modelBuilder.Entity<AbTestClientRedirectContainer>()
                 .Property(x => x.Modified)
                 .HasColumnName("modified");
 
-								modelBuilder.Entity<AbTestClientRedirectContainer>()
+			modelBuilder.Entity<AbTestClientRedirectContainer>()
                 .Property(x => x.Visible)
                 .HasColumnName("visible");
 
@@ -665,7 +665,7 @@ namespace QA.DemoSite.DAL
 
             #region AbTestClientRedirect mappings
             modelBuilder.Entity<AbTestClientRedirect>()
-                .ToTable(GetTableName("AbTestClientRedirect").ToLowerInvariant())
+                .ToTable(GetTableName("AbTestClientRedirect"))
                 .Property(x => x.Id)
                 .HasColumnName("content_item_id");
 
@@ -680,19 +680,19 @@ namespace QA.DemoSite.DAL
                 .Property(x => x.StatusTypeId)
                 .HasColumnName("status_type_id");
 
-				  	modelBuilder.Entity<AbTestClientRedirect>()
+			modelBuilder.Entity<AbTestClientRedirect>()
                 .Property(x => x.Archive)
                 .HasColumnName("archive");
 
-									modelBuilder.Entity<AbTestClientRedirect>()
+			modelBuilder.Entity<AbTestClientRedirect>()
                 .Property(x => x.Created)
                 .HasColumnName("created");
 
-									modelBuilder.Entity<AbTestClientRedirect>()
+			modelBuilder.Entity<AbTestClientRedirect>()
                 .Property(x => x.Modified)
                 .HasColumnName("modified");
 
-								modelBuilder.Entity<AbTestClientRedirect>()
+			modelBuilder.Entity<AbTestClientRedirect>()
                 .Property(x => x.Visible)
                 .HasColumnName("visible");
 
@@ -704,10 +704,10 @@ namespace QA.DemoSite.DAL
 
             modelBuilder.Entity<AbTestClientRedirect>()
                 .Property(x => x.VersionNumber)
-                .HasColumnName(GetFieldName("AbTestClientRedirect", "VersionNumber").ToLowerInvariant());
+                .HasColumnName(GetFieldName("AbTestClientRedirect", "VersionNumber"));
             modelBuilder.Entity<AbTestClientRedirect>()
                 .Property(x => x.RedirectUrl)
-                .HasColumnName(GetFieldName("AbTestClientRedirect", "RedirectUrl").ToLowerInvariant());
+                .HasColumnName(GetFieldName("AbTestClientRedirect", "RedirectUrl"));
             modelBuilder.Entity<AbTestClientRedirect>()
                 .HasOne<AbTestClientRedirectContainer>(mp => mp.Container)
                 .WithMany(mp => mp.ClientRedirectsInContainer)
@@ -721,7 +721,7 @@ namespace QA.DemoSite.DAL
 
             #region BlogPost mappings
             modelBuilder.Entity<BlogPost>()
-                .ToTable(GetTableName("BlogPost").ToLowerInvariant())
+                .ToTable(GetTableName("BlogPost"))
                 .Property(x => x.Id)
                 .HasColumnName("content_item_id");
 
@@ -736,19 +736,19 @@ namespace QA.DemoSite.DAL
                 .Property(x => x.StatusTypeId)
                 .HasColumnName("status_type_id");
 
-				  	modelBuilder.Entity<BlogPost>()
+			modelBuilder.Entity<BlogPost>()
                 .Property(x => x.Archive)
                 .HasColumnName("archive");
 
-									modelBuilder.Entity<BlogPost>()
+			modelBuilder.Entity<BlogPost>()
                 .Property(x => x.Created)
                 .HasColumnName("created");
 
-									modelBuilder.Entity<BlogPost>()
+			modelBuilder.Entity<BlogPost>()
                 .Property(x => x.Modified)
                 .HasColumnName("modified");
 
-								modelBuilder.Entity<BlogPost>()
+			modelBuilder.Entity<BlogPost>()
                 .Property(x => x.Visible)
                 .HasColumnName("visible");
 
@@ -760,22 +760,22 @@ namespace QA.DemoSite.DAL
 
             modelBuilder.Entity<BlogPost>()
                 .Property(x => x.Title)
-                .HasColumnName(GetFieldName("BlogPost", "Title").ToLowerInvariant());
+                .HasColumnName(GetFieldName("BlogPost", "Title"));
             modelBuilder.Entity<BlogPost>()
                 .Property(x => x.Brief)
-                .HasColumnName(GetFieldName("BlogPost", "Brief").ToLowerInvariant());
+                .HasColumnName(GetFieldName("BlogPost", "Brief"));
             modelBuilder.Entity<BlogPost>()
                 .Property(x => x.PostDate)
-                .HasColumnName(GetFieldName("BlogPost", "PostDate").ToLowerInvariant());
+                .HasColumnName(GetFieldName("BlogPost", "PostDate"));
             modelBuilder.Entity<BlogPost>()
                 .Property(x => x.Text)
-                .HasColumnName(GetFieldName("BlogPost", "Text").ToLowerInvariant());
+                .HasColumnName(GetFieldName("BlogPost", "Text"));
             modelBuilder.Entity<BlogPost>()
                 .Property(x => x.Image)
-                .HasColumnName(GetFieldName("BlogPost", "Image").ToLowerInvariant());
+                .HasColumnName(GetFieldName("BlogPost", "Image"));
             modelBuilder.Entity<BlogPost>()
                 .Property(x => x.YoutubeVideoCode)
-                .HasColumnName(GetFieldName("BlogPost", "YoutubeVideoCode").ToLowerInvariant());
+                .HasColumnName(GetFieldName("BlogPost", "YoutubeVideoCode"));
             modelBuilder.Entity<BlogPost>()
                 .HasOne<BlogCategory>(mp => mp.Category)
                 .WithMany(mp => mp.PostsInCategory)
@@ -811,7 +811,7 @@ namespace QA.DemoSite.DAL
 
             #region BlogCategory mappings
             modelBuilder.Entity<BlogCategory>()
-                .ToTable(GetTableName("BlogCategory").ToLowerInvariant())
+                .ToTable(GetTableName("BlogCategory"))
                 .Property(x => x.Id)
                 .HasColumnName("content_item_id");
 
@@ -826,19 +826,19 @@ namespace QA.DemoSite.DAL
                 .Property(x => x.StatusTypeId)
                 .HasColumnName("status_type_id");
 
-				  	modelBuilder.Entity<BlogCategory>()
+			modelBuilder.Entity<BlogCategory>()
                 .Property(x => x.Archive)
                 .HasColumnName("archive");
 
-									modelBuilder.Entity<BlogCategory>()
+			modelBuilder.Entity<BlogCategory>()
                 .Property(x => x.Created)
                 .HasColumnName("created");
 
-									modelBuilder.Entity<BlogCategory>()
+			modelBuilder.Entity<BlogCategory>()
                 .Property(x => x.Modified)
                 .HasColumnName("modified");
 
-								modelBuilder.Entity<BlogCategory>()
+			modelBuilder.Entity<BlogCategory>()
                 .Property(x => x.Visible)
                 .HasColumnName("visible");
 
@@ -850,16 +850,16 @@ namespace QA.DemoSite.DAL
 
             modelBuilder.Entity<BlogCategory>()
                 .Property(x => x.Title)
-                .HasColumnName(GetFieldName("BlogCategory", "Title").ToLowerInvariant());
+                .HasColumnName(GetFieldName("BlogCategory", "Title"));
             modelBuilder.Entity<BlogCategory>()
                 .Property(x => x.SortOrder)
-                .HasColumnName(GetFieldName("BlogCategory", "SortOrder").ToLowerInvariant());
+                .HasColumnName(GetFieldName("BlogCategory", "SortOrder"));
  
             #endregion
 
             #region BlogTag mappings
             modelBuilder.Entity<BlogTag>()
-                .ToTable(GetTableName("BlogTag").ToLowerInvariant())
+                .ToTable(GetTableName("BlogTag"))
                 .Property(x => x.Id)
                 .HasColumnName("content_item_id");
 
@@ -874,19 +874,19 @@ namespace QA.DemoSite.DAL
                 .Property(x => x.StatusTypeId)
                 .HasColumnName("status_type_id");
 
-				  	modelBuilder.Entity<BlogTag>()
+			modelBuilder.Entity<BlogTag>()
                 .Property(x => x.Archive)
                 .HasColumnName("archive");
 
-									modelBuilder.Entity<BlogTag>()
+			modelBuilder.Entity<BlogTag>()
                 .Property(x => x.Created)
                 .HasColumnName("created");
 
-									modelBuilder.Entity<BlogTag>()
+			modelBuilder.Entity<BlogTag>()
                 .Property(x => x.Modified)
                 .HasColumnName("modified");
 
-								modelBuilder.Entity<BlogTag>()
+			modelBuilder.Entity<BlogTag>()
                 .Property(x => x.Visible)
                 .HasColumnName("visible");
 
@@ -898,13 +898,13 @@ namespace QA.DemoSite.DAL
 
             modelBuilder.Entity<BlogTag>()
                 .Property(x => x.Title)
-                .HasColumnName(GetFieldName("BlogTag", "Title").ToLowerInvariant());
+                .HasColumnName(GetFieldName("BlogTag", "Title"));
  
             #endregion
 
             #region FaqItem mappings
             modelBuilder.Entity<FaqItem>()
-                .ToTable(GetTableName("FaqItem").ToLowerInvariant())
+                .ToTable(GetTableName("FaqItem"))
                 .Property(x => x.Id)
                 .HasColumnName("content_item_id");
 
@@ -919,19 +919,19 @@ namespace QA.DemoSite.DAL
                 .Property(x => x.StatusTypeId)
                 .HasColumnName("status_type_id");
 
-				  	modelBuilder.Entity<FaqItem>()
+			modelBuilder.Entity<FaqItem>()
                 .Property(x => x.Archive)
                 .HasColumnName("archive");
 
-									modelBuilder.Entity<FaqItem>()
+			modelBuilder.Entity<FaqItem>()
                 .Property(x => x.Created)
                 .HasColumnName("created");
 
-									modelBuilder.Entity<FaqItem>()
+			modelBuilder.Entity<FaqItem>()
                 .Property(x => x.Modified)
                 .HasColumnName("modified");
 
-								modelBuilder.Entity<FaqItem>()
+			modelBuilder.Entity<FaqItem>()
                 .Property(x => x.Visible)
                 .HasColumnName("visible");
 
@@ -943,13 +943,13 @@ namespace QA.DemoSite.DAL
 
             modelBuilder.Entity<FaqItem>()
                 .Property(x => x.Question)
-                .HasColumnName(GetFieldName("FaqItem", "Question").ToLowerInvariant());
+                .HasColumnName(GetFieldName("FaqItem", "Question"));
             modelBuilder.Entity<FaqItem>()
                 .Property(x => x.Answer)
-                .HasColumnName(GetFieldName("FaqItem", "Answer").ToLowerInvariant());
+                .HasColumnName(GetFieldName("FaqItem", "Answer"));
             modelBuilder.Entity<FaqItem>()
                 .Property(x => x.SortOrder)
-                .HasColumnName(GetFieldName("FaqItem", "SortOrder").ToLowerInvariant());
+                .HasColumnName(GetFieldName("FaqItem", "SortOrder"));
  
             #endregion
 			AddMappingInfo(modelBuilder.Model);

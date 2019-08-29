@@ -130,9 +130,9 @@ namespace <#=System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Names
 			var connectionString = configuration.GetConnectionString("<#=model.Schema.ConnectionStringName#>");
             var optionsBuilder = new DbContextOptionsBuilder<<#=model.Schema.ClassName#>>();
 <#+ if (isPostgres) {#>
-      optionsBuilder.UseNpgsql<<#=model.Schema.ClassName#>>(connectionString);
+            optionsBuilder.UseNpgsql<<#=model.Schema.ClassName#>>(connectionString);
 <#+ } else { #>
-      optionsBuilder.UseSqlServer<<#=model.Schema.ClassName#>>(connectionString);
+            optionsBuilder.UseSqlServer<<#=model.Schema.ClassName#>>(connectionString);
 <#+ } #>
             return optionsBuilder.Options;
         }
@@ -142,9 +142,9 @@ namespace <#=System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Names
 		    var connectionString = configuration.GetConnectionString("<#=model.Schema.ConnectionStringName#>");
             var optionsBuilder = new DbContextOptionsBuilder<<#=model.Schema.ClassName#>>();
 <#+ if (isPostgres) {#>
-      optionsBuilder.UseNpgsql<<#=model.Schema.ClassName#>>(connectionString);
+            optionsBuilder.UseNpgsql<<#=model.Schema.ClassName#>>(connectionString);
 <#+ } else { #>
-      optionsBuilder.UseSqlServer<<#=model.Schema.ClassName#>>(connectionString);
+            optionsBuilder.UseSqlServer<<#=model.Schema.ClassName#>>(connectionString);
 <#+ } #>
             return optionsBuilder.Options;
         }

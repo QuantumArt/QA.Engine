@@ -5,7 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
-    <PackageReference Include="QP8.EntityFrameworkCore" Version="1.1.4-beta21" />
+    <PackageReference Include="QP8.EntityFrameworkCore" Version="1.1.4-beta22" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="*.cs">

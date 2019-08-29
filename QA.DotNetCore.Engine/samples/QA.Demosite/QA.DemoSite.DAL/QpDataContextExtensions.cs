@@ -130,7 +130,7 @@ namespace QA.DemoSite.DAL
 		public static QpDataContext Create(DbConnection connection)
 		{
 			var optionsBuilder = new DbContextOptionsBuilder<QpDataContext>();
-      optionsBuilder.UseNpgsql<QpDataContext>(connection);
+			optionsBuilder.UseNpgsql<QpDataContext>(connection);
             var ctx = new QpDataContext(optionsBuilder.Options);
 			ctx.SiteName = DefaultSiteName;
 		    ctx.ConnectionString = connection.ConnectionString;
@@ -141,7 +141,7 @@ namespace QA.DemoSite.DAL
         {
 		    var mapping = configurator.GetMappingInfo();
             var optionsBuilder = new DbContextOptionsBuilder<QpDataContext>();
-                  optionsBuilder.UseNpgsql<QpDataContext>(connection);
+            optionsBuilder.UseNpgsql<QpDataContext>(connection);
 			optionsBuilder.UseModel(mapping.DbCompiledModel);
             QpDataContext ctx = new QpDataContext(optionsBuilder.Options, mapping.Schema);
             ctx.SiteName = mapping.Schema.Schema.SiteName;
@@ -152,8 +152,8 @@ namespace QA.DemoSite.DAL
 
         public static QpDataContext Create(IMappingConfigurator configurator)
         {
-				DbConnection connection;
-      connection = new NpgsqlConnection(DefaultConnectionString);
+			DbConnection connection;
+			connection = new NpgsqlConnection(DefaultConnectionString);
             return Create(configurator, connection);
         }
 
@@ -163,7 +163,7 @@ namespace QA.DemoSite.DAL
 			if(connection.IndexOf("metadata", StringComparison.InvariantCultureIgnoreCase) == -1)
 			{
 				var optionsBuilder = new DbContextOptionsBuilder<QpDataContext>();
-      optionsBuilder.UseNpgsql<QpDataContext>(connection);
+				optionsBuilder.UseNpgsql<QpDataContext>(connection);
                 ctx = new QpDataContext(optionsBuilder.Options);
 				ctx.SiteName = siteName;
 				ctx.ConnectionString = connection;
@@ -172,7 +172,7 @@ namespace QA.DemoSite.DAL
 			else
 			{
 				var optionsBuilder = new DbContextOptionsBuilder<QpDataContext>();
-      optionsBuilder.UseNpgsql<QpDataContext>(connection);
+				optionsBuilder.UseNpgsql<QpDataContext>(connection);
                 ctx = new QpDataContext(optionsBuilder.Options);
 				ctx.SiteName = siteName;
 				ctx.ConnectionString = connection;
@@ -193,8 +193,8 @@ namespace QA.DemoSite.DAL
 
 		public static QpDataContext CreateWithStaticMapping(ContentAccess contentAccess)
         {
-				DbConnection connection;
-      connection = new NpgsqlConnection(DefaultConnectionString);
+			DbConnection connection;
+			connection = new NpgsqlConnection(DefaultConnectionString);
             return CreateWithStaticMapping(contentAccess, connection);
         }
 
@@ -212,8 +212,8 @@ namespace QA.DemoSite.DAL
 
         public static QpDataContext CreateWithDatabaseMapping(ContentAccess contentAccess, string siteName)
         {
-				DbConnection connection;
-      connection = new NpgsqlConnection(DefaultConnectionString);
+			DbConnection connection;
+			connection = new NpgsqlConnection(DefaultConnectionString);
             return CreateWithDatabaseMapping(contentAccess, siteName, connection);
         }
 
@@ -228,8 +228,8 @@ namespace QA.DemoSite.DAL
 
         public static QpDataContext CreateWithFileMapping(ContentAccess contentAccess, string path)
         {
-				DbConnection connection;
-      connection = new NpgsqlConnection(DefaultConnectionString);
+			DbConnection connection;
+			connection = new NpgsqlConnection(DefaultConnectionString);
             return CreateWithFileMapping(contentAccess, path, connection);
         }
 

@@ -44,7 +44,12 @@ namespace QA.DemoSite
             services.AddSingleton<ILogger>(provider => provider.GetRequiredService<ILogger<Program>>());
 
             var qpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
-            var qpConnection = Configuration.GetConnectionString("DatabaseQP");
+            DatabaseType dbType;
+            if (!Enum.TryParse(Configuration.GetValue<string>("dbType"), true, out dbType))
+            {
+                dbType = DatabaseType.SqlServer;
+            }
+            var qpConnection = dbType == DatabaseType.SqlServer ? Configuration.GetConnectionString("DatabaseQP") : Configuration.GetConnectionString("DatabaseQPPostgre");
 
             //структура сайта виджетной платформы
             services.AddSiteStructureEngine(options =>
@@ -97,10 +102,11 @@ namespace QA.DemoSite
                 var uow = sp.GetService<IUnitOfWork>();
                 return new DBConnector(uow.Connection);
             });
+
+           
             services.AddScoped<IUnitOfWork, UnitOfWork>(sp =>
-            {
-                var dbType = Configuration.GetValue<string>("DbType");
-                return new UnitOfWork(qpConnection, dbType);
+            {               
+                return new UnitOfWork(qpConnection, dbType.ToString());
             });
             //возможность работы с режимом onscreen
             services.AddOnScreenIntegration(mvc, options =>

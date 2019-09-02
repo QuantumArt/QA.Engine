@@ -53,8 +53,9 @@ namespace QA.DemoSite
                 options.TypeFinder.RegisterFromAssemblyContaining<RootPage, IAbstractItem>();
             });
 
+            
             //ef контекст
-            services.AddScoped(sp => QpDataContext.CreateWithStaticMapping(ContentAccess.Live,
+            services.AddScoped(sp => QpDataContext.CreateWithStaticMapping(qpSettings.IsStage ? ContentAccess.Stage : ContentAccess.Live,
                 new System.Data.SqlClient.SqlConnection(qpConnection)));
 
             //сервисы слоя данных

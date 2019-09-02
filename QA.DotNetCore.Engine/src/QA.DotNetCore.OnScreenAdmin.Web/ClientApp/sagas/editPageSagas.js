@@ -7,7 +7,6 @@ const abstractItemMetaInfoSelector = state => state.metaInfo.abstractItemMetaInf
 const selfSource = 'meta_info_edit_page';
 
 function* editPage() {
-  console.log('editPage saga');
   // см metaInfoSagas.js
   yield put({
     type: CONTENT_META_INFO_ACTION.GET_ABSTRACT_ITEM_INFO_REQUESTED,
@@ -16,8 +15,6 @@ function* editPage() {
 }
 
 function* showQpForm(action) {
-  console.log('editPage showQpForm');
-  console.log(window.currentPageId);
   if (action.source !== selfSource) { return; }
   const currentPageId = window.currentPageId;
   const abstractItemInfo = yield select(abstractItemMetaInfoSelector);

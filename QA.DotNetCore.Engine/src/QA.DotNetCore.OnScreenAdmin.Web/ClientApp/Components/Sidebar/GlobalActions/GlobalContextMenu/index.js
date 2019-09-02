@@ -52,7 +52,6 @@ class GlobalContextMenu extends Component {
       isIframe,
     } = this.props;
     const open = Boolean(this.state.anchorEl);
-    console.log(enabledMenuKeys);
     const showAddWidgetToPage = _.includes(enabledMenuKeys, ADD_WIDGET_TO_PAGE_KEY);
     const showToggleShowOnlyWidgets = _.includes(enabledMenuKeys, TOGGLE_SHOW_ONLY_WIDGETS_KEY);
     return (
@@ -115,7 +114,6 @@ GlobalContextMenu.propTypes = {
   classes: PropTypes.object.isRequired,
   isIframe: PropTypes.bool.isRequired,
   editPage: PropTypes.func.isRequired,
-  onScreenId: PropTypes.string.isRequired,
 };
 
 export default withStyles(styles)(GlobalContextMenu);

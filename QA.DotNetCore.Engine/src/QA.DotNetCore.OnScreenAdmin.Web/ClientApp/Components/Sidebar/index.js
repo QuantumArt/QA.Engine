@@ -11,6 +11,7 @@ import BorderLeft from 'material-ui-icons/BorderLeft';
 import BorderRight from 'material-ui-icons/BorderRight';
 import { DRAWER_WIDTH } from 'constants/general';
 import GlobalActions from 'containers/globalActions';
+import ComponentsOutlines from 'containers/componentsOutlines';
 import 'typeface-roboto/index.css';
 import OpenControl from '../OpenControl';
 import TabsToolbar from './TabsToolbar';
@@ -140,6 +141,7 @@ const Sidebar = (props) => {
           />
         </Scrollbars>
       </Drawer>
+      <ComponentsOutlines />
     </div>
   );
 };

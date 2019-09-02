@@ -16,7 +16,6 @@ import {
 } from 'actions/componentTreeActions';
 import ComponentTree from 'Components/WidgetsScreen/ComponentTreeScreen/ComponentTree';
 
-
 const mapStateToProps = state => ({
   components: filteredComponentTree(state),
   maxNestLevel: getMaxNestLevelSelector(state),

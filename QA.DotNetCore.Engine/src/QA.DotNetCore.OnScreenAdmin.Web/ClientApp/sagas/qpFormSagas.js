@@ -17,7 +17,6 @@ const qpFormActionsNeedReload = [
 ];
 
 export function qpFormCallback(eventType, details) {
-  console.log('qpFormCallback', eventType, details);
   if (eventType === 1) { // host unbinded
     if (details.reason === 'closed') { // closed
       qpFormChannel.put({ type: QP_FORM_ACTIONS.CLOSE_QP_FORM, eventType, details });
@@ -32,7 +31,6 @@ export function qpFormCallback(eventType, details) {
 
 
 function* qpFormClosed(action) {
-  console.log('qpFormClosed', action);
   const isReloadNeeded = yield select(getNeedReload);
   if (isReloadNeeded) {
     location.reload();

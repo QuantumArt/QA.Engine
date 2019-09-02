@@ -53,7 +53,6 @@ function* showAvailableWidgets(action) {
 }
 
 function* selectWidgetType() {
-  console.log('widget selected saga');
   const widgetToAdd = yield select(widgetToAddSelector);
   const abstractItemInfo = yield select(abstractItemMetaInfoSelector);
   const zoneName = yield select(getTargetZoneName);

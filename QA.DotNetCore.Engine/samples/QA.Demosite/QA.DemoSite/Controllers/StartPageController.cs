@@ -12,7 +12,7 @@ namespace QA.DemoSite.Controllers
         {
             var firstChildPage = CurrentItem.GetChildren().OrderBy(i => i.SortOrder).FirstOrDefault();
             if (firstChildPage != null)
-                return new RedirectResult(firstChildPage.GetUrl(), true);
+                return new RedirectResult(firstChildPage.GetUrl(), false);
             else
                 throw new Exception("Site is empty");
         }

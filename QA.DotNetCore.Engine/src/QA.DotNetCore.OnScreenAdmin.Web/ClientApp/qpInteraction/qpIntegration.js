@@ -11,10 +11,7 @@ export const showQPForm = (options) => {
   if (actionCode === 'view_archive_article') { entityTypeCode = 'archive_article'; }
 
   const observer = new window.Quantumart.QP8.Interaction.BackendEventObserver(`observer${uid}`, ((eventType, args) => {
-    console.log(eventType);
-    console.log(args);
     if (args.actionUID !== uid) {
-      console.log(`not matched: ${uid}`);
       return;
     }
 
@@ -54,8 +51,6 @@ export const showQPForm = (options) => {
 
   const hostId = getHostId();
 
-  console.log(`hostId: ${hostId}`);
-
   if (!options.isInTab) {
     executeOptions.isWindow = true;
     executeOptions.changeCurrentTab = false;
@@ -66,6 +61,5 @@ export const showQPForm = (options) => {
 
   const backendWnd = getParent();
 
-  console.log(executeOptions);
   window.Quantumart.QP8.Interaction.executeBackendAction(executeOptions, hostId, backendWnd);
 };

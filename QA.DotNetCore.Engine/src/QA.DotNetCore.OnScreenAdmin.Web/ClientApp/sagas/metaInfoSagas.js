@@ -6,7 +6,6 @@ const availableWidgetsSelector = state => state.metaInfo.availableWidgets;
 const abstractItemMetaInfoSelector = state => state.metaInfo.abstractItemMetaInfo;
 
 function* getAvailableWidgets(action) {
-  console.log('getAvailableWidgets');
   try {
     const cachedAvailableWidgets = yield select(availableWidgetsSelector);
     if (cachedAvailableWidgets) {
@@ -34,10 +33,8 @@ function* getAvailableWidgets(action) {
 
 
 function* getAbstractItemInfo(action) {
-  console.log('getAbstractItemInfo');
   try {
     const cachedAbstractItemInfo = yield select(abstractItemMetaInfoSelector);
-    console.log('cached:', cachedAbstractItemInfo);
     if (cachedAbstractItemInfo) {
       yield put({
         type: CONTENT_META_INFO_ACTION.GET_ABSTRACT_ITEM_INFO_SUCCESS,

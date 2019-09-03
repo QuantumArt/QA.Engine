@@ -72,8 +72,7 @@ const getPreviousStep = (currentState) => {
 const getNextStep = (creationMode, isCustomZone, currentStep) => {
   const effectiveSteps = getEffectiveSteps(creationMode, isCustomZone);
   const currentStepIndex = _.indexOf(effectiveSteps, currentStep);
-  console.log('effective steps', effectiveSteps);
-  console.log('current step index', currentStepIndex);
+
   return effectiveSteps[currentStepIndex + 1];
 };
 

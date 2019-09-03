@@ -7,14 +7,10 @@ import {
   TOGGLE_SHOW_ONLY_WIDGETS,
   TOGGLE_COMPONENT_TREE_SEARCH_BOX,
 } from 'actions/actionTypes';
-import buildFlatListNew from 'utils/buildFlatListNew';
 import buildFlatList from 'utils/buildFlatList';
-import buildTreeNew from 'utils/buildTreeNew';
 
 
-// const components = buildFlatList();
-const components = buildFlatListNew();
-
+const components = buildFlatList();
 const getMaxNestLevel = comps => comps.map(c => c.nestLevel).reduce((max, cur) => Math.max(max, cur));
 
 const initialState = {
@@ -37,11 +33,10 @@ export default function componentTreeReducer(state = initialState, action) {
     case TOGGLE_COMPONENT:
       return {
         ...state,
-        components: state.components.map(component =>
-          (component.onScreenId === action.id
-            ? { ...component, isSelected: true }
-            : { ...component, isSelected: false }),
-        ),
+        components: state.components.map(component => (component.onScreenId === action.id
+          ? ({ ...component, isSelected: !component.isSelected })
+          : ({ ...component, isSelected: false })
+        )),
         selectedComponentId: state.selectedComponentId === action.id
           ? ''
           : action.id,

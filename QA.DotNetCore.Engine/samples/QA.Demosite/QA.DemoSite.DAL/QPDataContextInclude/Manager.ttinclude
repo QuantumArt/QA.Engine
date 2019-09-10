@@ -13,7 +13,6 @@
 
 <#@ import namespace="System.IO" #>
 <#@ import namespace="System.Text.RegularExpressions" #>
-<#@ import namespace="QP.ConfigurationService.Models" #>
 
 <#+
 // Manager class records the various blocks so it can split them up
@@ -262,7 +261,6 @@ class GenerationContext : IDisposable
 	public ModelReader Model { get; private set; }
 	public Manager Manager { get; private set; }
 	public bool UsePartialUpdate { get; private set; }
-	public bool IsPostgres { get; private set; }
 
 	public GenerationContext(TextTransformation transformation, ITextTemplatingEngineHost host, StringBuilder content, string settingsFile)
 	{
@@ -277,7 +275,6 @@ class GenerationContext : IDisposable
 		Model.Schema.LazyLoadingEnabled = Settings.LazyLoadingEnabled;
 		Model.Schema.IsStageMode = true;
 		Model.Schema.ConnectionStringName = Settings.UseContextNameAsConnectionString ? Model.Schema.ClassName : Model.Schema.ConnectionStringName;
-		IsPostgres = Model.Schema.DBType == DatabaseType.Postgres;
 		
 		transformation.WriteLine("ClassName:  " + Model.Schema.ClassName);
 		transformation.WriteLine("ConnectionStringName:  " + Model.Schema.ConnectionStringName);

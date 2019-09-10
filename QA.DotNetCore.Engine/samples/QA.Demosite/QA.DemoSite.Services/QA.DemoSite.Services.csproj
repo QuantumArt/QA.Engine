@@ -9,8 +9,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\QA.DemoSite.DAL\QA.DemoSite.DAL.csproj" />
+    <ProjectReference Include="..\QA.DemoSite.DAL\QA.DemoSite.Mssql.DAL.csproj" />
     <ProjectReference Include="..\QA.DemoSite.Interfaces\QA.DemoSite.Interfaces.csproj" />
+    <ProjectReference Include="..\QA.DemoSite.Postgre.DAL\QA.DemoSite.Postgre.DAL.csproj" />
     <ProjectReference Include="..\QA.DemoSite.Templates\QA.DemoSite.Templates.csproj" />
   </ItemGroup>
 

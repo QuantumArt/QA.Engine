@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace QA.DemoSite.DAL
+namespace QA.DemoSite.Mssql.DAL
 {
     public partial class UserGroupBind
     {
@@ -16,24 +16,6 @@ namespace QA.DemoSite.DAL
         public virtual UserGroup UserGroup { get; set; }
     }
 }
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	

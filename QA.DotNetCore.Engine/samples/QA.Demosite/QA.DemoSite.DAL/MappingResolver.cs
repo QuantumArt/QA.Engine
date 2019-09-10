@@ -1,7 +1,7 @@
 using Quantumart.QP8.CoreCodeGeneration.Services;
 using System.Linq;
 
-namespace QA.DemoSite.DAL
+namespace QA.DemoSite.Mssql.DAL
 {
     public interface IMappingResolver
     {

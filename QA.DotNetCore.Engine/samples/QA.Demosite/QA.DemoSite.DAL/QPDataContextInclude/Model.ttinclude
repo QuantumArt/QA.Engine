@@ -3,7 +3,6 @@
 <#+ void AddModel(GenerationContext context){
 var model = context.Model;
 var settings = context.Settings;
-var isPostgres = context.IsPostgres;
 #>
 using System;
 using Microsoft.EntityFrameworkCore;
@@ -129,11 +128,7 @@ namespace <#=System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Names
 						.Build();
 			var connectionString = configuration.GetConnectionString("<#=model.Schema.ConnectionStringName#>");
             var optionsBuilder = new DbContextOptionsBuilder<<#=model.Schema.ClassName#>>();
-<#+ if (isPostgres) {#>
-            optionsBuilder.UseNpgsql<<#=model.Schema.ClassName#>>(connectionString);
-<#+ } else { #>
             optionsBuilder.UseSqlServer<<#=model.Schema.ClassName#>>(connectionString);
-<#+ } #>
             return optionsBuilder.Options;
         }
 		
@@ -141,11 +136,7 @@ namespace <#=System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Names
         {
 		    var connectionString = configuration.GetConnectionString("<#=model.Schema.ConnectionStringName#>");
             var optionsBuilder = new DbContextOptionsBuilder<<#=model.Schema.ClassName#>>();
-<#+ if (isPostgres) {#>
-            optionsBuilder.UseNpgsql<<#=model.Schema.ClassName#>>(connectionString);
-<#+ } else { #>
             optionsBuilder.UseSqlServer<<#=model.Schema.ClassName#>>(connectionString);
-<#+ } #>
             return optionsBuilder.Options;
         }
 		

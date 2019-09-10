@@ -5,9 +5,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Npgsql;
-using QA.DemoSite.DAL;
+using QA.DemoSite.Mssql.DAL;
 using QA.DemoSite.Interfaces;
 using QA.DemoSite.Models.Pages;
+using QA.DemoSite.Postgre.DAL;
 using QA.DemoSite.Services;
 using QA.DemoSite.Templates;
 using QA.DemoSite.ViewModels.Builders;
@@ -25,6 +26,7 @@ using QA.DotNetCore.Engine.Routing.Configuration;
 using QA.DotNetCore.Engine.Targeting.Configuration;
 using Quantumart.QPublishing.Database;
 using System;
+using System.Data.SqlClient;
 
 namespace QA.DemoSite
 {
@@ -44,6 +46,7 @@ namespace QA.DemoSite
             services.AddSingleton<ILogger>(provider => provider.GetRequiredService<ILogger<Program>>());
 
             var qpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
+
             DatabaseType dbType;
             if (!Enum.TryParse(Configuration.GetValue<string>("dbType"), true, out dbType))
             {
@@ -60,9 +63,19 @@ namespace QA.DemoSite
                 options.TypeFinder.RegisterFromAssemblyContaining<RootPage, IAbstractItem>();
             });
 
-            //ef контекст
-            services.AddScoped(sp => QpDataContext.CreateWithStaticMapping(ContentAccess.Live,
-                new NpgsqlConnection(qpConnection)));
+
+          //  ef контекст
+            if (dbType == DatabaseType.Postgres)
+            {
+                services.AddScoped<IDbContext>(sp => PostgreQpDataContext.CreateWithStaticMapping(Postgre.DAL.ContentAccess.Live,
+                  new NpgsqlConnection(qpConnection)));
+            }
+            else
+            {
+                services.AddScoped<IDbContext>(sp => QpDataContext.CreateWithStaticMapping(Mssql.DAL.ContentAccess.Live,
+                    new SqlConnection(qpConnection)));
+            }
+            
 
             //сервисы слоя данных
             services.AddScoped<IFaqService, FaqService>();

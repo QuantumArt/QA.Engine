@@ -20,34 +20,18 @@ base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<<#=content.MappedName#>>()
                 .ToTable(<#=getTableMapping(content)#>)
                 .Property(x => x.Id)
-                .HasColumnName("content_item_id");
+                .HasColumnName("CONTENT_ITEM_ID");
 
 			 modelBuilder.Entity<<#=content.MappedName#>>()
                 .HasKey(x=>x.Id);
            
 		    modelBuilder.Entity<<#=content.MappedName#>>()
                 .Property(x => x.LastModifiedBy)
-                .HasColumnName("last_modified_by");
+                .HasColumnName("LAST_MODIFIED_BY");
             
             modelBuilder.Entity<<#=content.MappedName#>>()
                 .Property(x => x.StatusTypeId)
-                .HasColumnName("status_type_id");
-
-			modelBuilder.Entity<<#=content.MappedName#>>()
-                .Property(x => x.Archive)
-                .HasColumnName("archive");
-
-			modelBuilder.Entity<<#=content.MappedName#>>()
-                .Property(x => x.Created)
-                .HasColumnName("created");
-
-			modelBuilder.Entity<<#=content.MappedName#>>()
-                .Property(x => x.Modified)
-                .HasColumnName("modified");
-
-			modelBuilder.Entity<<#=content.MappedName#>>()
-                .Property(x => x.Visible)
-                .HasColumnName("visible");
+                .HasColumnName("STATUS_TYPE_ID");
 
 			modelBuilder.Entity<<#=content.MappedName#>>()
                 .HasOne<StatusType>(x => x.StatusType)
@@ -56,7 +40,8 @@ base.OnModelCreating(modelBuilder);
                 .HasForeignKey(x => x.StatusTypeId); 
 
 <#+
-            foreach (var attribute in content.Attributes.Where(x => !x.IsRelation))
+            foreach (var attribute in content.Attributes.Where(x => !x.IsRelation && 
+				(x.Name != x.MappedName || (model.Schema.ReplaceUrls && x.CanContainPlaceholders))))
             {
 #>
             modelBuilder.Entity<<#=attribute.Content.MappedName#>>()
@@ -75,7 +60,7 @@ base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<<#=attribute.Content.MappedName#>>()
                 .Property(x => x.<#=attribute.OriginalMappedName#>)
-                .HasColumnName(<#=getFieldMapping(attribute)#>.ToLowerInvariant());
+                .HasColumnName(<#=getFieldMapping(attribute)#>);
 <#+
             }
 

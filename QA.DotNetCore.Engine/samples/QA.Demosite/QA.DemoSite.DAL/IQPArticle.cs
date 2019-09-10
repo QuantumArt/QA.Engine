@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 
-namespace QA.DemoSite.DAL
+namespace QA.DemoSite.Mssql.DAL
 {
     public interface IQPArticle
     {

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Quantumart.QP8.CoreCodeGeneration.Services;
 
-namespace QA.DemoSite.DAL
+namespace QA.DemoSite.Mssql.DAL
 {
     public interface IMappingConfigurator
     {

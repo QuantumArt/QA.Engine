@@ -2,7 +2,7 @@
 using System;
 using System.Data.SqlClient;
 
-namespace QA.DemoSite.DAL
+namespace QA.DemoSite.Mssql.DAL
 {
     public class QpDataContextConnectionScope
     {

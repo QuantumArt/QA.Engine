@@ -1,0 +1,80 @@
+<#@ template debug="false" hostspecific="true" language="C#"#>
+<#@output extension=".log"#>
+
+<#@ assembly name="System.Core"#>
+<#@ assembly name="System.Data" #>
+<#@ assembly name="System.Data.Linq"#>
+<#@ assembly name="System.Collections"#>
+<#@ assembly name="EnvDTE"#>
+<#@ assembly name="NetStandard" #>
+<#@ assembly name="System.Xml"#>
+<#@ assembly name="System.Xml.Linq"#>
+<#@ assembly name="$(NuGetPackageRoot)QP8.EntityFrameworkCore\1.1.4-beta22\lib\netstandard2.0\Quantumart.QP8.CoreCodeGeneration.dll"#>
+<#@ assembly name="$(NuGetPackageRoot)qp.configurationservice.client\0.2.0\lib\netstandard2.0\QP.ConfigurationService.Client.dll"#>
+
+<#@ import namespace="System"#>
+<#@ import namespace="System.CodeDom"#>
+<#@ import namespace="System.CodeDom.Compiler"#>
+<#@ import namespace="System.Collections.Generic"#>
+<#@ import namespace="System.Data.Linq"#>
+<#@ import namespace="System.Data.Linq.Mapping"#>
+<#@ import namespace="System.IO"#>
+<#@ import namespace="System.ComponentModel"#>
+<#@ import namespace="System.Linq"#>
+<#@ import namespace="System.Xml"#>
+<#@ import namespace="System.Linq"#>
+<#@ import namespace="System.Reflection"#>
+<#@ import namespace="System.Text"#>
+<#@ import namespace="Microsoft.VisualStudio.TextTemplating"#>
+<#@ import namespace="System.Xml.Linq"#>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="Quantumart.QP8.CoreCodeGeneration.Services" #>
+
+<#@ include file="QPDataContextInclude\Manager.ttinclude" #>
+<#@ include file="QPDataContextInclude\Model.ttinclude" #>
+<#@ include file="QPDataContextInclude\MappingConfiguratorOnModelCreating.ttinclude" #>
+<#@ include file="QPDataContextInclude\MappingConfigurator.ttinclude" #>
+<#@ include file="QPDataContextInclude\StaticSchemaProvider.ttinclude" #>
+<#@ include file="QPDataContextInclude\ModelExtensions.ttinclude" #>
+<#@ include file="QPDataContextInclude\ConnectionScope.ttinclude" #>
+<#@ include file="QPDataContextInclude\Classes.ttinclude" #>
+<#@ include file="QPDataContextInclude\ClassExtensions.ttinclude" #>
+<#@ include file="QPDataContextInclude\BaseM2MClasses.ttinclude" #>
+<#@ include file="QPDataContextInclude\ClassesM2M.ttinclude" #>
+
+<#
+	using (var context = new GenerationContext(this, Host, GenerationEnvironment, "QPDataContextGenerator.tt.settings.xml"))
+	{
+		var className = context.Model.Schema.ClassName;
+		var settings = context.Settings;
+
+		context.AddTemplateFile(className + ".cs", AddModel, settings.GenerateModel);
+		context.AddTemplateFile(className + "Extensions.cs", AddModelExtensions, settings.GenerateModel);
+		context.AddTemplateFile(className + "ConnectionScope.cs", AddConnectionScope, settings.GenerateModel);
+
+		context.AddTemplateFile("MappingConfigurator.cs", AddMappingConfigurator, settings.GenerateMappings);
+		context.AddCodeFile(@"MappingResolver.cs", settings.GenerateMappings);
+		context.AddCodeFile(@"FileSchemaProvider.cs", settings.GenerateMappings);
+		context.AddCodeFile(@"DatabaseSchemaProvider.cs", settings.GenerateMappings);
+		context.AddTemplateFile("StaticSchemaProvider.cs", AddStaticSchemaProvider, settings.GenerateMappings);
+
+		context.AddCodeFile(@"IQPArticle.cs", settings.GenerateInterface);
+		context.AddCodeFile(@"IQPLink.cs", settings.GenerateInterface);
+		context.AddCodeFile(@"IQPLibraryService.cs", settings.GenerateInterface);
+		context.AddCodeFile(@"IQPFormService.cs", settings.GenerateInterface);
+
+		context.AddCodeFile(@"IQPSchema.cs", settings.GenerateMappingInterface);
+		context.AddCodeFile(@"IMappingConfigurator.cs", settings.GenerateMappingInterface);
+		context.AddCodeFile(@"ISchemaProvider.cs", settings.GenerateMappingInterface);
+		context.AddCodeFile(@"MappingConfiguratorBase.cs", settings.GenerateMappingInterface);
+
+		context.AddCodeFile(@"StatusType.cs", settings.GenerateClasses);
+		context.AddCodeFile(@"User.cs", settings.GenerateClasses);
+		context.AddCodeFile(@"UserGroup.cs", settings.GenerateClasses);
+		context.AddCodeFile(@"UserGroupBind.cs", settings.GenerateClasses);
+		context.AddTemplate(AddClasses, settings.GenerateClasses);
+		context.AddTemplateFile(className + ".Contents.Extensions.cs", AddClassExtensions, settings.GenerateClasses && settings.GenerateExtensions);
+		context.AddTemplate(AddM2MClasses, settings.GenerateClasses);
+		context.AddTemplate(AddBaseM2MClasses, settings.GenerateClasses);
+	}
+#>

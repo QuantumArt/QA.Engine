@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Quantumart.QP8.CoreCodeGeneration.Services;
-using QP.ConfigurationService.Models;
 
 /* place your custom usings here */
 
-namespace QA.DemoSite.DAL
+namespace QA.DemoSite.Mssql.DAL
 {
     public class StaticSchemaProvider : ISchemaProvider
     {
@@ -20,7 +19,6 @@ namespace QA.DemoSite.DAL
 
             schema.Schema.SiteName = "main_site";
             schema.Schema.ReplaceUrls = true;
-            schema.Schema.DBType = DatabaseType.Postgres;
 
             schema.Attributes = new List<AttributeInfo>
             {

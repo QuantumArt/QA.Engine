@@ -2,7 +2,7 @@ using Quantumart.QP8.CoreCodeGeneration.Services;
 using System;
 using System.Linq.Expressions;
 
-namespace QA.DemoSite.DAL
+namespace QA.DemoSite.Mssql.DAL
 {
     public interface IQPSchema
     {

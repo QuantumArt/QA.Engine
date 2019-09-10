@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace QA.DemoSite.DAL
+namespace QA.DemoSite.Mssql.DAL
 {
     public partial class User
     {

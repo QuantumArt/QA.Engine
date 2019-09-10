@@ -4,12 +4,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;	
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using QA.DemoSite.Interfaces;
 
 /* place your custom usings here */
 
-namespace QA.DemoSite.DAL
+namespace QA.DemoSite.Mssql.DAL
 {
-    public partial class QpDataContext : DbContext
+    public partial class QpDataContext : DbContext, IDbContext
     {
         public static ContentAccess DefaultContentAccess = ContentAccess.Live;
 
@@ -115,7 +116,7 @@ namespace QA.DemoSite.DAL
 						.Build();
 			var connectionString = configuration.GetConnectionString("qp_database");
             var optionsBuilder = new DbContextOptionsBuilder<QpDataContext>();
-            optionsBuilder.UseNpgsql<QpDataContext>(connectionString);
+            optionsBuilder.UseSqlServer<QpDataContext>(connectionString);
             return optionsBuilder.Options;
         }
 		
@@ -123,7 +124,7 @@ namespace QA.DemoSite.DAL
         {
 		    var connectionString = configuration.GetConnectionString("qp_database");
             var optionsBuilder = new DbContextOptionsBuilder<QpDataContext>();
-            optionsBuilder.UseNpgsql<QpDataContext>(connectionString);
+            optionsBuilder.UseSqlServer<QpDataContext>(connectionString);
             return optionsBuilder.Options;
         }
 		

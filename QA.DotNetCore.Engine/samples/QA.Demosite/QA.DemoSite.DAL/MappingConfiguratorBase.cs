@@ -7,10 +7,8 @@ using System.Threading;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Quantumart.QP8.CoreCodeGeneration.Services;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using QP.ConfigurationService.Models;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata.Conventions;
 
-namespace QA.DemoSite.DAL
+namespace QA.DemoSite.Mssql.DAL
 {
     public abstract class MappingConfiguratorBase : IMappingConfigurator
     {
@@ -37,15 +35,7 @@ namespace QA.DemoSite.DAL
             {
                 var _schema = _schemaProvider.GetSchema();
                 _mappingResolver = new MappingResolver(_schema);
-                ConventionSet conventionSet;
-                if (_schema.Schema.DBType == DatabaseType.Postgres)
-                {
-                    conventionSet = NpgsqlConventionSetBuilder.Build();
-                }
-                else
-                {
-                    conventionSet = SqlServerConventionSetBuilder.Build();
-                }
+                var conventionSet = SqlServerConventionSetBuilder.Build();
                 var builder = new ModelBuilder(conventionSet);
                 OnModelCreating(builder);
                 builder.FinalizeModel();
@@ -78,7 +68,7 @@ namespace QA.DemoSite.DAL
 
             #region StatusType
             modelBuilder.Entity<StatusType>()
-                .ToTable("status_type_new")
+                .ToTable("STATUS_TYPE_NEW")
                 .Property(x => x.Id)
                 .ValueGeneratedOnAdd()
                 .HasColumnName("id");
@@ -90,7 +80,7 @@ namespace QA.DemoSite.DAL
 
             #region User
             modelBuilder.Entity<User>()
-                .ToTable("user_new")
+                .ToTable("USER_NEW")
                 .Property(e => e.Id)
                 .ValueGeneratedOnAdd()
                 .HasColumnName("id");
@@ -99,19 +89,16 @@ namespace QA.DemoSite.DAL
             modelBuilder.Entity<User>().Property(e => e.LastName).HasColumnName("last_name");
             modelBuilder.Entity<User>().Property(e => e.NTLogin).HasColumnName("nt_login");
             modelBuilder.Entity<User>().Property(e => e.ISOCode).HasColumnName("iso_code");
-            modelBuilder.Entity<User>().Property(e => e.Email).HasColumnName("email");
             #endregion
 
             #region UserGroup
             modelBuilder.Entity<UserGroup>()
-                .ToTable("user_group_new")
+                .ToTable("USER_GROUP_NEW")
                 .Property(e => e.Id).ValueGeneratedOnAdd()
                 .HasColumnName("id");
 
-            modelBuilder.Entity<UserGroup>().Property(e => e.Name).HasColumnName("name");
-
             modelBuilder.Entity<UserGroupBind>()
-                .ToTable("user_group_bind_new");
+                .ToTable("USER_GROUP_BIND_NEW");
 
             modelBuilder.Entity<UserGroupBind>().Property(e => e.UserId).HasColumnName("user_id");
             modelBuilder.Entity<UserGroupBind>().Property(e => e.GroupId).HasColumnName("group_id");
@@ -138,13 +125,13 @@ namespace QA.DemoSite.DAL
         #region Dynamic mapping
         protected string GetFieldName(string contentMappedName, string fieldMappedName)
         {
-            return _mappingResolver.GetAttribute(contentMappedName, fieldMappedName).Name.ToLowerInvariant();
+            return _mappingResolver.GetAttribute(contentMappedName, fieldMappedName).Name;
         }
 
         protected string GetTableName(string mappedName)
         {
             var content = _mappingResolver.GetContent(mappedName);
-            return GetTableName(content.Id, content.UseDefaultFiltration).ToLowerInvariant();
+            return GetTableName(content.Id, content.UseDefaultFiltration);
         }
 
         protected string GetLinkTableName( string contentMappedName, string fieldMappedName)

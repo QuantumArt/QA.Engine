@@ -1,0 +1,155 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+
+<#+ void AddModel(GenerationContext context){
+var model = context.Model;
+var settings = context.Settings;
+var isPostgres = context.IsPostgres;
+#>
+using System;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;	
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+
+<#= settings.Usings#>
+
+namespace <#=System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("NamespaceHint")#>
+{
+    public partial class <#=model.Schema.ClassName#> : DbContext
+    {
+        public static ContentAccess DefaultContentAccess = ContentAccess.Live;
+
+        private static string _Key = Guid.NewGuid().ToString();
+        private static string Key
+        {
+            get
+            {
+                return "EFCoreUtilDataContextKey " + _Key;
+            }
+        }
+        private static IHttpContextAccessor _accessor;
+        public static void SetHttpContextAccessor(IHttpContextAccessor accessor)
+        {
+            _accessor = accessor;
+        }
+
+        [ThreadStatic]
+        private static <#=model.Schema.ClassName#> _context;
+
+        public static <#=model.Schema.ClassName#> Current
+        {
+            get
+            {
+                if (_accessor?.HttpContext == null)
+                    return _context;
+                else
+                    return (<#=model.Schema.ClassName#>)_accessor.HttpContext.Items[Key];
+            }
+
+            private set
+            {
+                 if (_accessor?.HttpContext == null)
+                    _context = value;
+                else
+                    _accessor.HttpContext.Items[Key] = value;
+            }
+        }
+
+        void OnContextCreated()
+        {
+            Current = this;
+        }
+
+        public <#=model.Schema.ClassName#>()
+            : base(DefaultConnectionOptions())
+        {
+<#+ if (settings.GenerateExtensions) { #>
+            MappingResolver = GetDefaultMappingResolver();
+<#+ } #>
+
+            OnContextCreated();
+        }
+		
+		public <#=model.Schema.ClassName#>(IConfiguration configuration)
+            : base(DefaultConnectionOptions(configuration))
+        {
+<#+ if (settings.GenerateExtensions) { #>
+            MappingResolver = GetDefaultMappingResolver();
+<#+ } #>
+
+            OnContextCreated();
+        }
+		
+		public <#=model.Schema.ClassName#>(DbContextOptions<<#=model.Schema.ClassName#>> options)
+            : base(options)
+        {
+<#+ if (settings.GenerateExtensions) { #>
+            MappingResolver = GetDefaultMappingResolver();
+<#+ } #>
+
+            OnContextCreated();
+        }
+
+        public virtual DbSet<StatusType> StatusTypes { get; set; }
+        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<UserGroup> UserGroups { get; set; }
+
+<#+
+        foreach(ContentInfo content in model.Contents)
+        {
+#>
+        public virtual DbSet<<#=content.MappedName#>> <#=content.PluralMappedName#> { get; set; }
+<#+
+        }
+#>
+
+<#+		foreach(var content in model.Contents) { 
+	   		foreach(var attribute in content.Attributes.Where(x => x.IsM2M && x.IsSource == true)) { 
+#>
+		public virtual DbSet<<#=attribute.M2MClassName#>> <#=attribute.M2MPluralClassName#> { get; set; }
+
+<#+		if(settings.UseReversedAssociations && attribute.RelatedContent.SplitArticles) {
+#>
+		public virtual DbSet<<#=attribute.M2MReverseClassName#>> <#=attribute.M2MPluralReverseClassName#> { get; set; }
+<#+}#>
+<#+}#>
+<#+}#>
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+			var schemaProvider = new StaticSchemaProvider();
+			var mapping = new MappingConfigurator(DefaultContentAccess, schemaProvider);
+			mapping.OnModelCreating(modelBuilder);
+        }
+
+		private static DbContextOptions<<#=model.Schema.ClassName#>> DefaultConnectionOptions()
+        {
+			var configuration = new ConfigurationBuilder()
+						.AddJsonFile("appsettings.json")
+						.Build();
+			var connectionString = configuration.GetConnectionString("<#=model.Schema.ConnectionStringName#>");
+            var optionsBuilder = new DbContextOptionsBuilder<<#=model.Schema.ClassName#>>();
+<#+ if (isPostgres) {#>
+            optionsBuilder.UseNpgsql<<#=model.Schema.ClassName#>>(connectionString);
+<#+ } else { #>
+            optionsBuilder.UseSqlServer<<#=model.Schema.ClassName#>>(connectionString);
+<#+ } #>
+            return optionsBuilder.Options;
+        }
+		
+		private static DbContextOptions<<#=model.Schema.ClassName#>> DefaultConnectionOptions(IConfiguration configuration)
+        {
+		    var connectionString = configuration.GetConnectionString("<#=model.Schema.ConnectionStringName#>");
+            var optionsBuilder = new DbContextOptionsBuilder<<#=model.Schema.ClassName#>>();
+<#+ if (isPostgres) {#>
+            optionsBuilder.UseNpgsql<<#=model.Schema.ClassName#>>(connectionString);
+<#+ } else { #>
+            optionsBuilder.UseSqlServer<<#=model.Schema.ClassName#>>(connectionString);
+<#+ } #>
+            return optionsBuilder.Options;
+        }
+		
+		
+	}
+}
+<#+}#>

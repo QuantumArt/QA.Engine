@@ -14,12 +14,11 @@ using System.Collections.Generic;
 using Quantumart.QPublishing.Info;
 using System.Collections;
 using System.Globalization;
-using Quantumart.QP8.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.Transactions;
 /* place your custom usings here */
 
-namespace QA.DemoSite.DAL
+namespace QA.DemoSite.Mssql.DAL
 {
     public partial class QpDataContext: IQPLibraryService, IQPFormService, IQPSchema
     {

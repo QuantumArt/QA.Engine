@@ -3,8 +3,8 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using Quantumart.QP8.EntityFrameworkCore;
-namespace QA.DemoSite.DAL
+
+namespace QA.DemoSite.Mssql.DAL
 {
     public partial class AbTestBaseContainer: IQPArticle
     {
@@ -23,41 +23,41 @@ namespace QA.DemoSite.DAL
         public virtual Int32 LastModifiedBy { get; set; }
         public virtual StatusType StatusType { get; set; }
 
-		private String _Description;
+		private String _internalDescription;
 		public virtual String Description 
 		{ 
-			get { return _Description; }
-			set { _Description = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalDescription; }
+			set { _internalDescription = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
-		private String _AllowedUrlPatterns;
+		private String _internalAllowedUrlPatterns;
 		public virtual String AllowedUrlPatterns 
 		{ 
-			get { return _AllowedUrlPatterns; }
-			set { _AllowedUrlPatterns = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalAllowedUrlPatterns; }
+			set { _internalAllowedUrlPatterns = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
-		private String _DeniedUrlPatterns;
+		private String _internalDeniedUrlPatterns;
 		public virtual String DeniedUrlPatterns 
 		{ 
-			get { return _DeniedUrlPatterns; }
-			set { _DeniedUrlPatterns = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalDeniedUrlPatterns; }
+			set { _internalDeniedUrlPatterns = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
-		private String _Domain;
+		private String _internalDomain;
 		public virtual String Domain 
 		{ 
-			get { return _Domain; }
-			set { _Domain = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalDomain; }
+			set { _internalDomain = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
-		private String _Precondition;
+		private String _internalPrecondition;
 		public virtual String Precondition 
 		{ 
-			get { return _Precondition; }
-			set { _Precondition = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalPrecondition; }
+			set { _internalPrecondition = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
-		private String _Arguments;
+		private String _internalArguments;
 		public virtual String Arguments 
 		{ 
-			get { return _Arguments; }
-			set { _Arguments = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalArguments; }
+			set { _internalArguments = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
         public virtual Int32? Type { get; set; }
 		/// <summary>

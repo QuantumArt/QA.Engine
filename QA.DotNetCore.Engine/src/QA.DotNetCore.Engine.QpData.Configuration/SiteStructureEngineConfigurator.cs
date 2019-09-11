@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using QA.DotNetCore.Caching;
 using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions;
-using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
@@ -12,6 +11,8 @@ using QA.DotNetCore.Engine.Routing.Mappers;
 using QA.DotNetCore.Engine.Widgets;
 using QA.DotNetCore.Engine.Widgets.Mappers;
 using System;
+using QP.ConfigurationService.Models;
+using Quantumart.QPublishing.Database;
 
 namespace QA.DotNetCore.Engine.QpData.Configuration
 {
@@ -28,16 +29,39 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             if (options.QpSettings == null)
                 throw new Exception("QpSettings is not configured.");
 
-            if (options.QpConnectionString == null)
-                throw new Exception("QpConnectionString is not configured.");
-
             services.AddSingleton(options.QpSettings);
             services.AddSingleton(options.QpSiteStructureSettings);
             services.AddSingleton(options.QpSchemeCacheSettings);
             services.AddSingleton(options.ItemDefinitionCacheSettings);
 
+            string qpConnectionString = null;
+            string qpDatabaseType = null;
+            if (options.QpSettings?.ConnectionString != null)
+            {
+                //если явно задана QpConnectionString, то будем использовать эту строку подключения
+                qpConnectionString = options.QpSettings.ConnectionString;
+                qpDatabaseType = options.QpSettings.DatabaseType ?? "MSSQL";
+            }
+            else if (options.QpSettings?.CustomerCode != null && options.QpSettings?.ConfigurationServiceUrl != null && options.QpSettings?.ConfigurationServiceToken != null)
+            {
+                //если есть возможность получить строку подключения через сервис конфигурации
+                DBConnector.ConfigServiceUrl = options.QpSettings.ConfigurationServiceUrl;
+                DBConnector.ConfigServiceToken = options.QpSettings.ConfigurationServiceToken;
+                CustomerConfiguration dbConfig = DBConnector.GetCustomerConfiguration(options.QpSettings.CustomerCode).Result;
+
+                qpConnectionString = dbConfig.ConnectionString;
+                qpDatabaseType = dbConfig.DbType.ToString();
+            }
+            else
+            {
+                throw new Exception("Cannot get QP connection details. Should provide ConnectionString/DatabaseType or set ConfigurationServiceUrl/ConfigurationServiceToken/CustomerCode in QpSettings");
+            }
+
             //DAL
-            services.AddScoped<IUnitOfWork, UnitOfWork>(sp => new UnitOfWork(options.QpConnectionString));
+            services.AddScoped<IUnitOfWork, UnitOfWork>(sp =>
+            {
+                return new UnitOfWork(qpConnectionString, qpDatabaseType);
+            });
             services.AddScoped<IMetaInfoRepository, MetaInfoRepository>();
             services.AddScoped<INetNameQueryAnalyzer, NetNameQueryAnalyzer>();
             services.AddScoped<IAbstractItemRepository, AbstractItemRepository>();
@@ -53,7 +77,7 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
 
             //itypefinder
             services.Add(new ServiceDescriptor(typeof(ITypeFinder), provider => options.TypeFinder, ServiceLifetime.Singleton));
-            
+
             if (options.ItemDefinitionConvention == ItemDefinitionConvention.Name)
                 services.AddScoped<IItemDefinitionProvider, NameConventionalItemDefinitionProvider>();
             else if (options.ItemDefinitionConvention == ItemDefinitionConvention.Attribute)

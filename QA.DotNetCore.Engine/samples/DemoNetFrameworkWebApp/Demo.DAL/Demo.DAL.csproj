@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Demo.DAL</RootNamespace>
     <AssemblyName>Demo.DAL</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -140,6 +141,11 @@
     <Compile Include="QpDataContextExtensions.cs">
       <DependentUpon>QPDataContextGenerator.tt</DependentUpon>
     </Compile>
+    <Compile Include="QPDataContextGenerator.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>QPDataContextGenerator.tt</DependentUpon>
+    </Compile>
     <Compile Include="QPDiscriminator.cs">
       <DependentUpon>QPDataContextGenerator.tt</DependentUpon>
     </Compile>
@@ -183,17 +189,12 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="QPDataContextGenerator.log">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>QPDataContextGenerator.tt</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="ModelMappingResult.xml" />
     <Content Include="QPDataContextGenerator.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>QPDataContextGenerator.log</LastGenOutput>
+      <LastGenOutput>QPDataContextGenerator.cs</LastGenOutput>
     </Content>
     <Content Include="QPDataContextGenerator.tt.settings.xml" />
   </ItemGroup>

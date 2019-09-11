@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DemoWebApplication.Controllers
 {
-    public class BlogPageTypeController : ContentControllerBase<BlogPageType>
+    public class BlogPageController : ContentControllerBase<BlogPage>
     {
         public IActionResult Index()
         {

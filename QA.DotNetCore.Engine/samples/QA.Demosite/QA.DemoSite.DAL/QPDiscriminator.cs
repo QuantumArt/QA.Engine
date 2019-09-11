@@ -3,8 +3,8 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using Quantumart.QP8.EntityFrameworkCore;
-namespace QA.DemoSite.DAL
+
+namespace QA.DemoSite.Mssql.DAL
 {
     public partial class QPDiscriminator: IQPArticle
     {
@@ -26,44 +26,44 @@ namespace QA.DemoSite.DAL
         public virtual Int32 LastModifiedBy { get; set; }
         public virtual StatusType StatusType { get; set; }
 
-		private String _Title;
+		private String _internalTitle;
 		public virtual String Title 
 		{ 
-			get { return _Title; }
-			set { _Title = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalTitle; }
+			set { _internalTitle = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
-		private String _Name;
+		private String _internalName;
 		public virtual String Name 
 		{ 
-			get { return _Name; }
-			set { _Name = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalName; }
+			set { _internalName = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
         public virtual Int32? PreferredContentId { get; set; }
-		private String _TypeName;
+		private String _internalTypeName;
 		public virtual String TypeName 
 		{ 
-			get { return _TypeName; }
-			set { _TypeName = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalTypeName; }
+			set { _internalTypeName = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
-		private String _CategoryName;
+		private String _internalCategoryName;
 		public virtual String CategoryName 
 		{ 
-			get { return _CategoryName; }
-			set { _CategoryName = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalCategoryName; }
+			set { _internalCategoryName = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
-		private String _Description;
+		private String _internalDescription;
 		public virtual String Description 
 		{ 
-			get { return _Description; }
-			set { _Description = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalDescription; }
+			set { _internalDescription = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
         public virtual String IconUrl { get; set; }
         public virtual Boolean? IsPage { get; set; }
-		private String _AllowedZones;
+		private String _internalAllowedZones;
 		public virtual String AllowedZones 
 		{ 
-			get { return _AllowedZones; }
-			set { _AllowedZones = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalAllowedZones; }
+			set { _internalAllowedZones = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
         public virtual Boolean? FilterPartByUrl { get; set; }
 		/// <summary>

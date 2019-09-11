@@ -5,7 +5,8 @@ namespace QA.DotNetCore.Engine.Abstractions.OnScreen
         /// <summary>
         /// Доступен ли OnScreen
         /// </summary>
-        public bool Enabled { get { return Features != OnScreenFeatures.None; } }
+        public bool Enabled => Features != OnScreenFeatures.None;
+
         /// <summary>
         /// Доступные фичи OnScreen
         /// </summary>
@@ -32,5 +33,8 @@ namespace QA.DotNetCore.Engine.Abstractions.OnScreen
         /// Id страницы
         /// </summary>
         public int? PageId { get; set; }
+
+        public string CustomerCode { get; set; }
+
     }
 }

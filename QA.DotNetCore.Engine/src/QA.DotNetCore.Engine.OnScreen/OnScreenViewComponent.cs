@@ -4,16 +4,21 @@ using QA.DotNetCore.Engine.Abstractions.OnScreen;
 using QA.DotNetCore.Engine.OnScreen.Configuration;
 using QA.DotNetCore.Engine.Routing;
 using System;
+using QA.DotNetCore.Engine.QpData.Settings;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 
 namespace QA.DotNetCore.Engine.OnScreen
 {
     public class OnScreenViewComponent : ViewComponent
     {
         private readonly OnScreenSettings _onScreenSettings;
+        private readonly QpSettings _qpSettings;
 
-        public OnScreenViewComponent(OnScreenSettings onScreenSettings)
+
+        public OnScreenViewComponent(OnScreenSettings onScreenSettings, QpSettings qpSettings)
         {
             _onScreenSettings = onScreenSettings;
+            _qpSettings = qpSettings;
         }
 
         public IViewComponentResult Invoke()
@@ -24,11 +29,14 @@ namespace QA.DotNetCore.Engine.OnScreen
 
             if (ctx.Enabled)
             {
-                OnScreenViewModel model = new OnScreenViewModel();
-                model.StartPage = ViewContext.GetStartPage();
-                model.AI = ViewContext.GetCurrentItem();
-                model.OnScreenSettings = _onScreenSettings;
-                model.Ctx = ctx;
+                OnScreenViewModel model = new OnScreenViewModel
+                {
+                    StartPage = ViewContext.GetStartPage(),
+                    AI = ViewContext.GetCurrentItem(),
+                    OnScreenSettings = _onScreenSettings,
+                    CustomerCode = _qpSettings.CustomerCode,
+                    Ctx = ctx
+                };
                 return View(model);
             }
             return Content(string.Empty);
@@ -41,5 +49,6 @@ namespace QA.DotNetCore.Engine.OnScreen
         public IAbstractItem AI { get; internal set; }
         public OnScreenSettings OnScreenSettings { get; set; }
         public OnScreenContext Ctx { get; set; }
+        public string CustomerCode { get; set; }
     }
 }

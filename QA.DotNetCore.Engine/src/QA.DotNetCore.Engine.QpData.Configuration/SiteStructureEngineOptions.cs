@@ -1,4 +1,5 @@
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 using QA.DotNetCore.Engine.QpData.Settings;
 using QA.DotNetCore.Engine.Reflection;
 using System;
@@ -24,11 +25,6 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
         /// Конвенция для маппинга контроллеров
         /// </summary>
         public ControllerMapperConvention ControllerMapperConvention { get; set; } = ControllerMapperConvention.Name;
-
-        /// <summary>
-        /// Строка подключения к QP
-        /// </summary>
-        public string QpConnectionString { get; set; }
 
         /// <summary>
         /// Настройки взаимодействия с QP

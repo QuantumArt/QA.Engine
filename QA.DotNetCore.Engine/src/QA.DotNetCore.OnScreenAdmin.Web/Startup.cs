@@ -19,11 +19,15 @@ using Quantumart.QPublishing.Authentication;
 using Quantumart.QPublishing.Database;
 using System;
 using System.Collections.Generic;
+using QP.ConfigurationService.Models;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace QA.DotNetCore.OnScreenAdmin.Web
 {
     public class Startup
     {
+        const string SWAGGER_VERSION = "v1";
+        const string SWAGGER_TITLE = "OnScreen Web Api";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -36,18 +40,41 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
         {
             services.AddMvc();
 
+            services.AddSwaggerGen(o =>
+            {
+                o.SwaggerDoc(SWAGGER_VERSION, new Info
+                {
+                    Title = SWAGGER_TITLE,
+                    Version = SWAGGER_VERSION
+                });
+                var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = System.IO.Path.Combine(AppContext.BaseDirectory, xmlFile);
+                o.IncludeXmlComments(xmlPath);
+            });
             services.AddMemoryCache();
             services.AddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            var dbConnectorSettings = Configuration.GetSection("DbConnectorSettings").Get<DbConnectorSettings>();
-            dbConnectorSettings.ConnectionString = Configuration.GetConnectionString("QpConnection");
-            services.AddSingleton(typeof(DbConnectorSettings), dbConnectorSettings);
-            services.AddScoped<DBConnector>();
+            services.AddScoped(sp =>
+            {
+                var uow = sp.GetService<IUnitOfWork>();
+                return new DBConnector(uow.Connection);
+            });
             services.AddScoped<IAuthenticationService, AuthenticationService>();
 
-
-            services.AddScoped<IUnitOfWork, UnitOfWork>(sp => new UnitOfWork(Configuration.GetConnectionString("QpConnection")));
+            services.AddScoped<IUnitOfWork, UnitOfWork>(sp =>
+            {
+                var httpContextAccessor = sp.GetService<IHttpContextAccessor>();
+                if (!httpContextAccessor.HttpContext.Request.Headers.TryGetValue("Customer-Code", out var customerCode))
+                {
+                    throw new Exception("Customer-Code header must be provided.");
+                }
+                var config = Configuration.GetSection("ConfigurationService").Get<ConfigurationServiceConfig>();
+                DBConnector.ConfigServiceUrl = config.Url;
+                DBConnector.ConfigServiceToken = config.Token;
+                CustomerConfiguration dbConfig = DBConnector.GetCustomerConfiguration(customerCode.ToString()).Result;
+                return new UnitOfWork(dbConfig.ConnectionString, dbConfig.DbType.ToString());
+            });
             services.AddScoped<IMetaInfoRepository, MetaInfoRepository>();
             services.AddScoped<INetNameQueryAnalyzer, NetNameQueryAnalyzer>();
             services.AddScoped<IItemDefinitionRepository, ItemDefinitionRepository>();
@@ -76,6 +103,9 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
             });
 
             services.AddCacheTagServices(options => options.InvalidateByMiddleware(@"^(?!\/api\/).+$"));//инвалидировать только если запрос начинается с /api/
+
+            services.AddHealthChecks();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -117,6 +147,15 @@ namespace QA.DotNetCore.OnScreenAdmin.Web
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            app.UseHealthChecks("/ready");
+
+            app.UseSwagger();
+            app.UseSwaggerUI(o =>
+            {
+                o.SwaggerEndpoint("/swagger/v1/swagger.json", $"{SWAGGER_TITLE} {SWAGGER_VERSION}");
+            });
+
         }
     }
 }

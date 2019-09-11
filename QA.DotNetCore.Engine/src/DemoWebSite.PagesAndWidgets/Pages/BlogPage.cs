@@ -4,8 +4,8 @@ using System;
 
 namespace DemoWebSite.PagesAndWidgets.Pages
 {
-    public class BlogPageType : TextPage
+    public class BlogPage : AbstractPage
     {
-        public override string PictureUrl => base.PictureUrl;
+
     }
 }

@@ -3,8 +3,8 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using Quantumart.QP8.EntityFrameworkCore;
-namespace QA.DemoSite.DAL
+
+namespace QA.DemoSite.Mssql.DAL
 {
     public partial class AbTestClientRedirectContainer: IQPArticle
     {

@@ -21,22 +21,22 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
         private const string CmdGetAll = @"
 SELECT
     CONTENT_ITEM_ID as Id,
-    [|QPDiscriminator.Name|] as Discriminator,
-    [|QPDiscriminator.TypeName|] as TypeName,
-    [|QPDiscriminator.IsPage|] as IsPage,
-    [|QPDiscriminator.Title|] as Title,
-    [|QPDiscriminator.Description|] as Description,
-    [|QPDiscriminator.IconUrl|] as IconUrl,
-    [|QPDiscriminator.PreferredContentId|] as PreferredContentId
-FROM [|QPDiscriminator|]
+    |QPDiscriminator.Name| as Discriminator,
+    |QPDiscriminator.TypeName| as TypeName,
+    |QPDiscriminator.IsPage| as IsPage,
+    |QPDiscriminator.Title| as Title,
+    |QPDiscriminator.Description| as Description,
+    |QPDiscriminator.IconUrl| as IconUrl,
+    |QPDiscriminator.PreferredContentId| as PreferredContentId
+FROM |QPDiscriminator|
 ";
 
         public string ItemDefinitionNetName => "QPDiscriminator";
 
-        public IEnumerable<ItemDefinitionPersistentData> GetAllItemDefinitions(int siteId, bool isStage)
+        public IEnumerable<ItemDefinitionPersistentData> GetAllItemDefinitions(int siteId, bool isStage, IDbTransaction transaction = null)
         {
             var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAll, siteId, isStage);
-            return _connection.Query<ItemDefinitionPersistentData>(query).ToList();
+            return _connection.Query<ItemDefinitionPersistentData>(query, transaction).ToList();
         }
     }
 }

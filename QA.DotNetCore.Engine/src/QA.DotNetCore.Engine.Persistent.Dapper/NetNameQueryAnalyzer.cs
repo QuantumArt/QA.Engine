@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using QA.DotNetCore.Engine.Persistent.Dapper;
 
 namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
@@ -57,8 +58,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
                     throw new Exception($"Content with netname '{tableNetName}' was not found for site {siteId}");
                 }
 
-                sb.Replace($"|{tableNetName}|", useUnited ? contentMetaInfo.UnitedTableName :
-                    isStage ? contentMetaInfo.StageTableName : contentMetaInfo.LiveTableName);
+                sb.Replace($"|{tableNetName}|", useUnited ? contentMetaInfo.GetUnitedTableName() : contentMetaInfo.GetTableName(isStage));
 
                 foreach (var columnNetName in columnsByTables[tableNetName])
                 {

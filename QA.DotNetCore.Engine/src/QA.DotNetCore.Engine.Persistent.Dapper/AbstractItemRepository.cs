@@ -16,11 +16,13 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
     {
         private readonly IUnitOfWork _uow;
         private readonly INetNameQueryAnalyzer _netNameQueryAnalyzer;
+        private readonly IMetaInfoRepository _metaInfoRepository;
 
-        public AbstractItemRepository(IUnitOfWork uow, INetNameQueryAnalyzer netNameQueryAnalyzer)
+        public AbstractItemRepository(IUnitOfWork uow, INetNameQueryAnalyzer netNameQueryAnalyzer, IMetaInfoRepository metaInfoRepository)
         {
             _uow = uow;
             _netNameQueryAnalyzer = netNameQueryAnalyzer;
+            _metaInfoRepository = metaInfoRepository;
         }
 
         //запрос с использованием NetName таблиц и столбцов
@@ -42,17 +44,10 @@ FROM |QPAbstractItem| ai
 INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.content_item_id
 ";
 
-        private const string CmdUseDefaultFiltration = @" SELECT CONTENT.USE_DEFAULT_FILTRATION FROM CONTENT";
-
-        private const string CmdGetBaseContentId = @"
-        SELECT CONTENT_ID FROM CONTENT
-        WHERE NET_CONTENT_NAME = 'QPAbstractItem'
-        AND SITE_ID IN (SELECT SITE_ID FROM CONTENT WHERE CONTENT_ID = @ContentId)";
-
-        private const string CmdGetExtensionFields = @"SELECT * FROM {0} ext {1} INNER JOIN {2} on Id = ext.itemid";
+        private const string CmdGetExtensionFields = @"SELECT * FROM {0} ext {1} INNER JOIN {2} on Id = ext.itemid {3}";
 
         private const string CmdManyToMany = @"SELECT link_id, item_id, linked_item_id
-          FROM item_link{0} link {1} INNER JOIN {2} on Id = link.item_id";
+          FROM {0} link {1} INNER JOIN {2} on Id = link.item_id";
 
         public string AbstractItemNetName => "QPAbstractItem";
 
@@ -63,34 +58,22 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
         }
 
         public IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionContentId,
-            IEnumerable<int> ids, bool loadAbstractItemFields, bool isStage, IDbTransaction transaction = null)
+            IEnumerable<int> ids,
+            ContentPersistentData baseContent,
+            bool loadAbstractItemFields, bool isStage, IDbTransaction transaction = null)
         {
-            var extensionUseFiltration = DoesContentUseDefaultFiltration(extensionContentId, transaction);
-            string tablesSuffux = extensionUseFiltration ?
-                isStage ? "_STAGE_NEW" : "_LIVE_NEW"
-                : isStage ? "_united" : string.Empty;
-            string tableName = $"CONTENT_{extensionContentId}{(extensionUseFiltration ? tablesSuffux : string.Empty)}";
-            var table = SqlQuerySyntaxHelper.IdList(_uow.DatabaseType, "@ids", "ids");
-            string fieldsQuery = string.Format(CmdGetExtensionFields,
-                tableName,
+            var extTableName = QpTableNameHelper.GetTableName(extensionContentId, isStage);
+            var idList = SqlQuerySyntaxHelper.IdList(_uow.DatabaseType, "@ids", "ids");
+
+            string extFieldsQuery = string.Format(CmdGetExtensionFields,
+                extTableName,
                 SqlQuerySyntaxHelper.WithNoLock(_uow.DatabaseType),
-                table);
-            if (loadAbstractItemFields)
-            {
-                var baseContentId = GetBaseContentId(extensionContentId, transaction);
-                if (baseContentId > 0)
-                {
-                    var doesBaseContentUseFiltration = DoesContentUseDefaultFiltration(baseContentId, transaction);
-                    string abstractItemViewName =
-                        $"CONTENT_{baseContentId + (doesBaseContentUseFiltration ? tablesSuffux : string.Empty)}";
-                    fieldsQuery = fieldsQuery +
-                                  $" INNER JOIN {abstractItemViewName} ai on ai.Content_item_id = ext.itemid";
-                }
-            }
+                idList,
+                loadAbstractItemFields ? $"INNER JOIN {baseContent.GetTableName(isStage)} ai on ai.Content_item_id = ext.itemid" : "");
 
             using (var command = _uow.Connection.CreateCommand())
             {
-                command.CommandText = fieldsQuery;
+                command.CommandText = extFieldsQuery;
                 command.Parameters.Add(SqlQuerySyntaxHelper.GetIdsDatatableParam("@Ids", ids, _uow.DatabaseType));
                 command.Transaction = transaction;
                 return LoadAbstractItemExtension(command);
@@ -103,7 +86,6 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
 
             using (var reader = command.ExecuteReader())
             {
-                //DataTable not available in .NetStandart v1.6, go with reader
                 while (reader.Read())
                 {
                     int id = 0;
@@ -127,50 +109,13 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
             }
         }
 
-        private bool DoesContentUseDefaultFiltration(int contentId, IDbTransaction transaction)
-        {
-            using (var command = _uow.Connection.CreateCommand())
-            {
-                command.CommandText = CmdUseDefaultFiltration + " WHERE CONTENT.CONTENT_ID = @contentid";
-                command.CommandType = CommandType.Text;
-                command.Transaction = transaction;
-                var contentParameter = command.CreateParameter();
-                contentParameter.ParameterName = "@contentId";
-                contentParameter.Value = contentId;
-                command.Parameters.Add(contentParameter);
-                using (var reader = command.ExecuteReader())
-                {
-                    reader.Read();
-                    return reader.GetBoolean(0);
-                }
-            }
-        }
-
-        private int GetBaseContentId(int extensionId, IDbTransaction transaction)
-        {
-            using (var command = _uow.Connection.CreateCommand())
-            {
-                command.CommandText = CmdGetBaseContentId;
-                command.CommandType = CommandType.Text;
-                command.Transaction = transaction;
-                var extensionIdParameter = command.CreateParameter();
-                extensionIdParameter.ParameterName = "@contentId";
-                extensionIdParameter.Value = extensionId;
-                command.Parameters.Add(extensionIdParameter);
-                using (var reader = command.ExecuteReader())
-                {
-                    reader.Read();
-                    return Decimal.ToInt32(reader.GetDecimal(0));
-                }
-            }
-        }
-
         public IDictionary<int, M2mRelations> GetManyToManyData(IEnumerable<int> ids, bool isStage, IDbTransaction transaction = null)
         {
-            string tablesSuffux = isStage ? "_united" : string.Empty;
+            string m2mTableName = QpTableNameHelper.GetM2MTableName(isStage);
             var idList = SqlQuerySyntaxHelper.IdList(_uow.DatabaseType, "@ids", "ids");
+
             string query = string.Format(CmdManyToMany,
-                tablesSuffux,
+                m2mTableName,
                 SqlQuerySyntaxHelper.WithNoLock(_uow.DatabaseType),
                 idList);
 

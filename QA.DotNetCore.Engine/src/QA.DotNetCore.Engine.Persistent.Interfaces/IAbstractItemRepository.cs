@@ -8,7 +8,7 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces
     {
         IEnumerable<AbstractItemPersistentData> GetPlainAllAbstractItems(int siteId, bool isStage, IDbTransaction transaction = null);
 
-        IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionContentId, IEnumerable<int> ids, bool loadAbstractItemFields, bool isStage, IDbTransaction transaction = null);
+        IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionContentId, IEnumerable<int> ids, ContentPersistentData baseContent, bool loadAbstractItemFields, bool isStage, IDbTransaction transaction = null);
 
         IDictionary<int, M2mRelations> GetManyToManyData(IEnumerable<int> ids, bool isStage, IDbTransaction transaction = null);
 

@@ -27,6 +27,7 @@ using QA.DotNetCore.Engine.Targeting.Configuration;
 using Quantumart.QPublishing.Database;
 using System;
 using System.Data.SqlClient;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 
 namespace QA.DemoSite
 {
@@ -46,33 +47,31 @@ namespace QA.DemoSite
             services.AddSingleton<ILogger>(provider => provider.GetRequiredService<ILogger<Program>>());
 
             var qpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
-
-            if (!Enum.TryParse(Configuration.GetValue<string>("dbType"), true, out DatabaseType dbType))
+            if (!Enum.TryParse(qpSettings.DatabaseType, true, out DatabaseType dbType))
             {
                 dbType = DatabaseType.SqlServer;
             }
-            var qpConnection = dbType == DatabaseType.SqlServer ? Configuration.GetConnectionString("DatabaseQP") : Configuration.GetConnectionString("DatabaseQPPostgre");
+            qpSettings.ConnectionString = dbType == DatabaseType.SqlServer ? Configuration.GetConnectionString("DatabaseQP") : Configuration.GetConnectionString("DatabaseQPPostgre");
 
             //структура сайта виджетной платформы
             services.AddSiteStructureEngine(options =>
             {
-                options.QpConnectionString = qpConnection;
                 options.QpSettings = qpSettings;
                 options.QpSiteStructureSettings = Configuration.GetSection("QpSiteStructureSettings").Get<QpSiteStructureSettings>();
                 options.TypeFinder.RegisterFromAssemblyContaining<RootPage, IAbstractItem>();
             });
 
 
-            //  ef контекст
+            //ef контекст
             if (dbType == DatabaseType.Postgres)
             {
                 services.AddScoped<IDbContext>(sp => PostgreQpDataContext.CreateWithStaticMapping(Postgre.DAL.ContentAccess.Live,
-                  new NpgsqlConnection(qpConnection)));
+                  new NpgsqlConnection(qpSettings.ConnectionString)));
             }
             else
             {
                 services.AddScoped<IDbContext>(sp => QpDataContext.CreateWithStaticMapping(Mssql.DAL.ContentAccess.Live,
-                    new SqlConnection(qpConnection)));
+                    new SqlConnection(qpSettings.ConnectionString)));
             }
             
 
@@ -90,7 +89,7 @@ namespace QA.DemoSite
             services.AddAbTestServices(options =>
             {
                 //дублируются некоторые опции из AddSiteStructureEngine, потому что АБ-тесты могут быть или не быть независимо от структуры сайта
-                options.QpConnectionString = qpConnection;
+                options.QpSettings = qpSettings;
                 options.AbTestingSettings.SiteId = qpSettings.SiteId;
                 options.AbTestingSettings.IsStage = qpSettings.IsStage;
             });
@@ -115,11 +114,6 @@ namespace QA.DemoSite
                 return new DBConnector(uow.Connection);
             });
 
-           
-            services.AddScoped<IUnitOfWork, UnitOfWork>(sp =>
-            {               
-                return new UnitOfWork(qpConnection, dbType.ToString());
-            });
             //возможность работы с режимом onscreen
             services.AddOnScreenIntegration(mvc, options =>
             {
@@ -127,11 +121,6 @@ namespace QA.DemoSite
                 options.Settings.SiteId = qpSettings.SiteId;
                 options.Settings.IsStage = qpSettings.IsStage;
                 options.Settings.AvailableFeatures = OnScreenFeatures.Widgets | OnScreenFeatures.AbTests;
-                options.DbConnectorSettings = new DbConnectorSettings
-                {
-                    ConnectionString = qpConnection,
-                    IsLive = !qpSettings.IsStage
-                };
             });
         }
 
@@ -144,7 +133,9 @@ namespace QA.DemoSite
                 invalidation.RegisterScoped<QpContentCacheTracker>();
             });
             app.UseSiteStructure();
-            app.UseOnScreenMode();
+
+            var qpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
+            app.UseOnScreenMode(qpSettings.CustomerCode);
             app.UseMvc(routes =>
             {
                 routes.MapContentRoute("default", "{controller}/{action=Index}/{id?}");

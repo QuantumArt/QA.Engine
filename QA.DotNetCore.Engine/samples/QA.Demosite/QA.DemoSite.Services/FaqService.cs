@@ -9,32 +9,34 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 
 namespace QA.DemoSite.Services
 {
     public class FaqService : IFaqService
     {
-        public FaqService(IConfiguration config, QpDataContext qpDataContext, PostgreQpDataContext postgreQpDataContext,
+        public FaqService(IDbContext qpDataContext,
             ICacheProvider cacheProvider,
-            CacheTagUtilities cacheTagUtilities)
+            CacheTagUtilities cacheTagUtilities,
+            QpSettings qpSettings)
         {
             QpDataContext = qpDataContext;
-            PostgreQpDataContext = postgreQpDataContext;
             CacheProvider = cacheProvider;
             CacheTagUtilities = cacheTagUtilities;
-            dbType = config.GetValue<DatabaseType>("dbType");
+            if (!Enum.TryParse(qpSettings.DatabaseType, true, out DatabaseType dbType))
+            {
+                dbType = DatabaseType.SqlServer;
+            }
         }
 
         readonly DatabaseType dbType = DatabaseType.SqlServer;
-        public QpDataContext QpDataContext { get; }
-        public PostgreQpDataContext PostgreQpDataContext { get; }
+        public IDbContext QpDataContext { get; }
         public ICacheProvider CacheProvider { get; }
         public CacheTagUtilities CacheTagUtilities { get; }
 
         public IEnumerable<FaqItemDto> GetItems(IEnumerable<int> ids)
         {
             return GetAll().Where(i => ids.Contains(i.Id)).ToList();
-            //return QpDataContext.FaqItems.Where(i => ids.Contains(i.Id)).ToList().Select(Map).ToList();
         }
 
         private IEnumerable<FaqItemDto> GetAllCached()
@@ -49,9 +51,9 @@ namespace QA.DemoSite.Services
         {
             if (dbType == DatabaseType.Postgres)
             {
-                return PostgreQpDataContext.FaqItems.ToList().Select(Map).ToArray();
+                return (QpDataContext as PostgreQpDataContext).FaqItems.ToList().Select(Map).ToArray();
             }
-            return QpDataContext.FaqItems.ToList().Select(Map).ToArray();
+            return (QpDataContext as QpDataContext).FaqItems.ToList().Select(Map).ToArray();
         }
 
         private FaqItemDto Map(Mssql.DAL.FaqItem faqItem)

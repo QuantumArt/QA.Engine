@@ -9,11 +9,11 @@
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.8.1" />
-    <PackageReference Include="QA.DotNetCore.Engine.AbTesting.Configuration" Version="0.5.5-beta" />
-    <PackageReference Include="QA.DotNetCore.Engine.CacheTags" Version="0.5.5-beta" />
-    <PackageReference Include="QA.DotNetCore.Engine.OnScreen" Version="0.5.5-beta" />
-    <PackageReference Include="QA.DotNetCore.Engine.QpData.Configuration" Version="0.5.5-beta" />
-    <PackageReference Include="QA.DotNetCore.Engine.Targeting" Version="0.5.5-beta" />
+    <PackageReference Include="QA.DotNetCore.Engine.AbTesting.Configuration" Version="0.9.0" />
+    <PackageReference Include="QA.DotNetCore.Engine.CacheTags" Version="0.9.0" />
+    <PackageReference Include="QA.DotNetCore.Engine.OnScreen" Version="0.9.0" />
+    <PackageReference Include="QA.DotNetCore.Engine.QpData.Configuration" Version="0.9.0" />
+    <PackageReference Include="QA.DotNetCore.Engine.Targeting" Version="0.9.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -6,45 +6,36 @@ using QA.DemoSite.Interfaces.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
-using Microsoft.Extensions.Configuration;
-using Quantumart.QPublishing.Database;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 
 namespace QA.DemoSite.Services
 {
     public class BlogService : IBlogService
     {
-        public BlogService(IConfiguration config, IDbContext context)
+        public BlogService(QpSettings qpSettings, IDbContext context)
         {
-            dbType = config.GetValue<DatabaseType>("dbType");
-            if (dbType == DatabaseType.Postgres)
+            QpDataContext = context;
+            if (!Enum.TryParse(qpSettings.DatabaseType, true, out DatabaseType dbType))
             {
-                PostgreQpDataContext = context as PostgreQpDataContext;
-            }
-            else
-            {
-                QpDataContext = context as QpDataContext;
+                dbType = DatabaseType.SqlServer;
             }
         }
 
         readonly DatabaseType dbType = DatabaseType.SqlServer;
-        public QpDataContext QpDataContext;
-        public PostgreQpDataContext PostgreQpDataContext;
-        public IDbContext context;
+        public IDbContext QpDataContext { get; }
 
         public IEnumerable<BlogPostDto> GetAllPosts()
         {
             if (dbType == DatabaseType.Postgres)
             {
-                return PostgreQpDataContext.BlogPosts
+                return (QpDataContext as PostgreQpDataContext).BlogPosts
                   .Include(c => c.Category)
                   .Include(t => t.Tags)
                   .ThenInclude(ti => ti.BlogTagLinkedItem).ToList()
                   .Select(Map).ToArray();
             }
-            return QpDataContext.BlogPosts
+            return (QpDataContext as QpDataContext).BlogPosts
                .Include(c => c.Category)
                .Include(t => t.Tags)
                .ThenInclude(ti => ti.BlogTagLinkedItem).ToList()
@@ -55,14 +46,14 @@ namespace QA.DemoSite.Services
         {
             if (dbType == DatabaseType.Postgres)
             {
-                return Map(PostgreQpDataContext.BlogPosts
+                return Map((QpDataContext as PostgreQpDataContext).BlogPosts
                  .Include(c => c.Category)
                  .Include(t => t.Tags)
                  .ThenInclude(ti => ti.BlogTagLinkedItem)
                  .FirstOrDefault(bp => bp.Id == id));
             }
 
-            return Map(QpDataContext.BlogPosts
+            return Map((QpDataContext as QpDataContext).BlogPosts
             .Include(c => c.Category)
             .Include(t => t.Tags)
             .ThenInclude(ti => ti.BlogTagLinkedItem)

@@ -1,11 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="QA.DotNetCore.Caching" Version="0.5.5-beta" />
+    <PackageReference Include="QA.DotNetCore.Caching" Version="0.9.0" />
   </ItemGroup>
 
   <ItemGroup>

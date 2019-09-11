@@ -9,6 +9,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 
 namespace QA.DotNetCore.Engine.QpData
 {

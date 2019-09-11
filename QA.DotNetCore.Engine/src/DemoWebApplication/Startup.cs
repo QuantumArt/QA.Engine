@@ -16,6 +16,7 @@ using QA.DotNetCore.Engine.CacheTags;
 using QA.DotNetCore.Engine.CacheTags.Configuration;
 using QA.DotNetCore.Engine.OnScreen;
 using QA.DotNetCore.Engine.OnScreen.Configuration;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 using QA.DotNetCore.Engine.QpData.Configuration;
 using QA.DotNetCore.Engine.QpData.Settings;
 using QA.DotNetCore.Engine.Routing;
@@ -80,7 +81,6 @@ namespace DemoWebApplication
                 options.Settings.SiteId = qpSettings.SiteId;
                 options.Settings.IsStage = qpSettings.IsStage;
                 options.Settings.AvailableFeatures = qpSettings.IsStage ? OnScreenFeatures.Widgets | OnScreenFeatures.AbTests : OnScreenFeatures.AbTests;
-                options.QpSettings = qpSettings;
             });
 
             services.AddCacheTagServices(options =>

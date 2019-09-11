@@ -1,6 +1,5 @@
+using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 using System;
-using QA.DotNetCore.Engine.Persistent.Interfaces;
-using QA.DotNetCore.Engine.QpData.Settings;
 
 namespace QA.DotNetCore.Engine.AbTesting.Configuration
 {
@@ -13,6 +12,6 @@ namespace QA.DotNetCore.Engine.AbTesting.Configuration
 
         public AbTestingSettings AbTestingSettings { get; set; } = DefaultAbTestingSettings;
 
-        static AbTestingSettings DefaultAbTestingSettings = new AbTestingSettings { TestsCachePeriod = new TimeSpan(0, 1, 0), ContainersCachePeriod = new TimeSpan(0, 1, 0) };
+        static readonly AbTestingSettings DefaultAbTestingSettings = new AbTestingSettings { TestsCachePeriod = new TimeSpan(0, 1, 0), ContainersCachePeriod = new TimeSpan(0, 1, 0) };
     }
 }

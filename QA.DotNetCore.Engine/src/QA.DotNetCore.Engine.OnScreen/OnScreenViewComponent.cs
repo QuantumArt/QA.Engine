@@ -5,6 +5,7 @@ using QA.DotNetCore.Engine.OnScreen.Configuration;
 using QA.DotNetCore.Engine.Routing;
 using System;
 using QA.DotNetCore.Engine.QpData.Settings;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 
 namespace QA.DotNetCore.Engine.OnScreen
 {
@@ -28,12 +29,14 @@ namespace QA.DotNetCore.Engine.OnScreen
 
             if (ctx.Enabled)
             {
-                OnScreenViewModel model = new OnScreenViewModel();
-                model.StartPage = ViewContext.GetStartPage();
-                model.AI = ViewContext.GetCurrentItem();
-                model.OnScreenSettings = _onScreenSettings;
-                model.CustomerCode = _qpSettings.CustomerCode;
-                model.Ctx = ctx;
+                OnScreenViewModel model = new OnScreenViewModel
+                {
+                    StartPage = ViewContext.GetStartPage(),
+                    AI = ViewContext.GetCurrentItem(),
+                    OnScreenSettings = _onScreenSettings,
+                    CustomerCode = _qpSettings.CustomerCode,
+                    Ctx = ctx
+                };
                 return View(model);
             }
             return Content(string.Empty);

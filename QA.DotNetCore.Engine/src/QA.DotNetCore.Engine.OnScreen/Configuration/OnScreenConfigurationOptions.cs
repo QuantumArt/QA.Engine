@@ -1,15 +1,11 @@
-using System;
 using QA.DotNetCore.Engine.Abstractions.OnScreen;
-using QA.DotNetCore.Engine.QpData.Settings;
-using Quantumart.QPublishing.Database;
+using System;
 
 namespace QA.DotNetCore.Engine.OnScreen.Configuration
 {
     public class OnScreenConfigurationOptions
     {
         public OnScreenSettings Settings { get; set; } = DefaultSettings;
-
-        public QpSettings QpSettings { get; set; }
 
         /// <summary>
         /// Дефолтная конфигурация

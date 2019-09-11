@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using QA.DotNetCore.Caching;
 using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions;
-using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
@@ -35,13 +34,33 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             services.AddSingleton(options.QpSchemeCacheSettings);
             services.AddSingleton(options.ItemDefinitionCacheSettings);
 
-            //DAL
-            services.AddScoped<IUnitOfWork, UnitOfWork>(sp =>
+            string qpConnectionString = null;
+            string qpDatabaseType = null;
+            if (options.QpSettings?.ConnectionString != null)
             {
+                //если явно задана QpConnectionString, то будем использовать эту строку подключения
+                qpConnectionString = options.QpSettings.ConnectionString;
+                qpDatabaseType = options.QpSettings.DatabaseType ?? "MSSQL";
+            }
+            else if (options.QpSettings?.CustomerCode != null && options.QpSettings?.ConfigurationServiceUrl != null && options.QpSettings?.ConfigurationServiceToken != null)
+            {
+                //если есть возможность получить строку подключения через сервис конфигурации
                 DBConnector.ConfigServiceUrl = options.QpSettings.ConfigurationServiceUrl;
                 DBConnector.ConfigServiceToken = options.QpSettings.ConfigurationServiceToken;
                 CustomerConfiguration dbConfig = DBConnector.GetCustomerConfiguration(options.QpSettings.CustomerCode).Result;
-                return new UnitOfWork(dbConfig.ConnectionString, dbConfig.DbType.ToString());
+
+                qpConnectionString = dbConfig.ConnectionString;
+                qpDatabaseType = dbConfig.DbType.ToString();
+            }
+            else
+            {
+                throw new Exception("Cannot get QP connection details. Should provide ConnectionString/DatabaseType or set ConfigurationServiceUrl/ConfigurationServiceToken/CustomerCode in QpSettings");
+            }
+
+            //DAL
+            services.AddScoped<IUnitOfWork, UnitOfWork>(sp =>
+            {
+                return new UnitOfWork(qpConnectionString, qpDatabaseType);
             });
             services.AddScoped<IMetaInfoRepository, MetaInfoRepository>();
             services.AddScoped<INetNameQueryAnalyzer, NetNameQueryAnalyzer>();

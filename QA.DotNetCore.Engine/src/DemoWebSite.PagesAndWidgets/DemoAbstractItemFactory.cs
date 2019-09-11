@@ -27,7 +27,7 @@ namespace DemoWebSite.PagesAndWidgets
                 case "html_page":
                     return new TextPage();
                 case "blog_page":
-                    return new BlogPageType();
+                    return new BlogPage();
                 case "html_part":
                     return new TextPart();
                 case "news_widget":

@@ -29,7 +29,7 @@ namespace QA.DemoSite.Services
             }
         }
 
-        DatabaseType dbType = DatabaseType.SqlServer;
+        readonly DatabaseType dbType = DatabaseType.SqlServer;
         public QpDataContext QpDataContext;
         public PostgreQpDataContext PostgreQpDataContext;
         public IDbContext context;

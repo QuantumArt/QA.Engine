@@ -6,6 +6,7 @@ var settings = context.Settings;
 using System.Collections.Generic;
 using System.Linq;
 using Quantumart.QP8.CoreCodeGeneration.Services;
+using QP.ConfigurationService.Models;
 
 <#= settings.Usings#>
 
@@ -24,6 +25,7 @@ namespace <#=System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Names
 
             schema.Schema.SiteName = "<#=model.Schema.SiteName ?? ""#>";
             schema.Schema.ReplaceUrls = <#=model.Schema.ReplaceUrls.ToString().ToLower()#>;
+            schema.Schema.DBType = DatabaseType.<#=model.Schema.DBType#>;
 
             schema.Attributes = new List<AttributeInfo>
             {

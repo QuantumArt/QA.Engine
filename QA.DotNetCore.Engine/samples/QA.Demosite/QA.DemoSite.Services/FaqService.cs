@@ -25,7 +25,7 @@ namespace QA.DemoSite.Services
             dbType = config.GetValue<DatabaseType>("dbType");
         }
 
-        DatabaseType dbType = DatabaseType.SqlServer;
+        readonly DatabaseType dbType = DatabaseType.SqlServer;
         public QpDataContext QpDataContext { get; }
         public PostgreQpDataContext PostgreQpDataContext { get; }
         public ICacheProvider CacheProvider { get; }

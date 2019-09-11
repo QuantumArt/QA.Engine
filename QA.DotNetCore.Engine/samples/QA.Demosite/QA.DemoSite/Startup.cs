@@ -47,8 +47,7 @@ namespace QA.DemoSite
 
             var qpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
 
-            DatabaseType dbType;
-            if (!Enum.TryParse(Configuration.GetValue<string>("dbType"), true, out dbType))
+            if (!Enum.TryParse(Configuration.GetValue<string>("dbType"), true, out DatabaseType dbType))
             {
                 dbType = DatabaseType.SqlServer;
             }
@@ -64,7 +63,7 @@ namespace QA.DemoSite
             });
 
 
-          //  ef контекст
+            //  ef контекст
             if (dbType == DatabaseType.Postgres)
             {
                 services.AddScoped<IDbContext>(sp => PostgreQpDataContext.CreateWithStaticMapping(Postgre.DAL.ContentAccess.Live,

@@ -10,7 +10,7 @@ using QA.DemoSite.Interfaces;
 
 namespace QA.DemoSite.Mssql.DAL
 {
-    public partial class QpDataContext : DbContext, IDbContext
+    public partial class QpDataContext : DbContext
     {
         public static ContentAccess DefaultContentAccess = ContentAccess.Live;
 

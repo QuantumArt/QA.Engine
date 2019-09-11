@@ -10,7 +10,7 @@ using QA.DemoSite.Interfaces;
 
 namespace QA.DemoSite.Postgre.DAL
 {
-    public partial class PostgreQpDataContext : DbContext, IDbContext
+    public partial class PostgreQpDataContext : DbContext
     {
         public static ContentAccess DefaultContentAccess = ContentAccess.Live;
 

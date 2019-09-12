@@ -3,8 +3,8 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using Quantumart.QP8.EntityFrameworkCore;
-namespace QA.DemoSite.DAL
+
+namespace QA.DemoSite.Mssql.DAL
 {
     public partial class BlogCategory: IQPArticle
     {
@@ -22,11 +22,11 @@ namespace QA.DemoSite.DAL
         public virtual Int32 LastModifiedBy { get; set; }
         public virtual StatusType StatusType { get; set; }
 
-		private String _Title;
+		private String _internalTitle;
 		public virtual String Title 
 		{ 
-			get { return _Title; }
-			set { _Title = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalTitle; }
+			set { _internalTitle = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
         public virtual Int32? SortOrder { get; set; }
 		/// <summary>

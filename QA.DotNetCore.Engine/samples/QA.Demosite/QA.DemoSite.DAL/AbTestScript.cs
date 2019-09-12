@@ -3,8 +3,8 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using Quantumart.QP8.EntityFrameworkCore;
-namespace QA.DemoSite.DAL
+
+namespace QA.DemoSite.Mssql.DAL
 {
     public partial class AbTestScript: IQPArticle
     {
@@ -21,18 +21,18 @@ namespace QA.DemoSite.DAL
         public virtual Int32 LastModifiedBy { get; set; }
         public virtual StatusType StatusType { get; set; }
 
-		private String _Description;
+		private String _internalDescription;
 		public virtual String Description 
 		{ 
-			get { return _Description; }
-			set { _Description = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalDescription; }
+			set { _internalDescription = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
         public virtual Int32? VersionNumber { get; set; }
-		private String _ScriptText;
+		private String _internalScriptText;
 		public virtual String ScriptText 
 		{ 
-			get { return _ScriptText; }
-			set { _ScriptText = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalScriptText; }
+			set { _internalScriptText = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
 		/// <summary>
 		/// 

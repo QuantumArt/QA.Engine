@@ -3,8 +3,8 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using Quantumart.QP8.EntityFrameworkCore;
-namespace QA.DemoSite.DAL
+
+namespace QA.DemoSite.Mssql.DAL
 {
     public partial class FaqItem: IQPArticle
     {
@@ -21,17 +21,17 @@ namespace QA.DemoSite.DAL
         public virtual Int32 LastModifiedBy { get; set; }
         public virtual StatusType StatusType { get; set; }
 
-		private String _Question;
+		private String _internalQuestion;
 		public virtual String Question 
 		{ 
-			get { return _Question; }
-			set { _Question = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalQuestion; }
+			set { _internalQuestion = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
-		private String _Answer;
+		private String _internalAnswer;
 		public virtual String Answer 
 		{ 
-			get { return _Answer; }
-			set { _Answer = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalAnswer; }
+			set { _internalAnswer = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
         public virtual Int32? SortOrder { get; set; }
 	}

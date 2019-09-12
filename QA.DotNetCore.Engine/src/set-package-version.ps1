@@ -1,6 +1,7 @@
 ﻿param (
     [Parameter(Mandatory = $true)]
-    [string]$newVersion
+    [string]$newVersion,
+	[string]$suffix
 )
 $invocation = (Get-Variable MyInvocation).Value
 $srcDir = Split-Path $invocation.MyCommand.Path
@@ -23,6 +24,10 @@ foreach($csprojFile in $csprojFiles)
         $VersionNode.InnerText = $newVersion
         $AssemblyVersionNode.InnerText = $newVersion + ".0"
         $FileVersionNode.InnerText = $newVersion + ".0"
+		if ($suffix) {
+			$VersionNode.InnerText += "-" + $suffix
+			Write-Host "Версия пакета $newVersion-$suffix"
+		}
         $xml.Save($csprojFilePath)
         Write-Host "Файл $csprojFile обновлен до версии $newVersion"
     }

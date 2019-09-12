@@ -5,13 +5,7 @@ namespace QA.DotNetCore.Engine.QpData
 {
     public abstract class AbstractPage : AbstractItem, IAbstractPage
     {
-        public override bool IsPage
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public override bool IsPage => true;
 
         public bool IsVisible { get; private set; }
 

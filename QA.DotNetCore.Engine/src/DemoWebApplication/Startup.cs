@@ -16,6 +16,7 @@ using QA.DotNetCore.Engine.CacheTags;
 using QA.DotNetCore.Engine.CacheTags.Configuration;
 using QA.DotNetCore.Engine.OnScreen;
 using QA.DotNetCore.Engine.OnScreen.Configuration;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 using QA.DotNetCore.Engine.QpData.Configuration;
 using QA.DotNetCore.Engine.QpData.Settings;
 using QA.DotNetCore.Engine.Routing;
@@ -51,17 +52,15 @@ namespace DemoWebApplication
             services.AddMemoryCache();
 
             var qpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
-            var qpConnection = Configuration.GetConnectionString("QpConnection");
 
             services.AddSiteStructureEngine(options =>
             {
-                options.QpConnectionString = qpConnection;
                 options.QpSettings = qpSettings;
                 options.QpSiteStructureSettings = Configuration.GetSection("QpSiteStructureSettings").Get<QpSiteStructureSettings>();
                 options.TypeFinder.RegisterFromAssemblyContaining<RootPage, IAbstractItem>();
             });
 
-            //services.AddSiteStructureEngineViaXml(options =>
+            //services.AddSiteStructureEngineViaXml(options =>Load data for many-to-many fields in main content
             //{
             //    options.Settings.FilePath = @"C:\git\QA.Engine\QA.DotNetCore.Engine\src\DemoWebApplication\pages_and_widgets.xml";
             //    options.TypeFinder.RegisterFromAssemblyContaining<XmlRootPage, XmlAbstractItem>();
@@ -70,22 +69,18 @@ namespace DemoWebApplication
             services.AddAbTestServices(options =>
             {
                 //дублируются некоторые опции из AddSiteStructureEngine, потому что АБ-тесты могут быть или не быть независимо от структуры сайта
-                options.QpConnectionString = qpConnection;
+                options.QpSettings = qpSettings;
                 options.AbTestingSettings.SiteId = qpSettings.SiteId;
                 options.AbTestingSettings.IsStage = qpSettings.IsStage;
             });
 
             services.AddOnScreenIntegration(mvcBuilder, options =>
             {
-                options.Settings.AdminSiteBaseUrl = Configuration.GetSection("OnScreen").Get<OnScreenSettings>().AdminSiteBaseUrl;
+                var onScreenSettings = Configuration.GetSection("OnScreen").Get<OnScreenSettings>();
+                options.Settings.AdminSiteBaseUrl = onScreenSettings.AdminSiteBaseUrl;
                 options.Settings.SiteId = qpSettings.SiteId;
                 options.Settings.IsStage = qpSettings.IsStage;
                 options.Settings.AvailableFeatures = qpSettings.IsStage ? OnScreenFeatures.Widgets | OnScreenFeatures.AbTests : OnScreenFeatures.AbTests;
-                options.DbConnectorSettings = new DbConnectorSettings
-                {
-                    ConnectionString = qpConnection,
-                    IsLive = !qpSettings.IsStage
-                };
             });
 
             services.AddCacheTagServices(options =>
@@ -156,7 +151,8 @@ namespace DemoWebApplication
                 filters.RegisterSingleton<DemoCultureFilter>();
             });
 
-            app.UseOnScreenMode();
+            var qpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
+            app.UseOnScreenMode(qpSettings.CustomerCode);
 
             app.UseMvc(routes =>
             {

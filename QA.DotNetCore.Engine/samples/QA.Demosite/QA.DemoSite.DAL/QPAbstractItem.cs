@@ -3,8 +3,8 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using Quantumart.QP8.EntityFrameworkCore;
-namespace QA.DemoSite.DAL
+
+namespace QA.DemoSite.Mssql.DAL
 {
     public partial class QPAbstractItem: IQPArticle
     {
@@ -23,61 +23,61 @@ namespace QA.DemoSite.DAL
         public virtual Int32 LastModifiedBy { get; set; }
         public virtual StatusType StatusType { get; set; }
 
-		private String _Title;
+		private String _internalTitle;
 		public virtual String Title 
 		{ 
-			get { return _Title; }
-			set { _Title = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalTitle; }
+			set { _internalTitle = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
-		private String _Name;
+		private String _internalName;
 		public virtual String Name 
 		{ 
-			get { return _Name; }
-			set { _Name = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalName; }
+			set { _internalName = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
         public virtual Boolean? IsVisible { get; set; }
         public virtual Boolean? IsPage { get; set; }
-		private String _ZoneName;
+		private String _internalZoneName;
 		public virtual String ZoneName 
 		{ 
-			get { return _ZoneName; }
-			set { _ZoneName = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalZoneName; }
+			set { _internalZoneName = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
-		private String _AllowedUrlPatterns;
+		private String _internalAllowedUrlPatterns;
 		public virtual String AllowedUrlPatterns 
 		{ 
-			get { return _AllowedUrlPatterns; }
-			set { _AllowedUrlPatterns = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalAllowedUrlPatterns; }
+			set { _internalAllowedUrlPatterns = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
-		private String _DeniedUrlPatterns;
+		private String _internalDeniedUrlPatterns;
 		public virtual String DeniedUrlPatterns 
 		{ 
-			get { return _DeniedUrlPatterns; }
-			set { _DeniedUrlPatterns = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalDeniedUrlPatterns; }
+			set { _internalDeniedUrlPatterns = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
-		private String _Description;
+		private String _internalDescription;
 		public virtual String Description 
 		{ 
-			get { return _Description; }
-			set { _Description = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalDescription; }
+			set { _internalDescription = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
-		private String _Keywords;
+		private String _internalKeywords;
 		public virtual String Keywords 
 		{ 
-			get { return _Keywords; }
-			set { _Keywords = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalKeywords; }
+			set { _internalKeywords = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
-		private String _MetaDescription;
+		private String _internalMetaDescription;
 		public virtual String MetaDescription 
 		{ 
-			get { return _MetaDescription; }
-			set { _MetaDescription = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalMetaDescription; }
+			set { _internalMetaDescription = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
-		private String _Tags;
+		private String _internalTags;
 		public virtual String Tags 
 		{ 
-			get { return _Tags; }
-			set { _Tags = QpDataContext.Current.ReplacePlaceholders(value);}
+			get { return _internalTags; }
+			set { _internalTags = QpDataContext.Current.ReplacePlaceholders(value);}
 		}
         public virtual Boolean? IsInSiteMap { get; set; }
         public virtual Int32? IndexOrder { get; set; }

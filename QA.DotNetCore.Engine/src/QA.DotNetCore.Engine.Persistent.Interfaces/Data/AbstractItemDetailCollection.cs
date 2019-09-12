@@ -8,7 +8,7 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces.Data
     /// </summary>
     public class AbstractItemExtensionCollection
     {
-        Dictionary<string, InnerItem> _innerDictionary;
+        readonly Dictionary<string, InnerItem> _innerDictionary;
 
         public AbstractItemExtensionCollection()
         {
@@ -17,64 +17,55 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces.Data
 
         public void Add(string key, object value)
         {
-            if (!_innerDictionary.ContainsKey(key))
-                _innerDictionary.Add(key, new InnerItem(value));
+            if (!_innerDictionary.ContainsKey(key.ToUpper()))
+                _innerDictionary.Add(key.ToUpper(), new InnerItem(value));
         }
 
         public void Set(string key, object value)
         {
-            if (_innerDictionary.ContainsKey(key))
-                _innerDictionary[key].Value = value;
+            if (_innerDictionary.ContainsKey(key.ToUpper()))
+                _innerDictionary[key.ToUpper()].Value = value;
         }
 
-        public ICollection<string> Keys
-        {
-            get { return _innerDictionary.Keys; }
-        }
+        public ICollection<string> Keys => _innerDictionary.Keys;
 
         public object this[string key]
         {
-            get
-            {
-                return _innerDictionary[key].Value;
-            }
-            set
-            {
-                _innerDictionary[key] = new InnerItem(value);
-            }
+            get => _innerDictionary[key.ToUpper()].Value;
+            set => _innerDictionary[key.ToUpper()] = new InnerItem(value);
         }
 
         public object Get(string key, Type type)
         {
-            if (!_innerDictionary.ContainsKey(key))
+            if (!_innerDictionary.ContainsKey(key.ToUpper()))
                 return null;
 
-            var value = _innerDictionary[key].Value;
+            var value = _innerDictionary[key.ToUpper()].Value;
             if (type == typeof(string))
             {
                 return Convert.ToString(value);
             }
-            else if (value == null)
+            if (value == null)
             {
                 return null;
             }
-            else if (type == typeof(double) || type == typeof(double?))
+            if (type == typeof(double) || type == typeof(double?))
             {
                 return Convert.ToDouble(value);
             }
-            else if (type == typeof(int) || type == typeof(int?))
+            if (type == typeof(int) || type == typeof(int?))
             {
                 return Convert.ToInt32(value);
             }
-            else if (type == typeof(long) || type == typeof(long?))
+            if (type == typeof(long) || type == typeof(long?))
             {
                 return Convert.ToInt64(value);
             }
-            else if (type == typeof(DateTime) || type == typeof(DateTime?))
+            if (type == typeof(DateTime) || type == typeof(DateTime?))
             {
                 return Convert.ToDateTime(value);
             }
-            else if (type == typeof(bool) || type == typeof(bool?))
+            if (type == typeof(bool) || type == typeof(bool?))
             {
                 return Convert.ToBoolean(value);
             }
@@ -84,13 +75,10 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces.Data
 
         public bool ContainsKey(string key)
         {
-            return _innerDictionary.ContainsKey(key);
+            return _innerDictionary.ContainsKey(key.ToUpper());
         }
 
-        public int Count
-        {
-            get { return _innerDictionary.Count; }
-        }
+        public int Count => _innerDictionary.Count;
 
         internal class InnerItem
         {

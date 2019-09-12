@@ -72,7 +72,7 @@ namespace <#=namespaceName#>
 {
 	using System.Linq;
     using QA.DotNetCore.Caching.Interfaces;
-    using QA.DotNetCore.Engine.QpData.Settings;
+    using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 
     /// <summary>
     /// Контентные версионные теги

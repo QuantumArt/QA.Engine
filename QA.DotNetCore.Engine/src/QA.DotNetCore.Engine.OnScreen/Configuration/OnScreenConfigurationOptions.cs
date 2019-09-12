@@ -1,14 +1,11 @@
-using System;
 using QA.DotNetCore.Engine.Abstractions.OnScreen;
-using Quantumart.QPublishing.Database;
+using System;
 
 namespace QA.DotNetCore.Engine.OnScreen.Configuration
 {
     public class OnScreenConfigurationOptions
     {
         public OnScreenSettings Settings { get; set; } = DefaultSettings;
-
-        public DbConnectorSettings DbConnectorSettings { get; set; }
 
         /// <summary>
         /// Дефолтная конфигурация

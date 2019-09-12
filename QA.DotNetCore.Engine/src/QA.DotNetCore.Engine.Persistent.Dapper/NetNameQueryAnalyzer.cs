@@ -4,31 +4,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using QA.DotNetCore.Engine.Persistent.Dapper;
 
 namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
     public class NetNameQueryAnalyzer : INetNameQueryAnalyzer
     {
-        IMetaInfoRepository _metaInfoRepository;
+        readonly IMetaInfoRepository _metaInfoRepository;
 
         public NetNameQueryAnalyzer(IMetaInfoRepository metaInfoRepository)
         {
             _metaInfoRepository = metaInfoRepository;
         }
 
-        public string PrepareQuery(string netNameQuery, int siteId, bool isStage)
+        public string PrepareQuery(string netNameQuery, int siteId, bool isStage, bool useUnited = false)
         {
             //вычленим из запроса токены с указанными netname таблиц и полей
-            //таблицы указываются как [|tableNetName|]
-            //столюцы указываются как [|tableNetName.columnNetName|]
-            var regexp = new Regex(@"\[\|[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)?\|\]");
+            //таблицы указываются как |tableNetName|
+            //столюцы указываются как |tableNetName.columnNetName|
+            var regexp = new Regex(@"\|[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)?\|");
             var matches = regexp.Matches(netNameQuery);
 
             var columnsByTables = new Dictionary<string, List<string>>();
 
             foreach (var m in matches)
             {
-                var token = m.ToString().Replace("[|", "").Replace("|]", "");
+                var token = m.ToString().Replace("|", "");
                 if (token.Contains("."))
                 {
                     var tokens = token.Split('.');
@@ -57,7 +58,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
                     throw new Exception($"Content with netname '{tableNetName}' was not found for site {siteId}");
                 }
 
-                sb.Replace($"|{tableNetName}|", isStage ? contentMetaInfo.StageTableName : contentMetaInfo.LiveTableName);
+                sb.Replace($"|{tableNetName}|", useUnited ? contentMetaInfo.GetUnitedTableName() : contentMetaInfo.GetTableName(isStage));
 
                 foreach (var columnNetName in columnsByTables[tableNetName])
                 {
@@ -73,6 +74,6 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 
             return sb.ToString();
         }
-        
+
     }
 }

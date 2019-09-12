@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Quantumart.QP8.CoreCodeGeneration.Services;
-using Quantumart.QP8.EntityFrameworkCore;
+
 /* place your custom usings here */
 
-namespace QA.DemoSite.DAL
+namespace QA.DemoSite.Mssql.DAL
 {
     public class StaticSchemaProvider : ISchemaProvider
     {
@@ -937,4 +937,3 @@ namespace QA.DemoSite.DAL
         #endregion
     }
 }
-	

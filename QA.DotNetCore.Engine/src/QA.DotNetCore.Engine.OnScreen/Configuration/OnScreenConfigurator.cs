@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using QA.DotNetCore.Engine.Abstractions.OnScreen;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
 using Quantumart.QPublishing.Authentication;
 using Quantumart.QPublishing.Database;
 using System;
@@ -25,16 +26,16 @@ namespace QA.DotNetCore.Engine.OnScreen.Configuration
             if (options.Settings.SiteId == 0)
                 throw new Exception("SiteId for onscreen api is not configured.");
 
-            if (options.DbConnectorSettings == null)
-                throw new Exception("DbConnectorSettings for OnScreen is not configured.");
-
-            if (options.DbConnectorSettings.ConnectionString == null)
-                throw new Exception("ConnectionString in DbConnectorSettings for OnScreen is not configured.");
-
             services.AddSingleton(options.Settings);
-            services.AddSingleton(options.DbConnectorSettings);
             services.AddSingleton<IOnScreenContextProvider, OnScreenHttpContextProvider>();
-            services.AddScoped<DBConnector>();
+            services.AddScoped(sp =>
+            {
+                var uow = sp.GetService<IUnitOfWork>();
+                return new DBConnector(uow.Connection)
+                {
+                    IsStage = options.Settings.IsStage
+                };
+            });
             services.AddScoped<IAuthenticationService, AuthenticationService>();
 
             var onScreenAssembly = typeof(OnScreenViewComponent).Assembly;

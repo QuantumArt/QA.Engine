@@ -8,7 +8,7 @@ namespace QA.DemoSite.Models.Pages
 {
     public class StartPage : AbstractPage, IStartPage
     {
-        public string Bindings { get { return GetDetail("Bindings", String.Empty); } }
+        public string Bindings { get { return GetDetail("bindings", String.Empty); } }
 
         public string[] GetDNSBindings()
         {

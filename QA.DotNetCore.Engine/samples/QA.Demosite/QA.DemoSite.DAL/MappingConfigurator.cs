@@ -5,10 +5,10 @@ using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
 using Quantumart.QP8.CoreCodeGeneration.Services;
-using Quantumart.QP8.EntityFrameworkCore;
+
 /* place your custom usings here */
 
-namespace QA.DemoSite.DAL
+namespace QA.DemoSite.Mssql.DAL
 {
     public class MappingConfigurator : MappingConfiguratorBase
     {

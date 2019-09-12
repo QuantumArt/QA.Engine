@@ -5,9 +5,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Npgsql;
-using QA.DemoSite.Mssql.DAL;
 using QA.DemoSite.Interfaces;
 using QA.DemoSite.Models.Pages;
+using QA.DemoSite.Mssql.DAL;
 using QA.DemoSite.Postgre.DAL;
 using QA.DemoSite.Services;
 using QA.DemoSite.Templates;
@@ -19,15 +19,13 @@ using QA.DotNetCore.Engine.CacheTags;
 using QA.DotNetCore.Engine.CacheTags.Configuration;
 using QA.DotNetCore.Engine.OnScreen.Configuration;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 using QA.DotNetCore.Engine.QpData.Configuration;
-using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 using QA.DotNetCore.Engine.QpData.Settings;
 using QA.DotNetCore.Engine.Routing.Configuration;
 using QA.DotNetCore.Engine.Targeting.Configuration;
-using Quantumart.QPublishing.Database;
 using System;
 using System.Data.SqlClient;
-using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 
 namespace QA.DemoSite
 {
@@ -61,19 +59,19 @@ namespace QA.DemoSite
                 options.TypeFinder.RegisterFromAssemblyContaining<RootPage, IAbstractItem>();
             });
 
-
             //ef контекст
             if (dbType == DatabaseType.Postgres)
             {
-                services.AddScoped<IDbContext>(sp => PostgreQpDataContext.CreateWithStaticMapping(Postgre.DAL.ContentAccess.Live,
-                  new NpgsqlConnection(qpSettings.ConnectionString)));
+                services.AddScoped<IDbContext>(sp => PostgreQpDataContext.CreateWithStaticMapping(
+                    qpSettings.IsStage ? Postgre.DAL.ContentAccess.Stage : Postgre.DAL.ContentAccess.Live,
+                    new NpgsqlConnection(qpSettings.ConnectionString)));
             }
             else
             {
-                services.AddScoped<IDbContext>(sp => QpDataContext.CreateWithStaticMapping(Mssql.DAL.ContentAccess.Live,
+                services.AddScoped<IDbContext>(sp => QpDataContext.CreateWithStaticMapping(
+                    qpSettings.IsStage ? Mssql.DAL.ContentAccess.Stage : Mssql.DAL.ContentAccess.Live,
                     new SqlConnection(qpSettings.ConnectionString)));
             }
-            
 
             //сервисы слоя данных
             services.AddScoped<IFaqService, FaqService>();
@@ -84,8 +82,10 @@ namespace QA.DemoSite
             services.AddScoped<FaqWidgetViewModelBuilder>();
             services.AddSingleton<MenuViewModelBuilder>();
 
+            //чтобы аб-тесты работали нужно зарегистрировать сервисы таргетирования
+            services.AddTargeting();
+
             //подключение self-hosted аб-тестов
-            services.AddTargeting();//чтобы аб-тесты работали нужно зарегистрировать сервисы таргетирования
             services.AddAbTestServices(options =>
             {
                 //дублируются некоторые опции из AddSiteStructureEngine, потому что АБ-тесты могут быть или не быть независимо от структуры сайта
@@ -108,12 +108,6 @@ namespace QA.DemoSite
                 }
             });
 
-            services.AddScoped(sp =>
-            {
-                var uow = sp.GetService<IUnitOfWork>();
-                return new DBConnector(uow.Connection);
-            });
-
             //возможность работы с режимом onscreen
             services.AddOnScreenIntegration(mvc, options =>
             {
@@ -128,14 +122,20 @@ namespace QA.DemoSite
         {
             app.UseDeveloperExceptionPage();
             app.UseStaticFiles();
+
+            //включаем инвалидацию по кештегам QP
             app.UseCacheTagsInvalidation(invalidation =>
             {
                 invalidation.RegisterScoped<QpContentCacheTracker>();
             });
+
+            //активируем структуру сайта (добавляем в http-контекст структуру сайта)
             app.UseSiteStructure();
 
+            //включаем возможность работы onscreen
             var qpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
             app.UseOnScreenMode(qpSettings.CustomerCode);
+
             app.UseMvc(routes =>
             {
                 routes.MapContentRoute("default", "{controller}/{action=Index}/{id?}");

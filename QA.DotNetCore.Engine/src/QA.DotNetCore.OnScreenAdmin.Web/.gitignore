@@ -1,5 +1,0 @@
-wwwroot/*.*
-wwwroot/dist/*
-!wwwroot/dist/cookies.js
-!wwwroot/dist/onScreenAbTestApi.js
-!wwwroot/dist/pmrpc.js

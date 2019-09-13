@@ -1,9 +1,0 @@
-{
-  "compilerOptions": {
-    "baseUrl": "./ClientApp",
-    "jsx": "react",
-    "paths": {
-      "ClientApp/*": ["./ClientApp/*"]
-    }
-  }
-}

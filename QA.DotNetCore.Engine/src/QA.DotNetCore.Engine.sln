@@ -27,8 +27,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.Persis
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.Persistent.Dapper", "QA.DotNetCore.Engine.Persistent.Dapper\QA.DotNetCore.Engine.Persistent.Dapper.csproj", "{E471F3B6-4BC6-42A6-8D90-93A9A269BDC2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.OnScreenAdmin.Web", "QA.DotNetCore.OnScreenAdmin.Web\QA.DotNetCore.OnScreenAdmin.Web.csproj", "{E99470A4-DE2C-459C-BC5F-81ABCC100EFA}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.AbTesting", "QA.DotNetCore.Engine.AbTesting\QA.DotNetCore.Engine.AbTesting.csproj", "{A88C5128-5785-41C4-B8F7-2C85455D1436}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.AbTesting.Configuration", "QA.DotNetCore.Engine.AbTesting.Configuration\QA.DotNetCore.Engine.AbTesting.Configuration.csproj", "{34950412-0062-4E60-88CA-E5CB46467BAE}"
@@ -43,9 +41,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.Xml.Co
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{643A033A-63A5-4D4C-9E66-28CFD52A21F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QA.DotNetCore.Engine.Routing.Tests", "QA.DotNetCore.Engine.Routing.Tests\QA.DotNetCore.Engine.Routing.Tests.csproj", "{560BB2EB-56C9-4FFF-9ACA-8E1A6CEE2375}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.Routing.Tests", "QA.DotNetCore.Engine.Routing.Tests\QA.DotNetCore.Engine.Routing.Tests.csproj", "{560BB2EB-56C9-4FFF-9ACA-8E1A6CEE2375}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QA.DotNetCore.Engine.Persistent.Dapper.Tests", "QA.DotNetCore.Engine.Persistent.Dapper.Tests\QA.DotNetCore.Engine.Persistent.Dapper.Tests.csproj", "{BD6F164A-5AE2-46C5-AB3D-AFFDF901F3EF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.Persistent.Dapper.Tests", "QA.DotNetCore.Engine.Persistent.Dapper.Tests\QA.DotNetCore.Engine.Persistent.Dapper.Tests.csproj", "{BD6F164A-5AE2-46C5-AB3D-AFFDF901F3EF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -101,10 +99,6 @@ Global
 		{E471F3B6-4BC6-42A6-8D90-93A9A269BDC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E471F3B6-4BC6-42A6-8D90-93A9A269BDC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E471F3B6-4BC6-42A6-8D90-93A9A269BDC2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E99470A4-DE2C-459C-BC5F-81ABCC100EFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E99470A4-DE2C-459C-BC5F-81ABCC100EFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E99470A4-DE2C-459C-BC5F-81ABCC100EFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E99470A4-DE2C-459C-BC5F-81ABCC100EFA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A88C5128-5785-41C4-B8F7-2C85455D1436}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A88C5128-5785-41C4-B8F7-2C85455D1436}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A88C5128-5785-41C4-B8F7-2C85455D1436}.Release|Any CPU.ActiveCfg = Release|Any CPU

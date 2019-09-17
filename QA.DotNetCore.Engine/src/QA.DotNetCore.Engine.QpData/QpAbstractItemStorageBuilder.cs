@@ -1,6 +1,5 @@
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.QpData.Interfaces;
-using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Replacements;
 using QA.DotNetCore.Engine.QpData.Settings;
@@ -9,7 +8,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
-using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 
 namespace QA.DotNetCore.Engine.QpData
 {
@@ -23,8 +21,7 @@ namespace QA.DotNetCore.Engine.QpData
         private readonly IQpUrlResolver _qpUrlResolver;
         private readonly IAbstractItemRepository _abstractItemRepository;
         private readonly IMetaInfoRepository _metaInfoRepository;
-        private readonly QpSiteStructureSettings _settings;
-        private readonly QpSettings _qpSettings;
+        private readonly QpSiteStructureBuildSettings _buildSettings;
         private readonly ILogger<QpAbstractItemStorageBuilder> _logger;
         private readonly string[] _usedContentNetNames;
 
@@ -35,8 +32,7 @@ namespace QA.DotNetCore.Engine.QpData
             IAbstractItemRepository abstractItemRepository,
             IMetaInfoRepository metaInfoRepository,
             IItemDefinitionRepository itemDefinitionRepository,
-            QpSiteStructureSettings settings,
-            QpSettings qpSettings,
+            QpSiteStructureBuildSettings buildSettings,
             ILogger<QpAbstractItemStorageBuilder> logger)
         {
             _serviceProvider = serviceProvider;
@@ -44,8 +40,7 @@ namespace QA.DotNetCore.Engine.QpData
             _qpUrlResolver = qpUrlResolver;
             _abstractItemRepository = abstractItemRepository;
             _metaInfoRepository = metaInfoRepository;
-            _settings = settings;
-            _qpSettings = qpSettings;
+            _buildSettings = buildSettings;
             _logger = logger;
             _usedContentNetNames = new string[2] { abstractItemRepository.AbstractItemNetName, itemDefinitionRepository.ItemDefinitionNetName };
         }
@@ -53,9 +48,9 @@ namespace QA.DotNetCore.Engine.QpData
         public AbstractItemStorage Build()
         {
             var logBuildId = Guid.NewGuid();
-            _logger.LogDebug("AbstractItemStorage build via QP started. Build id: {0}, SiteId: {0}, IsStage: {1}", logBuildId, _qpSettings.SiteId, _qpSettings.IsStage);
+            _logger.LogDebug("AbstractItemStorage build via QP started. Build id: {0}, SiteId: {0}, IsStage: {1}", logBuildId, _buildSettings.SiteId, _buildSettings.IsStage);
 
-            var plainList = _abstractItemRepository.GetPlainAllAbstractItems(_qpSettings.SiteId, _qpSettings.IsStage);//плоский список dto
+            var plainList = _abstractItemRepository.GetPlainAllAbstractItems(_buildSettings.SiteId, _buildSettings.IsStage);//плоский список dto
             var activated = new Dictionary<int, AbstractItem>();
             AbstractItem root = null;
 
@@ -71,7 +66,7 @@ namespace QA.DotNetCore.Engine.QpData
                 activatedItem.MapPersistent(persistentItem);
                 activated.Add(persistentItem.Id, activatedItem);
 
-                if (persistentItem.Discriminator == _settings.RootPageDiscriminator)
+                if (persistentItem.Discriminator == _buildSettings.RootPageDiscriminator)
                     root = activatedItem;
             }
 
@@ -89,7 +84,7 @@ namespace QA.DotNetCore.Engine.QpData
                 var needLoadM2mInExtensionDict = new Dictionary<int, AbstractItem>();
 
                 //получим инфу об основном контенте (AbstractItem), она нам пригодится. Мы зашиваемся на netName контента - это легально
-                var baseContent = _metaInfoRepository.GetContent(_abstractItemRepository.AbstractItemNetName, _qpSettings.SiteId);
+                var baseContent = _metaInfoRepository.GetContent(_abstractItemRepository.AbstractItemNetName, _buildSettings.SiteId);
                 if (baseContent == null)
                 {
                     _logger.LogWarning($"Failed to obtain content definition for {1}. Build id: {0}", logBuildId, _abstractItemRepository.AbstractItemNetName);
@@ -103,7 +98,7 @@ namespace QA.DotNetCore.Engine.QpData
 
                     _logger.LogDebug("Load data from extension table {0}. Build id: {1}", extensionId, logBuildId);
 
-                    var extensions = _abstractItemRepository.GetAbstractItemExtensionData(extensionId, ids, baseContent, _settings.LoadAbstractItemFieldsToDetailsCollection, _qpSettings.IsStage);
+                    var extensions = _abstractItemRepository.GetAbstractItemExtensionData(extensionId, ids, baseContent, _buildSettings.LoadAbstractItemFieldsToDetailsCollection, _buildSettings.IsStage);
 
                     //словарь соответствий полей и атрибутов ILoaderOption
                     ILookup<string, ILoaderOption> optionsMap = null;
@@ -130,7 +125,7 @@ namespace QA.DotNetCore.Engine.QpData
                                 if (details[key] is string stringValue)
                                 {
                                     //1) надо заменить плейсхолдер <%=upload_url%> на реальный урл
-                                    details.Set(key, stringValue.Replace(_settings.UploadUrlPlaceholder, _qpUrlResolver.UploadUrl(_qpSettings.SiteId)));
+                                    details.Set(key, stringValue.Replace(_buildSettings.UploadUrlPlaceholder, _qpUrlResolver.UploadUrl(_buildSettings.SiteId)));
 
                                     //2) если поле помечено атрибутом интерфейса ILoaderOption, то нужно преобразовать значение этого поля согласно внутренней логике атрибута
                                     //пример: атрибут LibraryUrl значит, что поле является файлом в библиотеке сайта, нужно чтобы в значении этого поля был полный урл до этого файла
@@ -155,7 +150,7 @@ namespace QA.DotNetCore.Engine.QpData
                 if (needLoadM2mInExtensionDict.Any())
                 {
                     _logger.LogDebug("Load data for many-to-many fields in extensions. Build id: {1}", logBuildId);
-                    var m2mData = _abstractItemRepository.GetManyToManyData(needLoadM2mInExtensionDict.Keys.ToArray(), _qpSettings.IsStage);
+                    var m2mData = _abstractItemRepository.GetManyToManyData(needLoadM2mInExtensionDict.Keys.ToArray(), _buildSettings.IsStage);
                     foreach (var key in m2mData.Keys)
                     {
                         if (!needLoadM2mInExtensionDict.ContainsKey(key))
@@ -166,10 +161,10 @@ namespace QA.DotNetCore.Engine.QpData
                 }
 
                 //догрузим связи m2m в основном контенте
-                if (_settings.LoadM2mForAbstractItem)
+                if (_buildSettings.LoadM2mForAbstractItem)
                 {
                     _logger.LogDebug("Load data for many-to-many fields in main content (QPAbstractItem). Build id: {1}", logBuildId);
-                    var m2mData = _abstractItemRepository.GetManyToManyData(activated.Keys.ToArray(), _qpSettings.IsStage);
+                    var m2mData = _abstractItemRepository.GetManyToManyData(activated.Keys.ToArray(), _buildSettings.IsStage);
                     foreach (var key in m2mData.Keys)
                     {
                         activated[key].M2mRelations.Merge(m2mData[key]);
@@ -195,11 +190,14 @@ namespace QA.DotNetCore.Engine.QpData
             }
             else
             {
-                _logger.LogWarning(@"Root was not found! Possible causes: 1) not found item with discriminator = {0} 2) not found item definition for root discriminator 3) not found .net class matching with root page item definition. Build id: {1}", _settings.RootPageDiscriminator, logBuildId);
+                _logger.LogWarning(@"Root was not found! Possible causes: 1) not found item with discriminator = {0} 2) not found item definition for root discriminator 3) not found .net class matching with root page item definition. Build id: {1}", _buildSettings.RootPageDiscriminator, logBuildId);
                 return null;
             }
         }
 
+        /// <summary>
+        /// Нужно для определения списка кеш-тегов. Чтобы понимать обновления в каких контентах должны приводить к сбрасыванию закешированной структуры сайта
+        /// </summary>
         public string[] UsedContentNetNames
         {
             get { return _usedContentNetNames; }

@@ -1,16 +1,18 @@
-using System;
-
 namespace QA.DotNetCore.Engine.QpData.Settings
 {
     /// <summary>
-    /// Настройки структуры сайта, её построения и хранения
+    /// Настройки, нужные для построения структуры сайта из QP
     /// </summary>
-    public class QpSiteStructureSettings
+    public class QpSiteStructureBuildSettings
     {
         /// <summary>
-        /// Период хранения структуры сайта в кеше
+        /// Id сайта в QP
         /// </summary>
-        public TimeSpan CachePeriod { get; set; }
+        public int SiteId { get; set; }
+        /// <summary>
+        /// Режим Stage
+        /// </summary>
+        public bool IsStage { get; set; }
         /// <summary>
         /// Дискриминатор корневого элемента
         /// </summary>

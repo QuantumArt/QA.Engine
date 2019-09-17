@@ -5,8 +5,8 @@ using QA.DotNetCore.Engine.Persistent.Dapper;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 using System;
-using QP.ConfigurationService.Models;
-using Quantumart.QPublishing.Database;
+using System.Linq;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace QA.DotNetCore.Engine.AbTesting.Configuration
 {
@@ -17,45 +17,44 @@ namespace QA.DotNetCore.Engine.AbTesting.Configuration
             var options = new AbTestOptions();
             setupAction?.Invoke(options);
 
-            if (options.AbTestingSettings.SiteId == 0)
+            //настройки
+            if (options.SiteId == 0)
                 throw new Exception("AbTestingSettings.SiteId is not configured.");
 
-            string qpConnectionString = null;
-            string qpDatabaseType = null;
-            if (options.QpSettings?.ConnectionString != null)
+            services.AddSingleton(new AbTestingQpSettings
             {
-                //если явно задана QpConnectionString, то будем использовать эту строку подключения
-                qpConnectionString = options.QpSettings.ConnectionString;
-                qpDatabaseType = options.QpSettings.DatabaseType ?? "MSSQL";
-            }
-            else if (options.QpSettings?.CustomerCode != null && options.QpSettings?.ConfigurationServiceUrl != null && options.QpSettings?.ConfigurationServiceToken != null)
-            {
-                //если есть возможность получить строку подключения через сервис конфигурации
-                DBConnector.ConfigServiceUrl = options.QpSettings.ConfigurationServiceUrl;
-                DBConnector.ConfigServiceToken = options.QpSettings.ConfigurationServiceToken;
-                CustomerConfiguration dbConfig = DBConnector.GetCustomerConfiguration(options.QpSettings.CustomerCode).Result;
-
-                qpConnectionString = dbConfig.ConnectionString;
-                qpDatabaseType = dbConfig.DbType.ToString();
-            }
-            else
-            {
-                throw new Exception("Cannot get QP connection details. Should provide ConnectionString/DatabaseType or ConfigurationServiceUrl/ConfigurationServiceToken/CustomerCode in QpSettings");
-            }
-
-            services.AddScoped<IUnitOfWork, UnitOfWork>(sp =>
-            {
-                return new UnitOfWork(qpConnectionString, qpDatabaseType);
+                IsStage = options.IsStage,
+                SiteId = options.SiteId
             });
-            services.AddScoped<IMetaInfoRepository, MetaInfoRepository>();
-            services.AddScoped<INetNameQueryAnalyzer, NetNameQueryAnalyzer>();
+            services.AddSingleton(new AbTestingCacheSettings
+            {
+                TestsCachePeriod = options.TestsCachePeriod,
+                ContainersCachePeriod = options.ContainersCachePeriod
+            });
 
-            services.AddSingleton(options.AbTestingSettings);
-            services.AddScoped<AbTestChoiceResolver>();
-            services.AddScoped<IAbTestRepository, AbTestRepository>();
-            services.AddScoped<IAbTestService, AbTestService>();
-            services.AddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
-            services.AddSingleton<IQpContentCacheTagNamingProvider, NullQpContentCacheTagNamingProvider>();
+            //DAL
+            if (!services.Any(x => x.ServiceType == typeof(IUnitOfWork)))
+            {
+                if (String.IsNullOrWhiteSpace(options.QpConnectionString))
+                    throw new Exception("QpConnectionString is not configured.");
+
+                if (String.IsNullOrWhiteSpace(options.QpDatabaseType))
+                    throw new Exception("QpDatabaseType is not configured.");
+
+                services.AddScoped<IUnitOfWork, UnitOfWork>(sp =>
+                {
+                    return new UnitOfWork(options.QpConnectionString, options.QpDatabaseType);
+                });
+            }
+            services.TryAddScoped<IMetaInfoRepository, MetaInfoRepository>();
+            services.TryAddScoped<INetNameQueryAnalyzer, NetNameQueryAnalyzer>();
+
+            //сервисы
+            services.TryAddScoped<AbTestChoiceResolver>();
+            services.TryAddScoped<IAbTestRepository, AbTestRepository>();
+            services.TryAddScoped<IAbTestService, AbTestService>();
+            services.TryAddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
+            services.TryAddSingleton<IQpContentCacheTagNamingProvider, NullQpContentCacheTagNamingProvider>();
         }
     }
 }

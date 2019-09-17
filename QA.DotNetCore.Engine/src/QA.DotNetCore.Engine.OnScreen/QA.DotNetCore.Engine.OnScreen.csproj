@@ -30,9 +30,8 @@
     <EmbeddedResource Include="Views\Shared\Components\OnScreen\Default.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="1.60.6" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="2.0.1" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="2.2.0" />
     <PackageReference Include="Quantumart.AspNetCore" Version="4.0.0-beta34" />
   </ItemGroup>
   <ItemGroup>

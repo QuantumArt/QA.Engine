@@ -1,6 +1,5 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
-using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 using QA.DotNetCore.Engine.QpData.Settings;
 
 namespace QA.DotNetCore.Engine.QpData.Replacements
@@ -50,7 +49,7 @@ namespace QA.DotNetCore.Engine.QpData.Replacements
             if (!String.IsNullOrEmpty(value))
             {
                 var qpUrlResolver = serviceProvider.GetService<IQpUrlResolver>();
-                var qpSettings = serviceProvider.GetService<QpSettings>();
+                var qpSettings = serviceProvider.GetService<QpSiteStructureBuildSettings>();
                 //сначала пытаемся найти св-во в контенте-расширении, потом если не нашли в основном контенте
                 var baseUrl = qpUrlResolver.UrlForImage(qpSettings.SiteId, ContentId, PropertyName);
                 if (baseUrl == null)

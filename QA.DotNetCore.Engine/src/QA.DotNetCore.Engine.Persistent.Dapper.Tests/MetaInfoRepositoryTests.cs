@@ -32,9 +32,8 @@ namespace Tests
                 var msSql = _sqlRepository.GetSite(52);
                 var pgSql = _postgresRepository.GetSite(52);
                 Assert.AreEqual(msSql.Dns, pgSql.Dns);
-                Assert.AreEqual(msSql.UploadUrl, pgSql.UploadUrl);
-                Assert.AreEqual(msSql.UploadUrlPrefix, pgSql.UploadUrlPrefix);
-                Assert.AreEqual(msSql.UseAbsoluteUploadUrl, pgSql.UseAbsoluteUploadUrl);
+                Assert.AreEqual(msSql.UploadUrlPrefix, "http://storage.wpdemo.dev.quantumart.ru");
+                Assert.AreEqual(pgSql.UploadUrlPrefix, "http://static.demosite.qsupport.ru");
             });
         }
 

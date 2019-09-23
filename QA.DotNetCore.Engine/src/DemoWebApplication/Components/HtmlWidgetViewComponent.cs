@@ -1,0 +1,16 @@
+using DemoWebSite.PagesAndWidgets.Widgets;
+using Microsoft.AspNetCore.Mvc;
+using QA.DotNetCore.Engine.Widgets;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace DemoWebApplication.Components
+{
+    public class HtmlWidgetViewComponent : WidgetComponentBase<HtmlWidget>
+    {
+        public override Task<IViewComponentResult> RenderAsync(HtmlWidget widget, IDictionary<string, object> argumets)
+        {
+            return Task.FromResult<IViewComponentResult>(View(widget));
+        }
+    }
+}

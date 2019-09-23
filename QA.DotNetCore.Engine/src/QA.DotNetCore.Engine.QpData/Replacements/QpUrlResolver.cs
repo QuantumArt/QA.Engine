@@ -14,12 +14,12 @@ namespace QA.DotNetCore.Engine.QpData.Replacements
     {
         ICacheProvider _cacheProvider;
         IMetaInfoRepository _metaInfoRepository;
-        QpSchemeCacheSettings _qpSchemeSettings;
+        QpSiteStructureCacheSettings _qpSchemeSettings;
 
         public QpUrlResolver(
             ICacheProvider cacheProvider,
             IMetaInfoRepository metaInfoRepository,
-            QpSchemeCacheSettings qpSchemeSettings)
+            QpSiteStructureCacheSettings qpSchemeSettings)
         {
             _cacheProvider = cacheProvider;
             _metaInfoRepository = metaInfoRepository;
@@ -85,12 +85,12 @@ namespace QA.DotNetCore.Engine.QpData.Replacements
 
         private QpSitePersistentData GetSite(int siteId)
         {
-            return _cacheProvider.GetOrAdd($"QpUrlResolver.GetSite{siteId}", _qpSchemeSettings.CachePeriod, () => _metaInfoRepository.GetSite(siteId));
+            return _cacheProvider.GetOrAdd($"QpUrlResolver.GetSite{siteId}", _qpSchemeSettings.QpSchemeCachePeriod, () => _metaInfoRepository.GetSite(siteId));
         }
 
         private ContentAttributePersistentData GetContentAttribute(int contentId, string fieldName)
         {
-            return _cacheProvider.GetOrAdd($"QpUrlResolver.GetContentAttribute_{contentId}_{fieldName}", _qpSchemeSettings.CachePeriod, () => _metaInfoRepository.GetContentAttribute(contentId, fieldName));
+            return _cacheProvider.GetOrAdd($"QpUrlResolver.GetContentAttribute_{contentId}_{fieldName}", _qpSchemeSettings.QpSchemeCachePeriod, () => _metaInfoRepository.GetContentAttribute(contentId, fieldName));
         }
 
         private static string ConvertUrlToSchemaInvariant(string prefix)

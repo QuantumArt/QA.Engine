@@ -55,8 +55,7 @@ namespace DemoWebApplication
 
             services.AddSiteStructureEngine(options =>
             {
-                options.QpSettings = qpSettings;
-                options.QpSiteStructureSettings = Configuration.GetSection("QpSiteStructureSettings").Get<QpSiteStructureSettings>();
+                options.UseQpSettings(qpSettings);
                 options.TypeFinder.RegisterFromAssemblyContaining<RootPage, IAbstractItem>();
             });
 
@@ -68,19 +67,15 @@ namespace DemoWebApplication
 
             services.AddAbTestServices(options =>
             {
-                //дублируются некоторые опции из AddSiteStructureEngine, потому что АБ-тесты могут быть или не быть независимо от структуры сайта
-                options.QpSettings = qpSettings;
-                options.AbTestingSettings.SiteId = qpSettings.SiteId;
-                options.AbTestingSettings.IsStage = qpSettings.IsStage;
+                options.UseQpSettings(qpSettings);
             });
 
+            var onScreenSettings = Configuration.GetSection("OnScreen").Get<OnScreenSettings>();
             services.AddOnScreenIntegration(mvcBuilder, options =>
             {
-                var onScreenSettings = Configuration.GetSection("OnScreen").Get<OnScreenSettings>();
-                options.Settings.AdminSiteBaseUrl = onScreenSettings.AdminSiteBaseUrl;
-                options.Settings.SiteId = qpSettings.SiteId;
-                options.Settings.IsStage = qpSettings.IsStage;
-                options.Settings.AvailableFeatures = qpSettings.IsStage ? OnScreenFeatures.Widgets | OnScreenFeatures.AbTests : OnScreenFeatures.AbTests;
+                options.AdminSiteBaseUrl = onScreenSettings.AdminSiteBaseUrl;
+                options.AvailableFeatures = qpSettings.IsStage ? OnScreenFeatures.Widgets | OnScreenFeatures.AbTests : OnScreenFeatures.AbTests;
+                options.UseQpSettings(qpSettings);
             });
 
             services.AddCacheTagServices(options =>

@@ -72,7 +72,7 @@ namespace <#=namespaceName#>
 {
 	using System.Linq;
     using QA.DotNetCore.Caching.Interfaces;
-    using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
+    using QA.DotNetCore.Engine.QpData.Settings;
 
     /// <summary>
     /// Контентные версионные теги
@@ -97,9 +97,9 @@ namespace <#=namespaceName#>
 	public class CacheTagUtilities
 	{
 		readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
-		readonly QpSettings _qpSettings;
+		readonly QpSiteStructureBuildSettings _qpSettings;
 
-		public CacheTagUtilities(IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider, QpSettings qpSettings)
+		public CacheTagUtilities(IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider, QpSiteStructureBuildSettings qpSettings)
 		{
 			_qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
 			_qpSettings = qpSettings;

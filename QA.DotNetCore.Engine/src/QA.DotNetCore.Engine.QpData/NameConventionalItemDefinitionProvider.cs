@@ -1,7 +1,6 @@
 using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
-using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Settings;
 using System.Collections.Generic;
@@ -18,23 +17,23 @@ namespace QA.DotNetCore.Engine.QpData
         readonly IItemDefinitionRepository _repository;
         readonly ICacheProvider _cacheProvider;
         readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
-        readonly QpSettings _qpSettings;
-        readonly ItemDefinitionCacheSettings _itemDefinitionCacheSettings;
+        readonly QpSiteStructureCacheSettings _cacheSettings;
+        readonly QpSiteStructureBuildSettings _buildSettings;
 
         public NameConventionalItemDefinitionProvider(
             ITypeFinder typeFinder,
             IItemDefinitionRepository repository,
             ICacheProvider cacheProvider,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
-            QpSettings qpSettings,
-            ItemDefinitionCacheSettings itemDefinitionCacheSettings)
+            QpSiteStructureCacheSettings cacheSettings,
+            QpSiteStructureBuildSettings buildSettings)
         {
             _typeFinder = typeFinder;
             _repository = repository;
             _cacheProvider = cacheProvider;
             _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
-            _qpSettings = qpSettings;
-            _itemDefinitionCacheSettings = itemDefinitionCacheSettings;
+            _cacheSettings = cacheSettings;
+            _buildSettings = buildSettings;
         }
 
         public IEnumerable<IItemDefinition> GetAllDefinitions()
@@ -50,18 +49,18 @@ namespace QA.DotNetCore.Engine.QpData
 
         private Dictionary<string, ItemDefinition> GetCached()
         {
-            var cacheTags = new string[1] { _qpContentCacheTagNamingProvider.GetByNetName(_repository.ItemDefinitionNetName, _qpSettings.SiteId, _qpSettings.IsStage) }
+            var cacheTags = new string[1] { _qpContentCacheTagNamingProvider.GetByNetName(_repository.ItemDefinitionNetName, _buildSettings.SiteId, _buildSettings.IsStage) }
                 .Where(t => t != null)
                 .ToArray();
             return _cacheProvider.GetOrAdd("NameConventionalItemDefinitionProvider.BuildItemDefinitions",
                 cacheTags,
-                _itemDefinitionCacheSettings.CachePeriod,
+                _cacheSettings.ItemDefinitionCachePeriod,
                 BuildItemDefinitions);
         }
 
         private Dictionary<string, ItemDefinition> BuildItemDefinitions()
         {
-            var persistentData = _repository.GetAllItemDefinitions(_qpSettings.SiteId, _qpSettings.IsStage);
+            var persistentData = _repository.GetAllItemDefinitions(_buildSettings.SiteId, _buildSettings.IsStage);
             var typesDictionary = _typeFinder.GetTypesOf<AbstractItem>();
 
             return persistentData

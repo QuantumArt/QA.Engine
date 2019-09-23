@@ -92,7 +92,9 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             else if (options.ComponentMapperConvention == ComponentMapperConvention.Attribute)
                 services.TryAddSingleton<IComponentMapper, AttributeConventionalComponentMapper>();
 
-            services.TryAddScoped<IViewComponentInvokerFactory, WidgetViewComponentInvokerFactory>();
+            //заменяем дефолтный MVC-ный IViewComponentInvokerFactory на собственную реализацию
+            //для возможности рендеринга виджетов как viewcomponent
+            services.AddScoped<IViewComponentInvokerFactory, WidgetViewComponentInvokerFactory>();
         }
 
         public IServiceCollection Services { get; private set; }

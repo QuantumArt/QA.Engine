@@ -71,13 +71,14 @@ namespace QA.DotNetCore.Engine.QpData.Replacements
                     prefix = ConvertUrlToSchemaInvariant(prefix);
                 }
 
-                sb.Append(prefix);
+                sb.Append(prefix.TrimEnd('/'));
             }
             else
             {
                 sb.Append(!removeScheme ? "http://" : "//");
-                sb.Append(site.Dns);
+                sb.Append(site.Dns.TrimEnd('/'));
             }
+            
             sb.Append(site.UploadUrl);
 
             return sb.ToString();

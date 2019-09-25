@@ -16,17 +16,14 @@ namespace QA.DotNetCore.Engine.QpData
     /// </summary>
     public class QpAbstractItemStorageBuilder : IAbstractItemStorageBuilder
     {
-        private readonly IServiceProvider _serviceProvider;
         private readonly IAbstractItemFactory _itemFactory;
         private readonly IQpUrlResolver _qpUrlResolver;
         private readonly IAbstractItemRepository _abstractItemRepository;
         private readonly IMetaInfoRepository _metaInfoRepository;
         private readonly QpSiteStructureBuildSettings _buildSettings;
         private readonly ILogger<QpAbstractItemStorageBuilder> _logger;
-        private readonly string[] _usedContentNetNames;
 
         public QpAbstractItemStorageBuilder(
-            IServiceProvider serviceProvider,
             IAbstractItemFactory itemFactory,
             IQpUrlResolver qpUrlResolver,
             IAbstractItemRepository abstractItemRepository,
@@ -35,14 +32,13 @@ namespace QA.DotNetCore.Engine.QpData
             QpSiteStructureBuildSettings buildSettings,
             ILogger<QpAbstractItemStorageBuilder> logger)
         {
-            _serviceProvider = serviceProvider;
             _itemFactory = itemFactory;
             _qpUrlResolver = qpUrlResolver;
             _abstractItemRepository = abstractItemRepository;
             _metaInfoRepository = metaInfoRepository;
             _buildSettings = buildSettings;
             _logger = logger;
-            _usedContentNetNames = new string[2] { abstractItemRepository.AbstractItemNetName, itemDefinitionRepository.ItemDefinitionNetName };
+            UsedContentNetNames = new string[2] { abstractItemRepository.AbstractItemNetName, itemDefinitionRepository.ItemDefinitionNetName };
         }
 
         public AbstractItemStorage Build()
@@ -50,7 +46,7 @@ namespace QA.DotNetCore.Engine.QpData
             var logBuildId = Guid.NewGuid();
             _logger.LogDebug("AbstractItemStorage build via QP started. Build id: {0}, SiteId: {0}, IsStage: {1}", logBuildId, _buildSettings.SiteId, _buildSettings.IsStage);
 
-            var plainList = _abstractItemRepository.GetPlainAllAbstractItems(_buildSettings.SiteId, _buildSettings.IsStage);//плоский список dto
+            var plainList = _abstractItemRepository.GetPlainAllAbstractItems(_buildSettings.SiteId, _buildSettings.IsStage).ToList();//плоский список dto
             var activated = new Dictionary<int, AbstractItem>();
             AbstractItem root = null;
 
@@ -133,7 +129,7 @@ namespace QA.DotNetCore.Engine.QpData
                                     {
                                         foreach (var option in optionsMap[key])
                                         {
-                                            details.Set(key, option.Process(_serviceProvider, stringValue));
+                                            details.Set(key, option.Process(_qpUrlResolver, stringValue, _buildSettings.SiteId));
                                         }
                                     }
                                 }
@@ -186,7 +182,7 @@ namespace QA.DotNetCore.Engine.QpData
                         activated[item.ParentId.Value].AddChild(item);
                 }
 
-                return new AbstractItemStorage(root, _serviceProvider);
+                return new AbstractItemStorage(root);
             }
             else
             {
@@ -198,10 +194,7 @@ namespace QA.DotNetCore.Engine.QpData
         /// <summary>
         /// Нужно для определения списка кеш-тегов. Чтобы понимать обновления в каких контентах должны приводить к сбрасыванию закешированной структуры сайта
         /// </summary>
-        public string[] UsedContentNetNames
-        {
-            get { return _usedContentNetNames; }
-        }
+        public string[] UsedContentNetNames { get; private set; }
 
         private readonly ConcurrentDictionary<Type, IReadOnlyList<ILoaderOption>> _loadOptions = new ConcurrentDictionary<Type, IReadOnlyList<ILoaderOption>>();
 

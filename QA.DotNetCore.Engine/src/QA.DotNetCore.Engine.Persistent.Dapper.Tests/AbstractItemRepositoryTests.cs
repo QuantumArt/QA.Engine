@@ -20,12 +20,12 @@ namespace Tests
                     "Initial Catalog=qa_demosite;Data Source=spbdevsql01\\dev;User ID=publishing;Password=QuantumartHost.SQL");
             _sqlMetaRepo = new MetaInfoRepository(_sqlUnitOfWork);
             var sqlAnalyzer = new NetNameQueryAnalyzer(_sqlMetaRepo);
-            _sqlRepository = new AbstractItemRepository(_sqlUnitOfWork, sqlAnalyzer, _postgresMetaRepo);
+            _sqlRepository = new AbstractItemRepository(_sqlUnitOfWork, sqlAnalyzer);
             _postgresUnitOfWork =
                 new UnitOfWork("Server=mscpgsql01;Port=5432;Database=qa_demosite;User Id=postgres;Password=1q2w-p=[;", "pg");
             _postgresMetaRepo = new MetaInfoRepository(_postgresUnitOfWork);
             var postgresAnalyzer = new NetNameQueryAnalyzer(_postgresMetaRepo);
-            _postgresRepository = new AbstractItemRepository(_postgresUnitOfWork, postgresAnalyzer, _postgresMetaRepo);
+            _postgresRepository = new AbstractItemRepository(_postgresUnitOfWork, postgresAnalyzer);
         }
 
         [Test]

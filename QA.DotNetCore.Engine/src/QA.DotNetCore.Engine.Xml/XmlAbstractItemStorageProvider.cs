@@ -111,7 +111,7 @@ namespace QA.DotNetCore.Engine.Xml
                         if (root == null)
                             throw new Exception("Site structure is empty.");
 
-                        return new AbstractItemStorage(root, _serviceProvider);
+                        return new AbstractItemStorage(root);
                     }
                 }
             }

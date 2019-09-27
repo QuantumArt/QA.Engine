@@ -6,13 +6,13 @@ using System.Text;
 
 namespace QA.DotNetCore.Engine.QpData.Tests.FakePagesAndWidgets
 {
-    public class StartPage : AbstractPage, IStartPage
+    public class StubStartPage : AbstractPage, IStartPage 
     {
-        public string DnsBinding { get { return GetDetail("DnsBinding", ""); } }
+        public static readonly string DnsRegistered = "quantumart.ru";
 
         public string[] GetDNSBindings()
         {
-            throw new NotImplementedException();
+            return new[] { DnsRegistered };
         }
 
         public ITargetingUrlResolver GetUrlResolver()

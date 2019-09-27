@@ -4,8 +4,7 @@ using System.Text;
 
 namespace QA.DotNetCore.Engine.QpData.Tests.FakePagesAndWidgets
 {
-    public class TestWidget : AbstractWidget
+    public class StubWidget : AbstractWidget
     {
-        public static readonly string Discriminator = "testwidget";
     }
 }

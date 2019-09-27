@@ -133,7 +133,6 @@ namespace QA.DotNetCore.Engine.QpData
                                         }
                                     }
                                 }
-
                             }
 
                             item.Details = details;
@@ -219,7 +218,7 @@ namespace QA.DotNetCore.Engine.QpData
 
                     foreach (var attr in attrs)
                     {
-                        attr.AttachTo(t, attr.PropertyName ?? prop.Name, contentId, baseContentId);
+                        attr.AttachTo(t, (attr.PropertyName ?? prop.Name).ToUpper(), contentId, baseContentId);
                         lst.Add(attr);
                     }
                 }

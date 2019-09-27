@@ -91,7 +91,7 @@ namespace QA.DotNetCore.Engine.QpData.Replacements
 
         private ContentAttributePersistentData GetContentAttribute(int contentId, string fieldName)
         {
-            return _cacheProvider.GetOrAdd($"QpUrlResolver.GetContentAttribute_{contentId}_{fieldName}", _qpSchemeSettings.QpSchemeCachePeriod, () => _metaInfoRepository.GetContentAttribute(contentId, fieldName));
+            return _cacheProvider.GetOrAdd($"QpUrlResolver.GetContentAttribute_{contentId}_{fieldName.ToUpper()}", _qpSchemeSettings.QpSchemeCachePeriod, () => _metaInfoRepository.GetContentAttribute(contentId, fieldName));
         }
 
         private static string ConvertUrlToSchemaInvariant(string prefix)

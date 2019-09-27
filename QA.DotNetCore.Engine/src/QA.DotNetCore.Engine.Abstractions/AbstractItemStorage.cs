@@ -28,7 +28,7 @@ namespace QA.DotNetCore.Engine.Abstractions
 
         public IAbstractItem Get(int id)
         {
-            return _items[id];
+            return _items.ContainsKey(id) ? _items[id] : null;
         }
 
         public virtual IAbstractItem GetStartPage(string host, ITargetingFilter filter = null)

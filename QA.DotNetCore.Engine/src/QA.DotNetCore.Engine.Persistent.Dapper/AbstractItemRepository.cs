@@ -1,11 +1,7 @@
 using Dapper;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System;
-using System.Data.SqlClient;
-using Microsoft.SqlServer.Server;
-using Npgsql;
 using QA.DotNetCore.Engine.Persistent.Dapper;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
@@ -16,13 +12,11 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
     {
         private readonly IUnitOfWork _uow;
         private readonly INetNameQueryAnalyzer _netNameQueryAnalyzer;
-        private readonly IMetaInfoRepository _metaInfoRepository;
 
-        public AbstractItemRepository(IUnitOfWork uow, INetNameQueryAnalyzer netNameQueryAnalyzer, IMetaInfoRepository metaInfoRepository)
+        public AbstractItemRepository(IUnitOfWork uow, INetNameQueryAnalyzer netNameQueryAnalyzer)
         {
             _uow = uow;
             _netNameQueryAnalyzer = netNameQueryAnalyzer;
-            _metaInfoRepository = metaInfoRepository;
         }
 
         //запрос с использованием NetName таблиц и столбцов

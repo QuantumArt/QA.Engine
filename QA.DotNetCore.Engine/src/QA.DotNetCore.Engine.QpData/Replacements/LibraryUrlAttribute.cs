@@ -1,6 +1,4 @@
 using System;
-using Microsoft.Extensions.DependencyInjection;
-using QA.DotNetCore.Engine.QpData.Settings;
 
 namespace QA.DotNetCore.Engine.QpData.Replacements
 {
@@ -44,16 +42,14 @@ namespace QA.DotNetCore.Engine.QpData.Replacements
             BaseContentId = baseContentId;
         }
 
-        public string Process(IServiceProvider serviceProvider, string value)
+        public string Process(IQpUrlResolver qpUrlResolver, string value, int siteId)
         {
             if (!String.IsNullOrEmpty(value))
             {
-                var qpUrlResolver = serviceProvider.GetService<IQpUrlResolver>();
-                var qpSettings = serviceProvider.GetService<QpSiteStructureBuildSettings>();
                 //сначала пытаемся найти св-во в контенте-расширении, потом если не нашли в основном контенте
-                var baseUrl = qpUrlResolver.UrlForImage(qpSettings.SiteId, ContentId, PropertyName);
+                var baseUrl = qpUrlResolver.UrlForImage(siteId, ContentId, PropertyName);
                 if (baseUrl == null)
-                    baseUrl = qpUrlResolver.UrlForImage(qpSettings.SiteId, BaseContentId, PropertyName);
+                    baseUrl = qpUrlResolver.UrlForImage(siteId, BaseContentId, PropertyName);
                 if (!String.IsNullOrEmpty(baseUrl))
                 {
                     return baseUrl + "/" + value;

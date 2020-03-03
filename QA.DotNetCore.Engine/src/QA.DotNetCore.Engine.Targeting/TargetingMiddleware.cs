@@ -25,7 +25,7 @@ namespace QA.DotNetCore.Engine.Targeting
         {
             //сохраним в HttpContext все значения таргетирования
             var targetingKeys = new List<string>();
-            foreach (var provider in _targetingConfigurationBuilder.GetServices())
+            foreach (var provider in _targetingConfigurationBuilder.GetServices(context.RequestServices))
             {
                 var dict = provider.GetValues();
                 foreach (var key in dict.Keys)

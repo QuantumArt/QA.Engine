@@ -39,14 +39,11 @@ namespace QA.DotNetCore.Engine.Abstractions
         /// Получить все зарегистрированные сервисы
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<TServiceInterface> GetServices()
+        public IEnumerable<TServiceInterface> GetServices(IServiceProvider scopedProvider)
         {
             if (_types.Any())
             {
-                using (var scope = _serviceProvider.CreateScope())
-                {
-                    return _instances.Concat(_types.Select(t => (TServiceInterface)scope.ServiceProvider.GetRequiredService(t))).ToList();
-                }
+                return _instances.Concat(_types.Select(t => (TServiceInterface)scopedProvider.GetRequiredService(t))).ToList();
             }
 
             return _instances;

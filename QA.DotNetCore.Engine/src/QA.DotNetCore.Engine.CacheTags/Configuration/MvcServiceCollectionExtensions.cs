@@ -31,7 +31,7 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
 
             if (cfg.UseTimer)
             {
-                services.AddSingleton<IHostedService, CacheInvalidationBackgroundService>();
+                services.AddSingleton<IHostedService, CacheInvalidationService>();
             }
         }
     }

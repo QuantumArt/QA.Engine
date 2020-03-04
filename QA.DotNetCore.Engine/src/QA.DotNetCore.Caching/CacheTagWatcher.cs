@@ -22,12 +22,12 @@ namespace QA.DotNetCore.Caching
             _logger = logger;
         }
 
-        public void TrackChanges()
+        public void TrackChanges(IServiceProvider provider)
         {
             var checkId = Guid.NewGuid();
             _logger.LogTrace($"Invalidation {checkId} started");
 
-            var trackers = _trackersAccessor.Get();
+            var trackers = _trackersAccessor.Get(provider);
             if (trackers != null && trackers.Any())
             {
                 var newValues = new Dictionary<string, CacheTagModification>();
@@ -53,9 +53,9 @@ namespace QA.DotNetCore.Caching
                             continue;
                         }
 
-                        var old = _modifications[item.Key];
+                        var oldModified = _modifications[item.Key].Modified;
 
-                        if (old.Modified < item.Value.Modified)
+                        if (oldModified < item.Value.Modified)
                         {
                             cacheTagsToUpdate.Add(item.Key);
                         }

@@ -33,7 +33,7 @@ SELECT
     USE_SITE_LIBRARY as UseSiteLibrary,
     SUBFOLDER
 FROM CONTENT_ATTRIBUTE
-WHERE CONTENT_ID={0} AND ATTRIBUTE_NAME='{1}'
+WHERE CONTENT_ID={0} AND lower(ATTRIBUTE_NAME)=lower('{1}')
 ";
 
         private const string CmdGetContentAttributeByNetName = @"
@@ -45,7 +45,7 @@ SELECT
     USE_SITE_LIBRARY as UseSiteLibrary,
     SUBFOLDER
 FROM CONTENT_ATTRIBUTE
-WHERE CONTENT_ID={0} AND NET_ATTRIBUTE_NAME='{1}'
+WHERE CONTENT_ID={0} AND lower(NET_ATTRIBUTE_NAME)=lower('{1}')
 ";
 
         private const string CmdGetContent = @"
@@ -60,7 +60,7 @@ SELECT
     ca.SUBFOLDER
 FROM CONTENT c
 INNER JOIN CONTENT_ATTRIBUTE ca on ca.CONTENT_ID = c.CONTENT_ID
-WHERE c.SITE_ID={0} AND c.NET_CONTENT_NAME='{1}'
+WHERE c.SITE_ID={0} AND lower(c.NET_CONTENT_NAME)=lower('{1}')
 ";
 
         public QpSitePersistentData GetSite(int siteId)

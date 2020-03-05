@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Http;
 using QA.DotNetCore.Caching.Interfaces;
 using System.Text.RegularExpressions;
@@ -23,7 +24,7 @@ namespace QA.DotNetCore.Engine.CacheTags
         {
             if (!Regex.IsMatch(context.Request.Path, _excludePathRegex))
             {
-                cacheTagWatcher.TrackChanges();
+                cacheTagWatcher.TrackChanges(null);
             }
             // Call the next delegate/middleware in the pipeline
             return _next(context);

@@ -25,7 +25,7 @@ namespace QA.DotNetCore.Engine.Targeting
         public Task Invoke(HttpContext context)
         {
             //сохраним в HttpContext возможные значения таргетирования по всем ключам
-            foreach (var provider in _targetingConfigurationBuilder.GetServices())
+            foreach (var provider in _targetingConfigurationBuilder.GetServices(context.RequestServices))
             {
                 var dict = provider.GetPossibleValues();
                 foreach (var key in dict.Keys)

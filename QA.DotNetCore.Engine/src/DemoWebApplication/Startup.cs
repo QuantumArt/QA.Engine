@@ -10,21 +10,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.OnScreen;
-using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.AbTesting.Configuration;
 using QA.DotNetCore.Engine.CacheTags;
 using QA.DotNetCore.Engine.CacheTags.Configuration;
-using QA.DotNetCore.Engine.OnScreen;
-using QA.DotNetCore.Engine.OnScreen.Configuration;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 using QA.DotNetCore.Engine.QpData.Configuration;
-using QA.DotNetCore.Engine.QpData.Settings;
-using QA.DotNetCore.Engine.Routing;
 using QA.DotNetCore.Engine.Routing.Configuration;
 using QA.DotNetCore.Engine.Routing.UrlResolve;
-using QA.DotNetCore.Engine.Targeting;
 using QA.DotNetCore.Engine.Targeting.Configuration;
-using Quantumart.QPublishing.Database;
 using System;
 
 namespace DemoWebApplication
@@ -110,9 +103,6 @@ namespace DemoWebApplication
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

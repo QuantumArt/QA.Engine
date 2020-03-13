@@ -49,7 +49,7 @@ namespace QA.DotNetCore.Engine.Routing
             PathString path = context.HttpContext.Request.Path;
 
             EnsureMatcher();
-            
+
             EnsureLoggers(context.HttpContext);
 
             var startPage = context.HttpContext.Items[RoutingKeys.StartPage] as IStartPage;//проставляется в RoutingMiddleware

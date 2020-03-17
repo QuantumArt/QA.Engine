@@ -14,6 +14,7 @@ using System;
 using System.Linq;
 using QA.DotNetCore.Engine.QpData.Settings;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using QA.DotNetCore.Engine.Abstractions.Finder;
 
 namespace QA.DotNetCore.Engine.QpData.Configuration
 {
@@ -73,6 +74,7 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             services.TryAddScoped<IAbstractItemStorageProvider, SimpleAbstractItemStorageProvider>();
             services.TryAddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
             services.TryAddSingleton<IQpContentCacheTagNamingProvider, NullQpContentCacheTagNamingProvider>();
+            services.TryAddSingleton<IItemFinder, ItemFinder>();
 
             //itypefinder
             services.TryAdd(new ServiceDescriptor(typeof(ITypeFinder), provider => options.TypeFinder, ServiceLifetime.Singleton));

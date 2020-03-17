@@ -3,6 +3,8 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using QA.DotNetCore.Caching;
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.Abstractions.Finder;
+using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using QA.DotNetCore.Engine.QpData.Interfaces;
@@ -130,6 +132,15 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             Assert.Equal(4, startPage.Get("foo").Get("bar").Id);
             Assert.Null(startPage.Get("xxx"));
             Assert.Null(startPage.Get("foo").Get("bar2"));
+
+            //проверим ItemFinder
+            var targetingAccessorMoq = new Mock<ITargetingFilterAccessor>();
+            targetingAccessorMoq.Setup(x => x.Get()).Returns(new NullFilter());
+            var finder = new ItemFinder(targetingAccessorMoq.Object);
+
+            var barPage = finder.Find(aiStorage.Root, p => p.Alias == "bar");
+            Assert.NotNull(barPage);
+            Assert.Equal(4, barPage.Id);
         }
 
         [Fact]

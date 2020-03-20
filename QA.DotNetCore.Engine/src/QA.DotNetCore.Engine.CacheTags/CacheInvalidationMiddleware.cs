@@ -24,7 +24,7 @@ namespace QA.DotNetCore.Engine.CacheTags
         {
             if (!Regex.IsMatch(context.Request.Path, _excludePathRegex))
             {
-                cacheTagWatcher.TrackChanges(null);
+                cacheTagWatcher.TrackChanges(context.RequestServices);
             }
             // Call the next delegate/middleware in the pipeline
             return _next(context);

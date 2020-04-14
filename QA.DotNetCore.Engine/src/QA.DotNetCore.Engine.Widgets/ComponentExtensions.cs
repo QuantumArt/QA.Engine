@@ -81,7 +81,7 @@ namespace QA.DotNetCore.Engine.Widgets
                 foreach (var widget in widgets.OfType<IAbstractWidget>().OrderBy(x => x.SortOrder))
                 {
                     var name = mapper.Map(widget);
-                    RenderOnScreenModeWidgetWrapperStart(isWidgetEditMode, builder, widget);
+                    RenderOnScreenModeWidgetWrapperStart(isWidgetEditMode, builder, widget, onScreenContext?.SkipWidgetTypes);
                     var renderingStack = html.ViewContext.HttpContext.PushWidgetToRenderingStack(new WidgetRenderingContext { CurrentWidget = widget, ShouldUseCustomInvoker = true });
                     try
                     {

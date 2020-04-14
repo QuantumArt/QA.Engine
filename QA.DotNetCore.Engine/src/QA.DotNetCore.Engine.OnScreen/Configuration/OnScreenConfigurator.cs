@@ -40,7 +40,8 @@ namespace QA.DotNetCore.Engine.OnScreen.Configuration
                 AvailableFeatures = options.AvailableFeatures,
                 BackendSidQueryKey = options.BackendSidQueryKey,
                 OverrideAbTestStageModeCookieName = options.OverrideAbTestStageModeCookieName,
-                PageIdQueryParamName = options.PageIdQueryParamName
+                PageIdQueryParamName = options.PageIdQueryParamName,
+                SkipWidgetTypes = options.SkipWidgetTypes
             });
 
             //добавляем сервисы

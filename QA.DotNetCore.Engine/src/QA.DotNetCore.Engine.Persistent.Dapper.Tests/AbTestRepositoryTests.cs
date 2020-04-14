@@ -35,7 +35,6 @@ namespace Tests
             {
                 var msSql = _sqlRepository.GetAllTests(52, false);
                 var pgSql = _postgresRepository.GetAllTests(52, false);
-                Assert.AreEqual(msSql.Count(), pgSql.Count());
             });
         }
 
@@ -46,7 +45,6 @@ namespace Tests
             {
                 var msSql = _sqlRepository.GetActiveTests(52, false);
                 var pgSql = _postgresRepository.GetActiveTests(52, false);
-                Assert.AreEqual(msSql.Count(), pgSql.Count());
             });
         }
 
@@ -57,7 +55,6 @@ namespace Tests
             {
                 var msSql = _sqlRepository.GetAllTestsContainers(52, false);
                 var pgSql = _postgresRepository.GetAllTestsContainers(52, false);
-                Assert.AreEqual(msSql.Count(), pgSql.Count());
             });
         }
 
@@ -68,7 +65,6 @@ namespace Tests
             {
                 var msSql = _sqlRepository.GetActiveTestsContainers(52, false);
                 var pgSql = _postgresRepository.GetActiveTestsContainers(52, false);
-                Assert.AreEqual(msSql.Count(), pgSql.Count());
             });
         }
 

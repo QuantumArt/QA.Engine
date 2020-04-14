@@ -11,10 +11,12 @@ namespace QA.DotNetCore.Engine.Abstractions.OnScreen
         /// Доступные фичи OnScreen
         /// </summary>
         public OnScreenFeatures Features { get; set; }
+
         /// <summary>
         /// Текущий пользователь
         /// </summary>
         public OnScreenUser User { get; set; }
+
         /// <summary>
         /// Проверка, доступна ли фича
         /// </summary>
@@ -30,11 +32,15 @@ namespace QA.DotNetCore.Engine.Abstractions.OnScreen
         public bool? AbtestsIsStageOverrided { get; set; }
 
         /// <summary>
+        /// Типы виджетов, которые надо игнорировать в режиме onscreen (не подсвечивать, обрамлять рамками итд)
+        /// </summary>
+        public string[] SkipWidgetTypes { get; set; }
+
+        /// <summary>
         /// Id страницы
         /// </summary>
         public int? PageId { get; set; }
 
         public string CustomerCode { get; set; }
-
     }
 }

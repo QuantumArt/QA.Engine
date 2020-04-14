@@ -178,11 +178,12 @@ namespace QA.DotNetCore.Engine.Widgets
             return zoneName.StartsWith("Site");
         }
 
-
-        private static void RenderOnScreenModeWidgetWrapperStart(bool isWidgetEditMode, IHtmlContentBuilder builder, IAbstractItem widget)
+        private static void RenderOnScreenModeWidgetWrapperStart(bool isWidgetEditMode, IHtmlContentBuilder builder, IAbstractItem widget, string[] skipWidgetTypes)
         {
-            if (isWidgetEditMode)
-                builder.AppendHtml($"<!--start widget {widget.Id} {{ alias='{widget.Alias}' title='{widget.Title.Replace("'", "").Replace("}", "").Replace("{", "")}' type='{widget.GetMetadata(OnScreenWidgetMetadataKeys.Type)}' published='{widget.GetMetadata(OnScreenWidgetMetadataKeys.Published)?.ToString()?.ToLower()}' }}-->");
+            var widgetType = widget.GetMetadata(OnScreenWidgetMetadataKeys.Type).ToString();
+            var skip = skipWidgetTypes == null ? false : skipWidgetTypes.Contains(widgetType);
+            if (isWidgetEditMode && !skip)
+                builder.AppendHtml($"<!--start widget {widget.Id} {{ alias='{widget.Alias}' title='{widget.Title.Replace("'", "").Replace("}", "").Replace("{", "")}' type='{widgetType}' published='{widget.GetMetadata(OnScreenWidgetMetadataKeys.Published)?.ToString()?.ToLower()}' }}-->");
             else
                 builder.AppendHtml($"<!--start widget {widget.Id}-->");
         }

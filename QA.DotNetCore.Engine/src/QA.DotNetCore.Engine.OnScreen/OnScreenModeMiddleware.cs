@@ -28,7 +28,7 @@ namespace QA.DotNetCore.Engine.OnScreen
 
         private void SetContext(HttpContext httpContext, OnScreenSettings onScreenSettings, Quantumart.QPublishing.Authentication.IAuthenticationService authenticationService)
         {
-            var context = new OnScreenContext { Features = onScreenSettings.AvailableFeatures };
+            var context = new OnScreenContext { Features = onScreenSettings.AvailableFeatures, SkipWidgetTypes = onScreenSettings.SkipWidgetTypes };
             context.CustomerCode = _customerCode;
             if (onScreenSettings.AvailableFeatures > OnScreenFeatures.None)
             {

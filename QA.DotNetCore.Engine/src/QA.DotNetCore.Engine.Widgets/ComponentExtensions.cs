@@ -183,7 +183,7 @@ namespace QA.DotNetCore.Engine.Widgets
             var widgetType = widget.GetMetadata(OnScreenWidgetMetadataKeys.Type).ToString();
             var skip = skipWidgetTypes == null ? false : skipWidgetTypes.Contains(widgetType);
             if (isWidgetEditMode && !skip)
-                builder.AppendHtml($"<!--start widget {widget.Id} {{ alias='{widget.Alias}' title='{widget.Title.Replace("'", "").Replace("}", "").Replace("{", "")}' type='{widgetType}' published='{widget.GetMetadata(OnScreenWidgetMetadataKeys.Published)?.ToString()?.ToLower()}' }}-->");
+                builder.AppendHtml($"<!--start widget {widget.Id} {{ alias='{widget.Alias}' title='{widget.Title.Replace("'", "").Replace("}", "").Replace("{", "")}' type='{widgetType}' published='{widget.GetMetadata(OnScreenWidgetMetadataKeys.Published)?.ToString()?.ToLower()}' order='{widget.SortOrder}' }}-->");
             else
                 builder.AppendHtml($"<!--start widget {widget.Id}-->");
         }

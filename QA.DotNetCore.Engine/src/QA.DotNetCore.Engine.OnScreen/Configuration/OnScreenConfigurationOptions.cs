@@ -53,6 +53,10 @@ namespace QA.DotNetCore.Engine.OnScreen.Configuration
         /// Имя query-параметра с текущим Id страницы структуры сайта
         /// </summary>
         public string PageIdQueryParamName { get; set; } = "pageId";
+        /// <summary>
+        /// Типы виджетов, которые надо игнорировать в режиме onscreen (не подсвечивать, обрамлять рамками итд)
+        /// </summary>
+        public string[] SkipWidgetTypes { get; set; }
 
         /// <summary>
         /// Использовать глобальные настройки для взаимодействия с QP

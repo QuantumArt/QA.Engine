@@ -81,7 +81,9 @@ namespace QA.DotNetCore.Engine.Widgets
                 foreach (var widget in widgets.OfType<IAbstractWidget>().OrderBy(x => x.SortOrder))
                 {
                     var name = mapper.Map(widget);
-                    RenderOnScreenModeWidgetWrapperStart(isWidgetEditMode, builder, widget);
+                    var renderFullWidgetInfo = isWidgetEditMode && !WidgetShouldBeSkipped(onScreenContext, widget);
+
+                    RenderOnScreenModeWidgetWrapperStart(renderFullWidgetInfo, builder, widget);
                     var renderingStack = html.ViewContext.HttpContext.PushWidgetToRenderingStack(new WidgetRenderingContext { CurrentWidget = widget, ShouldUseCustomInvoker = true });
                     try
                     {
@@ -92,7 +94,7 @@ namespace QA.DotNetCore.Engine.Widgets
                     {
                         renderingStack.Pop();
 
-                        RenderOnScreenModeWidgetWrapperEnd(isWidgetEditMode, builder, widget);
+                        RenderOnScreenModeWidgetWrapperEnd(renderFullWidgetInfo, builder, widget);
                     }
                 }
             }
@@ -100,7 +102,14 @@ namespace QA.DotNetCore.Engine.Widgets
             return builder;
         }
 
-      
+        private static bool WidgetShouldBeSkipped(OnScreenContext onScreenContext, IAbstractWidget widget)
+        {
+            var widgetType = widget.GetMetadata(OnScreenWidgetMetadataKeys.Type).ToString();
+            var skipWidgetTypes = onScreenContext?.SkipWidgetTypes;
+            return skipWidgetTypes == null ? false : skipWidgetTypes.Contains(widgetType);
+        }
+
+
 
         /// <summary>
         /// Рендеринг текста с зонами, объявленных в контенте в виде [[zone=имя_зоны]]
@@ -178,13 +187,12 @@ namespace QA.DotNetCore.Engine.Widgets
             return zoneName.StartsWith("Site");
         }
 
-
-        private static void RenderOnScreenModeWidgetWrapperStart(bool isWidgetEditMode, IHtmlContentBuilder builder, IAbstractItem widget)
+        private static void RenderOnScreenModeWidgetWrapperStart(bool renderFullInfo, IHtmlContentBuilder builder, IAbstractItem widget)
         {
-            if (isWidgetEditMode)
-                builder.AppendHtml($"<!--start widget {widget.Id} {{ alias='{widget.Alias}' title='{widget.Title.Replace("'", "").Replace("}", "").Replace("{", "")}' type='{widget.GetMetadata(OnScreenWidgetMetadataKeys.Type)}' published='{widget.GetMetadata(OnScreenWidgetMetadataKeys.Published)?.ToString()?.ToLower()}' }}-->");
+            if (renderFullInfo)
+                builder.AppendHtml($"<!--start widget {widget.Id} {{ alias='{widget.Alias}' title='{widget.Title.Replace("'", "").Replace("}", "").Replace("{", "")}' type='{widget.GetMetadata(OnScreenWidgetMetadataKeys.Type)}' published='{widget.GetMetadata(OnScreenWidgetMetadataKeys.Published)?.ToString()?.ToLower()}' order='{widget.SortOrder}' }}-->");
             else
-                builder.AppendHtml($"<!--start widget {widget.Id}-->");
+                builder.AppendHtml($"<!--start widget-->");
         }
 
         private static void RenderOnScreenModeZoneWrapperStart(bool isWidgetEditMode, string zoneName, IHtmlContentBuilder builder)
@@ -195,9 +203,12 @@ namespace QA.DotNetCore.Engine.Widgets
                 builder.AppendHtml($"<!--start zone {zoneName}-->");
         }
 
-        private static void RenderOnScreenModeWidgetWrapperEnd(bool isWidgetEditMode, IHtmlContentBuilder builder, IAbstractItem widget)
+        private static void RenderOnScreenModeWidgetWrapperEnd(bool renderWidgetId, IHtmlContentBuilder builder, IAbstractItem widget)
         {
-            builder.AppendHtml($"<!--end widget {widget.Id}-->");
+            if (renderWidgetId)
+                builder.AppendHtml($"<!--end widget {widget.Id}-->");
+            else
+                builder.AppendHtml($"<!--end widget-->");
         }
 
         private static void RenderOnScreenModeZoneWrapperEnd(bool isWidgetEditMode, string zoneName, IHtmlContentBuilder builder)

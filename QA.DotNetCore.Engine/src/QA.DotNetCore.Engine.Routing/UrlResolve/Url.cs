@@ -820,7 +820,6 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
         /// <summary>
         /// Возвращает адрес без сегмента
         /// </summary>
-        /// <param name="path"></param>
         /// <returns></returns>
         public Url RemoveTrailingSegment()
         {

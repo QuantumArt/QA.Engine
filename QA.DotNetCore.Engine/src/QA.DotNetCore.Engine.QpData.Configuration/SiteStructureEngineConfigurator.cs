@@ -94,9 +94,13 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             else if (options.ComponentMapperConvention == ComponentMapperConvention.Attribute)
                 services.TryAddSingleton<IComponentMapper, AttributeConventionalComponentMapper>();
 
-            //заменяем дефолтный MVC-ный IViewComponentInvokerFactory на собственную реализацию
+            //декорируем дефолтный MVC-ный IViewComponentInvokerFactory собственной реализацией
             //для возможности рендеринга виджетов как viewcomponent
-            services.AddScoped<IViewComponentInvokerFactory, WidgetViewComponentInvokerFactory>();
+            //вынуждены делать это с использованием reflection, т.к. дефолтная реализация стала internal
+            var defaultViewComponentInvokerFactoryType = typeof(IViewComponentInvokerFactory).Assembly.GetType("Microsoft.AspNetCore.Mvc.ViewComponents.DefaultViewComponentInvokerFactory");
+            services.AddScoped(defaultViewComponentInvokerFactoryType);
+            services.AddScoped<IViewComponentInvokerFactory>(provider =>
+                new WidgetViewComponentInvokerFactory((IViewComponentInvokerFactory)provider.GetRequiredService(defaultViewComponentInvokerFactoryType)));
         }
 
         public IServiceCollection Services { get; private set; }

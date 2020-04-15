@@ -13,6 +13,7 @@ using QA.DotNetCore.Engine.Abstractions.OnScreen;
 using QA.DotNetCore.Engine.AbTesting.Configuration;
 using QA.DotNetCore.Engine.CacheTags;
 using QA.DotNetCore.Engine.CacheTags.Configuration;
+using QA.DotNetCore.Engine.OnScreen.Configuration;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 using QA.DotNetCore.Engine.QpData.Configuration;
 using QA.DotNetCore.Engine.Routing.Configuration;
@@ -40,7 +41,9 @@ namespace DemoWebApplication
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            var mvcBuilder = services.AddMvc();
+            var mvcBuilder = services.AddMvc(o => {
+                o.EnableEndpointRouting = false;
+            });
             services.AddLogging();
             services.AddMemoryCache();
 

@@ -43,7 +43,7 @@ namespace DemoWebApplication
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             var mvcBuilder = services.AddMvc(o => {
                 o.EnableEndpointRouting = false;
-            });
+            }).AddRazorRuntimeCompilation();
             services.AddLogging();
             services.AddMemoryCache();
 
@@ -100,7 +100,6 @@ namespace DemoWebApplication
             services.AddSingleton<UrlTokenTargetingProvider>();
             services.AddSingleton<DemoCultureRegionPossibleValuesProvider>();
             services.AddSingleton(Configuration.GetSection("UrlTokenConfig").Get<UrlTokenConfig>());
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

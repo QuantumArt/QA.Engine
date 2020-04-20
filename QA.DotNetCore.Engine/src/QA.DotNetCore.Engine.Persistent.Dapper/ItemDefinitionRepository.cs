@@ -27,6 +27,8 @@ SELECT
     |QPDiscriminator.Title| as Title,
     |QPDiscriminator.Description| as Description,
     |QPDiscriminator.IconUrl| as IconUrl,
+    |QPDiscriminator.IconClass| as IconClass,
+    |QPDiscriminator.IconIntent| as IconIntent,
     |QPDiscriminator.PreferredContentId| as PreferredContentId
 FROM |QPDiscriminator|
 ";

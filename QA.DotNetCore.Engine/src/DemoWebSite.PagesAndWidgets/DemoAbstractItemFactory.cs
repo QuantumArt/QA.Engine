@@ -3,14 +3,15 @@ using DemoWebSite.PagesAndWidgets.Widgets;
 using QA.DotNetCore.Engine.QpData;
 using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.Routing.UrlResolve;
+using QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching;
 
 namespace DemoWebSite.PagesAndWidgets
 {
     public class DemoAbstractItemFactory : IAbstractItemFactory
     {
-        private readonly UrlTokenResolverFactory _urlTokenResolverFactory;
+        private readonly TargetingUrlResolverFactory _urlTokenResolverFactory;
         private readonly UrlTokenConfig _urlTokenConfig;
-        public DemoAbstractItemFactory(UrlTokenResolverFactory urlTokenResolverFactory,
+        public DemoAbstractItemFactory(TargetingUrlResolverFactory urlTokenResolverFactory,
             UrlTokenConfig urlTokenConfig)
         {
             _urlTokenResolverFactory = urlTokenResolverFactory;

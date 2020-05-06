@@ -5,14 +5,15 @@ using QA.DotNetCore.Engine.Routing.UrlResolve;
 using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching;
 
 namespace DemoWebSite.PagesAndWidgets.Pages
 {
     public class StartPage : AbstractPage, IStartPage
     {
-        private UrlTokenResolverFactory _urlTokenResolverFactory;
+        private TargetingUrlResolverFactory _urlTokenResolverFactory;
         private UrlTokenConfig _urlTokenConfig;
-        public StartPage(UrlTokenResolverFactory urlTokenResolverFactory,
+        public StartPage(TargetingUrlResolverFactory urlTokenResolverFactory,
             UrlTokenConfig urlTokenConfig)
         {
             _urlTokenResolverFactory = urlTokenResolverFactory;

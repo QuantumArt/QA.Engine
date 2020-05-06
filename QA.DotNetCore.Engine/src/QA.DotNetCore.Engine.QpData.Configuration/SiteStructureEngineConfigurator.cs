@@ -15,6 +15,10 @@ using System.Linq;
 using QA.DotNetCore.Engine.QpData.Settings;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using QA.DotNetCore.Engine.Abstractions.Finder;
+using QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching;
+using QA.DotNetCore.Engine.Routing.UrlResolve;
+using QA.DotNetCore.Engine.Routing;
+using QA.DotNetCore.Engine.Abstractions.Targeting;
 
 namespace QA.DotNetCore.Engine.QpData.Configuration
 {
@@ -48,6 +52,13 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
                 ItemDefinitionCachePeriod = options.ItemDefinitionCachePeriod
             });
 
+            services.AddSingleton(new UrlTokenConfig
+            {
+                DefaultTailPattern = options.DefaultUrlTailPattern,
+                TailPatternsByControllers = options.UrlTailPatternsByControllers,
+                HeadPatterns = options.UrlHeadPatterns
+            });
+
             //DAL
             if (!services.Any(x => x.ServiceType == typeof(IUnitOfWork)))
             {
@@ -74,8 +85,12 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             services.TryAddScoped<IAbstractItemStorageProvider, SimpleAbstractItemStorageProvider>();
             services.TryAddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
             services.TryAddSingleton<IQpContentCacheTagNamingProvider, NullQpContentCacheTagNamingProvider>();
+            services.TryAddSingleton<ITargetingFilterAccessor, NullTargetingFilterAccessor>();
             services.TryAddSingleton<IItemFinder, ItemFinder>();
-
+            services.TryAddSingleton<ITailUrlResolver, TailUrlResolver>();
+#if NETCOREAPP3_1
+            services.TryAddSingleton<SiteStructureRouteValueTransformer>();
+#endif
             //itypefinder
             services.TryAdd(new ServiceDescriptor(typeof(ITypeFinder), provider => options.TypeFinder, ServiceLifetime.Singleton));
 

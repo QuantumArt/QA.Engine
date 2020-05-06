@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
 using System.Net;
 using System.Web;
 
 namespace QA.DotNetCore.Engine.Routing.UrlResolve
 {
     /// <summary>
-    /// Класс для работы с адресом (перетянуто из старой виджетной платформы)
+    /// Класс для работы с урлом (перетянуто из старой виджетной платформы)
     /// </summary>
     public class Url
     {
@@ -980,6 +981,19 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
         public Url ResolveTokens()
         {
             return new Url(ResolveTokens(ToString()), _forcedAddTrailingSlashes);
+        }
+
+        public string[] GetReversedDomains()
+        {
+            if (Authority == null)
+                return new string[0];
+
+            return Authority
+                .Split('.')
+                .Select(w => w.Trim())
+                .Where(w => !String.IsNullOrWhiteSpace(w))
+                .Reverse()
+                .ToArray();
         }
     }
 }

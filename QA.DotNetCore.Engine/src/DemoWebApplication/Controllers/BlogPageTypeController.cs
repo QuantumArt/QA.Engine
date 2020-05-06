@@ -12,12 +12,12 @@ namespace DemoWebApplication.Controllers
     {
         public IActionResult Index()
         {
-            return Content($"blogpage CurrentItem.Id={CurrentItem.Id}, Alias={CurrentItem.Alias}, tail=nope");
+            return Content($"blogpage index CurrentItem.Id {CurrentItem.Id}, Alias {CurrentItem.Alias}");
         }
 
         public IActionResult Details(string id, int? page)
         {
-            return Content($"blogpage details {id}, page {page} {CurrentItem.Id}, {CurrentItem.Alias}");
+            return Content($"blogpage details {id}, page {page}, CurrentItem.Id {CurrentItem.Id}, CurrentItem.Alias {CurrentItem.Alias}");
         }
     }
 }

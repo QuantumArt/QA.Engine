@@ -2,14 +2,14 @@ using QA.DotNetCore.Engine.Abstractions.Targeting;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace QA.DotNetCore.Engine.Routing.UrlResolve
+namespace QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching
 {
-    public class UrlTokenResolver : ITargetingUrlResolver
+    public class HeadUrlResolver : ITargetingUrlResolver
     {
-        private readonly IUrlTokenMatcher _urlTokenMatcher;
+        private readonly IHeadUrlTokenMatcher _urlTokenMatcher;
         private readonly ITargetingContext _targetingContext;
 
-        public UrlTokenResolver(IUrlTokenMatcher urlTokenMatcher,
+        public HeadUrlResolver(IHeadUrlTokenMatcher urlTokenMatcher,
             ITargetingContext targetingContext)
         {
             _urlTokenMatcher = urlTokenMatcher;

@@ -16,16 +16,22 @@ using QA.DotNetCore.Engine.CacheTags.Configuration;
 using QA.DotNetCore.Engine.OnScreen.Configuration;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 using QA.DotNetCore.Engine.QpData.Configuration;
+using QA.DotNetCore.Engine.Routing;
 using QA.DotNetCore.Engine.Routing.Configuration;
 using QA.DotNetCore.Engine.Routing.UrlResolve;
+using QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching;
+using QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching;
 using QA.DotNetCore.Engine.Targeting.Configuration;
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using static QA.DotNetCore.Engine.Routing.Configuration.ControllerEndpointRouteBuilderExtensions;
 
 namespace DemoWebApplication
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        public Startup(IWebHostEnvironment env)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
@@ -41,8 +47,9 @@ namespace DemoWebApplication
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            var mvcBuilder = services.AddMvc(o => {
-                o.EnableEndpointRouting = false;
+            var mvcBuilder = services.AddMvc(o =>
+            {
+                //o.EnableEndpointRouting = false;
             }).AddRazorRuntimeCompilation();
             services.AddLogging();
             services.AddMemoryCache();
@@ -53,6 +60,9 @@ namespace DemoWebApplication
             {
                 options.UseQpSettings(qpSettings);
                 options.TypeFinder.RegisterFromAssemblyContaining<RootPage, IAbstractItem>();
+                options.UrlHeadPatterns = Configuration.GetSection("UrlTokenConfig:HeadPatterns").Get<List<HeadUrlMatchingPattern>>();
+                options.UrlTailPatternsByControllers = Configuration.GetSection("UrlTokenConfig:TailByControllers")
+                    .Get<Dictionary<string, List<TailUrlMatchingPattern>>>();
             });
 
             //services.AddSiteStructureEngineViaXml(options =>Load data for many-to-many fields in main content
@@ -95,25 +105,15 @@ namespace DemoWebApplication
 
             services.AddTargeting();
 
-
-            services.AddSingleton<UrlTokenResolverFactory>();
+            services.AddSingleton<TargetingUrlResolverFactory>();
             services.AddSingleton<UrlTokenTargetingProvider>();
             services.AddSingleton<DemoCultureRegionPossibleValuesProvider>();
-            services.AddSingleton(Configuration.GetSection("UrlTokenConfig").Get<UrlTokenConfig>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                //app.UseBrowserLink();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-            }
+            app.UseDeveloperExceptionPage();
 
             app.UseStaticFiles();
 
@@ -138,26 +138,42 @@ namespace DemoWebApplication
                 filters.RegisterSingleton<DemoCultureFilter>();
             });
 
+            app.UseRouting();
+
             var qpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
             app.UseOnScreenMode(qpSettings.CustomerCode);
 
-            app.UseMvc(routes =>
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapContentRoute("Route with custom params", "{controller}/{id}/{page}",
-                    defaults: new RouteValueDictionary(new { action = "details" }),
-                    constraints: new
-                    {
-                        page = @"^\d+$"
-                    });
-
-                routes.MapContentRoute("default", "{controller}/{action=Index}/{id?}");
-
-                //routes.MapGreedyContentRoute("blog bage with tail", "{controller}",
-                //    defaults: new { controller = "blogpagetype", action = "Index" },
-                //    constraints: new { controller = "blogpagetype" });
-
-                routes.MapRoute("static controllers route", "{controller}/{action=Index}/{id?}");
+                endpoints.MapAbtestEndpointRoute();
+                endpoints.MapSiteStructureControllerRoute();
             });
+
+            app.Use(next => context =>
+            {
+                //сюда попадаем, если ни один endpoint не подошёл
+                context.Response.WriteAsync("404!");
+                return Task.CompletedTask;
+            });
+
+
+            //app.UseMvc(routes =>
+            //{
+            //    routes.MapContentRoute("Route with custom params", "{controller}/{id}/{page}",
+            //        defaults: new RouteValueDictionary(new { action = "details" }),
+            //        constraints: new
+            //        {
+            //            page = @"^\d+$"
+            //        });
+
+            //    routes.MapContentRoute("default", "{controller}/{action=Index}/{id?}");
+
+            //    //routes.MapGreedyContentRoute("blog bage with tail", "{controller}",
+            //    //    defaults: new { controller = "blogpagetype", action = "Index" },
+            //    //    constraints: new { controller = "blogpagetype" });
+
+            //    routes.MapRoute("static controllers route", "{controller}/{action=Index}/{id?}");
+            //});
         }
     }
 }

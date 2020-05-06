@@ -1,7 +1,10 @@
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 using QA.DotNetCore.Engine.Reflection;
+using QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching;
+using QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching;
 using System;
+using System.Collections.Generic;
 
 namespace QA.DotNetCore.Engine.QpData.Configuration
 {
@@ -74,6 +77,20 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
         /// TypeFinder, позволящий регистрировать сборки для инстанцирования страниц, виджетов, контроллеров и view-компонентов
         /// </summary>
         public RegisterTypeFinder TypeFinder { get; set; } = new RegisterTypeFinder();
+
+
+        /// <summary>
+        /// Шаблон "хвоста" урла по умолчанию для всех контроллеров
+        /// </summary>
+        public TailUrlMatchingPattern DefaultUrlTailPattern { get; set; } = new TailUrlMatchingPattern { Pattern = "{action=Index}/{id?}" };
+        /// <summary>
+        /// Шаблоны "хвоста" урла, заданные индивидуально для каждого контроллера
+        /// </summary>
+        public Dictionary<string, List<TailUrlMatchingPattern>> UrlTailPatternsByControllers { get; set; }
+        /// <summary>
+        /// Шаблоны "головы" урла
+        /// </summary>
+        public List<HeadUrlMatchingPattern> UrlHeadPatterns { get; set; }
 
         /// <summary>
         /// Использовать глобальные настройки для взаимодействия с QP

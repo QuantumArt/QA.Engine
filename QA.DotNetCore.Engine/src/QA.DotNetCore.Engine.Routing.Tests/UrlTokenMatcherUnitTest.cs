@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.Routing.Tests.Fakes;
 using QA.DotNetCore.Engine.Routing.UrlResolve;
+using QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching;
 using System.Collections.Generic;
 
 namespace QA.DotNetCore.Engine.Routing.Tests
@@ -12,9 +13,9 @@ namespace QA.DotNetCore.Engine.Routing.Tests
         [TestMethod]
         public void Test_Match_SimpleTemplate()
         {
-            var urlTokenMatcher = new UrlTokenMatcher(CreateSimpleUrlTokenConfig());
+            var urlTokenMatcher = new HeadUrlTokenMatcher(CreateSimpleUrlTokenConfig());
             var ctx = CreateFakeTargetingContext();
-            UrlMatchingResult m;
+            HeadUrlMatchResult m;
 
             m = urlTokenMatcher.Match("http://test.somesite.com/moskva/test1/test2/test3", ctx);
 
@@ -57,9 +58,9 @@ namespace QA.DotNetCore.Engine.Routing.Tests
         [TestMethod]
         public void Test_Match_AuthorityTemplate()
         {
-            var urlTokenMatcher = new UrlTokenMatcher(CreateAuthorityUrlTokenConfig());
+            var urlTokenMatcher = new HeadUrlTokenMatcher(CreateAuthorityUrlTokenConfig());
             var ctx = CreateFakeTargetingContext();
-            UrlMatchingResult m;
+            HeadUrlMatchResult m;
 
             m = urlTokenMatcher.Match("/en-us/test1/test2/test3", ctx);
 
@@ -105,9 +106,9 @@ namespace QA.DotNetCore.Engine.Routing.Tests
         [TestMethod]
         public void Test_Match_AllDefaultsTemplate()
         {
-            var urlTokenMatcher = new UrlTokenMatcher(CreateAllDefaultsUrlTokenConfig());
+            var urlTokenMatcher = new HeadUrlTokenMatcher(CreateAllDefaultsUrlTokenConfig());
             var ctx = CreateFakeTargetingContext();
-            UrlMatchingResult m;
+            HeadUrlMatchResult m;
 
             m = urlTokenMatcher.Match("/", ctx);
 
@@ -173,7 +174,7 @@ namespace QA.DotNetCore.Engine.Routing.Tests
         [TestMethod]
         public void Test_ReplaceTokens_SimpleTemplate()
         {
-            var urlTokenMatcher = new UrlTokenMatcher(CreateSimpleUrlTokenConfig());
+            var urlTokenMatcher = new HeadUrlTokenMatcher(CreateSimpleUrlTokenConfig());
             var ctx = CreateFakeTargetingContext();
 
             var newUrl = urlTokenMatcher.ReplaceTokens("http://test.somesite.com/moskva/qwe", new Dictionary<string, string> { { "region", "spb" } }, ctx);
@@ -222,7 +223,7 @@ namespace QA.DotNetCore.Engine.Routing.Tests
         [TestMethod]
         public void Test_ReplaceTokens_AuthorityTemplate()
         {
-            var urlTokenMatcher = new UrlTokenMatcher(CreateAuthorityUrlTokenConfig());
+            var urlTokenMatcher = new HeadUrlTokenMatcher(CreateAuthorityUrlTokenConfig());
             var ctx = CreateFakeTargetingContext();
 
             var newUrl = urlTokenMatcher.ReplaceTokens("/", new Dictionary<string, string> { { "culture", "en-us" } }, ctx);
@@ -244,7 +245,7 @@ namespace QA.DotNetCore.Engine.Routing.Tests
         [TestMethod]
         public void Test_ReplaceTokens_AllDefaultsTemplate()
         {
-            var urlTokenMatcher = new UrlTokenMatcher(CreateAllDefaultsUrlTokenConfig());
+            var urlTokenMatcher = new HeadUrlTokenMatcher(CreateAllDefaultsUrlTokenConfig());
             var ctx = CreateFakeTargetingContext();
 
             var newUrl = urlTokenMatcher.ReplaceTokens("/", new Dictionary<string, string> { { "culture", "en-us" } }, ctx);
@@ -284,10 +285,10 @@ namespace QA.DotNetCore.Engine.Routing.Tests
         {
             return new UrlTokenConfig
             {
-                MatchingPatterns = new List<UrlMatchingPattern>
+                HeadPatterns = new List<HeadUrlMatchingPattern>
                 {
-                    new UrlMatchingPattern{ Value = "/{culture}/{region}"},
-                    new UrlMatchingPattern{ Value = "/{region}", Defaults = new Dictionary<string, string> { { "culture", "ru-ru" } } }
+                    new HeadUrlMatchingPattern{ Pattern = "/{culture}/{region}"},
+                    new HeadUrlMatchingPattern{ Pattern = "/{region}", Defaults = new Dictionary<string, string> { { "culture", "ru-ru" } } }
                 }
             };
         }
@@ -296,12 +297,12 @@ namespace QA.DotNetCore.Engine.Routing.Tests
         {
             return new UrlTokenConfig
             {
-                MatchingPatterns = new List<UrlMatchingPattern>
+                HeadPatterns = new List<HeadUrlMatchingPattern>
                 {
-                    new UrlMatchingPattern{ Value = "/{culture}/{region}"},
-                    new UrlMatchingPattern{ Value = "/{region}", Defaults = new Dictionary<string, string> { { "culture", "ru-ru" } } },
-                    new UrlMatchingPattern{ Value = "/{culture}", Defaults = new Dictionary<string, string> { { "region", "moskva" } } },
-                    new UrlMatchingPattern{ Value = "/", Defaults = new Dictionary<string, string> { { "culture", "ru-ru" }, { "region", "moskva" } }}
+                    new HeadUrlMatchingPattern{ Pattern = "/{culture}/{region}"},
+                    new HeadUrlMatchingPattern{ Pattern = "/{region}", Defaults = new Dictionary<string, string> { { "culture", "ru-ru" } } },
+                    new HeadUrlMatchingPattern{ Pattern = "/{culture}", Defaults = new Dictionary<string, string> { { "region", "moskva" } } },
+                    new HeadUrlMatchingPattern{ Pattern = "/", Defaults = new Dictionary<string, string> { { "culture", "ru-ru" }, { "region", "moskva" } }}
                 }
             };
         }
@@ -310,10 +311,10 @@ namespace QA.DotNetCore.Engine.Routing.Tests
         {
             return new UrlTokenConfig
             {
-                MatchingPatterns = new List<UrlMatchingPattern>
+                HeadPatterns = new List<HeadUrlMatchingPattern>
                 {
-                    new UrlMatchingPattern{ Value = "//{region}.test.ru/{culture}"},
-                    new UrlMatchingPattern{ Value = "//{region}.test.ru", Defaults = new Dictionary<string, string> { { "culture", "ru-ru" } } }
+                    new HeadUrlMatchingPattern{ Pattern = "//{region}.test.ru/{culture}"},
+                    new HeadUrlMatchingPattern{ Pattern = "//{region}.test.ru", Defaults = new Dictionary<string, string> { { "culture", "ru-ru" } } }
                 }
             };
         }

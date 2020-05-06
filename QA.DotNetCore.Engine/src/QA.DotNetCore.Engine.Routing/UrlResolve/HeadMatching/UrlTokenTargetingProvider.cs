@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace QA.DotNetCore.Engine.Routing.UrlResolve
+namespace QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching
 {
     public class UrlTokenTargetingProvider : ITargetingProvider
     {

@@ -2,70 +2,29 @@ using QA.DotNetCore.Engine.Abstractions.Targeting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
-namespace QA.DotNetCore.Engine.Routing.UrlResolve
+namespace QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching
 {
-    public interface IUrlTokenMatcher
+    public interface IHeadUrlTokenMatcher
     {
-        UrlMatchingResult Match(string originalUrl, ITargetingContext targetingContext);
+        HeadUrlMatchResult Match(string originalUrl, ITargetingContext targetingContext);
         string ReplaceTokens(string originalUrl, Dictionary<string, string> tokenValues, ITargetingContext targetingContext);
     }
 
-    public class UrlTokenMatcher : IUrlTokenMatcher
+    public class HeadUrlTokenMatcher : IHeadUrlTokenMatcher
     {
         private readonly UrlTokenConfig _config;
 
-        public UrlTokenMatcher(UrlTokenConfig config)
+        public HeadUrlTokenMatcher(UrlTokenConfig config)
         {
             _config = config;
-
-            foreach (var pattern in _config.MatchingPatterns)
-            {
-                if (pattern.Defaults == null)
-                    pattern.Defaults = new Dictionary<string, string>();
-
-                Url pUrl = pattern.Value;
-                var pSegments = pUrl.GetSegments();
-
-                var tokens = new List<UrlMatchingToken>();
-                foreach (var match in Regex.Matches(pattern.Value, @"\{(.*?)\}"))
-                {
-                    var tokenName = match.ToString();
-
-                    int tokenPosition = -1;
-                    bool isInAuthority = false;
-
-                    if (pUrl.Authority != null && pUrl.Authority.Contains(tokenName))
-                    {
-                        var domains = GetReversedDomains(pUrl);
-
-                        tokenPosition = Array.IndexOf(domains, tokenName);
-
-                        isInAuthority = true;
-                    }
-                    else
-                    {
-                        tokenPosition = Array.IndexOf(pSegments, tokenName);
-                    }
-
-                    tokens.Add(new UrlMatchingToken
-                    {
-                        IsInAuthority = isInAuthority,
-                        Position = tokenPosition,
-                        Name = tokenName.Substring(1, tokenName.Length - 2) //обрезаем фигурные скобки
-                    });
-                }
-                pattern.Tokens = tokens.ToArray();
-            }
-            
         }
 
         public string ReplaceTokens(string originalUrl, Dictionary<string, string> tokenValues, ITargetingContext targetingContext)
         {
             Url url = originalUrl;
 
-            if (!_config.MatchingPatterns.Any())
+            if (!_config.HeadPatterns.Any())
             {
                 return url;
             }
@@ -108,22 +67,22 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
             }
 
             //для новых значений токенов определим наиболее подходящий шаблон
-            var pattern = GetSuitablePattern(_config.MatchingPatterns, tokenValues);
+            var pattern = GetSuitablePattern(_config.HeadPatterns, tokenValues);
 
             //добавим в урл значения токенов, согласно шаблону
             return ReplaceByPattern(url, pattern, tokenValues);
         }
 
-        public UrlMatchingResult Match(string originalUrl, ITargetingContext targetingContext)
+        public HeadUrlMatchResult Match(string originalUrl, ITargetingContext targetingContext)
         {
             Url pUrl = originalUrl;
-            var suitableResults = new List<UrlMatchingResult>();
+            var suitableResults = new List<HeadUrlMatchResult>();
             string[] domains = null;
 
             //сначала проверим токены в домене
-            foreach (var pattern in _config.MatchingPatterns)
+            foreach (var pattern in _config.HeadPatterns)
             {
-                UrlMatchingResult result = new UrlMatchingResult();
+                HeadUrlMatchResult result = new HeadUrlMatchResult();
 
                 if (domains == null && pUrl.Authority != null && pattern.Tokens.Any(t => t.IsInAuthority) /*pattern.IsRegionInAuthority || pattern.IsCultureInAuthority*/)
                 {
@@ -231,12 +190,12 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
                 return suitableResults.OrderByDescending(r => r.TokenValues.Count).First();
 
             //ни один шаблон не подошёл (отдельно сообщим по какой причине: домен не подходит или нет)
-            return matchForAuthority ? UrlMatchingResult.MatchOnlyForAuthority : UrlMatchingResult.NotMatch;
+            return matchForAuthority ? HeadUrlMatchResult.MatchOnlyForAuthority : HeadUrlMatchResult.NotMatch;
         }
 
-        private UrlMatchingPattern GetSuitablePattern(IEnumerable<UrlMatchingPattern> patterns, Dictionary<string, string> tokenValues)
+        private HeadUrlMatchingPattern GetSuitablePattern(IEnumerable<HeadUrlMatchingPattern> patterns, Dictionary<string, string> tokenValues)
         {
-            var suitable = new List<UrlMatchingPattern>();
+            var suitable = new List<HeadUrlMatchingPattern>();
             foreach (var pattern in patterns)
             {
                 //все Defaults не должны противоречить tokenValues
@@ -262,7 +221,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
         }
 
         private Url ReplaceByPattern(Url original,
-            UrlMatchingPattern pattern,
+            HeadUrlMatchingPattern pattern,
             Dictionary<string, string> tokenValues)
         {
             Url url = original;
@@ -281,8 +240,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
                         {
                             if (domains == null)
                             {
-                                domains = GetReversedDomains(original)
-                                    .ToList();
+                                domains = original.GetReversedDomains().ToList();
                             }
 
                             if (domains.Count > token.Position)
@@ -349,17 +307,6 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
             }
 
             return items.FirstOrDefault(x => x.Equals(sample.ToLower()));
-        }
-
-        private static string[] GetReversedDomains(Url pUrl)
-        {
-            var domains = pUrl.Authority
-                .Split('.')
-                .Select(w => w.Trim())
-                .Where(w => !String.IsNullOrWhiteSpace(w))
-                .Reverse()
-                .ToArray();
-            return domains;
         }
     }
 }

@@ -29,5 +29,9 @@ namespace QA.DotNetCore.Engine.QpData.Settings
         /// Загружать ли значения m2m-полей для основного контента AbstractItem
         /// </summary>
         public bool LoadM2mForAbstractItem { get; set; }
+        /// <summary>
+        /// Загружать ли значения m2m-полей для всех контентов-расширений
+        /// </summary>
+        public bool LoadM2mForAllExtensions { get; set; }
     }
 }

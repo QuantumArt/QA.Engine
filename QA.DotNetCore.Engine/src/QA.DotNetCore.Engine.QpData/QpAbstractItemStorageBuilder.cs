@@ -107,7 +107,7 @@ namespace QA.DotNetCore.Engine.QpData
                                 optionsMap = ProcessLoadOptions(item.GetContentType(), extensionId, baseContent?.ContentId ?? 0)?.ToLookup(x => x.PropertyName);
                             }
 
-                            var needLoadM2m = NeedManyToManyLoad(item.GetContentType());
+                            var needLoadM2m = _buildSettings.LoadM2mForAllExtensions || NeedManyToManyLoad(item.GetContentType());
                             var details = extensions[item.Id];
 
                             //проведём замены в некоторых значениях доп полей

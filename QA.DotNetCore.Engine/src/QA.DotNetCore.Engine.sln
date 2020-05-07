@@ -45,7 +45,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.Routin
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.Persistent.Dapper.Tests", "QA.DotNetCore.Engine.Persistent.Dapper.Tests\QA.DotNetCore.Engine.Persistent.Dapper.Tests.csproj", "{BD6F164A-5AE2-46C5-AB3D-AFFDF901F3EF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QA.DotNetCore.Engine.QpData.Tests", "QA.DotNetCore.Engine.QpData.Tests\QA.DotNetCore.Engine.QpData.Tests.csproj", "{B733BAA7-7EDC-464E-9C9C-744C7EDEB925}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.QpData.Tests", "QA.DotNetCore.Engine.QpData.Tests\QA.DotNetCore.Engine.QpData.Tests.csproj", "{B733BAA7-7EDC-464E-9C9C-744C7EDEB925}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoSiteStructure.WebApi", "DemoSiteStructure.WebApi\DemoSiteStructure.WebApi.csproj", "{ED2EC00C-2CBA-4429-86D2-FB9EC2F5310E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -137,6 +139,10 @@ Global
 		{B733BAA7-7EDC-464E-9C9C-744C7EDEB925}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B733BAA7-7EDC-464E-9C9C-744C7EDEB925}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B733BAA7-7EDC-464E-9C9C-744C7EDEB925}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED2EC00C-2CBA-4429-86D2-FB9EC2F5310E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED2EC00C-2CBA-4429-86D2-FB9EC2F5310E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED2EC00C-2CBA-4429-86D2-FB9EC2F5310E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED2EC00C-2CBA-4429-86D2-FB9EC2F5310E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

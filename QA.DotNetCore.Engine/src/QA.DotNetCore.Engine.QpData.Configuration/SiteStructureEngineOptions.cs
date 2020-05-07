@@ -42,7 +42,10 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
         /// Загружать ли значения m2m-полей для основного контента AbstractItem
         /// </summary>
         public bool LoadM2mForAbstractItem { get; set; } = true;
-
+        /// <summary>
+        /// Загружать ли значения m2m-полей для всех контентов-расширений
+        /// </summary>
+        public bool LoadM2mForAllExtensions { get; set; } = false;
 
         /// <summary>
         /// Длительность кеширования схемы QP (такие вещи как таблица SITE, CONTENT_ATTRIBUTE итп)

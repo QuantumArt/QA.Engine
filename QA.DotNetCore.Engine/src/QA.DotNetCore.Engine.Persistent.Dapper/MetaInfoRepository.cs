@@ -26,41 +26,70 @@ WHERE SITE_ID = {0}";
 
         private const string CmdGetContentAttributeByName = @"
 SELECT
-    ATTRIBUTE_ID as Id,
-    CONTENT_ID as ContentId,
-    ATTRIBUTE_NAME as ColumnName,
-    NET_ATTRIBUTE_NAME as NetName,
-    USE_SITE_LIBRARY as UseSiteLibrary,
-    SUBFOLDER
-FROM CONTENT_ATTRIBUTE
-WHERE CONTENT_ID={0} AND lower(ATTRIBUTE_NAME)=lower('{1}')
+    ca.ATTRIBUTE_ID as Id,
+    ca.CONTENT_ID as ContentId,
+    ca.ATTRIBUTE_NAME as ColumnName,
+    ca.NET_ATTRIBUTE_NAME as NetName,
+    ca.USE_SITE_LIBRARY as UseSiteLibrary,
+    ca.SUBFOLDER,
+    at.TYPE_NAME as TypeName,
+    ca.LINK_ID as M2mLinkId
+FROM CONTENT_ATTRIBUTE ca
+INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID=ca.ATTRIBUTE_TYPE_ID
+WHERE ca.CONTENT_ID={0} AND lower(ca.ATTRIBUTE_NAME)=lower('{1}')
 ";
 
         private const string CmdGetContentAttributeByNetName = @"
 SELECT
-    ATTRIBUTE_ID as Id,
-    CONTENT_ID as ContentId,
-    ATTRIBUTE_NAME as ColumnName,
-    NET_ATTRIBUTE_NAME as NetName,
-    USE_SITE_LIBRARY as UseSiteLibrary,
-    SUBFOLDER
-FROM CONTENT_ATTRIBUTE
-WHERE CONTENT_ID={0} AND lower(NET_ATTRIBUTE_NAME)=lower('{1}')
+    ca.ATTRIBUTE_ID as Id,
+    ca.CONTENT_ID as ContentId,
+    ca.ATTRIBUTE_NAME as ColumnName,
+    ca.NET_ATTRIBUTE_NAME as NetName,
+    ca.USE_SITE_LIBRARY as UseSiteLibrary,
+    ca.SUBFOLDER,
+    at.TYPE_NAME as TypeName,
+    ca.LINK_ID as M2mLinkId
+FROM CONTENT_ATTRIBUTE ca
+INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID=ca.ATTRIBUTE_TYPE_ID
+WHERE ca.CONTENT_ID={0} AND lower(ca.NET_ATTRIBUTE_NAME)=lower('{1}')
 ";
 
         private const string CmdGetContent = @"
 SELECT
     c.CONTENT_NAME as ContentName,
+    c.NET_CONTENT_NAME as ContentNetName,
     c.USE_DEFAULT_FILTRATION as UseDefaultFiltration,
     ca.ATTRIBUTE_ID as Id,
     ca.CONTENT_ID as ContentId,
     ca.ATTRIBUTE_NAME as ColumnName,
     ca.NET_ATTRIBUTE_NAME as NetName,
     ca.USE_SITE_LIBRARY as UseSiteLibrary,
-    ca.SUBFOLDER
+    ca.SUBFOLDER,
+    at.TYPE_NAME as TypeName,
+    ca.LINK_ID as M2mLinkId
 FROM CONTENT c
 INNER JOIN CONTENT_ATTRIBUTE ca on ca.CONTENT_ID = c.CONTENT_ID
+INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID=ca.ATTRIBUTE_TYPE_ID
 WHERE c.SITE_ID={0} AND lower(c.NET_CONTENT_NAME)=lower('{1}')
+";
+
+        private const string CmdGetContentsById = @"
+SELECT
+    c.CONTENT_NAME as ContentName,
+    c.NET_CONTENT_NAME as ContentNetName,
+    c.USE_DEFAULT_FILTRATION as UseDefaultFiltration,
+    ca.ATTRIBUTE_ID as Id,
+    ca.CONTENT_ID as ContentId,
+    ca.ATTRIBUTE_NAME as ColumnName,
+    ca.NET_ATTRIBUTE_NAME as NetName,
+    ca.USE_SITE_LIBRARY as UseSiteLibrary,
+    ca.SUBFOLDER,
+    at.TYPE_NAME as TypeName,
+    ca.LINK_ID as M2mLinkId
+FROM CONTENT c
+INNER JOIN CONTENT_ATTRIBUTE ca on ca.CONTENT_ID = c.CONTENT_ID
+INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID=ca.ATTRIBUTE_TYPE_ID
+WHERE c.SITE_ID={0} AND c.CONTENT_ID in ({1})
 ";
 
         public QpSitePersistentData GetSite(int siteId)
@@ -106,6 +135,27 @@ WHERE c.SITE_ID={0} AND lower(c.NET_CONTENT_NAME)=lower('{1}')
                 ContentNetName = contentNetName,
                 ContentAttributes = contentAttributes
             };
+        }
+
+        public ContentPersistentData[] GetContentsById(int[] contentIds, int siteId, IDbTransaction transaction = null)
+        {
+            if (contentIds == null || contentIds.Length == 0)
+                return new ContentPersistentData[0];
+
+            string query = string.Format(CmdGetContentsById, siteId, string.Join(",", contentIds));
+            var contentAttributes = _connection
+                .Query<ContentAttributePersistentData>(query, transaction: transaction)
+                .ToList();
+
+            return contentAttributes
+                .GroupBy(ca => ca.ContentId)
+                .Select(g => new ContentPersistentData
+                {
+                    ContentId = g.Key,
+                    ContentName = g.First().ContentName,
+                    ContentNetName = g.First().ContentNetName,
+                    ContentAttributes = g.ToArray()
+                }).ToArray();
         }
     }
 }

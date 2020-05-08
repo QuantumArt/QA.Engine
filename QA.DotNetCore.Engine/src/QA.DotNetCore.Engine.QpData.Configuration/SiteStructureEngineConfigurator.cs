@@ -36,8 +36,6 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
                 IsStage = options.IsStage,
                 SiteId = options.SiteId,
                 LoadAbstractItemFieldsToDetailsCollection = options.LoadAbstractItemFieldsToDetailsCollection,
-                LoadM2mForAbstractItem = options.LoadM2mForAbstractItem,
-                LoadM2mForAllExtensions = options.LoadM2mForAllExtensions,
                 RootPageDiscriminator = options.RootPageDiscriminator,
                 UploadUrlPlaceholder = options.UploadUrlPlaceholder
             });

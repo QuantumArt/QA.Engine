@@ -37,7 +37,6 @@ namespace DemoSiteStructure.WebApi
             services.AddSiteStructureEngine(options =>
             {
                 options.UseQpSettings(qpSettings);
-                options.LoadM2mForAllExtensions = true;
             });
 
             services.AddSingleton<IAbstractItemFactory, UniversalAbstractItemFactory>();

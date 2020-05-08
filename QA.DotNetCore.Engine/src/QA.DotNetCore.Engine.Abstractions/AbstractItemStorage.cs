@@ -18,7 +18,6 @@ namespace QA.DotNetCore.Engine.Abstractions
 
         private void AddItemRecursive(IAbstractItem item)
         {
-            item.Storage = this;
             _items[item.Id] = item;
             foreach (var child in item.GetChildren())
             {

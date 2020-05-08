@@ -16,6 +16,7 @@ namespace QA.DotNetCore.Engine.QpData
         {
             Children = new HashSet<IAbstractItem>();
             M2mRelations = new M2mRelations();
+            M2mFieldNames = new List<string>();
         }
 
         public override int SortOrder { get => RawSortOrder ?? 0; }
@@ -43,7 +44,7 @@ namespace QA.DotNetCore.Engine.QpData
             }
         }
 
-        internal void AddChild(AbstractItem child)
+        internal virtual void AddChild(AbstractItem child)
         {
             Children.Add(child);
             child.Parent = this;
@@ -81,6 +82,7 @@ namespace QA.DotNetCore.Engine.QpData
         internal bool Published { get; set; }
         internal AbstractItemExtensionCollection Details { get; set; }
         internal M2mRelations M2mRelations { get; set; }
+        internal List<string> M2mFieldNames { get; set; }
 
         /// <summary>
         /// Получение свойств расширения

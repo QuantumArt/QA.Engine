@@ -8,6 +8,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 
 namespace QA.DotNetCore.Engine.QpData
 {
@@ -86,6 +87,11 @@ namespace QA.DotNetCore.Engine.QpData
                     _logger.LogWarning($"Failed to obtain content definition for {1}. Build id: {0}", logBuildId, _abstractItemRepository.AbstractItemNetName);
                 }
 
+                //получим инфу обо всех контентах-расширениях, которые используются
+                var extensionContents = _metaInfoRepository
+                    .GetContentsById(groupsByExtensions.Select(g => g.Key).ToArray(), _buildSettings.SiteId)
+                    .ToDictionary(c => c.ContentId);
+
                 //догрузим доп поля
                 foreach (var group in groupsByExtensions)
                 {
@@ -94,26 +100,34 @@ namespace QA.DotNetCore.Engine.QpData
 
                     _logger.LogDebug("Load data from extension table {0}. Build id: {1}", extensionId, logBuildId);
 
-                    var extensions = _abstractItemRepository.GetAbstractItemExtensionData(extensionId, ids, baseContent, _buildSettings.LoadAbstractItemFieldsToDetailsCollection, _buildSettings.IsStage);
+                    var extensionData = _abstractItemRepository.GetAbstractItemExtensionData(extensionId, ids, baseContent, _buildSettings.LoadAbstractItemFieldsToDetailsCollection, _buildSettings.IsStage);
+                    var extensionContent = extensionContents.ContainsKey(extensionId) ? extensionContents[extensionId] : null;
 
-                    //словарь соответствий полей и атрибутов ILoaderOption
-                    ILookup<string, ILoaderOption> optionsMap = null;
+                    var m2mFieldNames = new List<string>(); ;
+                    var fileFields = new List<ContentAttributePersistentData>();
+                    if (extensionContent != null && extensionContent.ContentAttributes != null)
+                    {
+                        m2mFieldNames = extensionContent.ContentAttributes.Where(ca => ca.IsManyToManyField).Select(ca => ca.ColumnName).ToList();
+                        fileFields = extensionContent.ContentAttributes.Where(ca => ca.IsFileField).ToList();
+                    }
+                    if (_buildSettings.LoadAbstractItemFieldsToDetailsCollection)
+                    {
+                        m2mFieldNames = m2mFieldNames.Union(baseContent.ContentAttributes.Where(ca => ca.IsManyToManyField).Select(ca => ca.ColumnName)).ToList();
+                        fileFields = fileFields.Union(baseContent.ContentAttributes.Where(ca => ca.IsFileField)).ToList();
+                    }
+
                     foreach (var item in group)
                     {
-                        if (extensions.ContainsKey(item.Id))
+                        if (extensionData.ContainsKey(item.Id))
                         {
-                            if (optionsMap == null)
-                            {
-                                optionsMap = ProcessLoadOptions(item.GetContentType(), extensionId, baseContent?.ContentId ?? 0)?.ToLookup(x => x.PropertyName);
-                            }
+                            item.M2mFieldNames.AddRange(m2mFieldNames);
 
-                            var needLoadM2m = _buildSettings.LoadM2mForAllExtensions || NeedManyToManyLoad(item.GetContentType());
-                            var details = extensions[item.Id];
+                            var details = extensionData[item.Id];
 
                             //проведём замены в некоторых значениях доп полей
                             foreach (var key in details.Keys)
                             {
-                                if (needLoadM2m && key == "CONTENT_ITEM_ID")
+                                if (m2mFieldNames.Any() && key == "CONTENT_ITEM_ID")
                                 {
                                     needLoadM2mInExtensionDict[Convert.ToInt32(details[key])] = item;
                                 }
@@ -123,13 +137,14 @@ namespace QA.DotNetCore.Engine.QpData
                                     //1) надо заменить плейсхолдер <%=upload_url%> на реальный урл
                                     details.Set(key, stringValue.Replace(_buildSettings.UploadUrlPlaceholder, _qpUrlResolver.UploadUrl(_buildSettings.SiteId)));
 
-                                    //2) если поле помечено атрибутом интерфейса ILoaderOption, то нужно преобразовать значение этого поля согласно внутренней логике атрибута
-                                    //пример: атрибут LibraryUrl значит, что поле является файлом в библиотеке сайта, нужно чтобы в значении этого поля был полный урл до этого файла
-                                    if (optionsMap != null)
+                                    //2) проверим, является ли это поле ссылкой на файл, тогда нужно преобразовать его в полный урл
+                                    var fileField = fileFields.FirstOrDefault(f => f.ColumnName.Equals(key, StringComparison.InvariantCultureIgnoreCase));
+                                    if (fileField != null)
                                     {
-                                        foreach (var option in optionsMap[key])
+                                        var baseUrl = _qpUrlResolver.UrlForImage(_buildSettings.SiteId, fileField);
+                                        if (!String.IsNullOrEmpty(baseUrl))
                                         {
-                                            details.Set(key, option.Process(_qpUrlResolver, stringValue, _buildSettings.SiteId));
+                                            details.Set(key, baseUrl + "/" + stringValue);
                                         }
                                     }
                                 }
@@ -141,7 +156,7 @@ namespace QA.DotNetCore.Engine.QpData
                     }
                 }
 
-                //догрузим связи m2m в контентах расширений
+                //догрузим связи m2m в контентах расширений, в которых они есть
                 if (needLoadM2mInExtensionDict.Any())
                 {
                     _logger.LogDebug("Load data for many-to-many fields in extensions. Build id: {1}", logBuildId);
@@ -155,8 +170,10 @@ namespace QA.DotNetCore.Engine.QpData
                     }
                 }
 
-                //догрузим связи m2m в основном контенте
-                if (_buildSettings.LoadM2mForAbstractItem)
+                //догрузим связи m2m в основном контенте, если это нужно
+                var needLoadM2mInAbstractItem = _buildSettings.LoadAbstractItemFieldsToDetailsCollection &&
+                    baseContent.ContentAttributes.Any(ca => ca.IsManyToManyField);
+                if (needLoadM2mInAbstractItem)
                 {
                     _logger.LogDebug("Load data for many-to-many fields in main content (QPAbstractItem). Build id: {1}", logBuildId);
                     var m2mData = _abstractItemRepository.GetManyToManyData(activated.Keys.ToArray(), _buildSettings.IsStage);
@@ -195,53 +212,53 @@ namespace QA.DotNetCore.Engine.QpData
         /// </summary>
         public string[] UsedContentNetNames { get; private set; }
 
-        private readonly ConcurrentDictionary<Type, IReadOnlyList<ILoaderOption>> _loadOptions = new ConcurrentDictionary<Type, IReadOnlyList<ILoaderOption>>();
+        //private readonly ConcurrentDictionary<Type, IReadOnlyList<ILoaderOption>> _loadOptions = new ConcurrentDictionary<Type, IReadOnlyList<ILoaderOption>>();
 
-        /// <summary>
-        /// Получить список опций загрузки для типа
-        /// </summary>
-        /// <param name="t"></param>
-        /// <param name="contentId"></param>
-        /// <param name="baseContentId"></param>
-        /// <returns></returns>
-        private IReadOnlyList<ILoaderOption> ProcessLoadOptions(Type t, int contentId, int baseContentId)
-        {
-            return _loadOptions.GetOrAdd(t, key =>
-            {
-                var lst = new List<ILoaderOption>();
-                var properties = t.GetProperties();
+        ///// <summary>
+        ///// Получить список опций загрузки для типа
+        ///// </summary>
+        ///// <param name="t"></param>
+        ///// <param name="contentId"></param>
+        ///// <param name="baseContentId"></param>
+        ///// <returns></returns>
+        //private IReadOnlyList<ILoaderOption> ProcessLoadOptions(Type t, int contentId, int baseContentId)
+        //{
+        //    return _loadOptions.GetOrAdd(t, key =>
+        //    {
+        //        var lst = new List<ILoaderOption>();
+        //        var properties = t.GetProperties();
 
-                foreach (var prop in properties)
-                {
-                    var attrs = prop.GetCustomAttributes(typeof(ILoaderOption), false)
-                        .Cast<ILoaderOption>();
+        //        foreach (var prop in properties)
+        //        {
+        //            var attrs = prop.GetCustomAttributes(typeof(ILoaderOption), false)
+        //                .Cast<ILoaderOption>();
 
-                    foreach (var attr in attrs)
-                    {
-                        attr.AttachTo(t, (attr.PropertyName ?? prop.Name).ToUpper(), contentId, baseContentId);
-                        lst.Add(attr);
-                    }
-                }
+        //            foreach (var attr in attrs)
+        //            {
+        //                attr.AttachTo(t, (attr.PropertyName ?? prop.Name).ToUpper(), contentId, baseContentId);
+        //                lst.Add(attr);
+        //            }
+        //        }
 
-                return lst;
-            });
-        }
+        //        return lst;
+        //    });
+        //}
 
-        private readonly ConcurrentDictionary<Type, bool> _m2mOptions = new ConcurrentDictionary<Type, bool>();
+        //private readonly ConcurrentDictionary<Type, bool> _m2mOptions = new ConcurrentDictionary<Type, bool>();
 
-        /// <summary>
-        /// Нужно ли грузить M2M для экстеншна, соответствующего типу
-        /// </summary>
-        /// <param name="t"></param>
-        /// <returns></returns>
-        private bool NeedManyToManyLoad(Type t)
-        {
-            return _m2mOptions.GetOrAdd(t, key =>
-            {
-                //если атрибутом LoadManyToManyRelations помечен сам класс или какое-то из его полей
-                return t.GetCustomAttributes(typeof(LoadManyToManyRelationsAttribute), false).Any()
-                    || t.GetProperties().Any(prop => prop.GetCustomAttributes(typeof(LoadManyToManyRelationsAttribute), false).Any());
-            });
-        }
+        ///// <summary>
+        ///// Нужно ли грузить M2M для экстеншна, соответствующего типу
+        ///// </summary>
+        ///// <param name="t"></param>
+        ///// <returns></returns>
+        //private bool NeedManyToManyLoad(Type t)
+        //{
+        //    return _m2mOptions.GetOrAdd(t, key =>
+        //    {
+        //        //если атрибутом LoadManyToManyRelations помечен сам класс или какое-то из его полей
+        //        return t.GetCustomAttributes(typeof(LoadManyToManyRelationsAttribute), false).Any()
+        //            || t.GetProperties().Any(prop => prop.GetCustomAttributes(typeof(LoadManyToManyRelationsAttribute), false).Any());
+        //    });
+        //}
     }
 }

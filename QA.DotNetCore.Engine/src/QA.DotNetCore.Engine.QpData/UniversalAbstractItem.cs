@@ -1,3 +1,5 @@
+using QA.DotNetCore.Engine.Abstractions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,8 +18,17 @@ namespace QA.DotNetCore.Engine.QpData
         {
             get
             {
-                return Details.Keys.ToDictionary(k => k, k => Details.Get(k, typeof(object)));
+                return Details.Keys.ToDictionary(fieldName => fieldName, fieldName => GetUntypedDetail(fieldName));
             }
+        }
+
+        public ICollection<IAbstractItem> ChildItems { get { return Children; } }
+
+        private object GetUntypedDetail(string fieldName)
+        {
+            if (M2mFieldNames.Any(fn => fn.Equals(fieldName, StringComparison.InvariantCultureIgnoreCase)))
+                return GetRelationIds(fieldName);
+            return Details.Get(fieldName, typeof(object));
         }
     }
 }

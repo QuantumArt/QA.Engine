@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net471;netcoreapp2.2</TargetFrameworks>
-    <Version>1.0.9-beta</Version>
+    <Version>1.0.9</Version>
     <Authors>Grigorenko Paul, Karlov Nickolay</Authors>
     <Company>Quantum Art</Company>
     <AssemblyVersion>1.0.9.0</AssemblyVersion>

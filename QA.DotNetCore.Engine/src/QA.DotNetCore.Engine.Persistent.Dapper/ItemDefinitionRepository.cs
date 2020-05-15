@@ -31,8 +31,6 @@ SELECT
 FROM |QPDiscriminator|
 ";
 
-        public string ItemDefinitionNetName => "QPDiscriminator";
-
         public IEnumerable<ItemDefinitionPersistentData> GetAllItemDefinitions(int siteId, bool isStage, IDbTransaction transaction = null)
         {
             var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAll, siteId, isStage);

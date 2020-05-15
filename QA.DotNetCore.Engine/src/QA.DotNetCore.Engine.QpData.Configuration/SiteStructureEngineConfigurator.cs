@@ -15,6 +15,7 @@ using System.Linq;
 using QA.DotNetCore.Engine.QpData.Settings;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using QA.DotNetCore.Engine.Abstractions.Finder;
+using QA.DotNetCore.Engine.Abstractions.Targeting;
 
 namespace QA.DotNetCore.Engine.QpData.Configuration
 {
@@ -27,18 +28,7 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             var options = new SiteStructureEngineOptions();
             setupAction?.Invoke(options);
 
-            if (options.SiteId == 0)
-                throw new Exception("SiteId is not configured.");
-
-            //настройки
-            services.AddSingleton(new QpSiteStructureBuildSettings
-            {
-                IsStage = options.IsStage,
-                SiteId = options.SiteId,
-                LoadAbstractItemFieldsToDetailsCollection = options.LoadAbstractItemFieldsToDetailsCollection,
-                RootPageDiscriminator = options.RootPageDiscriminator,
-                UploadUrlPlaceholder = options.UploadUrlPlaceholder
-            });
+            ConfigureGeneralServices(options);
 
             services.AddSingleton(new QpSiteStructureCacheSettings
             {
@@ -47,35 +37,9 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
                 ItemDefinitionCachePeriod = options.ItemDefinitionCachePeriod
             });
 
-            //DAL
-            if (!services.Any(x => x.ServiceType == typeof(IUnitOfWork)))
-            {
-                if (String.IsNullOrWhiteSpace(options.QpConnectionString))
-                    throw new Exception("QpConnectionString is not configured.");
-
-                if (String.IsNullOrWhiteSpace(options.QpDatabaseType))
-                    throw new Exception("QpDatabaseType is not configured.");
-
-                services.AddScoped<IUnitOfWork, UnitOfWork>(sp =>
-                {
-                    return new UnitOfWork(options.QpConnectionString, options.QpDatabaseType);
-                });
-            }
-            services.TryAddScoped<IMetaInfoRepository, MetaInfoRepository>();
-            services.TryAddScoped<INetNameQueryAnalyzer, NetNameQueryAnalyzer>();
-            services.TryAddScoped<IAbstractItemRepository, AbstractItemRepository>();
             services.TryAddScoped<IItemDefinitionRepository, ItemDefinitionRepository>();
-
-            //сервисы
             services.TryAddScoped<IAbstractItemFactory, AbstractItemFactory>();
-            services.TryAddScoped<IQpUrlResolver, QpUrlResolver>();
-            services.TryAddScoped<IAbstractItemStorageBuilder, QpAbstractItemStorageBuilder>();
-            services.TryAddScoped<IAbstractItemStorageProvider, SimpleAbstractItemStorageProvider>();
-            services.TryAddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
-            services.TryAddSingleton<IQpContentCacheTagNamingProvider, NullQpContentCacheTagNamingProvider>();
-            services.TryAddSingleton<IItemFinder, ItemFinder>();
 
-            //itypefinder
             services.TryAdd(new ServiceDescriptor(typeof(ITypeFinder), provider => options.TypeFinder, ServiceLifetime.Singleton));
 
             if (options.ItemDefinitionConvention == ItemDefinitionConvention.Name)
@@ -98,6 +62,67 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             services.AddScoped<IViewComponentInvokerFactory, WidgetViewComponentInvokerFactory>();
         }
 
+        public SiteStructureEngineConfigurator(IServiceCollection services, Action<SiteStructureOptions> setupAction)
+        {
+            Services = services;
+
+            var options = new SiteStructureOptions();
+            setupAction?.Invoke(options);
+
+            ConfigureGeneralServices(options);
+
+            Services.AddSingleton(new QpSiteStructureCacheSettings
+            {
+                SiteStructureCachePeriod = options.SiteStructureCachePeriod,
+                QpSchemeCachePeriod = options.QpSchemeCachePeriod
+            });
+
+            Services.TryAddScoped<IAbstractItemFactory, UniversalAbstractItemFactory>();
+        }
+
         public IServiceCollection Services { get; private set; }
+
+        private void ConfigureGeneralServices(SiteStructureOptions options)
+        {
+            if (options.SiteId == 0)
+                throw new Exception("SiteId is not configured.");
+
+            //настройки
+            Services.AddSingleton(new QpSiteStructureBuildSettings
+            {
+                IsStage = options.IsStage,
+                SiteId = options.SiteId,
+                LoadAbstractItemFieldsToDetailsCollection = options.LoadAbstractItemFieldsToDetailsCollection,
+                RootPageDiscriminator = options.RootPageDiscriminator,
+                UploadUrlPlaceholder = options.UploadUrlPlaceholder
+            });
+
+            //DAL
+            if (!Services.Any(x => x.ServiceType == typeof(IUnitOfWork)))
+            {
+                if (String.IsNullOrWhiteSpace(options.QpConnectionString))
+                    throw new Exception("QpConnectionString is not configured.");
+
+                if (String.IsNullOrWhiteSpace(options.QpDatabaseType))
+                    throw new Exception("QpDatabaseType is not configured.");
+
+                Services.AddScoped<IUnitOfWork, UnitOfWork>(sp =>
+                {
+                    return new UnitOfWork(options.QpConnectionString, options.QpDatabaseType);
+                });
+            }
+
+            Services.TryAddScoped<IMetaInfoRepository, MetaInfoRepository>();
+            Services.TryAddScoped<INetNameQueryAnalyzer, NetNameQueryAnalyzer>();
+            Services.TryAddScoped<IAbstractItemRepository, AbstractItemRepository>();
+
+            Services.TryAddScoped<IQpUrlResolver, QpUrlResolver>();
+            Services.TryAddScoped<IAbstractItemStorageBuilder, QpAbstractItemStorageBuilder>();
+            Services.TryAddScoped<IAbstractItemStorageProvider, SimpleAbstractItemStorageProvider>();
+            Services.TryAddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
+            Services.TryAddSingleton<IQpContentCacheTagNamingProvider, NullQpContentCacheTagNamingProvider>();
+            Services.TryAddSingleton<ITargetingFilterAccessor, NullTargetingFilterAccessor>();
+            Services.TryAddSingleton<IItemFinder, ItemFinder>();
+        }
     }
 }

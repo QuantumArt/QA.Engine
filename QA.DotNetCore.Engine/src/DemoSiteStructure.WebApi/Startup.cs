@@ -32,14 +32,10 @@ namespace DemoSiteStructure.WebApi
             services.AddLogging();
             services.AddMemoryCache();
 
-            var qpSettings = Configuration.GetSection("QpSettings").Get<QpSettings>();
-
-            services.AddSiteStructureEngine(options =>
+            services.AddSiteStructure(options =>
             {
-                options.UseQpSettings(qpSettings);
+                options.UseQpSettings(Configuration.GetSection("QpSettings").Get<QpSettings>());
             });
-
-            services.AddSingleton<IAbstractItemFactory, UniversalAbstractItemFactory>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

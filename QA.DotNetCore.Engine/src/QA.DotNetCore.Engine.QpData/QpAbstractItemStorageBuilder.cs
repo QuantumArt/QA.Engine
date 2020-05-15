@@ -29,7 +29,6 @@ namespace QA.DotNetCore.Engine.QpData
             IQpUrlResolver qpUrlResolver,
             IAbstractItemRepository abstractItemRepository,
             IMetaInfoRepository metaInfoRepository,
-            IItemDefinitionRepository itemDefinitionRepository,
             QpSiteStructureBuildSettings buildSettings,
             ILogger<QpAbstractItemStorageBuilder> logger)
         {
@@ -39,7 +38,7 @@ namespace QA.DotNetCore.Engine.QpData
             _metaInfoRepository = metaInfoRepository;
             _buildSettings = buildSettings;
             _logger = logger;
-            UsedContentNetNames = new string[2] { abstractItemRepository.AbstractItemNetName, itemDefinitionRepository.ItemDefinitionNetName };
+            UsedContentNetNames = new string[2] { KnownNetNames.AbstractItem, KnownNetNames.ItemDefinition };
         }
 
         public AbstractItemStorage Build()
@@ -81,10 +80,10 @@ namespace QA.DotNetCore.Engine.QpData
                 var needLoadM2mInExtensionDict = new Dictionary<int, AbstractItem>();
 
                 //получим инфу об основном контенте (AbstractItem), она нам пригодится. Мы зашиваемся на netName контента - это легально
-                var baseContent = _metaInfoRepository.GetContent(_abstractItemRepository.AbstractItemNetName, _buildSettings.SiteId);
+                var baseContent = _metaInfoRepository.GetContent(KnownNetNames.AbstractItem, _buildSettings.SiteId);
                 if (baseContent == null)
                 {
-                    _logger.LogWarning($"Failed to obtain content definition for {1}. Build id: {0}", logBuildId, _abstractItemRepository.AbstractItemNetName);
+                    _logger.LogWarning($"Failed to obtain content definition for {1}. Build id: {0}", logBuildId, KnownNetNames.AbstractItem);
                 }
 
                 //получим инфу обо всех контентах-расширениях, которые используются

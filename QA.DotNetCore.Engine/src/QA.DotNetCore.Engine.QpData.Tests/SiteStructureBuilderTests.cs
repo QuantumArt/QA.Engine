@@ -57,7 +57,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
              * для одной из страниц специально задан дискриминатор о котором не знает IAbstractItemFactory, такие страницы не попадают в структуру сайта
             */
             var aiRepositoryMoq = new Mock<IAbstractItemRepository>();
-            aiRepositoryMoq.Setup(x => x.AbstractItemNetName).Returns(abstractItemNetName);
 
             var aiArray = new[] {
                 new AbstractItemPersistentData{ Id = 4, Title = "текстовая страница 2", Alias = "bar", Discriminator = typeof(StubPage).Name, IsPage = true, ParentId = 3, ExtensionId = null },
@@ -83,7 +82,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 Mock.Of<IQpUrlResolver>(),
                 aiRepositoryMoq.Object,
                 Mock.Of<IMetaInfoRepository>(),
-                Mock.Of<IItemDefinitionRepository>(),
                 buildSettings,
                 Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
 
@@ -149,7 +147,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
         {
             var extensionId = 777;
             var aiRepositoryMoq = new Mock<IAbstractItemRepository>();
-            aiRepositoryMoq.Setup(x => x.AbstractItemNetName).Returns(abstractItemNetName);
 
             //корневая и 2 стартовых страницы, тип стартовой страницы подразумевает extension поля
             var aiArray = new[] {
@@ -188,7 +185,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 Mock.Of<IQpUrlResolver>(),
                 aiRepositoryMoq.Object,
                 Mock.Of<IMetaInfoRepository>(),
-                Mock.Of<IItemDefinitionRepository>(),
                 buildSettings,
                 Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
 
@@ -244,7 +240,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             metaInfoMoq.Setup(x => x.GetContentAttribute(extensionId, "Image", null)).Returns(imageField);
 
             var aiRepositoryMoq = new Mock<IAbstractItemRepository>();
-            aiRepositoryMoq.Setup(x => x.AbstractItemNetName).Returns(abstractItemNetName);
 
             //корневая, стартовая страница и виджет с картинкой
             var aiArray = new[] {
@@ -288,7 +283,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 urlResolver, // реальный urlresolver
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
-                Mock.Of<IItemDefinitionRepository>(),
                 buildSettings,
                 Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
 
@@ -344,7 +338,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             });
 
             var aiRepositoryMoq = new Mock<IAbstractItemRepository>();
-            aiRepositoryMoq.Setup(x => x.AbstractItemNetName).Returns(abstractItemNetName);
 
             var widgetExtId = 987348;
             var widgetId = 3;
@@ -413,7 +406,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 Mock.Of<IQpUrlResolver>(),
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
-                Mock.Of<IItemDefinitionRepository>(),
                 buildSettings,
                 Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
 

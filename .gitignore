@@ -246,3 +246,6 @@ _Pvt_Extensions
 **/*.generated.cs
 npm-debug.log.*
 *.xproj.user
+
+# configs with connection strings
+**/appsettings.*.json

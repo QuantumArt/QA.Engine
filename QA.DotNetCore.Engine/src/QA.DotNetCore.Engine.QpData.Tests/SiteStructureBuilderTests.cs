@@ -25,7 +25,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
     {
         const int siteId = 1;
         const bool isStage = false;
-        const string abstractItemNetName = "AI";
+        static string abstractItemNetName = KnownNetNames.AbstractItem;
         const int abstractItemContentId = 666;
         const string uploadUrlPlaceholder = "<%upload_url%>";
         readonly QpSiteStructureBuildSettings buildSettings = new QpSiteStructureBuildSettings
@@ -68,6 +68,13 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             };
             aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteId, isStage, null)).Returns(aiArray);
 
+            var metaInfoMoq = new Mock<IMetaInfoRepository>();
+            metaInfoMoq.Setup(x => x.GetContent(abstractItemNetName, siteId, null)).Returns(new ContentPersistentData
+            {
+                ContentId = abstractItemContentId,
+                ContentAttributes = new List<ContentAttributePersistentData>()
+            });
+
             //фабрика элементов структуры сайта
             var aiFactoryMoq = new Mock<IAbstractItemFactory>();
             aiFactoryMoq.Setup(x => x.Create(It.IsAny<string>())).Returns((string d) => {
@@ -81,7 +88,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
                 Mock.Of<IQpUrlResolver>(),
                 aiRepositoryMoq.Object,
-                Mock.Of<IMetaInfoRepository>(),
+                metaInfoMoq.Object,
                 buildSettings,
                 Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
 
@@ -148,6 +155,13 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             var extensionId = 777;
             var aiRepositoryMoq = new Mock<IAbstractItemRepository>();
 
+            var metaInfoMoq = new Mock<IMetaInfoRepository>();
+            metaInfoMoq.Setup(x => x.GetContent(abstractItemNetName, siteId, null)).Returns(new ContentPersistentData
+            {
+                ContentId = abstractItemContentId,
+                ContentAttributes = new List<ContentAttributePersistentData>()
+            });
+
             //корневая и 2 стартовых страницы, тип стартовой страницы подразумевает extension поля
             var aiArray = new[] {
                 new AbstractItemPersistentData{ Id = 1, Title = "корневая страница", Alias = "root", Discriminator = typeof(RootPage).Name, IsPage = true, ParentId = null, ExtensionId = null },
@@ -184,7 +198,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
                 Mock.Of<IQpUrlResolver>(),
                 aiRepositoryMoq.Object,
-                Mock.Of<IMetaInfoRepository>(),
+                metaInfoMoq.Object,
                 buildSettings,
                 Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
 

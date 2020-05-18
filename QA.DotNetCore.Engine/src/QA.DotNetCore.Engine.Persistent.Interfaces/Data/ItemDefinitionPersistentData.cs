@@ -17,5 +17,9 @@ namespace QA.DotNetCore.Engine.Persistent.Interfaces.Data
         public string IconUrl { get; set; }
 
         public int? PreferredContentId { get; set; }
+
+        public string IconClass { get; set; }
+
+        public string IconIntent { get; set; }
     }
 }

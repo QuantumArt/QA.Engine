@@ -12,5 +12,7 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces
         ContentAttributePersistentData GetContentAttributeByNetName(int contentId, string fieldNetName, IDbTransaction transaction = null);
 
         ContentPersistentData GetContent(string contentNetName, int siteId, IDbTransaction transaction = null);
+
+        ContentPersistentData[] GetContentsById(int[] ids, int siteId, IDbTransaction transaction = null);
     }
 }

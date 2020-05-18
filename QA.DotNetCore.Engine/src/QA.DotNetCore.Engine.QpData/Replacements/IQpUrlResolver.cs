@@ -1,3 +1,5 @@
+using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+
 namespace QA.DotNetCore.Engine.QpData.Replacements
 {
     /// <summary>
@@ -7,5 +9,6 @@ namespace QA.DotNetCore.Engine.QpData.Replacements
     {
         string UploadUrl(int siteId, bool removeScheme = false);
         string UrlForImage(int siteId, int contentId, string fieldName, bool removeScheme = false);
+        string UrlForImage(int siteId, ContentAttributePersistentData fieldData, bool removeScheme = false);
     }
 }

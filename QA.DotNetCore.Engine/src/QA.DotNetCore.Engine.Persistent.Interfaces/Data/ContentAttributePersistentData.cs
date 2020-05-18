@@ -11,6 +11,8 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces.Data
 
         public string ContentName { get; set; }
 
+        public string ContentNetName { get; set; }
+
         public string NetName { get; set; }
 
         public string ColumnName { get; set; }
@@ -21,6 +23,14 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces.Data
 
         public bool UseDefaultFiltration { get; set; }
 
+        public string TypeName { get; set; }
+
+        public int? M2mLinkId { get; set; }
+
         public string InvariantName { get { return $"field_{Id}"; } }
+
+        public bool IsManyToManyField { get { return TypeName == "Relation" && M2mLinkId.HasValue; } }
+
+        public bool IsFileField { get { return TypeName == "File" || TypeName == "Image" || TypeName == "Dynamic Image"; } }
     }
 }

@@ -43,8 +43,6 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
         private const string CmdManyToMany = @"SELECT link_id, item_id, linked_item_id
           FROM {0} link {1} INNER JOIN {2} on Id = link.item_id";
 
-        public string AbstractItemNetName => "QPAbstractItem";
-
         public IEnumerable<AbstractItemPersistentData> GetPlainAllAbstractItems(int siteId, bool isStage, IDbTransaction transaction = null)
         {
             var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAbstractItem, siteId, isStage);

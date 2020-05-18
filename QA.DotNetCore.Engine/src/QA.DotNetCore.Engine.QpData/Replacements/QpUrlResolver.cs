@@ -34,6 +34,11 @@ namespace QA.DotNetCore.Engine.QpData.Replacements
         public string UrlForImage(int siteId, int contentId, string fieldName, bool removeScheme = false)
         {
             var attr = GetContentAttribute(contentId, fieldName);
+            return UrlForImage(siteId, attr, removeScheme);
+        }
+
+        public string UrlForImage(int siteId, ContentAttributePersistentData attr, bool removeScheme = false)
+        {
             if (attr == null)
                 return null;
 
@@ -50,7 +55,7 @@ namespace QA.DotNetCore.Engine.QpData.Replacements
                     baseUrl.Append("/");
                 }
                 baseUrl.Append("contents/");
-                baseUrl.Append(contentId);
+                baseUrl.Append(attr.ContentId);
             }
 
             return CombineWithoutDoubleSlashes(baseUrl.ToString(), attr.SubFolder?.Replace(@"\", @"/"));

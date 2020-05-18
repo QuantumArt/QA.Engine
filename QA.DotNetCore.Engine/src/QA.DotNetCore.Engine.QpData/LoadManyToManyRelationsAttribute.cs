@@ -10,6 +10,7 @@ namespace QA.DotNetCore.Engine.QpData
     /// Атрибут-маркер, уведомляющий о поле, являющимся связью many-to-many
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+    [Obsolete]
     public class LoadManyToManyRelationsAttribute : Attribute
     {
 

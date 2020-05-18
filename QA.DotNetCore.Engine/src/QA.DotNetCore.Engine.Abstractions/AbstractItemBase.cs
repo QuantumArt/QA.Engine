@@ -20,7 +20,6 @@ namespace QA.DotNetCore.Engine.Abstractions
         public virtual string Title { get; protected set; }
         public virtual bool IsPage { get; protected set; }
         public virtual int SortOrder { get; protected set; }
-        public virtual AbstractItemStorage Storage { get; set; }
 
         /// <summary>
         /// Получение дочернего элемента по алиасу

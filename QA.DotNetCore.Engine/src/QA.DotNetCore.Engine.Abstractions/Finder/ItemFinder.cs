@@ -37,5 +37,10 @@ namespace QA.DotNetCore.Engine.Abstractions.Finder
 
             return result.FirstOrDefault();
         }
+
+        public TAbstractItem Find<TAbstractItem>(IAbstractItem startPage, Func<TAbstractItem, bool> matchCriteria, int depth = 5) where TAbstractItem : IAbstractItem
+        {
+            return (TAbstractItem)Find(startPage, ai => ai is TAbstractItem && matchCriteria((TAbstractItem)ai), depth);
+        }
     }
 }

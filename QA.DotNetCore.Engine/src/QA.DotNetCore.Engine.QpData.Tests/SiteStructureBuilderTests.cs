@@ -25,7 +25,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
     {
         const int siteId = 1;
         const bool isStage = false;
-        const string abstractItemNetName = "AI";
+        static string abstractItemNetName = KnownNetNames.AbstractItem;
         const int abstractItemContentId = 666;
         const string uploadUrlPlaceholder = "<%upload_url%>";
         readonly QpSiteStructureBuildSettings buildSettings = new QpSiteStructureBuildSettings
@@ -33,7 +33,8 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             SiteId = siteId,
             IsStage = isStage,
             RootPageDiscriminator = typeof(RootPage).Name,
-            UploadUrlPlaceholder = uploadUrlPlaceholder
+            UploadUrlPlaceholder = uploadUrlPlaceholder,
+            LoadAbstractItemFieldsToDetailsCollection = true
         };
         readonly QpSiteStructureCacheSettings cacheSettings = new QpSiteStructureCacheSettings
         {
@@ -56,7 +57,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
              * для одной из страниц специально задан дискриминатор о котором не знает IAbstractItemFactory, такие страницы не попадают в структуру сайта
             */
             var aiRepositoryMoq = new Mock<IAbstractItemRepository>();
-            aiRepositoryMoq.Setup(x => x.AbstractItemNetName).Returns(abstractItemNetName);
 
             var aiArray = new[] {
                 new AbstractItemPersistentData{ Id = 4, Title = "текстовая страница 2", Alias = "bar", Discriminator = typeof(StubPage).Name, IsPage = true, ParentId = 3, ExtensionId = null },
@@ -67,6 +67,13 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 new AbstractItemPersistentData{ Id = 6, Title = "несуществующая страница 1", Alias = "bar2", Discriminator = "notexisting", IsPage = true, ParentId = 3, ExtensionId = null }
             };
             aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteId, isStage, null)).Returns(aiArray);
+
+            var metaInfoMoq = new Mock<IMetaInfoRepository>();
+            metaInfoMoq.Setup(x => x.GetContent(abstractItemNetName, siteId, null)).Returns(new ContentPersistentData
+            {
+                ContentId = abstractItemContentId,
+                ContentAttributes = new List<ContentAttributePersistentData>()
+            });
 
             //фабрика элементов структуры сайта
             var aiFactoryMoq = new Mock<IAbstractItemFactory>();
@@ -81,8 +88,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
                 Mock.Of<IQpUrlResolver>(),
                 aiRepositoryMoq.Object,
-                Mock.Of<IMetaInfoRepository>(),
-                Mock.Of<IItemDefinitionRepository>(),
+                metaInfoMoq.Object,
                 buildSettings,
                 Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
 
@@ -148,7 +154,13 @@ namespace QA.DotNetCore.Engine.QpData.Tests
         {
             var extensionId = 777;
             var aiRepositoryMoq = new Mock<IAbstractItemRepository>();
-            aiRepositoryMoq.Setup(x => x.AbstractItemNetName).Returns(abstractItemNetName);
+
+            var metaInfoMoq = new Mock<IMetaInfoRepository>();
+            metaInfoMoq.Setup(x => x.GetContent(abstractItemNetName, siteId, null)).Returns(new ContentPersistentData
+            {
+                ContentId = abstractItemContentId,
+                ContentAttributes = new List<ContentAttributePersistentData>()
+            });
 
             //корневая и 2 стартовых страницы, тип стартовой страницы подразумевает extension поля
             var aiArray = new[] {
@@ -186,8 +198,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
                 Mock.Of<IQpUrlResolver>(),
                 aiRepositoryMoq.Object,
-                Mock.Of<IMetaInfoRepository>(),
-                Mock.Of<IItemDefinitionRepository>(),
+                metaInfoMoq.Object,
                 buildSettings,
                 Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
 
@@ -207,29 +218,42 @@ namespace QA.DotNetCore.Engine.QpData.Tests
 
             //замокаем информацию о сайте, базовом контенте, и полях с картинками (одно в базовом контенте, одно в контенте-расширении),
             //т.к. эта информация понадобится для создания урлов, которые участвуют в тесте
-            var metaInfoMoq = new Mock<IMetaInfoRepository>();
-            metaInfoMoq.Setup(x => x.GetSite(siteId, null)).Returns(siteData);
-            metaInfoMoq.Setup(x => x.GetContent(abstractItemNetName, siteId, null)).Returns(new ContentPersistentData
-            {
-                ContentId = abstractItemContentId
-            });
-            metaInfoMoq.Setup(x => x.GetContentAttribute(extensionId, It.Is<string>(s => s.ToUpper() == "Image".ToUpper()), null)).Returns(new ContentAttributePersistentData
-            {
-                ContentId = extensionId,
-                ColumnName = "Image",
-                UseSiteLibrary = false,
-                SubFolder = "subfolder"
-            });
-            metaInfoMoq.Setup(x => x.GetContentAttribute(abstractItemContentId, It.Is<string>(s => s.ToUpper() == "Icon".ToUpper()), null)).Returns(new ContentAttributePersistentData
+            var iconField = new ContentAttributePersistentData
             {
                 ContentId = abstractItemContentId,
                 ColumnName = "Icon",
                 UseSiteLibrary = true,
-                SubFolder = "subfolder"
+                SubFolder = "subfolder",
+                TypeName = "Image"
+            };
+            var imageField = new ContentAttributePersistentData
+            {
+                ContentId = extensionId,
+                ColumnName = "Image",
+                UseSiteLibrary = false,
+                SubFolder = "subfolder",
+                TypeName = "Image"
+            };
+
+            var metaInfoMoq = new Mock<IMetaInfoRepository>();
+            metaInfoMoq.Setup(x => x.GetSite(siteId, null)).Returns(siteData);
+            metaInfoMoq.Setup(x => x.GetContent(abstractItemNetName, siteId, null)).Returns(new ContentPersistentData
+            {
+                ContentId = abstractItemContentId,
+                ContentAttributes = new List<ContentAttributePersistentData> { iconField }
             });
+            metaInfoMoq.Setup(x => x.GetContentsById(It.Is<int[]>(ids => ids.Contains(extensionId)), siteId, null)).Returns(new ContentPersistentData[1]
+            {
+                new ContentPersistentData
+                {
+                    ContentId = extensionId,
+                    ContentAttributes = new List<ContentAttributePersistentData> { imageField }
+                }
+            });
+            metaInfoMoq.Setup(x => x.GetContentAttribute(abstractItemContentId, "Icon", null)).Returns(iconField);
+            metaInfoMoq.Setup(x => x.GetContentAttribute(extensionId, "Image", null)).Returns(imageField);
 
             var aiRepositoryMoq = new Mock<IAbstractItemRepository>();
-            aiRepositoryMoq.Setup(x => x.AbstractItemNetName).Returns(abstractItemNetName);
 
             //корневая, стартовая страница и виджет с картинкой
             var aiArray = new[] {
@@ -273,7 +297,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 urlResolver, // реальный urlresolver
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
-                Mock.Of<IItemDefinitionRepository>(),
                 buildSettings,
                 Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
 
@@ -296,17 +319,42 @@ namespace QA.DotNetCore.Engine.QpData.Tests
         [Fact]
         public void ManyToManyFieldsIsCorrect()
         {
-            buildSettings.LoadM2mForAbstractItem = true;
             var extensionId = 777;
-            var widgetExtId = 987348;
-            var relationId = 7645;
-            var relationValues = new[] { 435, 46, 56 };
-            var baseContentRelationId = 435;
-            var baseContentRelationValues = new[] { 576, 7568 };
-            var widgetId = 3;
+            var widgetRelationField = new ContentAttributePersistentData
+            {
+                ContentId = extensionId,
+                ColumnName = "SomeRelations",
+                M2mLinkId = 7645,
+                TypeName = "Relation"
+            };
+
+            var baseContentRelationField = new ContentAttributePersistentData
+            {
+                ContentId = abstractItemContentId,
+                ColumnName = "BaseContentRelations",
+                M2mLinkId = 435,
+                TypeName = "Relation"
+            };
+
+            var metaInfoMoq = new Mock<IMetaInfoRepository>();
+            metaInfoMoq.Setup(x => x.GetContent(abstractItemNetName, siteId, null)).Returns(new ContentPersistentData
+            {
+                ContentId = abstractItemContentId,
+                ContentAttributes = new List<ContentAttributePersistentData> { baseContentRelationField }
+            });
+            metaInfoMoq.Setup(x => x.GetContentsById(It.Is<int[]>(ids => ids.Contains(extensionId)), siteId, null)).Returns(new ContentPersistentData[1]
+            {
+                new ContentPersistentData
+                {
+                    ContentId = extensionId,
+                    ContentAttributes = new List<ContentAttributePersistentData> { widgetRelationField }
+                }
+            });
 
             var aiRepositoryMoq = new Mock<IAbstractItemRepository>();
-            aiRepositoryMoq.Setup(x => x.AbstractItemNetName).Returns(abstractItemNetName);
+
+            var widgetExtId = 987348;
+            var widgetId = 3;
 
             //корневая, стартовая страница и виджет с m2m (виджет просто для примера, m2m может быть и у страницы)
             var aiArray = new[] {
@@ -322,8 +370,8 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             //extension-поле из базового контента: поле BaseContentRelations - тоже m2m
             var widgetExt = new AbstractItemExtensionCollection();
             widgetExt.Add("CONTENT_ITEM_ID", widgetExtId);
-            widgetExt.Add("SomeRelations", relationId);
-            widgetExt.Add("BaseContentRelations", baseContentRelationId);
+            widgetExt.Add(widgetRelationField.ColumnName, widgetRelationField.M2mLinkId);
+            widgetExt.Add(baseContentRelationField.ColumnName, baseContentRelationField.M2mLinkId);
             var widgetExtDictionary = new Dictionary<int, AbstractItemExtensionCollection>
             {
                 { widgetId, widgetExt}
@@ -338,9 +386,10 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             //по relationid и id виджета в qp можно получить полный список id, участвующих в связи m2m с этим виджетом
             //замокаем методы получения такой информации для 2х relation: один из контента с extension, один в базовом контенте. нужно проверить оба варианта
             var widgetRelation = new M2mRelations();
+            var relationValues = new[] { 435, 46, 56 };
             foreach (var relValue in relationValues)
             {
-                widgetRelation.AddRelation(relationId, relValue);
+                widgetRelation.AddRelation(widgetRelationField.M2mLinkId.Value, relValue);
             }
             aiRepositoryMoq.Setup(x => x.GetManyToManyData(It.Is<IEnumerable<int>>(ids => ids.Count() == 1 && ids.Contains(widgetExtId)), isStage, null)).Returns(new Dictionary<int, M2mRelations>
             {
@@ -348,9 +397,10 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             });
 
             var baseContentRelation = new M2mRelations();
+            var baseContentRelationValues = new[] { 576, 7568 };
             foreach (var relValue in baseContentRelationValues)
             {
-                baseContentRelation.AddRelation(baseContentRelationId, relValue);
+                baseContentRelation.AddRelation(baseContentRelationField.M2mLinkId.Value, relValue);
             }
             aiRepositoryMoq.Setup(x => x.GetManyToManyData(It.Is<IEnumerable<int>>(ids => ids.Contains(widgetId)), isStage, null)).Returns(new Dictionary<int, M2mRelations>
             {
@@ -369,8 +419,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
                 Mock.Of<IQpUrlResolver>(),
                 aiRepositoryMoq.Object,
-                Mock.Of<IMetaInfoRepository>(),
-                Mock.Of<IItemDefinitionRepository>(),
+                metaInfoMoq.Object,
                 buildSettings,
                 Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
 

@@ -24,5 +24,11 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
         {
             return new SiteStructureEngineConfigurator(services, setupAction);
         }
+
+
+        public static ISiteStructureEngineConfigurator AddSiteStructure(this IServiceCollection services, Action<SiteStructureOptions> setupAction)
+        {
+            return new SiteStructureEngineConfigurator(services, setupAction);
+        }
     }
 }

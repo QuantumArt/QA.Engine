@@ -17,6 +17,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
         /// Шаблоны "головы" урла
         /// </summary>
         public List<HeadUrlMatchingPattern> HeadPatterns { get; set; }
+
         /// <summary>
         /// Шаблон "хвоста" урла по умолчанию для всех контроллеров
         /// </summary>

@@ -1,4 +1,5 @@
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 using QA.DotNetCore.Engine.Reflection;
 using QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching;
@@ -17,6 +18,7 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
         /// Длительность кеширования ItemDefinition
         /// </summary>
         public TimeSpan ItemDefinitionCachePeriod { get; set; } = new TimeSpan(0, 20, 0);
+
         /// <summary>
         /// Конвенция для IItemDefinitionProvider
         /// </summary>
@@ -36,17 +38,31 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
 
 
         /// <summary>
-        /// Шаблон "хвоста" урла по умолчанию для всех контроллеров
+        /// ТОЛЬКО для Endpoint routing (MapSiteStructureControllerRoute). Шаблон "хвоста" урла по умолчанию для всех контроллеров
         /// </summary>
         public TailUrlMatchingPattern DefaultUrlTailPattern { get; set; } = new TailUrlMatchingPattern { Pattern = "{action=Index}/{id?}" };
         /// <summary>
-        /// Шаблоны "хвоста" урла, заданные индивидуально для каждого контроллера
+        /// ТОЛЬКО для Endpoint routing (MapSiteStructureControllerRoute). Шаблоны "хвоста" урла, заданные индивидуально для каждого контроллера
         /// </summary>
         public Dictionary<string, List<TailUrlMatchingPattern>> UrlTailPatternsByControllers { get; set; }
+
         /// <summary>
         /// Шаблоны "головы" урла
         /// </summary>
         public List<HeadUrlMatchingPattern> UrlHeadPatterns { get; set; }
+        /// <summary>
+        /// Зарегистрировать поставщика возможных значений токенов из UrlHeadPatterns.
+        /// Если используется, к примеру, {region} и известен список возможных значений, - можно зарегистрировать их для более корректного разбора урла на сегменты.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public void RegisterUrlHeadTokenPossibleValues<T>() where T : IHeadTokenPossibleValuesProvider
+        {
+            headTokenPossibleValuesProviders.Add(typeof(T));
+        }
+
+        private readonly List<Type> headTokenPossibleValuesProviders = new List<Type>();
+
+        public IReadOnlyList<Type> HeadTokenPossibleValuesProviders { get { return headTokenPossibleValuesProviders.AsReadOnly(); } }
     }
 
     /// <summary>

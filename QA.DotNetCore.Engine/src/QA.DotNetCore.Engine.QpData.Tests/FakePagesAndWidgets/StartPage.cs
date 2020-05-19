@@ -15,9 +15,9 @@ namespace QA.DotNetCore.Engine.QpData.Tests.FakePagesAndWidgets
             throw new NotImplementedException();
         }
 
-        public ITargetingUrlResolver GetUrlResolver()
-        {
-            throw new NotImplementedException();
-        }
+        //public ITargetingUrlResolver GetUrlResolver()
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }

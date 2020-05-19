@@ -9,18 +9,16 @@ namespace QA.DotNetCore.Engine.Targeting.Configuration
     public static class MvcApplicationBuilderExtensions
     {
         /// <summary>
-        /// Регистрируем поставщиков значений таргетирования и поставщиков возможных значений таргетирования
+        /// Регистрируем поставщиков значений таргетирования
         /// </summary>
         /// <param name="app"></param>
         /// <param name="configureTargeting"></param>
         /// <returns></returns>
-        public static IApplicationBuilder UseTargeting(this IApplicationBuilder app, Action<ServiceSetConfigurator<ITargetingProvider>, ServiceSetConfigurator<ITargetingPossibleValuesProvider>> configureTargeting)
+        public static IApplicationBuilder UseTargeting(this IApplicationBuilder app, Action<ServiceSetConfigurator<ITargetingProvider>> configureTargeting)
         {
-            app.UseMiddleware<TargetingPossibleValuesMiddleware>();
             app.UseMiddleware<TargetingMiddleware>();
             var providerConfigurator = app.ApplicationServices.GetRequiredService<ServiceSetConfigurator<ITargetingProvider>>();
-            var possibleValuesConfigurator = app.ApplicationServices.GetRequiredService<ServiceSetConfigurator<ITargetingPossibleValuesProvider>>();
-            configureTargeting(providerConfigurator, possibleValuesConfigurator);
+            configureTargeting(providerConfigurator);
             return app;
         }
 
@@ -30,7 +28,7 @@ namespace QA.DotNetCore.Engine.Targeting.Configuration
         /// <param name="app"></param>
         /// <param name="configureFilters"></param>
         /// <returns></returns>
-        public static IApplicationBuilder UseSiteSctructureFilters(this IApplicationBuilder app, Action<ServiceSetConfigurator<ITargetingFilter>> configureFilters)
+        public static IApplicationBuilder UseSiteStructureFilters(this IApplicationBuilder app, Action<ServiceSetConfigurator<ITargetingFilter>> configureFilters)
         {
             var builder = app.ApplicationServices.GetRequiredService<ServiceSetConfigurator<ITargetingFilter>>();
             configureFilters(builder);

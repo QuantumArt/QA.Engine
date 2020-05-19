@@ -19,11 +19,20 @@ using QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching;
 using QA.DotNetCore.Engine.Routing.UrlResolve;
 using QA.DotNetCore.Engine.Routing;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
+using QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching;
+using QA.DotNetCore.Engine.Routing.UrlResolve.Targeting;
+using System.Collections.Generic;
 
 namespace QA.DotNetCore.Engine.QpData.Configuration
 {
     public class SiteStructureEngineConfigurator : ISiteStructureEngineConfigurator
     {
+        /// <summary>
+        /// Конфигурация движка структуры сайта: сервисы для построения структуры сайта
+        /// + сервисы необходимые для интеграции структуры сайта с MVC (контроллерами и viewcomponent)
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="setupAction"></param>
         public SiteStructureEngineConfigurator(IServiceCollection services, Action<SiteStructureEngineOptions> setupAction)
         {
             Services = services;
@@ -44,13 +53,25 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             {
                 DefaultTailPattern = options.DefaultUrlTailPattern,
                 TailPatternsByControllers = options.UrlTailPatternsByControllers,
-                HeadPatterns = options.UrlHeadPatterns
+                HeadPatterns = options.UrlHeadPatterns ?? new List<HeadUrlMatchingPattern> { new HeadUrlMatchingPattern { Pattern = "/"} }
             });
 
             services.TryAddScoped<IItemDefinitionRepository, ItemDefinitionRepository>();
             services.TryAddScoped<IAbstractItemFactory, AbstractItemFactory>();
             services.TryAddSingleton<ITargetingFilterAccessor, NullTargetingFilterAccessor>();
+
             services.TryAddSingleton<ITailUrlResolver, TailUrlResolver>();
+
+            var headTokenPossibleConfigurator = new ServiceSetConfigurator<IHeadTokenPossibleValuesProvider>();
+            foreach (var t in options.HeadTokenPossibleValuesProviders)
+            {
+                headTokenPossibleConfigurator.Register(t);
+            }
+            services.TryAddSingleton(headTokenPossibleConfigurator);
+            services.TryAddSingleton<IHeadTokenPossibleValuesAccessor, HeadTokenPossibleValuesAccessor>();
+            services.TryAddSingleton<IHeadUrlResolver, HeadUrlResolver>();
+
+            services.TryAddSingleton<ITargetingUrlTransformator, TargetingUrlTransformator>();
 #if NETCOREAPP3_1
             services.TryAddSingleton<SiteStructureRouteValueTransformer>();
 #endif
@@ -80,6 +101,11 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
                 new WidgetViewComponentInvokerFactory((IViewComponentInvokerFactory)provider.GetRequiredService(defaultViewComponentInvokerFactoryType)));
         }
 
+        /// <summary>
+        /// Конфигурация сервисов для построения структуры сайта
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="setupAction"></param>
         public SiteStructureEngineConfigurator(IServiceCollection services, Action<SiteStructureOptions> setupAction)
         {
             Services = services;

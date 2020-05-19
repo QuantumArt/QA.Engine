@@ -1,7 +1,9 @@
-﻿@model DemoWebApplication.Components.TopMenuViewModel
+﻿@inject QA.DotNetCore.Engine.Abstractions.Targeting.ITargetingUrlTransformator urlTransformator
+
+@model DemoWebApplication.Components.TopMenuViewModel
 <ul class="nav navbar-nav">
   @foreach (var item in Model.Items)
   {
-    <li><a href="@item.GetUrl()">@item.Title</a></li>
+    <li><a href="@item.GetUrl(urlTransformator)">@item.Title</a></li>
   }  
 </ul>

@@ -10,7 +10,7 @@ namespace DemoWebSite.PagesAndWidgets.Helpers
 {
     public static class HtmlHelpers
     {
-        public static HtmlString Tree(this IHtmlHelper html)
+        public static HtmlString Tree(this IHtmlHelper html, ITargetingUrlTransformator urlTransformator)
         {
             var root = html.ViewContext.HttpContext.GetStartPage();
             var filter = ((ITargetingFilterAccessor)html.ViewContext.HttpContext.RequestServices.GetService(typeof(ITargetingFilterAccessor)))?.Get();
@@ -22,7 +22,7 @@ namespace DemoWebSite.PagesAndWidgets.Helpers
 
             foreach (var item in root.GetChildren(filter))
             {
-                VisitNodes(sb, item, filter);
+                VisitNodes(sb, item, filter, urlTransformator);
             }
 
             sb.Append("</ul>");
@@ -31,10 +31,10 @@ namespace DemoWebSite.PagesAndWidgets.Helpers
             return new HtmlString(sb.ToString());
         }
 
-        private static void VisitNodes(StringBuilder sb, IAbstractItem node, ITargetingFilter filter)
+        private static void VisitNodes(StringBuilder sb, IAbstractItem node, ITargetingFilter filter, ITargetingUrlTransformator urlTransformator)
         {
             if (node.IsPage)
-                sb.Append($"<li> <a href = {node.GetUrl()}> {node.Title} </a></li>"); 
+                sb.Append($"<li> <a href = {node.GetUrl(urlTransformator)}> {node.Title} </a></li>"); 
             else
                 sb.Append($"<li> {node.Title} </li>");
 
@@ -44,7 +44,7 @@ namespace DemoWebSite.PagesAndWidgets.Helpers
                 sb.Append("<ul>");
                 foreach (var item in children)
                 {
-                    VisitNodes(sb, item, filter);
+                    VisitNodes(sb, item, filter, urlTransformator);
                 }
                 sb.Append("</ul>");
             }

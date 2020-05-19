@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
+using QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching;
 using QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching;
 using System;
 using System.Collections.Generic;
@@ -17,16 +18,19 @@ namespace QA.DotNetCore.Engine.Routing
     {
         public SiteStructureRouteValueTransformer(ITargetingFilterAccessor targetingFilterAccessor,
             IControllerMapper controllerMapper,
-            ITailUrlResolver tailUrlResolver)
+            ITailUrlResolver tailUrlResolver,
+            IHeadUrlResolver headUrlResolver)
         {
             TargetingFilterAccessor = targetingFilterAccessor;
             ControllerMapper = controllerMapper;
             TailUrlResolver = tailUrlResolver;
+            HeadUrlResolver = headUrlResolver;
         }
 
         public ITargetingFilterAccessor TargetingFilterAccessor { get; }
         public IControllerMapper ControllerMapper { get; }
         public ITailUrlResolver TailUrlResolver { get; }
+        public IHeadUrlResolver HeadUrlResolver { get; }
 
         public override async ValueTask<RouteValueDictionary> TransformAsync(HttpContext httpContext, RouteValueDictionary values)
         {
@@ -50,7 +54,7 @@ namespace QA.DotNetCore.Engine.Routing
             //вычислим PathData текущего запроса - какая страница в структуре сайта должна быть активирована,
             //разбирая урл запроса, и сопоставляя сегменты со структурой сайта
             var path = httpContext.Request.Path;
-            PathData data = CreatePathFinder().Find(path, startPage, targetingFilter);
+            PathData data = CreatePathFinder().Find(path, startPage, targetingFilter, HeadUrlResolver);
 
             if (data == null)
             {

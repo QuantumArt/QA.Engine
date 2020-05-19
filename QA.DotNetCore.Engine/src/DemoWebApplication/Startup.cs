@@ -63,9 +63,10 @@ namespace DemoWebApplication
                 options.UrlHeadPatterns = Configuration.GetSection("UrlTokenConfig:HeadPatterns").Get<List<HeadUrlMatchingPattern>>();
                 options.UrlTailPatternsByControllers = Configuration.GetSection("UrlTokenConfig:TailByControllers")
                     .Get<Dictionary<string, List<TailUrlMatchingPattern>>>();
+                options.RegisterUrlHeadTokenPossibleValues<DemoCultureRegionPossibleValuesProvider>();
             });
 
-            //services.AddSiteStructureEngineViaXml(options =>Load data for many-to-many fields in main content
+            //services.AddSiteStructureEngineViaXml(options =>
             //{
             //    options.Settings.FilePath = @"C:\git\QA.Engine\QA.DotNetCore.Engine\src\DemoWebApplication\pages_and_widgets.xml";
             //    options.TypeFinder.RegisterFromAssemblyContaining<XmlRootPage, XmlAbstractItem>();
@@ -105,7 +106,6 @@ namespace DemoWebApplication
 
             services.AddTargeting();
 
-            services.AddSingleton<TargetingUrlResolverFactory>();
             services.AddSingleton<UrlTokenTargetingProvider>();
             services.AddSingleton<DemoCultureRegionPossibleValuesProvider>();
         }
@@ -119,23 +119,23 @@ namespace DemoWebApplication
 
             app.UseCacheTagsInvalidation(trackers =>
             {
-                trackers.RegisterScoped<QpContentCacheTracker>();
+                trackers.Register<QpContentCacheTracker>();
             });
 
             app.UseSiteStructure();
 
-            app.UseTargeting((providers, possibleValues) =>
+            app.UseTargeting(providers =>
             {
                 //targeting.Add<DemoCultureTargetingProvider>();
                 //targeting.Add<DemoRegionTargetingProvider>();
-                providers.RegisterSingleton<UrlTokenTargetingProvider>();
-                possibleValues.RegisterSingleton<DemoCultureRegionPossibleValuesProvider>();
+                providers.Register<UrlTokenTargetingProvider>();
+                //possibleValues.RegisterSingleton<DemoCultureRegionPossibleValuesProvider>();
             });
 
-            app.UseSiteSctructureFilters(filters =>
+            app.UseSiteStructureFilters(filters =>
             {
-                filters.RegisterSingleton<DemoRegionFilter>();
-                filters.RegisterSingleton<DemoCultureFilter>();
+                filters.Register<DemoRegionFilter>();
+                filters.Register<DemoCultureFilter>();
             });
 
             app.UseRouting();

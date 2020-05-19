@@ -1,13 +1,13 @@
-using QA.DotNetCore.Engine.Abstractions.Targeting;
+using QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching;
 using System.Collections.Generic;
 
 namespace DemoWebSite.PagesAndWidgets
 {
-    public class DemoCultureRegionPossibleValuesProvider : ITargetingPossibleValuesProvider
+    public class DemoCultureRegionPossibleValuesProvider : IHeadTokenPossibleValuesProvider
     {
-        public IDictionary<string, IEnumerable<object>> GetPossibleValues()
+        public IDictionary<string, IEnumerable<string>> GetPossibleValues()
         {
-            return new Dictionary<string, IEnumerable<object>>
+            return new Dictionary<string, IEnumerable<string>>
             {
                 ["culture"] = new[] { "ru-ru", "en-us" },
                 ["region"] = new[] { "moskva", "spb" }

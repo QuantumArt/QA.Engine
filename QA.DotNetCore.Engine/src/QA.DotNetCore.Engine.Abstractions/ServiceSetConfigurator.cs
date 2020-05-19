@@ -13,11 +13,9 @@ namespace QA.DotNetCore.Engine.Abstractions
     {
         private readonly IList<TServiceInterface> _instances = new List<TServiceInterface>();
         private readonly IList<Type> _types = new List<Type>();
-        private readonly IServiceProvider _serviceProvider;
 
-        public ServiceSetConfigurator(IServiceProvider serviceProvider)
+        public ServiceSetConfigurator()
         {
-            _serviceProvider = serviceProvider;
         }
 
         public void RegisterInstance(TServiceInterface service)
@@ -25,14 +23,21 @@ namespace QA.DotNetCore.Engine.Abstractions
             _instances.Add(service);
         }
 
-        public void RegisterSingleton<T>() where T : TServiceInterface
-        {
-            _instances.Add(_serviceProvider.GetRequiredService<T>());
-        }
-
-        public void RegisterScoped<T>() where T : TServiceInterface
+        public void Register<T>() where T : TServiceInterface
         {
             _types.Add(typeof(T));
+        }
+
+        public void Register(Type t)
+        {
+            if (typeof(TServiceInterface).IsAssignableFrom(t))
+            {
+                _types.Add(t);
+            }
+            else
+            {
+                throw new ArgumentException($"Type {t.FullName} is not assignable from {typeof(TServiceInterface).FullName}");
+            }
         }
 
         /// <summary>

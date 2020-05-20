@@ -4,6 +4,5 @@ namespace QA.DotNetCore.Engine.Abstractions.Targeting
     {
         object GetTargetingValue(string key);
         string[] GetTargetingKeys();
-        //object[] GetPossibleValues(string key);
     }
 }

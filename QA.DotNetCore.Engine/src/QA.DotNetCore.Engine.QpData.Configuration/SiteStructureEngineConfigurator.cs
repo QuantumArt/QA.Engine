@@ -59,6 +59,7 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             services.TryAddScoped<IItemDefinitionRepository, ItemDefinitionRepository>();
             services.TryAddScoped<IAbstractItemFactory, AbstractItemFactory>();
             services.TryAddSingleton<ITargetingFilterAccessor, NullTargetingFilterAccessor>();
+            services.TryAddSingleton<ITargetingContext, NullTargetingContext>();
 
             services.TryAddSingleton<ITailUrlResolver, TailUrlResolver>();
 

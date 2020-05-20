@@ -149,23 +149,9 @@ namespace DemoWebApplication
                 endpoints.MapSiteStructureControllerRoute();
             });
 
-            app.Use(next => context =>
-            {
-                //сюда попадаем, если ни один endpoint не подошёл
-                context.Response.WriteAsync("404!");
-                return Task.CompletedTask;
-            });
-
 
             //app.UseMvc(routes =>
             //{
-            //    routes.MapContentRoute("Route with custom params", "{controller}/{id}/{page}",
-            //        defaults: new RouteValueDictionary(new { action = "details" }),
-            //        constraints: new
-            //        {
-            //            page = @"^\d+$"
-            //        });
-
             //    routes.MapContentRoute("default", "{controller}/{action=Index}/{id?}");
 
             //    //routes.MapGreedyContentRoute("blog bage with tail", "{controller}",
@@ -174,6 +160,13 @@ namespace DemoWebApplication
 
             //    routes.MapRoute("static controllers route", "{controller}/{action=Index}/{id?}");
             //});
+
+            app.Use(next => context =>
+            {
+                //сюда попадаем, если ни один endpoint не подошёл
+                context.Response.WriteAsync("404!");
+                return Task.CompletedTask;
+            });
         }
     }
 }

@@ -73,6 +73,8 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             services.TryAddSingleton<IHeadUrlResolver, HeadUrlResolver>();
 
             services.TryAddSingleton<ITargetingUrlTransformator, TargetingUrlTransformator>();
+            services.TryAddSingleton<UrlTokenTargetingProvider>();
+
 #if NETCOREAPP3_1
             services.TryAddSingleton<SiteStructureRouteValueTransformer>();
 #endif

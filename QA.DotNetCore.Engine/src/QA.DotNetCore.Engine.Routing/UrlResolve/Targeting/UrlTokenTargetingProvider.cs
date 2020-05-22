@@ -4,26 +4,23 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace QA.DotNetCore.Engine.Routing.UrlResolve
+namespace QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching
 {
     public class UrlTokenTargetingProvider : ITargetingProvider
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IHeadUrlResolver _urlResolver;
 
-        public UrlTokenTargetingProvider(IHttpContextAccessor httpContextAccessor)
+        public UrlTokenTargetingProvider(IHttpContextAccessor httpContextAccessor, IHeadUrlResolver urlResolver)
         {
             _httpContextAccessor = httpContextAccessor;
+            _urlResolver = urlResolver;
         }
 
         public IDictionary<string, object> GetValues()
         {
-            var urlResolver = _httpContextAccessor.HttpContext.GetStartPage()?.GetUrlResolver();
-            if (urlResolver != null)
-            { 
-                return urlResolver.ResolveTargetingValuesFromUrl(GetAbsoluteUrl(_httpContextAccessor.HttpContext))
+            return _urlResolver.ResolveTokenValues(GetAbsoluteUrl(_httpContextAccessor.HttpContext))
                     .ToDictionary(kvp => kvp.Key, kvp => (object)kvp.Value);
-            }
-            return new Dictionary<string, object>(0);
         }
 
         private string GetAbsoluteUrl(HttpContext context)

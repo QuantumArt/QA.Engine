@@ -7,6 +7,7 @@ using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using QA.DotNetCore.Engine.Abstractions.Targeting;
 
 namespace QA.DotNetCore.Engine.AbTesting.Configuration
 {
@@ -55,6 +56,7 @@ namespace QA.DotNetCore.Engine.AbTesting.Configuration
             services.TryAddScoped<IAbTestService, AbTestService>();
             services.TryAddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
             services.TryAddSingleton<IQpContentCacheTagNamingProvider, NullQpContentCacheTagNamingProvider>();
+            services.TryAddSingleton<ITargetingContext, NullTargetingContext>();
         }
     }
 }

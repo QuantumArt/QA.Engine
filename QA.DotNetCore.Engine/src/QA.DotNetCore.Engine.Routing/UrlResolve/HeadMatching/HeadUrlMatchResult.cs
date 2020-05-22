@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace QA.DotNetCore.Engine.Routing.UrlResolve
+namespace QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching
 {
-    public class UrlMatchingResult
+    public class HeadUrlMatchResult
     {
-        public static UrlMatchingResult NotMatch { get { return new UrlMatchingResult(); } }
-        public static UrlMatchingResult MatchOnlyForAuthority { get { return new UrlMatchingResult { IsMatchForAuthority = true }; } }
+        public static HeadUrlMatchResult NotMatch { get { return new HeadUrlMatchResult(); } }
+        public static HeadUrlMatchResult MatchOnlyForAuthority { get { return new HeadUrlMatchResult { IsMatchForAuthority = true }; } }
 
-        public UrlMatchingResult()
+        public HeadUrlMatchResult()
         {
             TokenValues = new Dictionary<string, string>();
         }
@@ -16,7 +16,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
         public bool IsMatch { get; set; }
         public bool IsMatchForAuthority { get; set; }
         public Dictionary<string, string> TokenValues { get; set; }
-        public UrlMatchingPattern Pattern { get; set; }
+        public HeadUrlMatchingPattern Pattern { get; set; }
         public string SanitizedUrl { get; set; }
 
         /// <summary>

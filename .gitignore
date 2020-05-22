@@ -248,4 +248,4 @@ npm-debug.log.*
 *.xproj.user
 
 # configs with connection strings
-**/appsettings.*.json
+appsettings.*.json

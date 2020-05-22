@@ -5,19 +5,12 @@ using QA.DotNetCore.Engine.Routing.UrlResolve;
 using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching;
 
 namespace DemoWebSite.PagesAndWidgets.Pages
 {
     public class StartPage : AbstractPage, IStartPage
     {
-        private UrlTokenResolverFactory _urlTokenResolverFactory;
-        private UrlTokenConfig _urlTokenConfig;
-        public StartPage(UrlTokenResolverFactory urlTokenResolverFactory,
-            UrlTokenConfig urlTokenConfig)
-        {
-            _urlTokenResolverFactory = urlTokenResolverFactory;
-            _urlTokenConfig = urlTokenConfig;
-        }
         public string Bindings => GetDetail("Bindings", String.Empty);
 
         public string[] GetDNSBindings()
@@ -26,11 +19,6 @@ namespace DemoWebSite.PagesAndWidgets.Pages
                 .Split(new char[] { '\n', '\r', ',' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(_ => _.Trim())
                 .ToArray();
-        }
-
-        public ITargetingUrlResolver GetUrlResolver()
-        {
-            return _urlTokenResolverFactory.Create(_urlTokenConfig);
         }
     }
 }

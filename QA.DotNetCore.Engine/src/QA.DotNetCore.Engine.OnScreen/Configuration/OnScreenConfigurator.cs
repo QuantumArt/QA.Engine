@@ -59,7 +59,12 @@ namespace QA.DotNetCore.Engine.OnScreen.Configuration
             //делаем доступным для сайта view-компонент
             var onScreenAssembly = typeof(OnScreenViewComponent).Assembly;
             mvcBuilder.AddApplicationPart(onScreenAssembly);
+
+#if NETCOREAPP3_1
+            services.Configure<Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation.MvcRazorRuntimeCompilationOptions>(o => { o.FileProviders.Add(new EmbeddedFileProvider(onScreenAssembly)); });
+#else
             services.Configure<RazorViewEngineOptions>(o => { o.FileProviders.Add(new EmbeddedFileProvider(onScreenAssembly)); });
+#endif
         }
     }
 }

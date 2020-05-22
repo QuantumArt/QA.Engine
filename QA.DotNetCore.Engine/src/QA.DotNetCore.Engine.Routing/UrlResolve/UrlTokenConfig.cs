@@ -1,36 +1,30 @@
+using QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching;
+using QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching;
 using System.Collections.Generic;
 
 namespace QA.DotNetCore.Engine.Routing.UrlResolve
 {
+    /// <summary>
+    /// Конфигурация шаблонов урлов сайта.
+    /// Урл любой страницы можно представить как {schema}://{host}/{path}.
+    /// Урл страницы сайта, работающего на виджетной платформе можно представить в виде {schema}://{голова}/{путь от стартовой страницы}/{хвост}.
+    /// "голова" - это хост сайта + опционально первые несколько сегментов пути; в этих сегментах и хосте могут быть заключены значения таргетирования (например регион, культура итд)
+    /// "хвост" - это последние сегменты пути; в этих сегментах могут быть routevalues (например action, id итд)
+    /// </summary>
     public class UrlTokenConfig
     {
-        public List<UrlMatchingPattern> MatchingPatterns { get; set; }
-    }
-
-    public class UrlMatchingPattern
-    {
-        public string Value { get; set; }
-
-        public UrlMatchingToken[] Tokens { get; set; }
-
-        public Dictionary<string, string> Defaults { get; set; }
-    }
-
-    public class UrlMatchingToken
-    {
         /// <summary>
-        /// Название токена
+        /// Шаблоны "головы" урла
         /// </summary>
-        public string Name { get; set; }
+        public List<HeadUrlMatchingPattern> HeadPatterns { get; set; }
 
         /// <summary>
-        /// Признак того, что токен находится в домене. Например http://{region}.example.com/
+        /// Шаблон "хвоста" урла по умолчанию для всех контроллеров
         /// </summary>
-        public bool IsInAuthority { get; set; }
-
+        public TailUrlMatchingPattern DefaultTailPattern { get; set; }
         /// <summary>
-        /// Позиция токена в паттерне урла
+        /// Шаблоны "хвоста" урла, заданные индивидуально для каждого контроллера
         /// </summary>
-        public int Position { get; set; }
+        public Dictionary<string, List<TailUrlMatchingPattern>> TailPatternsByControllers { get; set; }
     }
 }

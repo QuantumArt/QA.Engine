@@ -3,19 +3,12 @@ using DemoWebSite.PagesAndWidgets.Widgets;
 using QA.DotNetCore.Engine.QpData;
 using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.Routing.UrlResolve;
+using QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching;
 
 namespace DemoWebSite.PagesAndWidgets
 {
     public class DemoAbstractItemFactory : IAbstractItemFactory
     {
-        private readonly UrlTokenResolverFactory _urlTokenResolverFactory;
-        private readonly UrlTokenConfig _urlTokenConfig;
-        public DemoAbstractItemFactory(UrlTokenResolverFactory urlTokenResolverFactory,
-            UrlTokenConfig urlTokenConfig)
-        {
-            _urlTokenResolverFactory = urlTokenResolverFactory;
-            _urlTokenConfig = urlTokenConfig;
-        }
         public AbstractItem Create(string discriminator)
         {
             switch (discriminator)
@@ -23,7 +16,7 @@ namespace DemoWebSite.PagesAndWidgets
                 case "root_page":
                     return new RootPage();
                 case "start_page":
-                    return new StartPage(_urlTokenResolverFactory, _urlTokenConfig);
+                    return new StartPage();
                 case "html_page":
                     return new TextPage();
                 case "blog_page":

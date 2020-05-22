@@ -1,71 +1,32 @@
-using QA.DotNetCore.Engine.Abstractions.Targeting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
-namespace QA.DotNetCore.Engine.Routing.UrlResolve
+namespace QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching
 {
-    public interface IUrlTokenMatcher
+    public interface IHeadUrlResolver
     {
-        UrlMatchingResult Match(string originalUrl, ITargetingContext targetingContext);
-        string ReplaceTokens(string originalUrl, Dictionary<string, string> tokenValues, ITargetingContext targetingContext);
+        string SanitizeUrl(string originalUrl);
+        string AddTokensToUrl(string originalUrl, Dictionary<string, string> tokens);
+        Dictionary<string, string> ResolveTokenValues(string url);
     }
 
-    public class UrlTokenMatcher : IUrlTokenMatcher
+    public class HeadUrlResolver : IHeadUrlResolver
     {
         private readonly UrlTokenConfig _config;
+        private readonly IHeadTokenPossibleValuesAccessor _headTokenPossibleValuesAccessor;
 
-        public UrlTokenMatcher(UrlTokenConfig config)
+        public HeadUrlResolver(UrlTokenConfig config, IHeadTokenPossibleValuesAccessor headTokenPossibleValuesAccessor)
         {
             _config = config;
-
-            foreach (var pattern in _config.MatchingPatterns)
-            {
-                if (pattern.Defaults == null)
-                    pattern.Defaults = new Dictionary<string, string>();
-
-                Url pUrl = pattern.Value;
-                var pSegments = pUrl.GetSegments();
-
-                var tokens = new List<UrlMatchingToken>();
-                foreach (var match in Regex.Matches(pattern.Value, @"\{(.*?)\}"))
-                {
-                    var tokenName = match.ToString();
-
-                    int tokenPosition = -1;
-                    bool isInAuthority = false;
-
-                    if (pUrl.Authority != null && pUrl.Authority.Contains(tokenName))
-                    {
-                        var domains = GetReversedDomains(pUrl);
-
-                        tokenPosition = Array.IndexOf(domains, tokenName);
-
-                        isInAuthority = true;
-                    }
-                    else
-                    {
-                        tokenPosition = Array.IndexOf(pSegments, tokenName);
-                    }
-
-                    tokens.Add(new UrlMatchingToken
-                    {
-                        IsInAuthority = isInAuthority,
-                        Position = tokenPosition,
-                        Name = tokenName.Substring(1, tokenName.Length - 2) //обрезаем фигурные скобки
-                    });
-                }
-                pattern.Tokens = tokens.ToArray();
-            }
-            
+            _headTokenPossibleValuesAccessor = headTokenPossibleValuesAccessor;
         }
 
-        public string ReplaceTokens(string originalUrl, Dictionary<string, string> tokenValues, ITargetingContext targetingContext)
+        public virtual string AddTokensToUrl(string originalUrl, Dictionary<string, string> tokenValues)
         {
             Url url = originalUrl;
 
-            if (!_config.MatchingPatterns.Any())
+            if (!_config.HeadPatterns.Any())
             {
                 return url;
             }
@@ -75,7 +36,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
             {
                 //считаем, что название токена совпадает с ключом системы таргетирования
                 //по этому названию узнаем список возможных значений для токена (если список пуст - считаем что значение может быть любым)
-                var possibleValues = targetingContext.GetPossibleValues(t).Cast<string>().ToArray();
+                var possibleValues = _headTokenPossibleValuesAccessor.GetPossibleValues(t);
 
                 if (possibleValues.Any() && !possibleValues.Contains(tokenValues[t]))
                 {
@@ -85,7 +46,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
             }
 
             //проверим соответствует ли адрес заданным паттернам (в нём уже могут быть заданы токены)
-            var m = Match(originalUrl, targetingContext);
+            var m = Match(originalUrl);
             if (m.IsMatch)
             {
                 //адрес, очищенный от токенов
@@ -108,22 +69,38 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
             }
 
             //для новых значений токенов определим наиболее подходящий шаблон
-            var pattern = GetSuitablePattern(_config.MatchingPatterns, tokenValues);
+            var pattern = GetSuitablePattern(_config.HeadPatterns, tokenValues);
 
             //добавим в урл значения токенов, согласно шаблону
             return ReplaceByPattern(url, pattern, tokenValues);
         }
 
-        public UrlMatchingResult Match(string originalUrl, ITargetingContext targetingContext)
+        public virtual Dictionary<string, string> ResolveTokenValues(string url)
+        {
+            var m = Match(url);
+            return m.TokenValues;
+        }
+
+        public virtual string SanitizeUrl(string originalUrl)
+        {
+            var m = Match(originalUrl);
+            if (m.IsMatch)
+            {
+                return m.SanitizedUrl;
+            }
+            return originalUrl;
+        }
+
+        private HeadUrlMatchResult Match(string originalUrl)
         {
             Url pUrl = originalUrl;
-            var suitableResults = new List<UrlMatchingResult>();
+            var suitableResults = new List<HeadUrlMatchResult>();
             string[] domains = null;
 
             //сначала проверим токены в домене
-            foreach (var pattern in _config.MatchingPatterns)
+            foreach (var pattern in _config.HeadPatterns)
             {
-                UrlMatchingResult result = new UrlMatchingResult();
+                HeadUrlMatchResult result = new HeadUrlMatchResult();
 
                 if (domains == null && pUrl.Authority != null && pattern.Tokens.Any(t => t.IsInAuthority) /*pattern.IsRegionInAuthority || pattern.IsCultureInAuthority*/)
                 {
@@ -143,17 +120,13 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
                     if (domains == null)//если originalUrl без домена, а в шаблоне в домене есть токен - проигнорируем его
                         continue;
 
-                    //считаем, что название токена совпадает с ключом системы таргетирования
-                    //по этому названию узнаем список возможных значений для токена (если список пуст - считаем что значение может быть любым)
-                    var possibleValues = targetingContext.GetPossibleValues(token.Name).Cast<string>().ToArray();
-
-                    var success = MatchToken(domains, token.Position, possibleValues, out string r);
+                    var success = MatchToken(domains, token.Position, token.Name, out string r);
                     if (!success)
                     {
                         result.IsMatchForAuthority = false;
                         break;
                     }
-       
+
                     if (!string.IsNullOrEmpty(r))
                     {
                         result.TokenValues[token.Name] = r;
@@ -184,11 +157,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
 
                 foreach (var token in tokens)
                 {
-                    //считаем, что название токена совпадает с ключом системы таргетирования
-                    //по этому названию узнаем список возможных значений для токена (если список пуст - считаем что значение может быть любым)
-                    var possibleValues = targetingContext.GetPossibleValues(token.Name).Cast<string>().ToArray();
-
-                    var success = MatchToken(pSegments, token.Position, possibleValues, out string r);
+                    var success = MatchToken(pSegments, token.Position, token.Name, out string r);
                     if (success)
                     {
                         result.IsMatch = true;//нашли хотя бы 1 подходящий шаблону токен - считаем что шаблон подходящий
@@ -231,12 +200,41 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
                 return suitableResults.OrderByDescending(r => r.TokenValues.Count).First();
 
             //ни один шаблон не подошёл (отдельно сообщим по какой причине: домен не подходит или нет)
-            return matchForAuthority ? UrlMatchingResult.MatchOnlyForAuthority : UrlMatchingResult.NotMatch;
+            return matchForAuthority ? HeadUrlMatchResult.MatchOnlyForAuthority : HeadUrlMatchResult.NotMatch;
         }
 
-        private UrlMatchingPattern GetSuitablePattern(IEnumerable<UrlMatchingPattern> patterns, Dictionary<string, string> tokenValues)
+        private bool MatchToken(string[] segments, int tokenPosition, string tokenName, out string result)
         {
-            var suitable = new List<UrlMatchingPattern>();
+            if (segments.Length > tokenPosition)
+            {
+                if (string.IsNullOrEmpty(segments[tokenPosition]))
+                {
+                    result = null;
+                    return false;
+                }
+
+                //считаем, что название токена совпадает с ключом системы таргетирования
+                //по этому названию узнаем список возможных значений для токена (если список пуст - считаем что значение может быть любым)
+                var possibleValues = _headTokenPossibleValuesAccessor.GetPossibleValues(tokenName);
+
+                if (possibleValues.Any())
+                {
+                    //если токен может быть заменен на ограниченное множество возможных значений
+                    //надо проверить, что значение из урла принадлежит этому множеству
+                    result = possibleValues.FirstOrDefault(v => v.Equals(segments[tokenPosition], StringComparison.InvariantCultureIgnoreCase));
+                    return result != null;
+                }
+
+                result = segments[tokenPosition].ToLower();
+                return true;
+            }
+            result = null;
+            return false;
+        }
+
+        private HeadUrlMatchingPattern GetSuitablePattern(IEnumerable<HeadUrlMatchingPattern> patterns, Dictionary<string, string> tokenValues)
+        {
+            var suitable = new List<HeadUrlMatchingPattern>();
             foreach (var pattern in patterns)
             {
                 //все Defaults не должны противоречить tokenValues
@@ -262,7 +260,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
         }
 
         private Url ReplaceByPattern(Url original,
-            UrlMatchingPattern pattern,
+            HeadUrlMatchingPattern pattern,
             Dictionary<string, string> tokenValues)
         {
             Url url = original;
@@ -281,8 +279,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
                         {
                             if (domains == null)
                             {
-                                domains = GetReversedDomains(original)
-                                    .ToList();
+                                domains = original.GetReversedDomains().ToList();
                             }
 
                             if (domains.Count > token.Position)
@@ -320,46 +317,6 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
             }
 
             return url;
-        }
-
-        private bool MatchToken(string[] segments, int tokenPosition, IEnumerable<string> possibleValues, out string result)
-        {
-            if (segments.Length > tokenPosition)
-            {
-                if (possibleValues.Any())
-                {
-                    //если токен может быть заменен на ограниченное множество возможных значений
-                    //надо проверить, что значение из урла принадлежит этому множеству
-                    result = MatchToken(segments[tokenPosition], possibleValues);
-                    return result != null;
-                }
-
-                result = segments[tokenPosition].ToLower();
-                return true;
-            }
-            result = null;
-            return false;
-        }
-
-        private string MatchToken(string sample, IEnumerable<string> items)
-        {
-            if (string.IsNullOrEmpty(sample))
-            {
-                return null;
-            }
-
-            return items.FirstOrDefault(x => x.Equals(sample.ToLower()));
-        }
-
-        private static string[] GetReversedDomains(Url pUrl)
-        {
-            var domains = pUrl.Authority
-                .Split('.')
-                .Select(w => w.Trim())
-                .Where(w => !String.IsNullOrWhiteSpace(w))
-                .Reverse()
-                .ToArray();
-            return domains;
         }
     }
 }

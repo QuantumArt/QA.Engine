@@ -15,12 +15,24 @@ using System.Linq;
 using QA.DotNetCore.Engine.QpData.Settings;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using QA.DotNetCore.Engine.Abstractions.Finder;
+using QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching;
+using QA.DotNetCore.Engine.Routing.UrlResolve;
+using QA.DotNetCore.Engine.Routing;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
+using QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching;
+using QA.DotNetCore.Engine.Routing.UrlResolve.Targeting;
+using System.Collections.Generic;
 
 namespace QA.DotNetCore.Engine.QpData.Configuration
 {
     public class SiteStructureEngineConfigurator : ISiteStructureEngineConfigurator
     {
+        /// <summary>
+        /// Конфигурация движка структуры сайта: сервисы для построения структуры сайта
+        /// + сервисы необходимые для интеграции структуры сайта с MVC (контроллерами и viewcomponent)
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="setupAction"></param>
         public SiteStructureEngineConfigurator(IServiceCollection services, Action<SiteStructureEngineOptions> setupAction)
         {
             Services = services;
@@ -37,9 +49,35 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
                 ItemDefinitionCachePeriod = options.ItemDefinitionCachePeriod
             });
 
+            services.AddSingleton(new UrlTokenConfig
+            {
+                DefaultTailPattern = options.DefaultUrlTailPattern,
+                TailPatternsByControllers = options.UrlTailPatternsByControllers,
+                HeadPatterns = options.UrlHeadPatterns ?? new List<HeadUrlMatchingPattern> { new HeadUrlMatchingPattern { Pattern = "/"} }
+            });
+
             services.TryAddScoped<IItemDefinitionRepository, ItemDefinitionRepository>();
             services.TryAddScoped<IAbstractItemFactory, AbstractItemFactory>();
+            services.TryAddSingleton<ITargetingFilterAccessor, NullTargetingFilterAccessor>();
+            services.TryAddSingleton<ITargetingContext, NullTargetingContext>();
 
+            services.TryAddSingleton<ITailUrlResolver, TailUrlResolver>();
+
+            var headTokenPossibleConfigurator = new ServiceSetConfigurator<IHeadTokenPossibleValuesProvider>();
+            foreach (var t in options.HeadTokenPossibleValuesProviders)
+            {
+                headTokenPossibleConfigurator.Register(t);
+            }
+            services.TryAddSingleton(headTokenPossibleConfigurator);
+            services.TryAddSingleton<IHeadTokenPossibleValuesAccessor, HeadTokenPossibleValuesAccessor>();
+            services.TryAddSingleton<IHeadUrlResolver, HeadUrlResolver>();
+
+            services.TryAddSingleton<ITargetingUrlTransformator, TargetingUrlTransformator>();
+            services.TryAddSingleton<UrlTokenTargetingProvider>();
+
+#if NETCOREAPP3_1
+            services.TryAddSingleton<SiteStructureRouteValueTransformer>();
+#endif
             services.TryAdd(new ServiceDescriptor(typeof(ITypeFinder), provider => options.TypeFinder, ServiceLifetime.Singleton));
 
             if (options.ItemDefinitionConvention == ItemDefinitionConvention.Name)
@@ -57,11 +95,20 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             else if (options.ComponentMapperConvention == ComponentMapperConvention.Attribute)
                 services.TryAddSingleton<IComponentMapper, AttributeConventionalComponentMapper>();
 
-            //заменяем дефолтный MVC-ный IViewComponentInvokerFactory на собственную реализацию
+            //декорируем дефолтный MVC-ный IViewComponentInvokerFactory собственной реализацией
             //для возможности рендеринга виджетов как viewcomponent
-            services.AddScoped<IViewComponentInvokerFactory, WidgetViewComponentInvokerFactory>();
+            //вынуждены делать это с использованием reflection, т.к. дефолтная реализация стала internal
+            var defaultViewComponentInvokerFactoryType = typeof(IViewComponentInvokerFactory).Assembly.GetType("Microsoft.AspNetCore.Mvc.ViewComponents.DefaultViewComponentInvokerFactory");
+            services.AddScoped(defaultViewComponentInvokerFactoryType);
+            services.AddScoped<IViewComponentInvokerFactory>(provider =>
+                new WidgetViewComponentInvokerFactory((IViewComponentInvokerFactory)provider.GetRequiredService(defaultViewComponentInvokerFactoryType)));
         }
 
+        /// <summary>
+        /// Конфигурация сервисов для построения структуры сайта
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="setupAction"></param>
         public SiteStructureEngineConfigurator(IServiceCollection services, Action<SiteStructureOptions> setupAction)
         {
             Services = services;

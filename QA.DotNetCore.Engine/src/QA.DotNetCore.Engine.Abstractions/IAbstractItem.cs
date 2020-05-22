@@ -14,7 +14,7 @@ namespace QA.DotNetCore.Engine.Abstractions
         string Title { get; }
         bool IsPage { get; }
         int SortOrder { get; }
-        string GetUrl();
+        string GetUrl(ITargetingUrlTransformator urlResolver = null);
         string GetTrail();
         IEnumerable<IAbstractItem> GetChildren(ITargetingFilter filter = null);
         IAbstractItem Get(string alias, ITargetingFilter filter = null);

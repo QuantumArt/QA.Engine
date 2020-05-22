@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
+using QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching;
 
 namespace QA.DotNetCore.Engine.Routing.Configuration
 {
@@ -27,12 +28,16 @@ namespace QA.DotNetCore.Engine.Routing.Configuration
             IInlineConstraintResolver requiredService = routes.ServiceProvider.GetRequiredService<IInlineConstraintResolver>();
             IControllerMapper controllerMapper = routes.ServiceProvider.GetRequiredService<IControllerMapper>();
             ITargetingFilterAccessor targetingAccessor = routes.ServiceProvider.GetService<ITargetingFilterAccessor>();
+            IHeadUrlResolver targetingUrlResolver = routes.ServiceProvider.GetService<IHeadUrlResolver>();
 
-            routes.Routes.Add(new ContentRoute(controllerMapper, targetingAccessor, routes.DefaultHandler, name, template,
-                    new RouteValueDictionary(defaults),
-                    new RouteValueDictionary(constraints),
-                    new RouteValueDictionary(dataTokens),
-                    requiredService));
+            routes.Routes.Add(new ContentRoute(controllerMapper, targetingAccessor, targetingUrlResolver,
+                routes.DefaultHandler,
+                name,
+                template,
+                new RouteValueDictionary(defaults),
+                new RouteValueDictionary(constraints),
+                new RouteValueDictionary(dataTokens),
+                requiredService));
 
             return routes;
         }

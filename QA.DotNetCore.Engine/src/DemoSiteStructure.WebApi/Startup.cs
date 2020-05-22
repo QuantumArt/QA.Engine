@@ -28,7 +28,7 @@ namespace DemoSiteStructure.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc();
             services.AddLogging();
             services.AddMemoryCache();
 
@@ -39,14 +39,14 @@ namespace DemoSiteStructure.WebApi
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+            app.UseRouting();
 
-            app.UseMvc();
+            app.UseEndpoints(routes =>
+            {
+                routes.MapControllers();
+            });
         }
     }
 }

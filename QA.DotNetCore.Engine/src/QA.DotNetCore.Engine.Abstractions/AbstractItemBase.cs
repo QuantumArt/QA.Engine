@@ -82,34 +82,16 @@ namespace QA.DotNetCore.Engine.Abstractions
         /// Получить url страницы с подставленными значениями таргетирования
         /// </summary>
         /// <returns></returns>
-        public string GetUrl()
+        public string GetUrl(ITargetingUrlTransformator urlTransformator = null)
         {
             var resultUrl = GetTrail();
-            var startPage = GetStartPage();
-            var urlResolver = GetStartPage()?.GetUrlResolver();
 
-            if (urlResolver != null)
+            if (urlTransformator != null)
             {
-                resultUrl = urlResolver.AddCurrentTargetingValuesToUrl(resultUrl);
+                resultUrl = urlTransformator.AddCurrentTargetingValuesToUrl(resultUrl);
             }
 
             return resultUrl;
-        }
-
-        private IStartPage GetStartPage()
-        {
-            if (_startPage == null)
-            {
-                var item = (this as IAbstractItem);
-                while (item != null && !(item is IStartPage))
-                {
-                    item = item.Parent;
-                }
-
-                return (_startPage = item as IStartPage);
-            }
-
-            return _startPage;
         }
     }
 }

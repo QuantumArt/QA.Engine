@@ -1,5 +1,6 @@
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
+using QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching;
 using System;
 using System.Linq;
 
@@ -14,13 +15,9 @@ namespace QA.DotNetCore.Engine.Routing
 
         public Func<IAbstractItem, bool> StopCondition { get; }
 
-        public PathData Find(string path, IStartPage root, ITargetingFilter targetingFilter)
+        public PathData Find(string path, IStartPage root, ITargetingFilter targetingFilter, IHeadUrlResolver urlResolver)
         {
-            var targetingUrlResolver = root.GetUrlResolver();
-            if (targetingUrlResolver != null)
-            {
-                path = targetingUrlResolver.SanitizeUrl(path);
-            }
+            path = urlResolver.SanitizeUrl(path);
 
             var tokens = path.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -28,7 +29,9 @@ namespace DemoSiteStructure.WebApi.Controllers
             var storage = AbstractItemStorageProvider.Get();
             var item = id.HasValue ? storage.Get(id.Value) : storage.Root;
 
-            return new JsonResult(item, IgnoreParentSerializeSettings());
+            var json = JsonConvert.SerializeObject(item, IgnoreParentSerializeSettings());
+
+            return Ok(json);
         }
 
         private static JsonSerializerSettings IgnoreParentSerializeSettings()

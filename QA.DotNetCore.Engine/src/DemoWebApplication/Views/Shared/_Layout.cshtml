@@ -1,4 +1,6 @@
-﻿@using DemoWebSite.PagesAndWidgets.Helpers
+﻿@inject QA.DotNetCore.Engine.Abstractions.Targeting.ITargetingUrlTransformator urlTransformator
+
+@using DemoWebSite.PagesAndWidgets.Helpers
 @using QA.DotNetCore.Engine.Widgets
 @using Microsoft.Extensions.Options
 @using DemoWebSite.PagesAndWidgets
@@ -70,7 +72,7 @@
     <hr />
     <footer>
       <h5>Tree:</h5>
-      @Html.Tree()
+      @Html.Tree(urlTransformator)
       <p>&copy; 2017 - WebApplication1</p>
     </footer>
     @await Component.WidgetZone(Html, "Below")

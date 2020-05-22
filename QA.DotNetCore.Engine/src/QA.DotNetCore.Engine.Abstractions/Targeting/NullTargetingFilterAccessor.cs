@@ -1,8 +1,8 @@
 using QA.DotNetCore.Engine.Abstractions.Targeting;
 
-namespace QA.DotNetCore.Engine.QpData.Configuration
+namespace QA.DotNetCore.Engine.Abstractions.Targeting
 {
-    public class NullTargetingFilterAccessor : ITargetingFilterAccessor
+    public sealed class NullTargetingFilterAccessor : ITargetingFilterAccessor
     {
         public ITargetingFilter Get()
         {

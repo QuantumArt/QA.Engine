@@ -20,10 +20,5 @@ namespace DemoWebSite.PagesAndWidgets.Pages
                 .Select(_ => _.Trim())
                 .ToArray();
         }
-
-        //public ITargetingUrlResolver GetUrlResolver()
-        //{
-        //    return _urlTokenResolverFactory.Create(_urlTokenConfig);
-        //}
     }
 }

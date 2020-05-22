@@ -10,10 +10,5 @@ namespace DemoWebSite.PagesAndWidgets.Xml
         {
             return GetDetail("HostBinding", new string[1] { "*" });
         }
-
-        //public ITargetingUrlResolver GetUrlResolver()
-        //{
-        //    return null;
-        //}
     }
 }

@@ -14,10 +14,5 @@ namespace QA.DotNetCore.Engine.QpData.Tests.FakePagesAndWidgets
         {
             return new[] { DnsRegistered };
         }
-
-        //public ITargetingUrlResolver GetUrlResolver()
-        //{
-        //    throw new NotImplementedException();
-        //}
     }
 }

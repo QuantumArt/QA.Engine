@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
+using QA.DotNetCore.Engine.Routing.Exceptions;
 using System.Threading.Tasks;
 
 namespace QA.DotNetCore.Engine.Routing
@@ -22,6 +23,9 @@ namespace QA.DotNetCore.Engine.Routing
                 .Get();
             var startPage = abstractItems
                 .GetStartPage(context.Request.Host.Value, _filterAccessor?.Get());
+
+            if (startPage is null)
+                throw new StartPageNotFoundException(context.Request.Host.Value);
 
             context.Items[RoutingKeys.StartPage] = startPage;
             context.Items[RoutingKeys.AbstractItemStorage] = abstractItems;

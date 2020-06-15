@@ -2,13 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching
 {
     public class TailUrlMatchingPattern
     {
         public string Pattern { get; set; }
-        public Dictionary<string,string> Defaults { get; set; }
+        public Dictionary<string, string> Defaults { get; set; }
+        public Dictionary<string, string> Constraints { get; set; }
 
         private static MatchingPatternSegment[] ParseSegments(string urlPath)
         {
@@ -64,7 +66,14 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching
                     //если хвост уже закончился, а шаблон еще нет
                     if (patternSegment.Required)
                     {
-                        return new TailUrlMatchResult { IsMatch = false };
+                        //TODO специфичный кейс, когда задана регулярка, допускающая пустое значение
+                        //возможно, стоит запретить пустые регулярки, либо изменить строку
+                        //var tailSegments = tailUrl.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                        //убрав опцию удаления пустых значений. Требуется обдумать
+                        if (!(Constraints is null) && Constraints.TryGetValue(patternSegment.Name, out string regexPattern) && Regex.IsMatch(string.Empty, regexPattern))
+                            matchedRouteValues[patternSegment.Name] = string.Empty;
+                        else
+                            return new TailUrlMatchResult { IsMatch = false };
                     }
                     if (patternSegment.Name != null && patternSegment.Default != null)
                     {
@@ -83,7 +92,32 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching
                     }
                     else if (patternSegment.Name != null)
                     {
-                        matchedRouteValues[patternSegment.Name] = tailSegments[index];
+                        if (Constraints is null || !Constraints.TryGetValue(patternSegment.Name, out string regexPattern))
+                        {
+                            if (patternSegment.VariativeValues is null || patternSegment.VariativeValues.Length == 0)
+                                matchedRouteValues[patternSegment.Name] = tailSegments[index];
+                            else
+                            {
+                                if (CompareSegmentAndVariativeValue(tailSegments[index], patternSegment))
+                                    matchedRouteValues[patternSegment.Name] = tailSegments[index];
+                                else
+                                    return new TailUrlMatchResult
+                                    {
+                                        IsMatch = false
+                                    };
+                            }
+                        }
+                        else
+                        {
+                            //если в шаблоне указаны ограничения (пока регулярками), то в сегмент хвоста должен подходить под регулярку
+                            if (Regex.IsMatch(tailSegments[index], regexPattern))
+                                matchedRouteValues[patternSegment.Name] = tailSegments[index];
+                            else
+                                return new TailUrlMatchResult
+                                {
+                                    IsMatch = false
+                                };
+                        }
                     }
                 }
             }
@@ -102,6 +136,15 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching
             }
 
             return new TailUrlMatchResult { IsMatch = true, Values = matchedRouteValues };
+        }
+
+        private static bool CompareSegmentAndVariativeValue(string tailSegment, MatchingPatternSegment patternSegment)
+        {
+            for (int variativeIndex = 0; variativeIndex < patternSegment.VariativeValues.Length; variativeIndex++)
+                if (string.Equals(tailSegment, patternSegment.VariativeValues[variativeIndex], StringComparison.InvariantCultureIgnoreCase))
+                    return true;
+
+            return false;
         }
 
         public class TailUrlMatchingPatternException : Exception
@@ -127,6 +170,15 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching
                         Required = false;
                         Name = segment.Substring(1, segment.Length - 3);
                     }
+                    else if (segment.Contains('[') && segment.EndsWith("]}"))
+                    {
+                        int startVariative = segment.IndexOf('[');
+
+                        Required = true;
+                        Name = segment.Substring(1, startVariative - 1);
+                        VariativeValues = segment.Substring(startVariative + 1, segment.IndexOf(']') - startVariative - 1)
+                            .Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                    }
                     else
                     {
                         Required = true;
@@ -144,6 +196,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching
             public string Name { get; private set; }
             public string Default { get; private set; }
             public string ConstValue { get; private set; }
+            public string[] VariativeValues { get; private set; }
         }
     }
 }

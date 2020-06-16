@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using QA.DotNetCore.Engine.Routing.Exceptions;
 using QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching;
 using System;
 using System.Collections.Generic;
@@ -69,7 +70,7 @@ namespace QA.DotNetCore.Engine.Routing.Tests
         {
             var pattern = new TailUrlMatchingPattern
             {
-                Pattern = "tariff/{geoCode}/{tariffId}",
+                Pattern = "tariff/{geoCode?}/{tariffId?}",
                 Defaults = new Dictionary<string, string> { { "action", "Details" } },
                 Constraints = new Dictionary<string, string> { { "tariffId", "^$|\\d{5,9}" }, { "geoCode", "[a-zA-z_\\-]*" } }
             };
@@ -91,7 +92,7 @@ namespace QA.DotNetCore.Engine.Routing.Tests
         }
 
         [TestMethod]
-        public void Test_Match_CheckConstraints_EmptyRegex_Success()
+        public void Test_Match_CheckConstraints_EmptyRegex_Throw()
         {
             var pattern = new TailUrlMatchingPattern
             {
@@ -100,17 +101,34 @@ namespace QA.DotNetCore.Engine.Routing.Tests
                 Constraints = new Dictionary<string, string> { { "tariffId", "^$" }, { "geoCode", "[a-zA-z_\\-]*" } }
             };
 
+            try
+            {
+                TailUrlMatchResult tailUrlMatchResult = pattern.Match("tariff/ru-RU/");
+            }
+            catch (IncorrectConstraintOrPatternException icope)
+            {
+                if (icope is null)
+                    Assert.Fail();
+            }
+        }
+        [TestMethod]
+        public void Test_Match_CheckConstraints_EmptyRegex_NotThrow()
+        {
+            var pattern = new TailUrlMatchingPattern
+            {
+                Pattern = "tariff/{geoCode?}/{tariffId?}",
+                Defaults = new Dictionary<string, string> { { "action", "Details" } },
+                Constraints = new Dictionary<string, string> { { "tariffId", "^$" }, { "geoCode", "[a-zA-z_\\-]*" } }
+            };
+
             TailUrlMatchResult tailUrlMatchResult = pattern.Match("tariff/ru-RU/");
 
             Assert.IsTrue(tailUrlMatchResult.IsMatch);
 
-            Assert.AreEqual(tailUrlMatchResult.Values.Keys.Count, 3);
+            Assert.AreEqual(tailUrlMatchResult.Values.Keys.Count, 2);
 
             Assert.IsTrue(tailUrlMatchResult.Values.ContainsKey("action"));
             Assert.AreEqual(tailUrlMatchResult.Values["action"], "Details");
-
-            Assert.IsTrue(tailUrlMatchResult.Values.ContainsKey("tariffId"));
-            Assert.AreEqual(tailUrlMatchResult.Values["tariffId"], string.Empty);
 
             Assert.IsTrue(tailUrlMatchResult.Values.ContainsKey("geoCode"));
             Assert.AreEqual(tailUrlMatchResult.Values["geoCode"], "ru-RU");
@@ -123,7 +141,7 @@ namespace QA.DotNetCore.Engine.Routing.Tests
             {
                 Pattern = "tariff/{geoCode}/{tariffId}",
                 Defaults = new Dictionary<string, string> { { "action", "Details" } },
-                Constraints = new Dictionary<string, string> { { "tariffId", "^$|\\d{5,9}" }, { "geoCode", "[a-zA-z_\\-]*" } }
+                Constraints = new Dictionary<string, string> { { "tariffId", "\\d{5,9}" }, { "geoCode", "[a-zA-z_\\-]+" } }
             };
 
             TailUrlMatchResult tailUrlMatchResult = pattern.Match("tariff/ru-RU/qwert");

@@ -1,3 +1,4 @@
+using QA.DotNetCore.Engine.Routing.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching
         public Dictionary<string, string> Defaults { get; set; }
         public Dictionary<string, string> Constraints { get; set; }
 
-        private static MatchingPatternSegment[] ParseSegments(string urlPath)
+        private MatchingPatternSegment[] ParseSegments(string urlPath)
         {
             if (urlPath == null)
                 return null;
@@ -28,12 +29,22 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching
             return segments;
         }
 
-        private static bool ValidateSegments(MatchingPatternSegment[] segments)
+        private bool ValidateSegments(MatchingPatternSegment[] segments)
         {
             //не должно быть необязательных сегментов перед обязательным
             var lastSegmentIsRequired = true;
             foreach (var segment in segments)
             {
+                if (segment.Required && segment.Name != null)
+                {
+                    //Если есть ограничение, и данный сегмент обязательный,
+                    //а регулярка допускает пустое значение, то ошибка будет выброшена
+                    //Пока нет деления, на регулярки с "ИЛИ" (^$|\d{5,9})
+                    //и регулярки, с "нулевой длинной" ([a-zA-z_\-]*)
+                    if (Constraints != null && Constraints.TryGetValue(segment.Name, out string regexPattern) && Regex.IsMatch(string.Empty, regexPattern))
+                        throw new IncorrectConstraintOrPatternException(segment.Name, regexPattern);
+                }
+
                 if (!lastSegmentIsRequired && segment.Required)
                     return false;
                 lastSegmentIsRequired = segment.Required;
@@ -66,14 +77,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching
                     //если хвост уже закончился, а шаблон еще нет
                     if (patternSegment.Required)
                     {
-                        //TODO специфичный кейс, когда задана регулярка, допускающая пустое значение
-                        //возможно, стоит запретить пустые регулярки, либо изменить строку
-                        //var tailSegments = tailUrl.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-                        //убрав опцию удаления пустых значений. Требуется обдумать
-                        if (!(Constraints is null) && Constraints.TryGetValue(patternSegment.Name, out string regexPattern) && Regex.IsMatch(string.Empty, regexPattern))
-                            matchedRouteValues[patternSegment.Name] = string.Empty;
-                        else
-                            return new TailUrlMatchResult { IsMatch = false };
+                        return new TailUrlMatchResult { IsMatch = false };
                     }
                     if (patternSegment.Name != null && patternSegment.Default != null)
                     {

@@ -1,16 +1,19 @@
+using QA.DotNetCore.Engine.Routing.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching
 {
     public class TailUrlMatchingPattern
     {
         public string Pattern { get; set; }
-        public Dictionary<string,string> Defaults { get; set; }
+        public Dictionary<string, string> Defaults { get; set; }
+        public Dictionary<string, string> Constraints { get; set; }
 
-        private static MatchingPatternSegment[] ParseSegments(string urlPath)
+        private MatchingPatternSegment[] ParseSegments(string urlPath)
         {
             if (urlPath == null)
                 return null;
@@ -26,12 +29,22 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching
             return segments;
         }
 
-        private static bool ValidateSegments(MatchingPatternSegment[] segments)
+        private bool ValidateSegments(MatchingPatternSegment[] segments)
         {
             //не должно быть необязательных сегментов перед обязательным
             var lastSegmentIsRequired = true;
             foreach (var segment in segments)
             {
+                if (segment.Required && segment.Name != null)
+                {
+                    //Если есть ограничение, и данный сегмент обязательный,
+                    //а регулярка допускает пустое значение, то ошибка будет выброшена
+                    //Пока нет деления, на регулярки с "ИЛИ" (^$|\d{5,9})
+                    //и регулярки, с "нулевой длинной" ([a-zA-z_\-]*)
+                    if (Constraints != null && Constraints.TryGetValue(segment.Name, out string regexPattern) && Regex.IsMatch(string.Empty, regexPattern))
+                        throw new IncorrectConstraintOrPatternException(segment.Name, regexPattern);
+                }
+
                 if (!lastSegmentIsRequired && segment.Required)
                     return false;
                 lastSegmentIsRequired = segment.Required;
@@ -83,7 +96,32 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching
                     }
                     else if (patternSegment.Name != null)
                     {
-                        matchedRouteValues[patternSegment.Name] = tailSegments[index];
+                        if (Constraints is null || !Constraints.TryGetValue(patternSegment.Name, out string regexPattern))
+                        {
+                            if (patternSegment.VariativeValues is null || patternSegment.VariativeValues.Length == 0)
+                                matchedRouteValues[patternSegment.Name] = tailSegments[index];
+                            else
+                            {
+                                if (CompareSegmentAndVariativeValue(tailSegments[index], patternSegment))
+                                    matchedRouteValues[patternSegment.Name] = tailSegments[index];
+                                else
+                                    return new TailUrlMatchResult
+                                    {
+                                        IsMatch = false
+                                    };
+                            }
+                        }
+                        else
+                        {
+                            //если в шаблоне указаны ограничения (пока регулярками), то в сегмент хвоста должен подходить под регулярку
+                            if (Regex.IsMatch(tailSegments[index], regexPattern))
+                                matchedRouteValues[patternSegment.Name] = tailSegments[index];
+                            else
+                                return new TailUrlMatchResult
+                                {
+                                    IsMatch = false
+                                };
+                        }
                     }
                 }
             }
@@ -104,46 +142,13 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching
             return new TailUrlMatchResult { IsMatch = true, Values = matchedRouteValues };
         }
 
-        public class TailUrlMatchingPatternException : Exception
+        private static bool CompareSegmentAndVariativeValue(string tailSegment, MatchingPatternSegment patternSegment)
         {
-            public TailUrlMatchingPatternException(string message) : base(message)
-            { }
-        }
+            for (int variativeIndex = 0; variativeIndex < patternSegment.VariativeValues.Length; variativeIndex++)
+                if (string.Equals(tailSegment, patternSegment.VariativeValues[variativeIndex], StringComparison.InvariantCultureIgnoreCase))
+                    return true;
 
-        internal class MatchingPatternSegment
-        {
-            public MatchingPatternSegment(string segment)
-            {
-                if (segment.StartsWith("{") && segment.EndsWith("}"))
-                {
-                    if (segment.Contains("="))
-                    {
-                        Required = false;
-                        Name = segment.Substring(1, segment.IndexOf("=") - 1);
-                        Default = segment.Substring(segment.IndexOf("=") + 1, segment.Length - segment.IndexOf("=") - 2);
-                    }
-                    else if (segment.EndsWith("?}"))
-                    {
-                        Required = false;
-                        Name = segment.Substring(1, segment.Length - 3);
-                    }
-                    else
-                    {
-                        Required = true;
-                        Name = segment.Substring(1, segment.Length - 2);
-                    }
-                }
-                else
-                {
-                    Required = true;
-                    ConstValue = segment;
-                }
-            }
-
-            public bool Required { get; private set; }
-            public string Name { get; private set; }
-            public string Default { get; private set; }
-            public string ConstValue { get; private set; }
+            return false;
         }
     }
 }

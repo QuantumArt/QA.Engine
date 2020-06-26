@@ -22,14 +22,15 @@ namespace QA.DotNetCore.Engine.Abstractions
         public virtual int SortOrder { get; protected set; }
 
         /// <summary>
-        /// Получение дочернего элемента по алиасу
+        /// Получение дочернего элемента (только IsPage) по алиасу
         /// </summary>
         /// <param name="alias">Алиас искомого элемента</param>
         /// <param name="filter">Опционально. Фильтр таргетирования</param>
         /// <returns></returns>
-        public virtual IAbstractItem Get(string alias, ITargetingFilter filter = null)
+        public virtual IAbstractItem GetChildPageByAlias(string alias, ITargetingFilter filter = null)
         {
-            return GetChildren(filter).FirstOrDefault(x => string.Equals(x.Alias, alias, StringComparison.InvariantCultureIgnoreCase));
+            return GetChildren(filter)
+                .FirstOrDefault(children => string.Equals(children.Alias, alias, StringComparison.InvariantCultureIgnoreCase) && children.IsPage);
         }
 
         /// <summary>

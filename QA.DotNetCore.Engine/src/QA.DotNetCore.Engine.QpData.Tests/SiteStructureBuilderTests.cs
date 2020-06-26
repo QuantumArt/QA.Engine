@@ -77,7 +77,8 @@ namespace QA.DotNetCore.Engine.QpData.Tests
 
             //фабрика элементов структуры сайта
             var aiFactoryMoq = new Mock<IAbstractItemFactory>();
-            aiFactoryMoq.Setup(x => x.Create(It.IsAny<string>())).Returns((string d) => {
+            aiFactoryMoq.Setup(x => x.Create(It.IsAny<string>())).Returns((string d) =>
+            {
                 if (d == typeof(RootPage).Name) return new RootPage();
                 if (d == typeof(StubStartPage).Name) return new StubStartPage();
                 if (d == typeof(StubPage).Name) return new StubPage();
@@ -132,12 +133,12 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             Assert.Equal("", widget.GetTrail());
 
             //проверим получение дочерних элементов по алиасу
-            Assert.NotNull(startPage.Get("foo"));
-            Assert.Equal(3, startPage.Get("foo").Id);
-            Assert.NotNull(startPage.Get("foo").Get("bar"));
-            Assert.Equal(4, startPage.Get("foo").Get("bar").Id);
-            Assert.Null(startPage.Get("xxx"));
-            Assert.Null(startPage.Get("foo").Get("bar2"));
+            Assert.NotNull(startPage.GetChildPageByAlias("foo"));
+            Assert.Equal(3, startPage.GetChildPageByAlias("foo").Id);
+            Assert.NotNull(startPage.GetChildPageByAlias("foo").GetChildPageByAlias("bar"));
+            Assert.Equal(4, startPage.GetChildPageByAlias("foo").GetChildPageByAlias("bar").Id);
+            Assert.Null(startPage.GetChildPageByAlias("xxx"));
+            Assert.Null(startPage.GetChildPageByAlias("foo").GetChildPageByAlias("bar2"));
 
             //проверим ItemFinder
             var targetingAccessorMoq = new Mock<ITargetingFilterAccessor>();
@@ -189,7 +190,8 @@ namespace QA.DotNetCore.Engine.QpData.Tests
 
             //фабрика элементов структуры сайта
             var aiFactoryMoq = new Mock<IAbstractItemFactory>();
-            aiFactoryMoq.Setup(x => x.Create(It.IsAny<string>())).Returns((string d) => {
+            aiFactoryMoq.Setup(x => x.Create(It.IsAny<string>())).Returns((string d) =>
+            {
                 if (d == typeof(RootPage).Name) return new RootPage();
                 if (d == typeof(StartPage).Name) return new StartPage();
                 return null;
@@ -283,7 +285,8 @@ namespace QA.DotNetCore.Engine.QpData.Tests
 
             //фабрика элементов структуры сайта
             var aiFactoryMoq = new Mock<IAbstractItemFactory>();
-            aiFactoryMoq.Setup(x => x.Create(It.IsAny<string>())).Returns((string d) => {
+            aiFactoryMoq.Setup(x => x.Create(It.IsAny<string>())).Returns((string d) =>
+            {
                 if (d == typeof(RootPage).Name) return new RootPage();
                 if (d == typeof(StubStartPage).Name) return new StubStartPage();
                 if (d == typeof(PictureWidget).Name) return new PictureWidget();
@@ -409,7 +412,8 @@ namespace QA.DotNetCore.Engine.QpData.Tests
 
             //фабрика элементов структуры сайта
             var aiFactoryMoq = new Mock<IAbstractItemFactory>();
-            aiFactoryMoq.Setup(x => x.Create(It.IsAny<string>())).Returns((string d) => {
+            aiFactoryMoq.Setup(x => x.Create(It.IsAny<string>())).Returns((string d) =>
+            {
                 if (d == typeof(RootPage).Name) return new RootPage();
                 if (d == typeof(StubStartPage).Name) return new StubStartPage();
                 if (d == typeof(ManyToManyWidget).Name) return new ManyToManyWidget();
@@ -432,6 +436,64 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             Assert.Equal(relationValues, widget.RelationIds);
             //проверим, что в поле m2m подставились все id из relation, который был в базовом контенте
             Assert.Equal(baseContentRelationValues, widget.BaseContentRelationIds);
+        }
+
+        [Fact]
+        [Trait("Bug", "157029")]
+        public void GetChildrenByAliase_Correct()
+        {
+            Mock<IAbstractItemRepository> aiRepositoryMoq = new Mock<IAbstractItemRepository>();
+
+            AbstractItemPersistentData[] aiArray = new[]
+            {
+                new AbstractItemPersistentData{ Id = 1, Title = "корневая страница", Alias = "root", Discriminator = typeof(RootPage).Name, IsPage = true, ParentId = null, ExtensionId = null },
+                new AbstractItemPersistentData{ Id = 2, Title = "стартовая страница", Alias = "start", Discriminator = typeof(StubStartPage).Name, IsPage = true, ParentId = 1, ExtensionId = null },
+                new AbstractItemPersistentData{ Id = 3, Title = "новости (страница)", Alias = "novosti", Discriminator = typeof(NewsPage).Name, IsPage = true, ParentId = 2, ExtensionId = null },
+                new AbstractItemPersistentData{ Id = 4, Title = "новости (виджет)", Alias = "novosti", Discriminator = typeof(NewsPart).Name, IsPage = false, ParentId = 2, ExtensionId = null, IndexOrder = 100, ZoneName = "zonename" }
+            };
+            aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteId, isStage, null)).Returns(aiArray);
+
+            Mock<IMetaInfoRepository> metaInfoMoq = new Mock<IMetaInfoRepository>();
+            metaInfoMoq.Setup(x => x.GetContent(abstractItemNetName, siteId, null)).Returns(new ContentPersistentData
+            {
+                ContentId = abstractItemContentId,
+                ContentAttributes = new List<ContentAttributePersistentData>()
+            });
+
+            Mock<IAbstractItemFactory> aiFactoryMoq = new Mock<IAbstractItemFactory>();
+            aiFactoryMoq.Setup(x => x.Create(It.IsAny<string>())).Returns((string discriminator) =>
+            {
+                if (discriminator == typeof(RootPage).Name)
+                    return new RootPage();
+                if (discriminator == typeof(StubStartPage).Name)
+                    return new StubStartPage();
+
+                if (discriminator == typeof(NewsPage).Name)
+                    return new NewsPage();
+                if (discriminator == typeof(NewsPart).Name)
+                    return new NewsPart();
+
+                return default;
+            });
+
+            QpAbstractItemStorageBuilder builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
+               Mock.Of<IQpUrlResolver>(),
+               aiRepositoryMoq.Object,
+               metaInfoMoq.Object,
+               buildSettings,
+               Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
+
+            AbstractItemStorage aiStorage = builder.Build();
+
+            Assert.NotNull(aiStorage.Root);
+            Assert.Equal(1, aiStorage.Root.Id);
+
+            IAbstractItem startPage = aiStorage.GetStartPage(StubStartPage.DnsRegistered, null);
+            Assert.NotNull(startPage);
+            Assert.Equal(2, startPage.Id);
+
+            Assert.NotNull(startPage.GetChildPageByAlias("novosti"));
+            Assert.Equal(3, startPage.GetChildPageByAlias("novosti").Id);            
         }
     }
 }

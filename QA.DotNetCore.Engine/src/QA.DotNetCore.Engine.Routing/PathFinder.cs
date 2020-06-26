@@ -33,7 +33,7 @@ namespace QA.DotNetCore.Engine.Routing
             foreach (var token in tokens)
             {
                 if (StopCondition != null && StopCondition(node)) break;
-                node = node.Get(token, targetingFilter);
+                node = node.GetChildPageByAlias(token, targetingFilter);
                 if (node == null) break;
                 index++;
                 stopItem = node;

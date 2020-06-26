@@ -101,16 +101,12 @@ namespace QA.DotNetCore.Engine.Routing.Tests
                 Constraints = new Dictionary<string, string> { { "tariffId", "^$" }, { "geoCode", "[a-zA-z_\\-]*" } }
             };
 
-            try
+            Assert.ThrowsException<IncorrectConstraintOrPatternException>(() =>
             {
                 TailUrlMatchResult tailUrlMatchResult = pattern.Match("tariff/ru-RU/");
-            }
-            catch (IncorrectConstraintOrPatternException icope)
-            {
-                if (icope is null)
-                    Assert.Fail();
-            }
+            });
         }
+
         [TestMethod]
         public void Test_Match_CheckConstraints_EmptyRegex_NotThrow()
         {

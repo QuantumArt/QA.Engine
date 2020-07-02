@@ -6,5 +6,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests.FakePagesAndWidgets
 {
     public class StubPage : AbstractPage
     {
+        public string StubField => GetDetail<string>("StubField", null);
     }
 }

@@ -38,11 +38,6 @@ FROM |QPAbstractItem| ai
 INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.content_item_id
 ";
 
-        private const string CmdGetExtensionFields = @"SELECT * FROM {0} ext {1} INNER JOIN {2} on Id = ext.itemid {3}";
-
-        private const string CmdManyToMany = @"SELECT link_id, item_id, linked_item_id
-          FROM {0} link {1} INNER JOIN {2} on Id = link.item_id";
-
         public IEnumerable<AbstractItemPersistentData> GetPlainAllAbstractItems(int siteId, bool isStage, IDbTransaction transaction = null)
         {
             var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAbstractItem, siteId, isStage);
@@ -55,13 +50,33 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
             bool loadAbstractItemFields, bool isStage, IDbTransaction transaction = null)
         {
             var extTableName = QpTableNameHelper.GetTableName(extensionContentId, isStage);
-            var idList = SqlQuerySyntaxHelper.IdList(_uow.DatabaseType, "@ids", "ids");
+            var idListTable = SqlQuerySyntaxHelper.IdList(_uow.DatabaseType, "@ids", "ids");
+            var withNoLock = SqlQuerySyntaxHelper.WithNoLock(_uow.DatabaseType);
 
-            string extFieldsQuery = string.Format(CmdGetExtensionFields,
-                extTableName,
-                SqlQuerySyntaxHelper.WithNoLock(_uow.DatabaseType),
-                idList,
-                loadAbstractItemFields ? $"INNER JOIN {baseContent.GetTableName(isStage)} ai on ai.Content_item_id = ext.itemid" : "");
+            var extFieldsQuery =
+                $@"SELECT * FROM {extTableName} ext {withNoLock}
+                    INNER JOIN {idListTable} on Id = ext.itemid
+                    {(loadAbstractItemFields ? $"INNER JOIN {baseContent.GetTableName(isStage)} ai on ai.Content_item_id = ext.itemid" : "")}";
+
+            using (var command = _uow.Connection.CreateCommand())
+            {
+                command.CommandText = extFieldsQuery;
+                command.Parameters.Add(SqlQuerySyntaxHelper.GetIdsDatatableParam("@Ids", ids, _uow.DatabaseType));
+                command.Transaction = transaction;
+                return LoadAbstractItemExtension(command);
+            }
+        }
+
+        public IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionlessData(IEnumerable<int> ids,
+            ContentPersistentData baseContent,
+            bool isStage, IDbTransaction transaction = null)
+        {
+            var idListTable = SqlQuerySyntaxHelper.IdList(_uow.DatabaseType, "@ids", "ids");
+            var withNoLock = SqlQuerySyntaxHelper.WithNoLock(_uow.DatabaseType);
+
+            string extFieldsQuery =
+                $@"SELECT * FROM {baseContent.GetTableName(isStage)} ai {withNoLock}
+                    INNER JOIN {idListTable} on Id = ai.Content_item_id";
 
             using (var command = _uow.Connection.CreateCommand())
             {
@@ -103,13 +118,14 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
 
         public IDictionary<int, M2mRelations> GetManyToManyData(IEnumerable<int> ids, bool isStage, IDbTransaction transaction = null)
         {
-            string m2mTableName = QpTableNameHelper.GetM2MTableName(isStage);
-            var idList = SqlQuerySyntaxHelper.IdList(_uow.DatabaseType, "@ids", "ids");
+            var m2MTableName = QpTableNameHelper.GetM2MTableName(isStage);
+            var idListTable = SqlQuerySyntaxHelper.IdList(_uow.DatabaseType, "@ids", "ids");
+            var withNoLock = SqlQuerySyntaxHelper.WithNoLock(_uow.DatabaseType);
 
-            string query = string.Format(CmdManyToMany,
-                m2mTableName,
-                SqlQuerySyntaxHelper.WithNoLock(_uow.DatabaseType),
-                idList);
+            var query = $@"
+                SELECT link_id, item_id, linked_item_id
+                FROM {m2MTableName} link {withNoLock}
+                INNER JOIN {idListTable} on Id = link.item_id";
 
             using (var command = _uow.Connection.CreateCommand())
             {

@@ -71,9 +71,9 @@ namespace QA.DotNetCore.Engine.QpData
             if (root != null)
             {
                 //сгруппируем AbsractItem-ы по extensionId
+                //все элементы с пустым extensionId будут в одной группе
                 var groupsByExtensions = activated
-                    .Where(_ => _.Value.ExtensionId.HasValue)
-                    .GroupBy(_ => _.Value.ExtensionId.Value, _ => _.Value)
+                    .GroupBy(_ => _.Value.ExtensionId.GetValueOrDefault(0), _ => _.Value)
                     .ToList();
 
                 //словарь, каким элементам нужна загрузка связи m2m
@@ -88,23 +88,41 @@ namespace QA.DotNetCore.Engine.QpData
 
                 //получим инфу обо всех контентах-расширениях, которые используются
                 var extensionContents = _metaInfoRepository
-                    .GetContentsById(groupsByExtensions.Select(g => g.Key).ToArray(), _buildSettings.SiteId)
+                    .GetContentsById(groupsByExtensions
+                        .Select(g => g.Key)
+                        .Where(extId => extId > 0)
+                        .ToArray(), _buildSettings.SiteId)
                     .ToDictionary(c => c.ContentId);
 
-                //догрузим доп поля
+                //догрузим нетипизированные поля в коллекцию Details из контентов-расширений и основного контента(AbstractItem)
                 foreach (var group in groupsByExtensions)
                 {
                     var extensionId = group.Key;
+                    if (extensionId == 0 && !_buildSettings.LoadAbstractItemFieldsToDetailsCollection)
+                    {
+                        _logger.LogDebug("Skip load data for extension-less elements (LoadAbstractItemFieldsToDetailsCollection = false). Build id: {1}", logBuildId);
+                        continue;
+                    }
+
                     var ids = group.Select(_ => _.Id).ToArray();
 
                     _logger.LogDebug("Load data from extension table {0}. Build id: {1}", extensionId, logBuildId);
 
-                    var extensionData = _abstractItemRepository.GetAbstractItemExtensionData(extensionId, ids, baseContent, _buildSettings.LoadAbstractItemFieldsToDetailsCollection, _buildSettings.IsStage);
+                    var extensionData = extensionId == 0 ?
+                        _abstractItemRepository.GetAbstractItemExtensionlessData(ids, baseContent, _buildSettings.IsStage) :
+                        _abstractItemRepository.GetAbstractItemExtensionData(extensionId, ids, baseContent,
+                            _buildSettings.LoadAbstractItemFieldsToDetailsCollection, _buildSettings.IsStage);
+                    if (extensionData == null)
+                    {
+                        _logger.LogDebug("Not found data for extension {0}. Build id: {1}", extensionId, logBuildId);
+                        continue;
+                    }
+
                     var extensionContent = extensionContents.ContainsKey(extensionId) ? extensionContents[extensionId] : null;
 
                     var m2mFieldNames = new List<string>(); ;
                     var fileFields = new List<ContentAttributePersistentData>();
-                    if (extensionContent != null && extensionContent.ContentAttributes != null)
+                    if (extensionContent?.ContentAttributes != null)
                     {
                         m2mFieldNames = extensionContent.ContentAttributes.Where(ca => ca.IsManyToManyField).Select(ca => ca.ColumnName).ToList();
                         fileFields = extensionContent.ContentAttributes.Where(ca => ca.IsFileField).ToList();

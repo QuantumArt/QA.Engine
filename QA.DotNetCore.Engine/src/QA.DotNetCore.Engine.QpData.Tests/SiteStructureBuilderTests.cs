@@ -440,7 +440,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
 
         [Fact]
         [Trait("Bug", "157029")]
-        public void GetChildrenByAliase_Correct()
+        public void GetChildrenByAlias_Correct()
         {
             Mock<IAbstractItemRepository> aiRepositoryMoq = new Mock<IAbstractItemRepository>();
 
@@ -493,7 +493,66 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             Assert.Equal(2, startPage.Id);
 
             Assert.NotNull(startPage.GetChildPageByAlias("novosti"));
-            Assert.Equal(3, startPage.GetChildPageByAlias("novosti").Id);            
+            Assert.Equal(3, startPage.GetChildPageByAlias("novosti").Id);
+        }
+
+        [Fact]
+        public void ExtensionlessElementsIsCorrect()
+        {
+            Mock<IAbstractItemRepository> aiRepositoryMoq = new Mock<IAbstractItemRepository>();
+
+            AbstractItemPersistentData[] aiArray = new[]
+            {
+                new AbstractItemPersistentData{ Id = 1, Title = "корневая страница", Alias = "root", Discriminator = typeof(RootPage).Name, IsPage = true, ParentId = null, ExtensionId = null },
+                new AbstractItemPersistentData{ Id = 2, Title = "стартовая страница", Alias = "start", Discriminator = typeof(StubStartPage).Name, IsPage = true, ParentId = 1, ExtensionId = null },
+                new AbstractItemPersistentData{ Id = 3, Title = "страница без extension", Alias = "foo", Discriminator = typeof(StubPage).Name, IsPage = true, ParentId = 2, ExtensionId = null },
+            };
+            aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteId, isStage, null)).Returns(aiArray);
+
+            var metaInfoMoq = new Mock<IMetaInfoRepository>();
+            metaInfoMoq.
+                Setup(x => x.GetContent(abstractItemNetName, siteId, null)).
+                Returns(new ContentPersistentData
+            {
+                ContentId = abstractItemContentId,
+                ContentAttributes = new List<ContentAttributePersistentData>()
+            });
+
+            //фабрика элементов структуры сайта
+            var aiFactoryMoq = new Mock<IAbstractItemFactory>();
+            aiFactoryMoq.Setup(x => x.Create(It.IsAny<string>())).Returns((string d) =>
+            {
+                if (d == typeof(RootPage).Name) return new RootPage();
+                if (d == typeof(StubStartPage).Name) return new StubStartPage();
+                if (d == typeof(StubPage).Name) return new StubPage();
+                return null;
+            });
+
+            var fieldCollection = new AbstractItemExtensionCollection();
+            fieldCollection.Add("StubField", "bar");
+
+            var baseContentFieldDictionary = new Dictionary<int, AbstractItemExtensionCollection>
+            {
+                { 3, fieldCollection}
+            };
+            aiRepositoryMoq.Setup(x => x.GetAbstractItemExtensionlessData(
+                It.Is<IEnumerable<int>>(ids => ids.Contains(3)),
+                It.IsAny<ContentPersistentData>(),
+                buildSettings.IsStage,
+                null)).Returns(baseContentFieldDictionary);
+
+            var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
+                Mock.Of<IQpUrlResolver>(),
+                aiRepositoryMoq.Object,
+                metaInfoMoq.Object,
+                buildSettings,
+                Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
+
+            var aiStorage = builder.Build();
+
+            //проверим, что Stubpage создалась и в коллекции Details у неё то, что ожидается
+            Assert.IsType<StubPage>(aiStorage.Get(3));
+            Assert.Equal("bar", (aiStorage.Get(3) as StubPage).StubField);
         }
     }
 }

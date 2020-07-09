@@ -9,11 +9,12 @@ namespace QA.DotNetCore.Engine.Widgets
         where T : IAbstractWidget
     {
         protected T CurrentItem { get; private set; }
+
         public Task<IViewComponentResult> InvokeAsync(T currentItem)
-        {            
+        {
             CurrentItem = currentItem;
             return RenderAsync(currentItem, ViewComponentContext.Arguments);
         }
-        public abstract Task<IViewComponentResult> RenderAsync(T currentItem, IDictionary<string, object> argumets);
+        public abstract Task<IViewComponentResult> RenderAsync(T currentItem, IDictionary<string, object> arguments);
     }
 }

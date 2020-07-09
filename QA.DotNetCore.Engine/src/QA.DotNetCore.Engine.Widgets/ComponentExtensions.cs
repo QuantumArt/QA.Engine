@@ -16,7 +16,8 @@ namespace QA.DotNetCore.Engine.Widgets
 {
     public static class ComponentExtensions
     {
-        public static async Task<IHtmlContent> WidgetZone(this IViewComponentHelper helper, IHtmlHelper html, string zoneName, object arguments = null)
+        public static async Task<IHtmlContent> WidgetZone(this IViewComponentHelper helper, IHtmlHelper html,
+            string zoneName, IDictionary<string, object> arguments = null)
         {
             IEnumerable<IAbstractItem> widgets = null;
             if (ZoneIsGlobal(zoneName))
@@ -110,15 +111,16 @@ namespace QA.DotNetCore.Engine.Widgets
         }
 
 
-
         /// <summary>
         /// Рендеринг текста с зонами, объявленных в контенте в виде [[zone=имя_зоны]]
         /// </summary>
         /// <param name="helper"></param>
         /// <param name="componentHelper"></param>
         /// <param name="text"></param>
+        /// <param name="arguments"></param>
         /// <returns></returns>
-        public static async Task<IHtmlContent> RenderZonesInText(this IViewComponentHelper componentHelper, IHtmlHelper helper, string text)
+        public static async Task<IHtmlContent> RenderZonesInText(this IViewComponentHelper componentHelper,
+            IHtmlHelper helper, string text, IDictionary<string, object> arguments = null)
         {
             if (!zonesInTextRegex.IsMatch(text))
             {
@@ -139,7 +141,7 @@ namespace QA.DotNetCore.Engine.Widgets
 
                         if (!string.IsNullOrEmpty(zoneName) && !dictionary.ContainsKey(match.Value))
                         {
-                            var widgetContent = await componentHelper.WidgetZone(helper, zoneName);
+                            var widgetContent = await componentHelper.WidgetZone(helper, zoneName, arguments);
                             using (var sw = new StringWriter())
                             {
                                 widgetContent.WriteTo(sw, HtmlEncoder.Default);

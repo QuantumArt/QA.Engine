@@ -2,6 +2,7 @@ using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
 using System;
 using System.Linq;
+using QA.DotNetCore.Engine.Abstractions.Wildcard;
 
 namespace QA.DotNetCore.Engine.Widgets
 {
@@ -10,68 +11,47 @@ namespace QA.DotNetCore.Engine.Widgets
     /// </summary>
     public class WidgetFilter : BaseTargetingFilter
     {
-        string _zone;
-        string _url;
+        readonly string _zone;
+        readonly string _url;
 
         public WidgetFilter(string zone, string url)
         {
             _zone = zone;
-            _url = url;
+            _url = url.Trim('/');
         }
 
         public override bool Match(IAbstractItem item)
         {
             if (item.IsPage)
-                return true;
+                return false;
 
             IAbstractWidget widget = item as IAbstractWidget;
             if (widget == null)
-                return true;
-
-            if (!String.Equals(widget.ZoneName, _zone))
                 return false;
 
-            if (widget.AllowedUrlPatterns == null && widget.DeniedUrlPatterns == null)
+            if (!string.Equals(widget.ZoneName, _zone))
+                return false;
+
+            if ((widget.AllowedUrlPatterns == null || widget.AllowedUrlPatterns.Length == 0)
+                && (widget.DeniedUrlPatterns == null || widget.DeniedUrlPatterns.Length == 0))
                 return true;
 
-            if (widget.DeniedUrlPatterns != null)
+            if (widget.DeniedUrlPatterns != null && widget.DeniedUrlPatterns.Any())
             {
-                foreach (var pattern in widget.DeniedUrlPatterns)
-                {
-                    if (IsMatchPattern(_url, pattern))
-                        return false;
-                }
-            }
-
-            if (widget.AllowedUrlPatterns != null)
-            {
-                foreach (var pattern in widget.AllowedUrlPatterns)
-                {
-                    if (IsMatchPattern(_url, pattern))
-                        return true;
-                }
-
-                if (widget.AllowedUrlPatterns.Any())
+                var deniedMatcher = new WildcardMatcher(WildcardMatchingOption.FullMatch,
+                    widget.DeniedUrlPatterns.Select(p => p.Trim('/')));
+                if (deniedMatcher.Match(_url).Any())
                     return false;
             }
 
+            if (widget.AllowedUrlPatterns != null && widget.AllowedUrlPatterns.Any())
+            {
+                var allowedMatcher = new WildcardMatcher(WildcardMatchingOption.FullMatch,
+                    widget.AllowedUrlPatterns.Select(p => p.Trim('/')));
+                return allowedMatcher.Match(_url).Any();
+            }
+
             return true;
-        }
-
-        protected virtual bool IsMatchPattern(string url, string pattern)
-        {
-            if (pattern.EndsWith("*"))
-            {
-                var p = pattern.TrimEnd('*').TrimEnd('/').TrimStart('/');
-                return url.TrimEnd('/').TrimStart('/').ToLower().StartsWith(p.ToLower());
-            }
-            else
-            {
-                var u = url.TrimEnd('/').TrimStart('/');
-                var p = pattern.TrimEnd('/').TrimStart('/');
-
-                return u.Equals(p, StringComparison.InvariantCultureIgnoreCase);
-            }
         }
     }
 }

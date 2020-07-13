@@ -49,6 +49,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.QpData
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoSiteStructure.WebApi", "DemoSiteStructure.WebApi\DemoSiteStructure.WebApi.csproj", "{ED2EC00C-2CBA-4429-86D2-FB9EC2F5310E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QA.DotNetCore.Engine.Widgets.Tests", "QA.DotNetCore.Engine.Widgets.Tests\QA.DotNetCore.Engine.Widgets.Tests.csproj", "{120036F5-E1E7-4CCA-A21E-741C68DDA491}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QA.DotNetCore.Engine.Utils.Tests", "QA.DotNetCore.Engine.Utils.Tests\QA.DotNetCore.Engine.Utils.Tests.csproj", "{EF0796A3-0662-4113-8B77-886C1A944E42}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -143,6 +147,14 @@ Global
 		{ED2EC00C-2CBA-4429-86D2-FB9EC2F5310E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED2EC00C-2CBA-4429-86D2-FB9EC2F5310E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ED2EC00C-2CBA-4429-86D2-FB9EC2F5310E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{120036F5-E1E7-4CCA-A21E-741C68DDA491}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{120036F5-E1E7-4CCA-A21E-741C68DDA491}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{120036F5-E1E7-4CCA-A21E-741C68DDA491}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{120036F5-E1E7-4CCA-A21E-741C68DDA491}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF0796A3-0662-4113-8B77-886C1A944E42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF0796A3-0662-4113-8B77-886C1A944E42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF0796A3-0662-4113-8B77-886C1A944E42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF0796A3-0662-4113-8B77-886C1A944E42}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -151,6 +163,8 @@ Global
 		{560BB2EB-56C9-4FFF-9ACA-8E1A6CEE2375} = {643A033A-63A5-4D4C-9E66-28CFD52A21F4}
 		{BD6F164A-5AE2-46C5-AB3D-AFFDF901F3EF} = {643A033A-63A5-4D4C-9E66-28CFD52A21F4}
 		{B733BAA7-7EDC-464E-9C9C-744C7EDEB925} = {643A033A-63A5-4D4C-9E66-28CFD52A21F4}
+		{120036F5-E1E7-4CCA-A21E-741C68DDA491} = {643A033A-63A5-4D4C-9E66-28CFD52A21F4}
+		{EF0796A3-0662-4113-8B77-886C1A944E42} = {643A033A-63A5-4D4C-9E66-28CFD52A21F4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05B47769-EDD2-4180-A8DF-018E5283C45D}

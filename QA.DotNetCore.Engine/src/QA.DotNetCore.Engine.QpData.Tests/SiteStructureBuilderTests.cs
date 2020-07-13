@@ -314,7 +314,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             Assert.StartsWith(urlResolver.UrlForImage(siteId, abstractItemContentId, "Icon"), widget.Icon);
             Assert.EndsWith("123.png", widget.Icon);
 
-            //проверим, что в поле, содержащее плейсхолдер адреса библиотеки сайта подставился реальный адрес 
+            //проверим, что в поле, содержащее плейсхолдер адреса библиотеки сайта подставился реальный адрес
             Assert.Contains(urlResolver.UploadUrl(siteId), widget.Description);
             Assert.DoesNotContain(uploadUrlPlaceholder, widget.Description);
         }
@@ -553,6 +553,80 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             //проверим, что Stubpage создалась и в коллекции Details у неё то, что ожидается
             Assert.IsType<StubPage>(aiStorage.Get(3));
             Assert.Equal("bar", (aiStorage.Get(3) as StubPage).StubField);
+        }
+
+        [Fact]
+        public void StartPagePickingIsCorrect()
+        {
+            var extensionId = 777;
+            var aiRepositoryMoq = new Mock<IAbstractItemRepository>();
+
+            var metaInfoMoq = new Mock<IMetaInfoRepository>();
+            metaInfoMoq.Setup(x => x.GetContent(abstractItemNetName, siteId, null)).Returns(new ContentPersistentData
+            {
+                ContentId = abstractItemContentId,
+                ContentAttributes = new List<ContentAttributePersistentData>()
+            });
+
+            //корневая и 2 стартовых страницы, тип стартовой страницы подразумевает extension поля
+            var aiArray = new[] {
+                new AbstractItemPersistentData{ Id = 1, Title = "корневая страница", Alias = "root", Discriminator = typeof(RootPage).Name, IsPage = true, ParentId = null, ExtensionId = null },
+                new AbstractItemPersistentData{ Id = 2, Title = "стартовая страница 1", Alias = "start1", Discriminator = typeof(StartPage).Name, IsPage = true, ParentId = 1, ExtensionId = extensionId },
+                new AbstractItemPersistentData{ Id = 3, Title = "стартовая страница 2", Alias = "start2", Discriminator = typeof(StartPage).Name, IsPage = true, ParentId = 1, ExtensionId = extensionId }
+            };
+            aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteId, isStage, null)).Returns(aiArray);
+
+            //extension-поля стартовых страниц
+            var startPageBaseExt = new AbstractItemExtensionCollection();
+            startPageBaseExt.Add("DnsBinding", "*.quantumart.ru|quantumart.ru");
+            var startPageJobExt = new AbstractItemExtensionCollection();
+            startPageJobExt.Add("DnsBinding", "job.quantumart.ru|*.job.quantumart.ru");
+            var startPageExtDictionary = new Dictionary<int, AbstractItemExtensionCollection>
+            {
+                { 2, startPageBaseExt},
+                { 3, startPageJobExt}
+            };
+            aiRepositoryMoq.Setup(x => x.GetAbstractItemExtensionData(extensionId,
+                It.Is<IEnumerable<int>>(ids => ids.Count() == 2 && ids.Contains(2) && ids.Contains(3)),
+                It.IsAny<ContentPersistentData>(),
+                buildSettings.LoadAbstractItemFieldsToDetailsCollection,
+                buildSettings.IsStage,
+                null)).Returns(startPageExtDictionary);
+
+            //фабрика элементов структуры сайта
+            var aiFactoryMoq = new Mock<IAbstractItemFactory>();
+            aiFactoryMoq.Setup(x => x.Create(It.IsAny<string>())).Returns((string d) =>
+            {
+                if (d == typeof(RootPage).Name) return new RootPage();
+                if (d == typeof(StartPage).Name) return new StartPage();
+                return null;
+            });
+
+            var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
+                Mock.Of<IQpUrlResolver>(),
+                aiRepositoryMoq.Object,
+                metaInfoMoq.Object,
+                buildSettings,
+                Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
+
+            var aiStorage = builder.Build();
+
+            Assert.NotNull(aiStorage.GetStartPage("quantumart.ru"));
+            Assert.Equal("start1", aiStorage.GetStartPage("quantumart.ru").Alias);
+
+            Assert.NotNull(aiStorage.GetStartPage("test.quantumart.ru"));
+            Assert.Equal("start1", aiStorage.GetStartPage("test.quantumart.ru").Alias);
+
+            Assert.NotNull(aiStorage.GetStartPage("a.b.c.quantumart.ru"));
+            Assert.Equal("start1", aiStorage.GetStartPage("a.b.c.quantumart.ru").Alias);
+
+            Assert.NotNull(aiStorage.GetStartPage("job.quantumart.ru"));
+            Assert.Equal("start2", aiStorage.GetStartPage("job.quantumart.ru").Alias);
+
+            Assert.NotNull(aiStorage.GetStartPage("test.job.quantumart.ru"));
+            Assert.Equal("start2", aiStorage.GetStartPage("test.job.quantumart.ru").Alias);
+
+            Assert.Null(aiStorage.GetStartPage("unrecognized.ru"));
         }
     }
 }

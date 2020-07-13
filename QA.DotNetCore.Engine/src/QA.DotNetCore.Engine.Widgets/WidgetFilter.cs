@@ -17,7 +17,7 @@ namespace QA.DotNetCore.Engine.Widgets
         public WidgetFilter(string zone, string url)
         {
             _zone = zone;
-            _url = url.TrimEnd('/');
+            _url = url.Trim('/');
         }
 
         public override bool Match(IAbstractItem item)
@@ -38,14 +38,16 @@ namespace QA.DotNetCore.Engine.Widgets
 
             if (widget.DeniedUrlPatterns != null && widget.DeniedUrlPatterns.Any())
             {
-                var deniedMatcher = new WildcardMatcher(WildcardMatchingOption.FullMatch, widget.DeniedUrlPatterns);
+                var deniedMatcher = new WildcardMatcher(WildcardMatchingOption.FullMatch,
+                    widget.DeniedUrlPatterns.Select(p => p.Trim('/')));
                 if (deniedMatcher.Match(_url).Any())
                     return false;
             }
 
             if (widget.AllowedUrlPatterns != null && widget.AllowedUrlPatterns.Any())
             {
-                var allowedMatcher = new WildcardMatcher(WildcardMatchingOption.FullMatch, widget.AllowedUrlPatterns);
+                var allowedMatcher = new WildcardMatcher(WildcardMatchingOption.FullMatch,
+                    widget.AllowedUrlPatterns.Select(p => p.Trim('/')));
                 return allowedMatcher.Match(_url).Any();
             }
 

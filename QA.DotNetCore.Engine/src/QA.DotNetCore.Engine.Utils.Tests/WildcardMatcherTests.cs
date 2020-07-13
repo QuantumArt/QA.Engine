@@ -1,27 +1,19 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using NUnit.Framework;
 using QA.DotNetCore.Engine.Abstractions.Wildcard;
-using Xunit;
-using Xunit.Abstractions;
 
-namespace QA.DotNetCore.Engine.QpData.Tests
+namespace QA.DotNetCore.Engine.Utils.Tests
 {
     public class WildcardMatcherTests
     {
-        private readonly ITestOutputHelper _testOutputHelper;
-
-        public WildcardMatcherTests(ITestOutputHelper testOutputHelper)
-        {
-            _testOutputHelper = testOutputHelper;
-        }
-
         private static IWildcardMatcher Create(WildcardMatchingOption option, params string[] items)
         {
             return new WildcardMatcher(option, items);
         }
 
-        [Fact]
+        [Test]
         public void Test_WildCardMatcher()
         {
             var matcher = Create(WildcardMatchingOption.StartsWith, "bee.ru",
@@ -31,17 +23,17 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 "stage.*.ru",
                 "*");
 
-            Assert.Equal("*.bee.ru", matcher.MatchLongest("msc.bee.ru"));
-            Assert.Equal("stage.bee.ru", matcher.MatchLongest("stage.bee.ru"));
-            Assert.Equal("*.bee.ru", matcher.MatchLongest("msc.bee.ru"));
-            Assert.Equal("stage.*.ru", matcher.MatchLongest("stage.123.ru"));
-            Assert.Equal("stage.*.ru", matcher.MatchLongest("stage.1232344.ru"));
-            Assert.Equal("*.bee.ru", matcher.MatchLongest("msc.bee.ru"));
-            Assert.Equal("*", matcher.MatchLongest("ee.ru"));
-            Assert.Equal("*.bee.ru", matcher.MatchLongest("moskovskaya-obl.bee.ru"));
+            Assert.AreEqual("*.bee.ru", matcher.MatchLongest("msc.bee.ru"));
+            Assert.AreEqual("stage.bee.ru", matcher.MatchLongest("stage.bee.ru"));
+            Assert.AreEqual("*.bee.ru", matcher.MatchLongest("msc.bee.ru"));
+            Assert.AreEqual("stage.*.ru", matcher.MatchLongest("stage.123.ru"));
+            Assert.AreEqual("stage.*.ru", matcher.MatchLongest("stage.1232344.ru"));
+            Assert.AreEqual("*.bee.ru", matcher.MatchLongest("msc.bee.ru"));
+            Assert.AreEqual("*", matcher.MatchLongest("ee.ru"));
+            Assert.AreEqual("*.bee.ru", matcher.MatchLongest("moskovskaya-obl.bee.ru"));
         }
 
-        [Fact]
+        [Test]
         public void Test_WildCardMatcher_BatchBench()
         {
             var matcher = Create(WildcardMatchingOption.FullMatch, "bee.ru",
@@ -58,7 +50,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             }
         }
 
-        [Fact]
+        [Test]
         public void Test_WildCardMatcher_Issue01_Incorrect()
         {
             var matcher = Create(WildcardMatchingOption.FullMatch,
@@ -67,14 +59,14 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 "stage.bee.ru"
             );
 
-            Assert.Equal("*.bee.ru", matcher.MatchLongest("msc.bee.ru"));
-            Assert.Equal("*.bee.ru", matcher.MatchLongest("www.bee.ru"));
+            Assert.AreEqual("*.bee.ru", matcher.MatchLongest("msc.bee.ru"));
+            Assert.AreEqual("*.bee.ru", matcher.MatchLongest("www.bee.ru"));
             Assert.Null(matcher.MatchLongest("bee.ru.artq.com"));
 
         }
 
 
-        [Fact]
+        [Test]
         public void Test_WildCardMatcher_Issue02_Incorrect_one_letter()
         {
             var matcher = Create(WildcardMatchingOption.FullMatch,
@@ -83,12 +75,12 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 "f.bee.ru"
             );
 
-            Assert.Equal("*.bee.ru", matcher.MatchLongest("msc.bee.ru"));
-            Assert.Equal("f.bee.ru", matcher.MatchLongest("f.bee.ru"));
+            Assert.AreEqual("*.bee.ru", matcher.MatchLongest("msc.bee.ru"));
+            Assert.AreEqual("f.bee.ru", matcher.MatchLongest("f.bee.ru"));
             Assert.Null(matcher.MatchLongest("bee.ru.artq.com"));
         }
 
-        [Fact]
+        [Test]
         public void Test_WildCardMatcher_UrlPatterns()
         {
             var matcher = Create(WildcardMatchingOption.FullMatch,

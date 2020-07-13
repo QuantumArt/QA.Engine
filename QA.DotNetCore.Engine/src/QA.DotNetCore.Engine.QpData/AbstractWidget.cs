@@ -22,12 +22,12 @@ namespace QA.DotNetCore.Engine.QpData
             }
         }
 
-        public string ZoneName { get; private set; }
+        public virtual string ZoneName { get; protected set; }
 
         public virtual string[] AllowedUrlPatterns
         {
             get
-            { 
+            {
                 return _lazyAllowedUrlPatterns.Value;
             }
         }

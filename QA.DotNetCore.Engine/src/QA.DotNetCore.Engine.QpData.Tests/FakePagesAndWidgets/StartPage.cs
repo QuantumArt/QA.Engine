@@ -12,7 +12,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests.FakePagesAndWidgets
 
         public string[] GetDNSBindings()
         {
-            throw new NotImplementedException();
+            return DnsBinding.Split('|');
         }
     }
 }

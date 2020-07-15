@@ -2,13 +2,13 @@
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.1;netstandard2.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.5.6</Version>
+    <Version>1.5.7</Version>
     <Authors>Grigorenko Paul, Karlov Nickolay</Authors>
     <Company>Quantum Art</Company>
     <Description>Provides routing features for site structure engine.</Description>
-    <Copyright>Copyright Р вЂ™Р’В© 2020 Quantum Art</Copyright>
-    <AssemblyVersion>1.5.6.0</AssemblyVersion>
-    <FileVersion>1.5.6.0</FileVersion>
+    <Copyright>Copyright Р В РІР‚в„ўР вЂ™Р’В© 2020 Quantum Art</Copyright>
+    <AssemblyVersion>1.5.7.0</AssemblyVersion>
+    <FileVersion>1.5.7.0</FileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
     <NoWarn>1701;1702;1705;1591</NoWarn>

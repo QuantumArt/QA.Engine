@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 
 namespace QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching
@@ -25,7 +24,6 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching
             var patterns = controllerKey == null ?
                 new List<TailUrlMatchingPattern>() :
                 UrlTokenConfig.TailPatternsByControllers[controllerKey];
-            patterns.Add(UrlTokenConfig.DefaultTailPattern);
 
             foreach (var pattern in patterns)
             {
@@ -36,6 +34,12 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching
                 }
             }
 
+            if (UrlTokenConfig.DefaultTailPattern != null)
+            {
+                var defaultPatternMatch = UrlTokenConfig.DefaultTailPattern.Match(tail);
+                if (defaultPatternMatch.IsMatch)
+                    return defaultPatternMatch.Values.ToDictionary(kvp => kvp.Key, kvp => (object)kvp.Value);
+            }
             return new Dictionary<string, object>();
         }
     }

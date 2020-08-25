@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using QA.DotNetCore.Engine.Abstractions.OnScreen;
 using System;
 
@@ -33,6 +34,14 @@ namespace QA.DotNetCore.Engine.OnScreen.Configuration
         /// Время жизни куки, в которой хранится информация об аутентификации onscreen
         /// </summary>
         public TimeSpan AuthCookieLifetime { get; set; }
+        /// <summary>
+        /// Настройка samesite для куки, в которой хранится информация об аутентификации onscreen
+        /// </summary>
+        public SameSiteMode AuthCookieSameSiteMode { get; set; }
+        /// <summary>
+        /// Настройка secure для куки, в которой хранится информация об аутентификации onscreen
+        /// </summary>
+        public CookieSecurePolicy AuthCookieSecurePolicy { get; set; }
         /// <summary>
         /// Имя query-параметра с backend_sid, который создаёт QP для custom action, открытых через фрейм
         /// </summary>

@@ -57,7 +57,13 @@ namespace QA.DotNetCore.Engine.OnScreen
                     var auth = authenticationService.Authenticate(sid, onScreenSettings.AuthCookieLifetime, onScreenSettings.ApiApplicationNameInQp); //пока что никак не обрабатываем возможные исключения при аутентификации в QP
                     if (auth != null) //null может быть в случае некорректного/несуществующего sid
                     {
-                        httpContext.Response.Cookies.Append(onScreenSettings.AuthCookieName, auth.Token.ToString(), new CookieOptions { Expires = new DateTimeOffset(DateTime.Now.Add(onScreenSettings.AuthCookieLifetime)), SameSite = SameSiteMode.None });
+                        var cookieBuilder = new CookieBuilder
+                        {
+                            Expiration = onScreenSettings.AuthCookieLifetime,
+                            SecurePolicy = onScreenSettings.AuthCookieSecurePolicy,
+                            SameSite = onScreenSettings.AuthCookieSameSiteMode
+                        };
+                        httpContext.Response.Cookies.Append(onScreenSettings.AuthCookieName, auth.Token.ToString(), cookieBuilder.Build(httpContext));
                         context.User = new OnScreenUser { UserId = auth.UserId, ExpirationDate = auth.ExpirationDate };
                     }
                 }

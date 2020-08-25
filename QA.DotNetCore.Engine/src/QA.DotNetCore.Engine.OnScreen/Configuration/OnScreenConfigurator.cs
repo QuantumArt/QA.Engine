@@ -37,6 +37,8 @@ namespace QA.DotNetCore.Engine.OnScreen.Configuration
                 ApiApplicationNameInQp = options.ApiApplicationNameInQp,
                 AuthCookieName = options.AuthCookieName,
                 AuthCookieLifetime = options.AuthCookieLifetime,
+                AuthCookieSameSiteMode = options.AuthCookieSameSiteMode,
+                AuthCookieSecurePolicy = options.AuthCookieSecurePolicy,
                 AvailableFeatures = options.AvailableFeatures,
                 BackendSidQueryKey = options.BackendSidQueryKey,
                 OverrideAbTestStageModeCookieName = options.OverrideAbTestStageModeCookieName,

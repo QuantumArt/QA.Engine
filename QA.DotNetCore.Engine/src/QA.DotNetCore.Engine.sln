@@ -39,19 +39,23 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.Xml", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.Xml.Configuration", "QA.DotNetCore.Engine.Xml.Configuration\QA.DotNetCore.Engine.Xml.Configuration.csproj", "{A5A5CE3C-EF3F-475F-8EA1-130603970766}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{643A033A-63A5-4D4C-9E66-28CFD52A21F4}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTests", "UnitTests", "{643A033A-63A5-4D4C-9E66-28CFD52A21F4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.Routing.Tests", "QA.DotNetCore.Engine.Routing.Tests\QA.DotNetCore.Engine.Routing.Tests.csproj", "{560BB2EB-56C9-4FFF-9ACA-8E1A6CEE2375}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.Persistent.Dapper.Tests", "QA.DotNetCore.Engine.Persistent.Dapper.Tests\QA.DotNetCore.Engine.Persistent.Dapper.Tests.csproj", "{BD6F164A-5AE2-46C5-AB3D-AFFDF901F3EF}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.QpData.Tests", "QA.DotNetCore.Engine.QpData.Tests\QA.DotNetCore.Engine.QpData.Tests.csproj", "{B733BAA7-7EDC-464E-9C9C-744C7EDEB925}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoSiteStructure.WebApi", "DemoSiteStructure.WebApi\DemoSiteStructure.WebApi.csproj", "{ED2EC00C-2CBA-4429-86D2-FB9EC2F5310E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemoSiteStructure.WebApi", "DemoSiteStructure.WebApi\DemoSiteStructure.WebApi.csproj", "{ED2EC00C-2CBA-4429-86D2-FB9EC2F5310E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QA.DotNetCore.Engine.Widgets.Tests", "QA.DotNetCore.Engine.Widgets.Tests\QA.DotNetCore.Engine.Widgets.Tests.csproj", "{120036F5-E1E7-4CCA-A21E-741C68DDA491}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.Widgets.Tests", "QA.DotNetCore.Engine.Widgets.Tests\QA.DotNetCore.Engine.Widgets.Tests.csproj", "{120036F5-E1E7-4CCA-A21E-741C68DDA491}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QA.DotNetCore.Engine.Utils.Tests", "QA.DotNetCore.Engine.Utils.Tests\QA.DotNetCore.Engine.Utils.Tests.csproj", "{EF0796A3-0662-4113-8B77-886C1A944E42}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.Utils.Tests", "QA.DotNetCore.Engine.Utils.Tests\QA.DotNetCore.Engine.Utils.Tests.csproj", "{EF0796A3-0662-4113-8B77-886C1A944E42}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IntegrationTests", "IntegrationTests", "{71743891-E4AA-4F47-8499-57980637F53A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.Persistent.Dapper.Tests", "IntegrationTests\QA.DotNetCore.Engine.Persistent.Dapper.Tests\QA.DotNetCore.Engine.Persistent.Dapper.Tests.csproj", "{D955E0B5-3CF6-43EC-B3C6-A137714AE799}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{A66C4C11-6253-46DD-8A7B-459C039EF942}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -135,10 +139,6 @@ Global
 		{560BB2EB-56C9-4FFF-9ACA-8E1A6CEE2375}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{560BB2EB-56C9-4FFF-9ACA-8E1A6CEE2375}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{560BB2EB-56C9-4FFF-9ACA-8E1A6CEE2375}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BD6F164A-5AE2-46C5-AB3D-AFFDF901F3EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BD6F164A-5AE2-46C5-AB3D-AFFDF901F3EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BD6F164A-5AE2-46C5-AB3D-AFFDF901F3EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BD6F164A-5AE2-46C5-AB3D-AFFDF901F3EF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B733BAA7-7EDC-464E-9C9C-744C7EDEB925}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B733BAA7-7EDC-464E-9C9C-744C7EDEB925}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B733BAA7-7EDC-464E-9C9C-744C7EDEB925}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -155,16 +155,23 @@ Global
 		{EF0796A3-0662-4113-8B77-886C1A944E42}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF0796A3-0662-4113-8B77-886C1A944E42}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF0796A3-0662-4113-8B77-886C1A944E42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D955E0B5-3CF6-43EC-B3C6-A137714AE799}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D955E0B5-3CF6-43EC-B3C6-A137714AE799}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D955E0B5-3CF6-43EC-B3C6-A137714AE799}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D955E0B5-3CF6-43EC-B3C6-A137714AE799}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{A0212365-C4B9-4FD1-94EB-D1BA66793FD3} = {A66C4C11-6253-46DD-8A7B-459C039EF942}
+		{501A549A-12A8-4044-BE11-203173417FB2} = {A66C4C11-6253-46DD-8A7B-459C039EF942}
 		{560BB2EB-56C9-4FFF-9ACA-8E1A6CEE2375} = {643A033A-63A5-4D4C-9E66-28CFD52A21F4}
-		{BD6F164A-5AE2-46C5-AB3D-AFFDF901F3EF} = {643A033A-63A5-4D4C-9E66-28CFD52A21F4}
 		{B733BAA7-7EDC-464E-9C9C-744C7EDEB925} = {643A033A-63A5-4D4C-9E66-28CFD52A21F4}
+		{ED2EC00C-2CBA-4429-86D2-FB9EC2F5310E} = {A66C4C11-6253-46DD-8A7B-459C039EF942}
 		{120036F5-E1E7-4CCA-A21E-741C68DDA491} = {643A033A-63A5-4D4C-9E66-28CFD52A21F4}
 		{EF0796A3-0662-4113-8B77-886C1A944E42} = {643A033A-63A5-4D4C-9E66-28CFD52A21F4}
+		{D955E0B5-3CF6-43EC-B3C6-A137714AE799} = {71743891-E4AA-4F47-8499-57980637F53A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05B47769-EDD2-4180-A8DF-018E5283C45D}

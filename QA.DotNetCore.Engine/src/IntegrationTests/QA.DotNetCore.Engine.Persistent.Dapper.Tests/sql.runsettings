@@ -6,6 +6,6 @@
   <!-- Parameters used by tests at runtime -->
   <TestRunParameters>
     <Parameter name="wp_test_ci_dbserver" value="#{sql.server}#" />
-    <Parameter name="wp_test_ci_dbname" value="qp8_test_ci_#{Agent.Name}#" />
+    <Parameter name="wp_test_ci_dbname" value="qa_widgetplatform_test_ci_#{Agent.Name}#" />
   </TestRunParameters>
 </RunSettings>

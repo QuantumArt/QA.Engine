@@ -5,19 +5,22 @@ using System;
 using QA.DotNetCore.Engine.Persistent.Dapper;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
     public class AbstractItemRepository : IAbstractItemRepository
     {
-        private readonly IUnitOfWork _uow;
+        private readonly IServiceProvider _serviceProvider;
         private readonly INetNameQueryAnalyzer _netNameQueryAnalyzer;
 
-        public AbstractItemRepository(IUnitOfWork uow, INetNameQueryAnalyzer netNameQueryAnalyzer)
+        public AbstractItemRepository(IServiceProvider serviceProvider, INetNameQueryAnalyzer netNameQueryAnalyzer)
         {
-            _uow = uow;
+            _serviceProvider = serviceProvider;
             _netNameQueryAnalyzer = netNameQueryAnalyzer;
         }
+
+        protected IUnitOfWork UnitOfWork { get { return _serviceProvider.GetRequiredService<IUnitOfWork>(); } }
 
         //запрос с использованием NetName таблиц и столбцов
         private const string CmdGetAbstractItem = @"
@@ -41,7 +44,7 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
         public IEnumerable<AbstractItemPersistentData> GetPlainAllAbstractItems(int siteId, bool isStage, IDbTransaction transaction = null)
         {
             var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAbstractItem, siteId, isStage);
-            return _uow.Connection.Query<AbstractItemPersistentData>(query, transaction);
+            return UnitOfWork.Connection.Query<AbstractItemPersistentData>(query, transaction);
         }
 
         public IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionContentId,
@@ -50,18 +53,18 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
             bool loadAbstractItemFields, bool isStage, IDbTransaction transaction = null)
         {
             var extTableName = QpTableNameHelper.GetTableName(extensionContentId, isStage);
-            var idListTable = SqlQuerySyntaxHelper.IdList(_uow.DatabaseType, "@ids", "ids");
-            var withNoLock = SqlQuerySyntaxHelper.WithNoLock(_uow.DatabaseType);
+            var idListTable = SqlQuerySyntaxHelper.IdList(UnitOfWork.DatabaseType, "@ids", "ids");
+            var withNoLock = SqlQuerySyntaxHelper.WithNoLock(UnitOfWork.DatabaseType);
 
             var extFieldsQuery =
                 $@"SELECT * FROM {extTableName} ext {withNoLock}
                     INNER JOIN {idListTable} on Id = ext.itemid
                     {(loadAbstractItemFields ? $"INNER JOIN {baseContent.GetTableName(isStage)} ai on ai.Content_item_id = ext.itemid" : "")}";
 
-            using (var command = _uow.Connection.CreateCommand())
+            using (var command = UnitOfWork.Connection.CreateCommand())
             {
                 command.CommandText = extFieldsQuery;
-                command.Parameters.Add(SqlQuerySyntaxHelper.GetIdsDatatableParam("@Ids", ids, _uow.DatabaseType));
+                command.Parameters.Add(SqlQuerySyntaxHelper.GetIdsDatatableParam("@Ids", ids, UnitOfWork.DatabaseType));
                 command.Transaction = transaction;
                 return LoadAbstractItemExtension(command);
             }
@@ -71,17 +74,17 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
             ContentPersistentData baseContent,
             bool isStage, IDbTransaction transaction = null)
         {
-            var idListTable = SqlQuerySyntaxHelper.IdList(_uow.DatabaseType, "@ids", "ids");
-            var withNoLock = SqlQuerySyntaxHelper.WithNoLock(_uow.DatabaseType);
+            var idListTable = SqlQuerySyntaxHelper.IdList(UnitOfWork.DatabaseType, "@ids", "ids");
+            var withNoLock = SqlQuerySyntaxHelper.WithNoLock(UnitOfWork.DatabaseType);
 
             string extFieldsQuery =
                 $@"SELECT * FROM {baseContent.GetTableName(isStage)} ai {withNoLock}
                     INNER JOIN {idListTable} on Id = ai.Content_item_id";
 
-            using (var command = _uow.Connection.CreateCommand())
+            using (var command = UnitOfWork.Connection.CreateCommand())
             {
                 command.CommandText = extFieldsQuery;
-                command.Parameters.Add(SqlQuerySyntaxHelper.GetIdsDatatableParam("@Ids", ids, _uow.DatabaseType));
+                command.Parameters.Add(SqlQuerySyntaxHelper.GetIdsDatatableParam("@Ids", ids, UnitOfWork.DatabaseType));
                 command.Transaction = transaction;
                 return LoadAbstractItemExtension(command);
             }
@@ -119,18 +122,18 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
         public IDictionary<int, M2mRelations> GetManyToManyData(IEnumerable<int> ids, bool isStage, IDbTransaction transaction = null)
         {
             var m2MTableName = QpTableNameHelper.GetM2MTableName(isStage);
-            var idListTable = SqlQuerySyntaxHelper.IdList(_uow.DatabaseType, "@ids", "ids");
-            var withNoLock = SqlQuerySyntaxHelper.WithNoLock(_uow.DatabaseType);
+            var idListTable = SqlQuerySyntaxHelper.IdList(UnitOfWork.DatabaseType, "@ids", "ids");
+            var withNoLock = SqlQuerySyntaxHelper.WithNoLock(UnitOfWork.DatabaseType);
 
             var query = $@"
                 SELECT link_id, item_id, linked_item_id
                 FROM {m2MTableName} link {withNoLock}
                 INNER JOIN {idListTable} on Id = link.item_id";
 
-            using (var command = _uow.Connection.CreateCommand())
+            using (var command = UnitOfWork.Connection.CreateCommand())
             {
                 command.CommandText = query;
-                command.Parameters.Add(SqlQuerySyntaxHelper.GetIdsDatatableParam("@Ids", ids, _uow.DatabaseType));
+                command.Parameters.Add(SqlQuerySyntaxHelper.GetIdsDatatableParam("@Ids", ids, UnitOfWork.DatabaseType));
                 command.Transaction = transaction;
                 var result = new Dictionary<int, M2mRelations>();
 

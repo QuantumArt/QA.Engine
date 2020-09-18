@@ -4,19 +4,23 @@ using QA.DotNetCore.Engine.Persistent.Interfaces;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
     public class ItemDefinitionRepository : IItemDefinitionRepository
     {
-        private readonly IDbConnection _connection;
+        private readonly IServiceProvider _serviceProvider;
         private readonly INetNameQueryAnalyzer _netNameQueryAnalyzer;
 
-        public ItemDefinitionRepository(IUnitOfWork uow, INetNameQueryAnalyzer netNameQueryAnalyzer)
+        public ItemDefinitionRepository(IServiceProvider serviceProvider, INetNameQueryAnalyzer netNameQueryAnalyzer)
         {
-            _connection = uow.Connection;
+            _serviceProvider = serviceProvider;
             _netNameQueryAnalyzer = netNameQueryAnalyzer;
         }
+
+        protected IUnitOfWork UnitOfWork { get { return _serviceProvider.GetRequiredService<IUnitOfWork>(); } }
 
         private const string CmdGetAll = @"
 SELECT
@@ -36,7 +40,7 @@ FROM |QPDiscriminator|
         public IEnumerable<ItemDefinitionPersistentData> GetAllItemDefinitions(int siteId, bool isStage, IDbTransaction transaction = null)
         {
             var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAll, siteId, isStage);
-            return _connection.Query<ItemDefinitionPersistentData>(query, transaction).ToList();
+            return UnitOfWork.Connection.Query<ItemDefinitionPersistentData>(query, transaction).ToList();
         }
     }
 }

@@ -1,6 +1,8 @@
 using Dapper;
+using Microsoft.Extensions.DependencyInjection;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using System;
 using System.Collections.Generic;
 using System.Data;
 
@@ -8,12 +10,14 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper
 {
     public class ContentModificationRepository : IContentModificationRepository
     {
-        private readonly IDbConnection _connection;
+        private readonly IServiceProvider _serviceProvider;
 
-        public ContentModificationRepository(IUnitOfWork uow)
+        public ContentModificationRepository(IServiceProvider serviceProvider)
         {
-            _connection = uow.Connection;
+            _serviceProvider = serviceProvider;
         }
+
+        protected IUnitOfWork UnitOfWork { get { return _serviceProvider.GetRequiredService<IUnitOfWork>(); } }
 
         private const string CmdGetAll = @"
 SELECT
@@ -27,7 +31,7 @@ INNER JOIN CONTENT c on c.CONTENT_ID = cm.CONTENT_ID";
 
         public IEnumerable<QpContentModificationPersistentData> GetAll(IDbTransaction transaction = null)
         {
-            return _connection.Query<QpContentModificationPersistentData>(CmdGetAll, transaction);
+            return UnitOfWork.Connection.Query<QpContentModificationPersistentData>(CmdGetAll, transaction);
         }
     }
 }

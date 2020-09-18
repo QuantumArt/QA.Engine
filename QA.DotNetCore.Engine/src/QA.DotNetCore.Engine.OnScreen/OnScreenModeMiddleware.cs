@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using QA.DotNetCore.Engine.Abstractions.OnScreen;
 using QA.DotNetCore.Engine.OnScreen.Configuration;
 
@@ -17,16 +18,21 @@ namespace QA.DotNetCore.Engine.OnScreen
             _customerCode = customerCode;
         }
 
-        public Task Invoke(HttpContext httpContext, OnScreenSettings onScreenSettings, Quantumart.QPublishing.Authentication.IAuthenticationService authenticationService)
+        public Task Invoke(HttpContext httpContext, OnScreenSettings onScreenSettings, IServiceProvider serviceProvider)
         {
             //установим для запроса контекст OnScreen
-            SetContext(httpContext, onScreenSettings, authenticationService);
+            SetContext(httpContext, onScreenSettings, serviceProvider);
 
             // Call the next delegate/middleware in the pipeline
             return _next(httpContext);
         }
 
-        private void SetContext(HttpContext httpContext, OnScreenSettings onScreenSettings, Quantumart.QPublishing.Authentication.IAuthenticationService authenticationService)
+        public Quantumart.QPublishing.Authentication.IAuthenticationService GetAuthenticationService(IServiceProvider serviceProvider)
+        {
+            return serviceProvider.GetRequiredService<Quantumart.QPublishing.Authentication.IAuthenticationService>();
+        }
+
+        private void SetContext(HttpContext httpContext, OnScreenSettings onScreenSettings, IServiceProvider serviceProvider)
         {
             var context = new OnScreenContext { Features = onScreenSettings.AvailableFeatures, SkipWidgetTypes = onScreenSettings.SkipWidgetTypes };
             context.CustomerCode = _customerCode;
@@ -42,7 +48,7 @@ namespace QA.DotNetCore.Engine.OnScreen
                 if (token != null)
                 {
                     //если в куках есть токен авторизации - проверим его
-                    var auth = authenticationService.Authenticate(new Guid(token), onScreenSettings.ApiApplicationNameInQp); //пока что никак не обрабатываем возможные исключения при аутентификации в QP
+                    var auth = GetAuthenticationService(serviceProvider).Authenticate(new Guid(token), onScreenSettings.ApiApplicationNameInQp); //пока что никак не обрабатываем возможные исключения при аутентификации в QP
                     tokenInvalid = auth == null;
                     if (auth != null) //null может быть в случае несуществующего/просроченного токена
                     {
@@ -54,7 +60,7 @@ namespace QA.DotNetCore.Engine.OnScreen
                 {
                     //если в query есть backend_sid, а токен авторизации в куки не сохранен или мы проверили его и он невалиден
                     //проведем аутентификацию по backend_sid. сохраним результат в куки
-                    var auth = authenticationService.Authenticate(sid, onScreenSettings.AuthCookieLifetime, onScreenSettings.ApiApplicationNameInQp); //пока что никак не обрабатываем возможные исключения при аутентификации в QP
+                    var auth = GetAuthenticationService(serviceProvider).Authenticate(sid, onScreenSettings.AuthCookieLifetime, onScreenSettings.ApiApplicationNameInQp); //пока что никак не обрабатываем возможные исключения при аутентификации в QP
                     if (auth != null) //null может быть в случае некорректного/несуществующего sid
                     {
                         var cookieBuilder = new CookieBuilder

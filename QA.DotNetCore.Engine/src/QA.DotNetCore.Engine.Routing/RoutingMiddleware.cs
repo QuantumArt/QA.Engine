@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Http;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.Routing.Exceptions;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,23 +22,7 @@ namespace QA.DotNetCore.Engine.Routing
         {
             CancellationToken cancellationToken = context?.RequestAborted ?? CancellationToken.None;
 
-            AbstractItemStorage abstractItems = null;
-#if DEBUG
-            int repeatCount = 0;
-#endif
-
-            while (abstractItems is null)
-            {
-#if DEBUG
-                repeatCount++;
-                if (repeatCount > 12)
-                    throw new TooManyAttemptsToBuildSiteStructureException();
-#endif
-                abstractItems = provider.Get();
-
-                if (abstractItems is null)
-                    Thread.Sleep(TimeSpan.FromSeconds(5));
-            }
+            AbstractItemStorage abstractItems = provider.Get();
 
             if (cancellationToken.IsCancellationRequested)
                 return Task.CompletedTask;

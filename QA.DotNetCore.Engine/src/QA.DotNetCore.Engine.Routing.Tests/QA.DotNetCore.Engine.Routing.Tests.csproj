@@ -15,6 +15,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\QA.DotNetCore.Engine.Abstractions\QA.DotNetCore.Engine.Abstractions.csproj" />
+    <ProjectReference Include="..\QA.DotNetCore.Engine.Persistent.Interfaces\QA.DotNetCore.Engine.Persistent.Interfaces.csproj" />
+    <ProjectReference Include="..\QA.DotNetCore.Engine.QpData.Tests\QA.DotNetCore.Engine.QpData.Tests.csproj" />
+    <ProjectReference Include="..\QA.DotNetCore.Engine.QpData\QA.DotNetCore.Engine.QpData.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Routing\QA.DotNetCore.Engine.Routing.csproj" />
   </ItemGroup>
 

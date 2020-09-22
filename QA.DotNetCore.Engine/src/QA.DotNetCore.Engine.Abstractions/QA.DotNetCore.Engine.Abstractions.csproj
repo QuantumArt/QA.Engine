@@ -1,11 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
-    <Version>1.5.9</Version>
+    <Version>1.5.10</Version>
     <Authors>Grigorenko Paul, Karlov Nickolay</Authors>
     <Company>Quantum Art</Company>
     <AssemblyVersion>1.5.9.0</AssemblyVersion>
     <FileVersion>1.5.9.0</FileVersion>
+    <AssemblyVersion>1.5.10.0</AssemblyVersion>
+    <FileVersion>1.5.10.0</FileVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description>Provides abstractions for site structure engine.</Description>
     <Copyright>Copyright © 2020 Quantum Art</Copyright>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

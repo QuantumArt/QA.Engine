@@ -1,3 +1,6 @@
+using QA.DotNetCore.Engine.Abstractions;
+using System;
+
 namespace QA.DotNetCore.Engine.QpData.Settings
 {
     /// <summary>
@@ -25,5 +28,10 @@ namespace QA.DotNetCore.Engine.QpData.Settings
         /// Загружать ли в коллекцию Details поля основного контента AbstractItem
         /// </summary>
         public bool LoadAbstractItemFieldsToDetailsCollection { get; set; }
+
+        /// <summary>
+        /// Таймаут ожидания потоков, при получении <see cref="AbstractItemStorage"/> из кеша
+        /// </summary>
+        public TimeSpan CacheFetchTimeoutAbstractItemStorage { get; set; }
     }
 }

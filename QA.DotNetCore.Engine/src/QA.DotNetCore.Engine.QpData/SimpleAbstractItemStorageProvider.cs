@@ -1,4 +1,3 @@
-using QA.DotNetCore.Caching.Exceptions;
 using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.QpData.Interfaces;
@@ -43,7 +42,7 @@ namespace QA.DotNetCore.Engine.QpData
                 .Where(t => t != null)
                 .ToArray();
 
-            return _cacheProvider.GetOrAdd(cacheKey, cacheTags, _cacheSettings.SiteStructureCachePeriod, BuildStorage, TimeSpan.FromMinutes(2));
+            return _cacheProvider.GetOrAdd(cacheKey, cacheTags, _cacheSettings.SiteStructureCachePeriod, BuildStorage, _buildSettings.CacheFetchTimeoutAbstractItemStorage);
         }
 
         private AbstractItemStorage BuildStorage()

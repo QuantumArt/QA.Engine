@@ -6,8 +6,6 @@
     <Company>Quantum Art</Company>
     <Description>Provides ITypeFinder implemetations for .Net Core.</Description>
     <Copyright>Copyright © 2020 Quantum Art</Copyright>
-    <AssemblyVersion>1.5.9.0</AssemblyVersion>
-    <FileVersion>1.5.9.0</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

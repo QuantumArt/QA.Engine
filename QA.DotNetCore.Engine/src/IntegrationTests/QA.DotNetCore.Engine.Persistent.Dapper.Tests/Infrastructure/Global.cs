@@ -1,4 +1,7 @@
 using System;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 
 namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure
@@ -28,5 +31,12 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure
         public static string DbType => !String.IsNullOrEmpty(EnvHelpers.PgDbLoginToRunTests) ? "pg" : "mssql";
 
         public static UnitOfWork CreateConnection => new UnitOfWork(ConnectionString, DbType);
+
+        public static IServiceProvider CreateMockServiceProviderWithConnection()
+        {
+            var mockServiceProvider = new Mock<IServiceProvider>();
+            mockServiceProvider.Setup(sp => sp.GetService(typeof(IUnitOfWork))).Returns(CreateConnection);
+            return mockServiceProvider.Object;
+        }
     }
 }

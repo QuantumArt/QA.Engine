@@ -8,15 +8,15 @@ namespace Tests
     {
         private AbstractItemRepository _repository;
         private MetaInfoRepository _metaRepo;
-        private UnitOfWork _connection;
 
         [SetUp]
         public void Setup()
         {
-            _connection = Global.CreateConnection;
-            _metaRepo = new MetaInfoRepository(_connection);
+            var serviceProvider = Global.CreateMockServiceProviderWithConnection();
+
+            _metaRepo = new MetaInfoRepository(serviceProvider);
             var sqlAnalyzer = new NetNameQueryAnalyzer(_metaRepo);
-            _repository = new AbstractItemRepository(_connection, sqlAnalyzer);
+            _repository = new AbstractItemRepository(serviceProvider, sqlAnalyzer);
         }
 
         [Test]

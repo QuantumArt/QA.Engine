@@ -1,4 +1,3 @@
-using System.Linq;
 using NUnit.Framework;
 using QA.DotNetCore.Engine.Persistent.Dapper;
 using QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure;
@@ -9,15 +8,15 @@ namespace Tests
     public class AbTestRepositoryTests
     {
         private AbTestRepository _repository;
-        private UnitOfWork _connection;
 
         [SetUp]
         public void Setup()
         {
-            _connection = Global.CreateConnection;
-            var metaRepository = new MetaInfoRepository(_connection);
+            var serviceProvider = Global.CreateMockServiceProviderWithConnection();
+
+            var metaRepository = new MetaInfoRepository(serviceProvider);
             var sqlAnalyzer = new NetNameQueryAnalyzer(metaRepository);
-            _repository = new AbTestRepository(_connection, sqlAnalyzer);
+            _repository = new AbTestRepository(serviceProvider, sqlAnalyzer);
         }
 
         [Test]

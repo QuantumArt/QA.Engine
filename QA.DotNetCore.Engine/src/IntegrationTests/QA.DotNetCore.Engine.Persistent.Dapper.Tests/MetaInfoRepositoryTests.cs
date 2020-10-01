@@ -7,13 +7,13 @@ namespace Tests
     public class MetaInfoRepositoryTests
     {
         private MetaInfoRepository _repository;
-        private UnitOfWork _connection;
 
         [SetUp]
         public void Setup()
         {
-            _connection = Global.CreateConnection;
-            _repository = new MetaInfoRepository(_connection);
+            var serviceProvider = Global.CreateMockServiceProviderWithConnection();
+
+            _repository = new MetaInfoRepository(serviceProvider);
         }
 
         [Test]

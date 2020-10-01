@@ -9,15 +9,15 @@ namespace Tests
     public class ItemDefinitionRepositoryTests
     {
         private ItemDefinitionRepository _repository;
-        private UnitOfWork _connection;
 
         [SetUp]
         public void Setup()
         {
-            _connection = Global.CreateConnection;
-            var metaRepository = new MetaInfoRepository(_connection);
+            var serviceProvider = Global.CreateMockServiceProviderWithConnection();
+
+            var metaRepository = new MetaInfoRepository(serviceProvider);
             var sqlAnalyzer = new NetNameQueryAnalyzer(metaRepository);
-            _repository = new ItemDefinitionRepository(_connection, sqlAnalyzer);
+            _repository = new ItemDefinitionRepository(serviceProvider, sqlAnalyzer);
         }
 
         [Test]

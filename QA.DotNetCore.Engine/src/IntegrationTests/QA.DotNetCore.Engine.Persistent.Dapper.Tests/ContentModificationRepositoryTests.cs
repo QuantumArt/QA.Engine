@@ -2,20 +2,18 @@ using System.Linq;
 using NUnit.Framework;
 using QA.DotNetCore.Engine.Persistent.Dapper;
 using QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure;
-using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 
 namespace Tests
 {
     public class ContentModificationRepositoryTests
     {
         private ContentModificationRepository _repository;
-        private UnitOfWork _connection;
 
         [SetUp]
         public void Setup()
         {
-            _connection = Global.CreateConnection;
-            _repository = new ContentModificationRepository(_connection);
+            var serviceProvider = Global.CreateMockServiceProviderWithConnection();
+            _repository = new ContentModificationRepository(serviceProvider);
         }
 
         [Test]

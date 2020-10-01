@@ -3,17 +3,21 @@ using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using System.Data;
 using System.Linq;
+using System;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
     public class MetaInfoRepository : IMetaInfoRepository
     {
-        private readonly IDbConnection _connection;
+        private readonly IServiceProvider _serviceProvider;
 
-        public MetaInfoRepository(IUnitOfWork uow)
+        public MetaInfoRepository(IServiceProvider serviceProvider)
         {
-            _connection = uow.Connection;
+            _serviceProvider = serviceProvider;
         }
+
+        protected IUnitOfWork UnitOfWork { get { return _serviceProvider.GetRequiredService<IUnitOfWork>(); } }
 
         private const string CmdGetSite = @"
 SELECT
@@ -99,7 +103,7 @@ WHERE c.SITE_ID={0} AND c.CONTENT_ID in ({1})
 
         public QpSitePersistentData GetSite(int siteId, IDbTransaction transaction = null)
         {
-            return _connection.QueryFirst<QpSitePersistentData>(string.Format(CmdGetSite, siteId), transaction: transaction);
+            return UnitOfWork.Connection.QueryFirst<QpSitePersistentData>(string.Format(CmdGetSite, siteId), transaction: transaction);
         }
 
         public ContentAttributePersistentData GetContentAttribute(int contentId, string fieldName)
@@ -109,20 +113,20 @@ WHERE c.SITE_ID={0} AND c.CONTENT_ID in ({1})
 
         public ContentAttributePersistentData GetContentAttribute(int contentId, string fieldName, IDbTransaction transaction = null)
         {
-            return _connection.QueryFirstOrDefault<ContentAttributePersistentData>(
+            return UnitOfWork.Connection.QueryFirstOrDefault<ContentAttributePersistentData>(
                 string.Format(CmdGetContentAttributeByName, contentId, fieldName), transaction: transaction);
         }
 
         public ContentAttributePersistentData GetContentAttributeByNetName(int contentId, string fieldNetName, IDbTransaction transaction = null)
         {
-            return _connection.QueryFirstOrDefault<ContentAttributePersistentData>(
+            return UnitOfWork.Connection.QueryFirstOrDefault<ContentAttributePersistentData>(
                 string.Format(CmdGetContentAttributeByNetName, contentId, fieldNetName), transaction: transaction);
         }
 
         public ContentPersistentData GetContent(string contentNetName, int siteId, IDbTransaction transaction = null)
         {
             string query = string.Format(CmdGetContent, siteId, contentNetName);
-            var contentAttributes = _connection
+            var contentAttributes = UnitOfWork.Connection
                 .Query<ContentAttributePersistentData>(query, transaction: transaction)
                 .ToList();
             if (contentAttributes == null || !contentAttributes.Any())
@@ -143,7 +147,7 @@ WHERE c.SITE_ID={0} AND c.CONTENT_ID in ({1})
                 return new ContentPersistentData[0];
 
             string query = string.Format(CmdGetContentsById, siteId, string.Join(",", contentIds));
-            var contentAttributes = _connection
+            var contentAttributes = UnitOfWork.Connection
                 .Query<ContentAttributePersistentData>(query, transaction: transaction)
                 .ToList();
 

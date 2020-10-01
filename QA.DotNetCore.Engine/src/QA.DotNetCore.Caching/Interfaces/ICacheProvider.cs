@@ -1,3 +1,4 @@
+using QA.DotNetCore.Caching.Exceptions;
 using System;
 using System.Threading.Tasks;
 
@@ -78,6 +79,8 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// <param name="waitForCalculateTimeout">таймаут ожидания параллельными потоками события окончания
         /// вычисления <paramref name="getData"/> по истечении  которого им будет возвращён null.
         /// Актуален только когда в кэше нет устаревшего значения. По умолчанию используется 5 секунд.</param>
+        /// <exception cref="DeprecateCacheIsExpiredOrMissingException">Выбрасывается в том случае, если другой поток уже выполняет запрос
+        /// на обновления данных в кеше, а старых данные ещё (или уже) нет</exception>
         T GetOrAdd<T>(string cacheKey, TimeSpan expiration, Func<T> getData,
             TimeSpan waitForCalculateTimeout = default(TimeSpan));
         /// <summary>
@@ -96,6 +99,8 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// <param name="waitForCalculateTimeout">таймаут ожидания параллельными потоками события окончания
         /// вычисления <paramref name="getData"/> по истечении  которого им будет возвращён null.
         /// Актуален только когда в кэше нет устаревшего значения. По умолчанию используется 5 секунд.</param>
+        /// <exception cref="DeprecateCacheIsExpiredOrMissingException">Выбрасывается в том случае, если другой поток уже выполняет запрос
+        /// на обновления данных в кеше, а старых данные ещё (или уже) нет</exception>
         T GetOrAdd<T>(string cacheKey, string[] tags, TimeSpan expiration, Func<T> getData,
             TimeSpan waitForCalculateTimeout = default(TimeSpan));
         /// <summary>
@@ -114,6 +119,8 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// <param name="waitForCalculateTimeout">таймаут ожидания параллельными потоками события окончания
         /// вычисления <paramref name="getData"/> по истечении  которого им будет возвращён null.
         /// Актуален только когда в кэше нет устаревшего значения. По умолчанию используется 5 секунд.</param>
+        /// <exception cref="DeprecateCacheIsExpiredOrMissingException">Выбрасывается в том случае, если другой поток уже выполняет запрос
+        /// на обновления данных в кеше, а старых данные ещё (или уже) нет</exception>
         Task<T> GetOrAddAsync<T>(string cacheKey, TimeSpan expiration, Func<Task<T>> getData,
             TimeSpan waitForCalculateTimeout = default(TimeSpan));
         /// <summary>
@@ -133,6 +140,8 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// <param name="waitForCalculateTimeout">таймаут ожидания параллельными потоками события окончания
         /// вычисления <paramref name="getData"/> по истечении  которого им будет возвращён null.
         /// Актуален только когда в кэше нет устаревшего значения. По умолчанию используется 5 секунд.</param>
+        /// <exception cref="DeprecateCacheIsExpiredOrMissingException">Выбрасывается в том случае, если другой поток уже выполняет запрос
+        /// на обновления данных в кеше, а старых данные ещё (или уже) нет</exception>
         Task<T> GetOrAddAsync<T>(string cacheKey, string[] tags, TimeSpan expiration, Func<Task<T>> getData,
             TimeSpan waitForCalculateTimeout = default(TimeSpan));
     }

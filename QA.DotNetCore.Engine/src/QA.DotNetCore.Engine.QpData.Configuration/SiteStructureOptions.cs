@@ -1,3 +1,4 @@
+using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 using System;
 
@@ -42,6 +43,11 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
         /// Длительность кеширования схемы QP (такие вещи как таблица SITE, CONTENT_ATTRIBUTE итп)
         /// </summary>
         public TimeSpan QpSchemeCachePeriod { get; set; } = new TimeSpan(0, 0, 30);
+
+        /// <summary>
+        /// Таймаут ожидания потоков, при получении <see cref="AbstractItemStorage"/> из кеша
+        /// </summary>
+        public TimeSpan CacheFetchTimeoutAbstractItemStorage { get; set; } = new TimeSpan(0, 2, 0);
 
         /// <summary>
         /// Использовать глобальные настройки для взаимодействия с QP

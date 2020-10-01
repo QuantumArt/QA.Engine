@@ -41,7 +41,8 @@ namespace QA.DotNetCore.Engine.QpData
             var cacheTags = _builder.UsedContentNetNames.Select(c => _qpContentCacheTagNamingProvider.GetByNetName(c, _buildSettings.SiteId, _buildSettings.IsStage))
                 .Where(t => t != null)
                 .ToArray();
-            return _cacheProvider.GetOrAdd(cacheKey, cacheTags, _cacheSettings.SiteStructureCachePeriod, BuildStorage);
+
+            return _cacheProvider.GetOrAdd(cacheKey, cacheTags, _cacheSettings.SiteStructureCachePeriod, BuildStorage, _buildSettings.CacheFetchTimeoutAbstractItemStorage);
         }
 
         private AbstractItemStorage BuildStorage()

@@ -141,7 +141,8 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
                 SiteId = options.SiteId,
                 LoadAbstractItemFieldsToDetailsCollection = options.LoadAbstractItemFieldsToDetailsCollection,
                 RootPageDiscriminator = options.RootPageDiscriminator,
-                UploadUrlPlaceholder = options.UploadUrlPlaceholder
+                UploadUrlPlaceholder = options.UploadUrlPlaceholder,
+                CacheFetchTimeoutAbstractItemStorage = options.CacheFetchTimeoutAbstractItemStorage
             });
 
             //DAL

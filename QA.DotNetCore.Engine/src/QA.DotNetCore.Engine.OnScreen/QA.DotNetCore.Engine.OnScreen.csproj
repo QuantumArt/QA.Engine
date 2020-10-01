@@ -2,13 +2,15 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.5.9</Version>
-    <AssemblyVersion>1.5.9.0</AssemblyVersion>
-    <FileVersion>1.5.9.0</FileVersion>
+    <Version>1.5.10</Version>
+    <AssemblyVersion>1.5.10.0</AssemblyVersion>
+    <FileVersion>1.5.10.0</FileVersion>
     <Authors>Grigorenko Paul, Karlov Nickolay</Authors>
     <Company>Quantum Art</Company>
     <Copyright>Copyright © 2020 Quantum Art</Copyright>
     <Description>Provides integration features with OnScreen component.</Description>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
     <NoWarn>1701;1702;1705;1591</NoWarn>

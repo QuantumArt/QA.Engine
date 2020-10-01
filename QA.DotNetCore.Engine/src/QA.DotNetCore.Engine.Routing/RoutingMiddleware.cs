@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.Routing.Exceptions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace QA.DotNetCore.Engine.Routing
@@ -19,8 +20,13 @@ namespace QA.DotNetCore.Engine.Routing
 
         public Task Invoke(HttpContext context, IAbstractItemStorageProvider provider)
         {
-            var abstractItems = provider
-                .Get();
+            CancellationToken cancellationToken = context?.RequestAborted ?? CancellationToken.None;
+
+            AbstractItemStorage abstractItems = provider.Get();
+
+            if (cancellationToken.IsCancellationRequested)
+                return Task.CompletedTask;
+
             var startPage = abstractItems
                 .GetStartPage(context.Request.Host.Value, _filterAccessor?.Get());
 

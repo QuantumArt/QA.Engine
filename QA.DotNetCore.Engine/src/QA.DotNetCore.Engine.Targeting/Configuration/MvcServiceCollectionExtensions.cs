@@ -15,6 +15,7 @@ namespace QA.DotNetCore.Engine.Targeting.Configuration
         {
             services.AddSingleton<ITargetingContext, HttpTargetingContext>();
             services.AddSingleton<ServiceSetConfigurator<ITargetingProvider>>();
+            services.AddSingleton<ServiceSetConfigurator<ITargetingProviderAsync>>();
 
             services.AddSingleton<ITargetingFilterAccessor, TargetingFilterAccessor>();
             services.AddSingleton<ServiceSetConfigurator<ITargetingFilter>>();

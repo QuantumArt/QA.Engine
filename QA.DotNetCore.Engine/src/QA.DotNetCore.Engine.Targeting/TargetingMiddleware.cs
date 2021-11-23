@@ -13,21 +13,31 @@ namespace QA.DotNetCore.Engine.Targeting
     public class TargetingMiddleware
     {
         readonly ServiceSetConfigurator<ITargetingProvider> _targetingConfigurationBuilder;
+        readonly ServiceSetConfigurator<ITargetingProviderAsync> _targetingConfigurationBuilderForAsync;
         readonly RequestDelegate _next;
 
-        public TargetingMiddleware(RequestDelegate next, ServiceSetConfigurator<ITargetingProvider> p)
+        public TargetingMiddleware(RequestDelegate next,
+            ServiceSetConfigurator<ITargetingProvider> p,
+            ServiceSetConfigurator<ITargetingProviderAsync> p2)
         {
             _next = next;
             _targetingConfigurationBuilder = p;
+            _targetingConfigurationBuilderForAsync = p2;
         }
 
-        public Task Invoke(HttpContext context)
+        public async Task Invoke(HttpContext context)
         {
-            //сохраним в HttpContext все значения таргетирования
+            //сохраним в HttpContext все значения таргетирования, как из синхронных провайдеров, так и асинхронных
             var targetingKeys = new List<string>();
-            foreach (var provider in _targetingConfigurationBuilder.GetServices(context.RequestServices))
+
+            var getValuesTasks = _targetingConfigurationBuilderForAsync.GetServices(context.RequestServices).Select(tp => tp.GetValues());
+            await Task.WhenAll(getValuesTasks);
+
+            foreach (var dict in getValuesTasks
+                .Select(t => t.Result)
+                .Union(_targetingConfigurationBuilder.GetServices(context.RequestServices).Select(tp => tp.GetValues()))
+                .Where(dict => dict != null))
             {
-                var dict = provider.GetValues();
                 foreach (var key in dict.Keys)
                 {
                     context.Items[key] = dict[key];
@@ -39,7 +49,7 @@ namespace QA.DotNetCore.Engine.Targeting
             context.Items[HttpTargetingContext.TargetingKeysContextKey] = targetingKeys.Distinct().ToArray();
 
             // Call the next delegate/middleware in the pipeline
-            return _next(context);
+            await _next(context);
         }
     }
 }

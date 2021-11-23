@@ -7,7 +7,7 @@
     <FileVersion>1.5.13.0</FileVersion>
     <Authors>Grigorenko Paul, Karlov Nickolay</Authors>
     <Company>Quantum Art</Company>
-    <Copyright>Copyright В© 2020 Quantum Art</Copyright>
+    <Copyright>Copyright © 2020 Quantum Art</Copyright>
     <Description>Provides easy configuration way for ab-testing features.</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>

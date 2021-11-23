@@ -8,7 +8,7 @@
     <FileVersion>1.5.13.0</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description>Provides abstractions for site structure engine.</Description>
-    <Copyright>Copyright В© 2020 Quantum Art</Copyright>
+    <Copyright>Copyright © 2020 Quantum Art</Copyright>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
   </PropertyGroup>

@@ -5,7 +5,7 @@
     <Authors>Grigorenko Paul, Karlov Nickolay</Authors>
     <Company>Quantum Art</Company>
     <Description>Provides ITypeFinder implemetations for .Net Core.</Description>
-    <Copyright>Copyright В© 2020 Quantum Art</Copyright>
+    <Copyright>Copyright © 2020 Quantum Art</Copyright>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

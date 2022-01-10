@@ -14,11 +14,32 @@ namespace QA.DotNetCore.Engine.Targeting.Configuration
         /// <param name="app"></param>
         /// <param name="configureTargeting"></param>
         /// <returns></returns>
-        public static IApplicationBuilder UseTargeting(this IApplicationBuilder app, Action<ServiceSetConfigurator<ITargetingProvider>> configureTargeting)
+        public static IApplicationBuilder UseTargeting(this IApplicationBuilder app,
+            Action<ServiceSetConfigurator<ITargetingProvider>> configureTargeting)
         {
             app.UseMiddleware<TargetingMiddleware>();
+
             var providerConfigurator = app.ApplicationServices.GetRequiredService<ServiceSetConfigurator<ITargetingProvider>>();
             configureTargeting(providerConfigurator);
+
+            return app;
+        }
+
+
+        /// <summary>
+        /// Регистрируем поставщиков значений таргетирования
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="configureTargeting"></param>
+        /// <returns></returns>
+        public static IApplicationBuilder UseTargeting(this IApplicationBuilder app,
+            Action<ServiceSetConfigurator<ITargetingProviderAsync>> configureTargeting)
+        {
+            app.UseMiddleware<TargetingMiddleware>();
+
+            var providerConfigurator = app.ApplicationServices.GetRequiredService<ServiceSetConfigurator<ITargetingProviderAsync>>();
+            configureTargeting(providerConfigurator);
+
             return app;
         }
 

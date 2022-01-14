@@ -4,6 +4,7 @@ using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace QA.DotNetCore.Engine.QpData
 {
@@ -29,6 +30,12 @@ namespace QA.DotNetCore.Engine.QpData
         public override IEnumerable<IAbstractItem> GetChildren(ITargetingFilter filter = null)
         {
             return filter == null ? Children : Children.Pipe(filter);
+        }
+
+
+        public override IEnumerable<TAbstractItem> GetChildren<TAbstractItem>(ITargetingFilter filter = null) 
+        {
+            return GetChildren(filter).OfType<TAbstractItem>();
         }
 
         public override object GetMetadata(string key)

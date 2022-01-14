@@ -42,13 +42,6 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
 
             ConfigureGeneralServices(options);
 
-            services.AddSingleton(new QpSiteStructureCacheSettings
-            {
-                SiteStructureCachePeriod = options.SiteStructureCachePeriod,
-                QpSchemeCachePeriod = options.QpSchemeCachePeriod,
-                ItemDefinitionCachePeriod = options.ItemDefinitionCachePeriod
-            });
-
             services.AddSingleton(new UrlTokenConfig
             {
                 DefaultTailPattern = options.DefaultUrlTailPattern,
@@ -56,7 +49,7 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
                 HeadPatterns = options.UrlHeadPatterns ?? new List<HeadUrlMatchingPattern> { new HeadUrlMatchingPattern { Pattern = "/"} }
             });
 
-            services.TryAddScoped<IItemDefinitionRepository, ItemDefinitionRepository>();
+            
             services.TryAddScoped<IAbstractItemFactory, AbstractItemFactory>();
             services.TryAddSingleton<ITargetingFilterAccessor, NullTargetingFilterAccessor>();
             services.TryAddSingleton<ITargetingContext, NullTargetingContext>();
@@ -118,12 +111,6 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
 
             ConfigureGeneralServices(options);
 
-            Services.AddSingleton(new QpSiteStructureCacheSettings
-            {
-                SiteStructureCachePeriod = options.SiteStructureCachePeriod,
-                QpSchemeCachePeriod = options.QpSchemeCachePeriod
-            });
-
             Services.TryAddScoped<IAbstractItemFactory, UniversalAbstractItemFactory>();
         }
 
@@ -145,6 +132,13 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
                 CacheFetchTimeoutAbstractItemStorage = options.CacheFetchTimeoutAbstractItemStorage
             });
 
+            Services.AddSingleton(new QpSiteStructureCacheSettings
+            {
+                SiteStructureCachePeriod = options.SiteStructureCachePeriod,
+                QpSchemeCachePeriod = options.QpSchemeCachePeriod,
+                ItemDefinitionCachePeriod = options.ItemDefinitionCachePeriod
+            });
+
             //DAL
             if (!Services.Any(x => x.ServiceType == typeof(IUnitOfWork)))
             {
@@ -163,6 +157,7 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             Services.TryAddScoped<IMetaInfoRepository, MetaInfoRepository>();
             Services.TryAddScoped<INetNameQueryAnalyzer, NetNameQueryAnalyzer>();
             Services.TryAddScoped<IAbstractItemRepository, AbstractItemRepository>();
+            Services.TryAddScoped<IItemDefinitionRepository, ItemDefinitionRepository>();
 
             Services.TryAddScoped<IQpUrlResolver, QpUrlResolver>();
             Services.TryAddScoped<IAbstractItemStorageBuilder, QpAbstractItemStorageBuilder>();

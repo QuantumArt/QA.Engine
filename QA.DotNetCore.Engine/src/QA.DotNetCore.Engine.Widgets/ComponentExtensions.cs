@@ -181,12 +181,12 @@ namespace QA.DotNetCore.Engine.Widgets
 
         private static bool ZoneIsRecursive(string zoneName)
         {
-            return zoneName.StartsWith("Recursive");
+            return WidgetZoneTypeQualifier.QualifyZone(zoneName) == WidgetZoneType.Recursive;
         }
 
         private static bool ZoneIsGlobal(string zoneName)
         {
-            return zoneName.StartsWith("Site");
+            return WidgetZoneTypeQualifier.QualifyZone(zoneName) == WidgetZoneType.Global;
         }
 
         private static void RenderOnScreenModeWidgetWrapperStart(bool renderFullInfo, IHtmlContentBuilder builder, IAbstractItem widget)

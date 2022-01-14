@@ -40,6 +40,13 @@ namespace QA.DotNetCore.Engine.Abstractions
         /// <returns></returns>
         public abstract IEnumerable<IAbstractItem> GetChildren(ITargetingFilter filter = null);
 
+        /// <summary>
+        /// Получение дочерних элементов
+        /// </summary>
+        /// <param name="filter">Опционально. Фильтр таргетирования</param>
+        /// <returns></returns>
+        public abstract IEnumerable<TAbstractItem> GetChildren<TAbstractItem>(ITargetingFilter filter = null) where TAbstractItem : class, IAbstractItem;
+
         public abstract object GetMetadata(string key);
 
         /// <summary>

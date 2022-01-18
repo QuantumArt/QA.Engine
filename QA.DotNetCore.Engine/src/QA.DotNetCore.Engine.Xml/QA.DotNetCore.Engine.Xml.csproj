@@ -2,11 +2,11 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.5.14-beta1</Version>
+    <Version>1.5.14</Version>
     <Authors>Grigorenko Paul, Karlov Nickolay</Authors>
     <Company>Quantum Art</Company>
     <Description>Provides .Net Core site structure implementation via xml file.</Description>
-    <Copyright>Copyright © 2020 Quantum Art</Copyright>
+    <Copyright>Copyright © 2022 Quantum Art</Copyright>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
     <AssemblyVersion>1.5.14.0</AssemblyVersion>

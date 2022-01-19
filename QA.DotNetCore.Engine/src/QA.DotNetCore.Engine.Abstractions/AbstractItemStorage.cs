@@ -41,6 +41,11 @@ namespace QA.DotNetCore.Engine.Abstractions
             return _items.ContainsKey(id) ? _items[id] : null;
         }
 
+        public TAbstractItem Get<TAbstractItem>(int id) where TAbstractItem : class, IAbstractItem
+        {
+            return _items.ContainsKey(id) ? _items[id] as TAbstractItem : null;
+        }
+
         public IAbstractItem GetStartPage(string host, ITargetingFilter filter = null)
         {
             var bindings = new List<string>();
@@ -54,6 +59,14 @@ namespace QA.DotNetCore.Engine.Abstractions
             var matcher = new WildcardMatcher(WildcardMatchingOption.FullMatch, bindings);
             var pattern = matcher.MatchLongest(host);
             return pattern != null ? _startPageByDnsPatternMappings[pattern] : null;
+        }
+
+        public TAbstractItem GetStartPage<TAbstractItem>(string host, ITargetingFilter filter = null) where TAbstractItem : class, IAbstractItem
+        {
+            var startPage = GetStartPage(host, filter);
+            return startPage != null ?
+                startPage as TAbstractItem :
+                null;
         }
     }
 }

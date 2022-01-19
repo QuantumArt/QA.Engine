@@ -43,6 +43,10 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
         /// Длительность кеширования схемы QP (такие вещи как таблица SITE, CONTENT_ATTRIBUTE итп)
         /// </summary>
         public TimeSpan QpSchemeCachePeriod { get; set; } = new TimeSpan(0, 0, 30);
+        /// <summary>
+        /// Длительность кеширования ItemDefinition
+        /// </summary>
+        public TimeSpan ItemDefinitionCachePeriod { get; set; } = new TimeSpan(0, 20, 0);
 
         /// <summary>
         /// Таймаут ожидания потоков, при получении <see cref="AbstractItemStorage"/> из кеша

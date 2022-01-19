@@ -23,6 +23,11 @@ namespace QA.DotNetCore.Engine.Xml
             return filter == null ? Children : Children.Pipe(filter);
         }
 
+        public override IEnumerable<TAbstractItem> GetChildren<TAbstractItem>(ITargetingFilter filter = null)
+        {
+            return GetChildren(filter).OfType<TAbstractItem>();
+        }
+
         public override object GetMetadata(string key)
         {
             return null;

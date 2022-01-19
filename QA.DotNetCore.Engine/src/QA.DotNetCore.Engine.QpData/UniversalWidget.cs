@@ -1,45 +1,26 @@
 using QA.DotNetCore.Engine.Abstractions;
-using System;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using System;
 
 namespace QA.DotNetCore.Engine.QpData
 {
-    public abstract class AbstractWidget : AbstractItem, IAbstractWidget
+    public class UniversalWidget : UniversalAbstractItem, IAbstractWidget
     {
         readonly Lazy<string[]> _lazyAllowedUrlPatterns;
         readonly Lazy<string[]> _lazyDeniedUrlPatterns;
 
-        public AbstractWidget() : base()
+        public UniversalWidget(string discriminator) : base(discriminator)
         {
+            IsPage = false;
             _lazyAllowedUrlPatterns = new Lazy<string[]>(() => this.GetAllowedUrlPatterns());
             _lazyDeniedUrlPatterns = new Lazy<string[]>(() => this.GetDeniedUrlPatterns());
         }
 
-        public override bool IsPage
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public string ZoneName { get; set; }
 
-        public virtual string ZoneName { get; protected set; }
+        public string[] AllowedUrlPatterns => _lazyAllowedUrlPatterns.Value;
 
-        public virtual string[] AllowedUrlPatterns
-        {
-            get
-            {
-                return _lazyAllowedUrlPatterns.Value;
-            }
-        }
-
-        public virtual string[] DeniedUrlPatterns
-        {
-            get
-            {
-                return _lazyDeniedUrlPatterns.Value;
-            }
-        }
+        public string[] DeniedUrlPatterns => _lazyDeniedUrlPatterns.Value;
 
         internal override void MapPersistent(AbstractItemPersistentData persistentItem)
         {
@@ -47,4 +28,5 @@ namespace QA.DotNetCore.Engine.QpData
             ZoneName = persistentItem.ZoneName;
         }
     }
+
 }

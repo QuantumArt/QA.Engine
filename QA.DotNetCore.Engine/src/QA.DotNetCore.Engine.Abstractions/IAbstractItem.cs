@@ -17,6 +17,7 @@ namespace QA.DotNetCore.Engine.Abstractions
         string GetUrl(ITargetingUrlTransformator urlResolver = null);
         string GetTrail();
         IEnumerable<IAbstractItem> GetChildren(ITargetingFilter filter = null);
+        IEnumerable<TAbstractItem> GetChildren<TAbstractItem>(ITargetingFilter filter = null) where TAbstractItem : class, IAbstractItem;
         IAbstractItem GetChildPageByAlias(string alias, ITargetingFilter filter = null);
         object GetTargetingValue(string targetingKey);
         object GetMetadata(string key);

@@ -15,11 +15,6 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
     public class SiteStructureEngineOptions : SiteStructureOptions
     {
         /// <summary>
-        /// Длительность кеширования ItemDefinition
-        /// </summary>
-        public TimeSpan ItemDefinitionCachePeriod { get; set; } = new TimeSpan(0, 20, 0);
-
-        /// <summary>
         /// Конвенция для IItemDefinitionProvider
         /// </summary>
         public ItemDefinitionConvention ItemDefinitionConvention { get; set; } = ItemDefinitionConvention.Name;

@@ -2,6 +2,8 @@ using Dapper;
 using System.Collections.Generic;
 using System.Data;
 using System;
+using System.Linq;
+using System.Text;
 using QA.DotNetCore.Engine.Persistent.Dapper;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
@@ -45,6 +47,69 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
         {
             var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAbstractItem, siteId, isStage);
             return UnitOfWork.Connection.Query<AbstractItemPersistentData>(query, transaction);
+        }
+
+        /// <summary>
+        /// Получить Content_item_id расширений
+        /// </summary>
+        /// <param name="extensionsContents">Словарь ID контента расширений и использующия их коллекция AbstractItems</param>
+        /// <returns></returns>
+        public IEnumerable<int> GetAbstractItemExtensionIds(IDictionary<int, IEnumerable<int>> extensionsContents, bool isStage, IDbTransaction transaction = null)
+        {
+            const string selectDelimiter = " UNION ";
+            var dbParams = new List<KeyValuePair<string, IEnumerable<int>>>();
+            var extFieldsQuery = string.Join(selectDelimiter, BuildSelectQueries());
+
+            using (var command = UnitOfWork.Connection.CreateCommand())
+            {
+                command.CommandText = extFieldsQuery;
+                foreach (var param in dbParams)
+                {
+                    command.Parameters.Add(
+                        SqlQuerySyntaxHelper.GetIdsDatatableParam(param.Key, param.Value, UnitOfWork.DatabaseType));
+                }
+
+                command.Transaction = transaction;
+
+                var result = new List<int>();
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var extensionId = reader.GetInt32(0);
+                        result.Add(extensionId);
+                    }
+
+                    return result;
+                }
+            }
+
+            IEnumerable<string> BuildSelectQueries()
+            {
+                var withNoLock = SqlQuerySyntaxHelper.WithNoLock(UnitOfWork.DatabaseType);
+
+                var queryPattern = $"SELECT CONTENT_ITEM_ID FROM {{0}} ext {withNoLock} JOIN {{1}} on Id = ext.itemid";
+                const string idsDelimiter = ",";
+
+                foreach (var item in extensionsContents)
+                {
+                    if (item.Key == 0)
+                        continue;
+
+                    var idsParam = GetAndSaveDbParam(item.Key, item.Value);
+                    var extTableName = QpTableNameHelper.GetTableName(item.Key, isStage);
+                    var idListTable = SqlQuerySyntaxHelper.IdList(UnitOfWork.DatabaseType, idsParam.Key, "ids");
+                    yield return string.Format(queryPattern, extTableName, string.Join(idsDelimiter, idListTable));
+                }
+            }
+
+            KeyValuePair<string, IEnumerable<int>> GetAndSaveDbParam(int extId, IEnumerable<int> aiIds)
+            {
+                var name = $"@ids_{extId}";
+                var kvp = new KeyValuePair<string, IEnumerable<int>>(name, aiIds);
+                dbParams.Add(kvp);
+                return kvp;
+            }
         }
 
         public IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionContentId,

@@ -43,7 +43,7 @@ namespace QA.DotNetCore.Engine.QpData
 
         public AbstractItemStorage Build()
         {
-            var logBuildId = Guid.NewGuid();
+            var logBuildId = Guid.NewGuid().ToString();
             _logger.LogDebug("AbstractItemStorage build via QP started. Build id: {0}, SiteId: {0}, IsStage: {1}", logBuildId, _buildSettings.SiteId, _buildSettings.IsStage);
 
             var plainList = _abstractItemRepository.GetPlainAllAbstractItems(_buildSettings.SiteId, _buildSettings.IsStage).ToList();//плоский список dto
@@ -76,9 +76,6 @@ namespace QA.DotNetCore.Engine.QpData
                     .GroupBy(_ => _.Value.ExtensionId.GetValueOrDefault(0), _ => _.Value)
                     .ToList();
 
-                //словарь, каким элементам нужна загрузка связи m2m
-                var needLoadM2mInExtensionDict = new Dictionary<int, AbstractItem>();
-
                 //получим инфу об основном контенте (AbstractItem), она нам пригодится. Мы зашиваемся на netName контента - это легально
                 var baseContent = _metaInfoRepository.GetContent(KnownNetNames.AbstractItem, _buildSettings.SiteId);
                 if (baseContent == null)
@@ -94,7 +91,20 @@ namespace QA.DotNetCore.Engine.QpData
                         .ToArray(), _buildSettings.SiteId)
                     .ToDictionary(c => c.ContentId);
 
-                //догрузим нетипизированные поля в коллекцию Details из контентов-расширений и основного контента(AbstractItem)
+                //получим связи m2m в контентах расширений
+                _logger.LogDebug("Load data for many-to-many fields in extensions. Build id: {1}", logBuildId);
+
+                var allExtensionContentItemIds = _abstractItemRepository.GetAbstractItemExtensionIds(
+                    groupsByExtensions.ToDictionary(ext => ext.Key, ext => ext.Select(ai => ai.Id)),
+                    _buildSettings.IsStage);
+                var extensionsM2MData = _abstractItemRepository.GetManyToManyData(allExtensionContentItemIds, _buildSettings.IsStage)
+                              ?? new Dictionary<int, M2mRelations>();
+
+                var extensionDataByExtensionIdLazy = groupsByExtensions.ToDictionary(x => x.Key,
+                    x => new Lazy<IDictionary<int, AbstractItemExtensionCollection>>(() =>
+                        GetAbstractItemExtensionData(x.Key, x.Select(i => i.Id), baseContent, logBuildId)));
+
+                //добавим Lazy загрузку нетипизированных полей в коллекцию Details из контентов-расширений и основного контента(AbstractItem)
                 foreach (var group in groupsByExtensions)
                 {
                     var extensionId = group.Key;
@@ -104,92 +114,21 @@ namespace QA.DotNetCore.Engine.QpData
                         continue;
                     }
 
-                    var ids = group.Select(_ => _.Id).ToArray();
-
-                    _logger.LogDebug("Load data from extension table {0}. Build id: {1}", extensionId, logBuildId);
-
-                    var extensionData = extensionId == 0 ?
-                        _abstractItemRepository.GetAbstractItemExtensionlessData(ids, baseContent, _buildSettings.IsStage) :
-                        _abstractItemRepository.GetAbstractItemExtensionData(extensionId, ids, baseContent,
-                            _buildSettings.LoadAbstractItemFieldsToDetailsCollection, _buildSettings.IsStage);
-                    if (extensionData == null)
+                    foreach (var abstractItem in group)
                     {
-                        _logger.LogDebug("Not found data for extension {0}. Build id: {1}", extensionId, logBuildId);
-                        continue;
-                    }
-
-                    var extensionContent = extensionContents.ContainsKey(extensionId) ? extensionContents[extensionId] : null;
-
-                    var m2mFieldNames = new List<string>(); ;
-                    var fileFields = new List<ContentAttributePersistentData>();
-                    if (extensionContent?.ContentAttributes != null)
-                    {
-                        m2mFieldNames = extensionContent.ContentAttributes.Where(ca => ca.IsManyToManyField).Select(ca => ca.ColumnName).ToList();
-                        fileFields = extensionContent.ContentAttributes.Where(ca => ca.IsFileField).ToList();
-                    }
-                    if (_buildSettings.LoadAbstractItemFieldsToDetailsCollection)
-                    {
-                        m2mFieldNames = m2mFieldNames.Union(baseContent.ContentAttributes.Where(ca => ca.IsManyToManyField).Select(ca => ca.ColumnName)).ToList();
-                        fileFields = fileFields.Union(baseContent.ContentAttributes.Where(ca => ca.IsFileField)).ToList();
-                    }
-
-                    foreach (var item in group)
-                    {
-                        if (extensionData.ContainsKey(item.Id))
-                        {
-                            item.M2mFieldNames.AddRange(m2mFieldNames);
-
-                            var details = extensionData[item.Id];
-
-                            //проведём замены в некоторых значениях доп полей
-                            foreach (var key in details.Keys)
-                            {
-                                if (m2mFieldNames.Any() && key == "CONTENT_ITEM_ID")
-                                {
-                                    needLoadM2mInExtensionDict[Convert.ToInt32(details[key])] = item;
-                                }
-
-                                if (details[key] is string stringValue)
-                                {
-                                    //1) надо заменить плейсхолдер <%=upload_url%> на реальный урл
-                                    details.Set(key, stringValue.Replace(_buildSettings.UploadUrlPlaceholder, _qpUrlResolver.UploadUrl(_buildSettings.SiteId)));
-
-                                    //2) проверим, является ли это поле ссылкой на файл, тогда нужно преобразовать его в полный урл
-                                    var fileField = fileFields.FirstOrDefault(f => f.ColumnName.Equals(key, StringComparison.InvariantCultureIgnoreCase));
-                                    if (fileField != null)
-                                    {
-                                        var baseUrl = _qpUrlResolver.UrlForImage(_buildSettings.SiteId, fileField);
-                                        if (!String.IsNullOrEmpty(baseUrl))
-                                        {
-                                            details.Set(key, baseUrl + "/" + stringValue);
-                                        }
-                                    }
-                                }
-                            }
-
-                            item.Details = details;
-                        }
-
-                    }
-                }
-
-                //догрузим связи m2m в контентах расширений, в которых они есть
-                if (needLoadM2mInExtensionDict.Any())
-                {
-                    _logger.LogDebug("Load data for many-to-many fields in extensions. Build id: {1}", logBuildId);
-                    var m2mData = _abstractItemRepository.GetManyToManyData(needLoadM2mInExtensionDict.Keys.ToArray(), _buildSettings.IsStage);
-                    foreach (var key in m2mData.Keys)
-                    {
-                        if (!needLoadM2mInExtensionDict.ContainsKey(key))
-                            continue;
-
-                        needLoadM2mInExtensionDict[key].M2mRelations.Merge(m2mData[key]);
+                        abstractItem.Details = new Lazy<AbstractItemExtensionCollection>(() =>
+                            BuildDetails(abstractItem,
+                                extensionDataByExtensionIdLazy[extensionId],
+                                extensionContents,
+                                baseContent,
+                                extensionsM2MData,
+                                logBuildId));
                     }
                 }
 
                 //догрузим связи m2m в основном контенте, если это нужно
                 var needLoadM2mInAbstractItem = _buildSettings.LoadAbstractItemFieldsToDetailsCollection &&
-                    baseContent.ContentAttributes.Any(ca => ca.IsManyToManyField);
+                                                baseContent.ContentAttributes.Any(ca => ca.IsManyToManyField);
                 if (needLoadM2mInAbstractItem)
                 {
                     _logger.LogDebug("Load data for many-to-many fields in main content (QPAbstractItem). Build id: {1}", logBuildId);
@@ -222,6 +161,111 @@ namespace QA.DotNetCore.Engine.QpData
                 _logger.LogWarning(@"Root was not found! Possible causes: 1) not found item with discriminator = {0} 2) not found item definition for root discriminator 3) not found .net class matching with root page item definition. Build id: {1}", _buildSettings.RootPageDiscriminator, logBuildId);
                 return null;
             }
+        }
+
+        private IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionId,
+            IEnumerable<int> abstractItemIds, ContentPersistentData baseContent, string logBuildId)
+        {
+            _logger.LogDebug("Load data from extension table {0}. Build id: {1}", extensionId.ToString(),
+                logBuildId);
+
+            var extensionData = extensionId == 0
+                ? _abstractItemRepository.GetAbstractItemExtensionlessData(abstractItemIds, baseContent,
+                    _buildSettings.IsStage)
+                : _abstractItemRepository.GetAbstractItemExtensionData(extensionId, abstractItemIds, baseContent,
+                    _buildSettings.LoadAbstractItemFieldsToDetailsCollection, _buildSettings.IsStage);
+
+            return extensionData;
+        }
+
+        /// <summary>
+        /// Возвращает данные контента расширения для AbstractItem <paramref name="item"/>
+        /// </summary>
+        /// <param name="item">AbstractItem</param>
+        /// <param name="extensionDataLazy">Словарь, где ключ - это CID расширения, в значение - это данные расширения</param>
+        /// <param name="extensionContents"></param>
+        /// <param name="baseContent"></param>
+        /// <param name="extensionsM2MData">Данные о связях m2m у расширения</param>
+        /// <param name="logBuildId"></param>
+        /// <returns></returns>
+        private AbstractItemExtensionCollection BuildDetails(AbstractItem item,
+            Lazy<IDictionary<int, AbstractItemExtensionCollection>> extensionDataLazy,
+            IDictionary<int, ContentPersistentData> extensionContents,
+            ContentPersistentData baseContent,
+            IDictionary<int, M2mRelations> extensionsM2MData,
+            string logBuildId)
+        {
+            var extensionContentId = item.ExtensionId.GetValueOrDefault(0);
+
+            var extensionData = extensionDataLazy.Value;
+            if (!extensionData.TryGetValue(item.Id, out var details))
+            {
+                _logger.LogDebug("Not found data for extension {0}. Build id: {1}", extensionContentId.ToString(),
+                    logBuildId);
+                return null;
+            }
+
+            var extensionContent = extensionContents.ContainsKey(extensionContentId) ? extensionContents[extensionContentId] : null;
+
+            var m2mFieldNames = new List<string>();
+            var fileFields = new List<ContentAttributePersistentData>();
+            int? extensionContentItemId = null;
+
+            if (extensionContent?.ContentAttributes != null)
+            {
+                m2mFieldNames = extensionContent.ContentAttributes.Where(ca => ca.IsManyToManyField)
+                    .Select(ca => ca.ColumnName).ToList();
+                fileFields = extensionContent.ContentAttributes.Where(ca => ca.IsFileField).ToList();
+            }
+
+            if (_buildSettings.LoadAbstractItemFieldsToDetailsCollection)
+            {
+                m2mFieldNames = m2mFieldNames.Union(baseContent.ContentAttributes.Where(ca => ca.IsManyToManyField)
+                    .Select(ca => ca.ColumnName)).ToList();
+                fileFields = fileFields.Union(baseContent.ContentAttributes.Where(ca => ca.IsFileField)).ToList();
+            }
+
+            item.M2mFieldNames.AddRange(m2mFieldNames);
+
+            //проведём замены в некоторых значениях доп полей
+            foreach (var key in details.Keys)
+            {
+                if (m2mFieldNames.Any() && key == "CONTENT_ITEM_ID")
+                {
+                    extensionContentItemId = Convert.ToInt32(details[key]);
+                }
+
+                if (details[key] is string stringValue)
+                {
+                    //1) надо заменить плейсхолдер <%=upload_url%> на реальный урл
+                    details.Set(key,
+                        stringValue.Replace(_buildSettings.UploadUrlPlaceholder,
+                            _qpUrlResolver.UploadUrl(_buildSettings.SiteId)));
+
+                    //2) проверим, является ли это поле ссылкой на файл, тогда нужно преобразовать его в полный урл
+                    var fileField = fileFields.FirstOrDefault(f =>
+                        f.ColumnName.Equals(key, StringComparison.InvariantCultureIgnoreCase));
+                    if (fileField != null)
+                    {
+                        var baseUrl = _qpUrlResolver.UrlForImage(_buildSettings.SiteId, fileField);
+                        if (!String.IsNullOrEmpty(baseUrl))
+                        {
+                            details.Set(key, baseUrl + "/" + stringValue);
+                        }
+                    }
+                }
+            }
+
+            //установим связи m2m в контентах расширений, в которых они есть
+            if (extensionContentItemId.HasValue)
+            {
+                if (extensionsM2MData != null && extensionsM2MData.TryGetValue(extensionContentItemId.Value, out var relations))
+                {
+                    item.M2mRelations.Merge(relations);
+                }
+            }
+
+            return details;
         }
 
         /// <summary>

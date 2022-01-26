@@ -386,6 +386,12 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 buildSettings.IsStage,
                 null)).Returns(widgetExtDictionary);
 
+            aiRepositoryMoq
+                .Setup(x => x.GetAbstractItemExtensionIds(
+                    It.IsAny<IDictionary<int, IEnumerable<int>>>(),
+                    buildSettings.IsStage, null))
+                .Returns(new[] {widgetExtId});
+
             //по relationid и id виджета в qp можно получить полный список id, участвующих в связи m2m с этим виджетом
             //замокаем методы получения такой информации для 2х relation: один из контента с extension, один в базовом контенте. нужно проверить оба варианта
             var widgetRelation = new M2mRelations();

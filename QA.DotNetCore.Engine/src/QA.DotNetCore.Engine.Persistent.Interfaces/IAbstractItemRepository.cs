@@ -17,5 +17,13 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces
             bool isStage, IDbTransaction transaction = null);
 
         IDictionary<int, M2mRelations> GetManyToManyData(IEnumerable<int> ids, bool isStage, IDbTransaction transaction = null);
+
+        /// <summary>
+        /// Получить Content_item_id расширений
+        /// </summary>
+        /// <param name="extensionsContents">Словарь ID контента расширений и использующия их коллекция AbstractItems</param>
+        /// <returns></returns>
+        IEnumerable<int> GetAbstractItemExtensionIds(IDictionary<int, IEnumerable<int>> extensionsContents,
+            bool isStage, IDbTransaction transaction = null);
     }
 }

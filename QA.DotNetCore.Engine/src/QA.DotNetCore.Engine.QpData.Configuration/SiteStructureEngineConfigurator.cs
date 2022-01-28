@@ -22,6 +22,7 @@ using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching;
 using QA.DotNetCore.Engine.Routing.UrlResolve.Targeting;
 using System.Collections.Generic;
+using QA.DotNetCore.Engine.CacheTags;
 
 namespace QA.DotNetCore.Engine.QpData.Configuration
 {
@@ -49,7 +50,7 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
                 HeadPatterns = options.UrlHeadPatterns ?? new List<HeadUrlMatchingPattern> { new HeadUrlMatchingPattern { Pattern = "/"} }
             });
 
-            
+
             services.TryAddScoped<IAbstractItemFactory, AbstractItemFactory>();
             services.TryAddSingleton<ITargetingFilterAccessor, NullTargetingFilterAccessor>();
             services.TryAddSingleton<ITargetingContext, NullTargetingContext>();
@@ -160,10 +161,10 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             Services.TryAddScoped<IItemDefinitionRepository, ItemDefinitionRepository>();
 
             Services.TryAddScoped<IQpUrlResolver, QpUrlResolver>();
-            Services.TryAddScoped<IAbstractItemStorageBuilder, QpAbstractItemStorageBuilder>();
+            Services.AddTransient<IAbstractItemStorageBuilder, QpAbstractItemStorageBuilder>();
             Services.TryAddScoped<IAbstractItemStorageProvider, SimpleAbstractItemStorageProvider>();
             Services.TryAddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
-            Services.TryAddSingleton<IQpContentCacheTagNamingProvider, NullQpContentCacheTagNamingProvider>();
+            Services.TryAddScoped<IQpContentCacheTagNamingProvider, DefaultQpContentCacheTagNamingProvider>();
             Services.TryAddSingleton<ITargetingFilterAccessor, NullTargetingFilterAccessor>();
             Services.TryAddSingleton<IItemFinder, ItemFinder>();
         }

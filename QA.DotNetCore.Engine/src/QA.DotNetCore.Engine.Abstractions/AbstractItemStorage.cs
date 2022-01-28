@@ -27,6 +27,30 @@ namespace QA.DotNetCore.Engine.Abstractions
             }
         }
 
+        public AbstractItemStorage(IAbstractItem root, IEnumerable<IAbstractItem> abstractItems)
+        {
+            Root = root;
+            AddItems(abstractItems);
+
+            foreach (var startPage in Root.GetChildren().OfType<IStartPage>())
+            {
+                var dns = startPage.GetDNSBindings();
+                Array.ForEach(dns, x => _startPageByDnsPatternMappings[x] = startPage);
+            }
+        }
+
+        /// <summary>
+        /// Созданение элементов в словаре
+        /// </summary>
+        /// <param name="abstractItems"></param>
+        private void AddItems(IEnumerable<IAbstractItem> abstractItems)
+        {
+            foreach (var item in abstractItems)
+            {
+                _items[item.Id] = item;
+            }
+        }
+
         private void AddItemRecursive(IAbstractItem item)
         {
             _items[item.Id] = item;

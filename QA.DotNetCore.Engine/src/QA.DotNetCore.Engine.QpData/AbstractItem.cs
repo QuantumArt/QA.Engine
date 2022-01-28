@@ -79,6 +79,18 @@ namespace QA.DotNetCore.Engine.QpData
                 RawSortOrder = main.RawSortOrder;
         }
 
+        internal AbstractItem CleanVersionOf()
+        {
+            VersionOf = null;
+            return this;
+        }
+
+        internal AbstractItem CleanChildren()
+        {
+            Children = new HashSet<IAbstractItem>();
+            return this;
+        }
+
         internal IAbstractItem VersionOf { get; private set; }
         internal ICollection<IAbstractItem> Children { get; set; }
         internal int? RawSortOrder { get; set; }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using QA.DotNetCore.Caching.Interfaces;
 
 namespace QA.DotNetCore.Caching
@@ -15,6 +16,11 @@ namespace QA.DotNetCore.Caching
         public string GetByNetName(string contentNetName, int siteId, bool isStage)
         {
             return null;
+        }
+
+        public Dictionary<int, string> GetByContentIds(int[] contentIds, int siteId, bool isStage)
+        {
+            return new Dictionary<int, string>();
         }
     }
 }

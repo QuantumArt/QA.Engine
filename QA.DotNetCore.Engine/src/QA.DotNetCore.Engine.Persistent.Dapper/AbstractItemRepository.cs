@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System;
 using System.Linq;
-using System.Text;
 using QA.DotNetCore.Engine.Persistent.Dapper;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
@@ -42,11 +41,29 @@ SELECT
 FROM |QPAbstractItem| ai
 INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.content_item_id
 ";
-
         public IEnumerable<AbstractItemPersistentData> GetPlainAllAbstractItems(int siteId, bool isStage, IDbTransaction transaction = null)
         {
             var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAbstractItem, siteId, isStage);
-            return UnitOfWork.Connection.Query<AbstractItemPersistentData>(query, transaction);
+            return UnitOfWork.Connection.Query<AbstractItemPersistentData>(query, transaction: transaction);
+        }
+
+        /// <summary>
+        /// Получить словарь ID контентов расширений и их AbstractItemPersistents
+        /// </summary>
+        /// <param name="logId"></param>
+        /// <returns></returns>
+        public Dictionary<int, AbstractItemPersistentData[]> GetExtensionContentsWithPlainAbstractItems(int siteId,
+            bool isStage, IDbTransaction transaction = null)
+        {
+            var abstractItems = GetPlainAllAbstractItems(siteId, isStage, transaction).ToArray(); //плоский список dto
+
+            //сгруппируем AbsractItem-ы по extensionId
+            //все элементы с пустым extensionId будут в одной группе с ключом 0
+            return abstractItems
+                .GroupBy(x => x.ExtensionId.GetValueOrDefault(0))
+                .ToDictionary(
+                    x => x.Key,
+                    x => x.ToArray());
         }
 
         /// <summary>

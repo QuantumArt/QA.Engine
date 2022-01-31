@@ -16,6 +16,7 @@ using QA.DotNetCore.Engine.QpData.Tests.FakePagesAndWidgets;
 using QA.DotNetCore.Engine.Routing.Exceptions;
 using QA.DotNetCore.Engine.Routing.Tests.StubClasses;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace QA.DotNetCore.Engine.Routing.Tests
@@ -145,6 +146,15 @@ namespace QA.DotNetCore.Engine.Routing.Tests
             Mock<IAbstractItemRepository> aiRepositoryMoq = new Mock<IAbstractItemRepository>();
 
             aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteID, isStage, null)).Returns(abstractItemPersistentDatas);
+
+            aiRepositoryMoq.Setup(x => x.GetExtensionContentsWithPlainAbstractItems(siteID, isStage, null))
+                .Returns(abstractItemPersistentDatas
+                    .GroupBy(x => x.ExtensionId ?? 0)
+                    .ToDictionary(x => x.Key, x => x.ToArray()));
+
+            aiRepositoryMoq.Setup(x => x.GetAbstractItemExtensionIds(
+                    It.IsAny<Dictionary<int, IEnumerable<int>>>(), isStage, null))
+                .Returns(new int[0]);
 
             Mock<IMetaInfoRepository> metaInfoMoq = new Mock<IMetaInfoRepository>();
             metaInfoMoq.Setup(x => x.GetContent(abstractItemNetName, siteID, null)).Returns(new ContentPersistentData

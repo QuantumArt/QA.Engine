@@ -207,21 +207,21 @@ namespace QA.DotNetCore.Engine.QpData
                     x => new Lazy<IDictionary<int, AbstractItemExtensionCollection>>(() =>
                         GetAbstractItemExtensionData(x.Key, x.Value.Select(i => i.Id), _context.BaseContent,
                             _context.LogId)));
+
+                // m2m для базового AbstractItem
+                _context.AbstractItemsM2MData = _abstractItemRepository.GetManyToManyData(
+                    extensions.Values
+                        .SelectMany(x=>x)
+                        .Select(x=>x.Id),
+                    _buildSettings.IsStage);
+
+                // m2m для расширений
+                var allExtensionContentItemIds = _abstractItemRepository.GetAbstractItemExtensionIds(
+                    extensions.ToDictionary(ext => ext.Key, ext => ext.Value.Select(ai => ai.Id)),
+                    _buildSettings.IsStage);
+                _context.ExtensionsM2MData =
+                    _abstractItemRepository.GetManyToManyData(allExtensionContentItemIds, _buildSettings.IsStage);
             }
-
-            // m2m для базового AbstractItem
-            _context.AbstractItemsM2MData = _abstractItemRepository.GetManyToManyData(
-                extensions.Values
-                    .SelectMany(x=>x)
-                    .Select(x=>x.Id),
-                _buildSettings.IsStage);
-
-            // m2m для расширений
-            var allExtensionContentItemIds = _abstractItemRepository.GetAbstractItemExtensionIds(
-                extensions.ToDictionary(ext => ext.Key, ext => ext.Value.Select(ai => ai.Id)),
-                _buildSettings.IsStage);
-            _context.ExtensionsM2MData =
-                _abstractItemRepository.GetManyToManyData(allExtensionContentItemIds, _buildSettings.IsStage);
         }
 
         private IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionId,

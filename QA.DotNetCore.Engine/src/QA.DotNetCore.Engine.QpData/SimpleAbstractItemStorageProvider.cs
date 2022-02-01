@@ -75,7 +75,7 @@ namespace QA.DotNetCore.Engine.QpData
         /// <remarks>с кэш</remarks>
         /// <returns></returns>
         private AbstractItemStorage BuildStorageWithCache(
-            Dictionary<int, AbstractItemPersistentData[]> extensionsWithAbsItems,
+            IDictionary<int, AbstractItemPersistentData[]> extensionsWithAbsItems,
             WidgetsAndPagesCacheTags cacheTags)
         {
             _builder.BuildContext(extensionsWithAbsItems);
@@ -109,7 +109,7 @@ namespace QA.DotNetCore.Engine.QpData
         /// <remarks>С кэш</remarks>
         /// <returns></returns>
         private AbstractItem[] GetCachedAbstractItems(
-            Dictionary<int, AbstractItemPersistentData[]> extensionsWithAbsItems,
+            IDictionary<int, AbstractItemPersistentData[]> extensionsWithAbsItems,
             WidgetsAndPagesCacheTags cacheTags)
         {
             var result = new List<AbstractItem>();
@@ -146,7 +146,7 @@ namespace QA.DotNetCore.Engine.QpData
             AbstractItemPersistentData[] plainAbstractItems)
             => _builder.BuildAbstractItems(extensionContentId, plainAbstractItems);
 
-        private Dictionary<int, AbstractItemPersistentData[]> GetExtensionContentsWithAbstractItemPersistents()
+        private IDictionary<int, AbstractItemPersistentData[]> GetExtensionContentsWithAbstractItemPersistents()
             => _abstractItemRepository.GetExtensionContentsWithPlainAbstractItems(_buildSettings.SiteId,
                 _buildSettings.IsStage);
     }

@@ -23,7 +23,7 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces
         /// </summary>
         /// <param name="logId"></param>
         /// <returns></returns>
-        Dictionary<int, AbstractItemPersistentData[]> GetExtensionContentsWithPlainAbstractItems(int siteId,
+        IDictionary<int, AbstractItemPersistentData[]> GetExtensionContentsWithPlainAbstractItems(int siteId,
             bool isStage, IDbTransaction transaction = null);
 
 

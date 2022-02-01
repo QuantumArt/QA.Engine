@@ -183,7 +183,7 @@ namespace QA.DotNetCore.Engine.QpData
         /// </summary>
         /// <param name="extensions"></param>
         /// <returns></returns>
-        public void BuildContext(Dictionary<int, AbstractItemPersistentData[]> extensions)
+        public void BuildContext(IDictionary<int, AbstractItemPersistentData[]> extensions)
         {
             _context = new AbstractItemStorageBuilderContext
             {

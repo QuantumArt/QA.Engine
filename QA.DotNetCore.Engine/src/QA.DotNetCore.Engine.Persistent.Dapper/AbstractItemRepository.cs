@@ -52,7 +52,7 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
         /// </summary>
         /// <param name="logId"></param>
         /// <returns></returns>
-        public Dictionary<int, AbstractItemPersistentData[]> GetExtensionContentsWithPlainAbstractItems(int siteId,
+        public IDictionary<int, AbstractItemPersistentData[]> GetExtensionContentsWithPlainAbstractItems(int siteId,
             bool isStage, IDbTransaction transaction = null)
         {
             var abstractItems = GetPlainAllAbstractItems(siteId, isStage, transaction).ToArray(); //плоский список dto

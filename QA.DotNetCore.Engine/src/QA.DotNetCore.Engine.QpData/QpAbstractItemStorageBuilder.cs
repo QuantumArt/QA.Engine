@@ -7,6 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using QA.DotNetCore.Engine.QpData.Models;
@@ -26,6 +27,7 @@ namespace QA.DotNetCore.Engine.QpData
         private readonly IMetaInfoRepository _metaInfoRepository;
         private readonly QpSiteStructureBuildSettings _buildSettings;
         private readonly ILogger<QpAbstractItemStorageBuilder> _logger;
+        private readonly IServiceScopeFactory _scopeFactory;
 
         public QpAbstractItemStorageBuilder(
             IAbstractItemFactory itemFactory,
@@ -33,7 +35,8 @@ namespace QA.DotNetCore.Engine.QpData
             IAbstractItemRepository abstractItemRepository,
             IMetaInfoRepository metaInfoRepository,
             QpSiteStructureBuildSettings buildSettings,
-            ILogger<QpAbstractItemStorageBuilder> logger)
+            ILogger<QpAbstractItemStorageBuilder> logger,
+            IServiceScopeFactory scopeFactory)
         {
             _itemFactory = itemFactory;
             _qpUrlResolver = qpUrlResolver;
@@ -41,6 +44,7 @@ namespace QA.DotNetCore.Engine.QpData
             _metaInfoRepository = metaInfoRepository;
             _buildSettings = buildSettings;
             _logger = logger;
+            _scopeFactory = scopeFactory;
         }
 
 
@@ -256,12 +260,43 @@ namespace QA.DotNetCore.Engine.QpData
             IDictionary<int, M2mRelations> extensionsM2MData,
             string logBuildId)
         {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var qpUrlResolver = scope.ServiceProvider.GetRequiredService<IQpUrlResolver>();
+                var buildSettings = scope.ServiceProvider.GetRequiredService<QpSiteStructureBuildSettings>();
+                var logger = scope.ServiceProvider.GetRequiredService<ILogger<QpAbstractItemStorageBuilder>>();
+                return BuildDetails(qpUrlResolver, buildSettings, logger,
+                    item, extensionDataLazy, extensionContents, baseContent, extensionsM2MData, logBuildId);
+            }
+        }
+
+        /// <summary>
+        /// Возвращает данные контента расширения для AbstractItem <paramref name="item"/>
+        /// </summary>
+        /// <param name="item">AbstractItem</param>
+        /// <param name="extensionDataLazy">Словарь, где ключ - это CID расширения, в значение - это данные расширения</param>
+        /// <param name="extensionContents"></param>
+        /// <param name="baseContent"></param>
+        /// <param name="extensionsM2MData">Данные о связях m2m у расширения</param>
+        /// <param name="logBuildId"></param>
+        /// <returns></returns>
+        private static AbstractItemExtensionCollection BuildDetails(
+            IQpUrlResolver qpUrlResolver,
+            QpSiteStructureBuildSettings buildSettings,
+            ILogger logger,
+            AbstractItem item,
+            Lazy<IDictionary<int, AbstractItemExtensionCollection>> extensionDataLazy,
+            IDictionary<int, ContentPersistentData> extensionContents,
+            ContentPersistentData baseContent,
+            IDictionary<int, M2mRelations> extensionsM2MData,
+            string logBuildId)
+        {
             var extensionContentId = item.ExtensionId.GetValueOrDefault(0);
 
             var extensionData = extensionDataLazy.Value;
             if (!extensionData.TryGetValue(item.Id, out var details))
             {
-                _logger.LogDebug("Not found data for extension {0}. Build id: {1}", extensionContentId.ToString(),
+                logger.LogDebug("Not found data for extension {0}. Build id: {1}", extensionContentId.ToString(),
                     logBuildId);
                 return null;
             }
@@ -279,7 +314,7 @@ namespace QA.DotNetCore.Engine.QpData
                 fileFields = extensionContent.ContentAttributes.Where(ca => ca.IsFileField).ToList();
             }
 
-            if (_buildSettings.LoadAbstractItemFieldsToDetailsCollection)
+            if (buildSettings.LoadAbstractItemFieldsToDetailsCollection)
             {
                 m2mFieldNames = m2mFieldNames.Union(baseContent.ContentAttributes.Where(ca => ca.IsManyToManyField)
                     .Select(ca => ca.ColumnName)).ToList();
@@ -300,15 +335,15 @@ namespace QA.DotNetCore.Engine.QpData
                 {
                     //1) надо заменить плейсхолдер <%=upload_url%> на реальный урл
                     details.Set(key,
-                        stringValue.Replace(_buildSettings.UploadUrlPlaceholder,
-                            _qpUrlResolver.UploadUrl(_buildSettings.SiteId)));
+                        stringValue.Replace(buildSettings.UploadUrlPlaceholder,
+                            qpUrlResolver.UploadUrl(buildSettings.SiteId)));
 
                     //2) проверим, является ли это поле ссылкой на файл, тогда нужно преобразовать его в полный урл
                     var fileField = fileFields.FirstOrDefault(f =>
                         f.ColumnName.Equals(key, StringComparison.InvariantCultureIgnoreCase));
                     if (fileField != null)
                     {
-                        var baseUrl = _qpUrlResolver.UrlForImage(_buildSettings.SiteId, fileField);
+                        var baseUrl = qpUrlResolver.UrlForImage(buildSettings.SiteId, fileField);
                         if (!String.IsNullOrEmpty(baseUrl))
                         {
                             details.Set(key, baseUrl + "/" + stringValue);

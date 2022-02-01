@@ -14,6 +14,7 @@ using QA.DotNetCore.Engine.QpData.Tests.FakePagesAndWidgets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace QA.DotNetCore.Engine.QpData.Tests
@@ -91,12 +92,32 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 return null;
             });
 
+            // Arrange serviceScopeFactory
+            var serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IQpUrlResolver)))
+                .Returns(Mock.Of<IQpUrlResolver>());
+            serviceProvider
+                .Setup(x => x.GetService(typeof(QpSiteStructureBuildSettings)))
+                .Returns(buildSettings);
+            serviceProvider
+                .Setup(x => x.GetService(typeof(ILogger<QpAbstractItemStorageBuilder>)))
+                .Returns(Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
+
+            var serviceScope = new Mock<IServiceScope>();
+            serviceScope.Setup(x => x.ServiceProvider).Returns(serviceProvider.Object);
+
+            var serviceScopeFactory = new Mock<IServiceScopeFactory>();
+            serviceScopeFactory.Setup(x => x.CreateScope())
+                .Returns(serviceScope.Object);
+
             var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
                 Mock.Of<IQpUrlResolver>(),
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
                 buildSettings,
-                Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
+                Mock.Of<ILogger<QpAbstractItemStorageBuilder>>(),
+                serviceScopeFactory.Object);
 
             var aiStorage = builder.Build();
 
@@ -207,12 +228,32 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 return null;
             });
 
+            // Arrange serviceScopeFactory
+            var serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IQpUrlResolver)))
+                .Returns(Mock.Of<IQpUrlResolver>());
+            serviceProvider
+                .Setup(x => x.GetService(typeof(QpSiteStructureBuildSettings)))
+                .Returns(buildSettings);
+            serviceProvider
+                .Setup(x => x.GetService(typeof(ILogger<QpAbstractItemStorageBuilder>)))
+                .Returns(Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
+
+            var serviceScope = new Mock<IServiceScope>();
+            serviceScope.Setup(x => x.ServiceProvider).Returns(serviceProvider.Object);
+
+            var serviceScopeFactory = new Mock<IServiceScopeFactory>();
+            serviceScopeFactory.Setup(x => x.CreateScope())
+                .Returns(serviceScope.Object);
+
             var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
                 Mock.Of<IQpUrlResolver>(),
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
                 buildSettings,
-                Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
+                Mock.Of<ILogger<QpAbstractItemStorageBuilder>>(),
+                serviceScopeFactory.Object);
 
             var aiStorage = builder.Build();
 
@@ -311,12 +352,33 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             var cache = new MemoryCache(new MemoryCacheOptions());
             var cacheProvider = new VersionedCacheCoreProvider(cache);
             var urlResolver = new QpUrlResolver(cacheProvider, metaInfoMoq.Object, cacheSettings);
+
+            // Arrange serviceScopeFactory
+            var serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IQpUrlResolver)))
+                .Returns(urlResolver);
+            serviceProvider
+                .Setup(x => x.GetService(typeof(QpSiteStructureBuildSettings)))
+                .Returns(buildSettings);
+            serviceProvider
+                .Setup(x => x.GetService(typeof(ILogger<QpAbstractItemStorageBuilder>)))
+                .Returns(Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
+
+            var serviceScope = new Mock<IServiceScope>();
+            serviceScope.Setup(x => x.ServiceProvider).Returns(serviceProvider.Object);
+
+            var serviceScopeFactory = new Mock<IServiceScopeFactory>();
+            serviceScopeFactory.Setup(x => x.CreateScope())
+                .Returns(serviceScope.Object);
+
             var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
                 urlResolver, // реальный urlresolver
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
                 buildSettings,
-                Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
+                Mock.Of<ILogger<QpAbstractItemStorageBuilder>>(),
+                serviceScopeFactory.Object);
 
             var aiStorage = builder.Build();
 
@@ -461,12 +523,32 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 return null;
             });
 
+            // Arrange serviceScopeFactory
+            var serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IQpUrlResolver)))
+                .Returns(Mock.Of<IQpUrlResolver>());
+            serviceProvider
+                .Setup(x => x.GetService(typeof(QpSiteStructureBuildSettings)))
+                .Returns(buildSettings);
+            serviceProvider
+                .Setup(x => x.GetService(typeof(ILogger<QpAbstractItemStorageBuilder>)))
+                .Returns(Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
+
+            var serviceScope = new Mock<IServiceScope>();
+            serviceScope.Setup(x => x.ServiceProvider).Returns(serviceProvider.Object);
+
+            var serviceScopeFactory = new Mock<IServiceScopeFactory>();
+            serviceScopeFactory.Setup(x => x.CreateScope())
+                .Returns(serviceScope.Object);
+
             var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
                 Mock.Of<IQpUrlResolver>(),
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
                 buildSettings,
-                Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
+                Mock.Of<ILogger<QpAbstractItemStorageBuilder>>(),
+                serviceScopeFactory.Object);
 
             var aiStorage = builder.Build();
 
@@ -522,12 +604,32 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 return default;
             });
 
+            // Arrange serviceScopeFactory
+            var serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IQpUrlResolver)))
+                .Returns(Mock.Of<IQpUrlResolver>());
+            serviceProvider
+                .Setup(x => x.GetService(typeof(QpSiteStructureBuildSettings)))
+                .Returns(buildSettings);
+            serviceProvider
+                .Setup(x => x.GetService(typeof(ILogger<QpAbstractItemStorageBuilder>)))
+                .Returns(Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
+
+            var serviceScope = new Mock<IServiceScope>();
+            serviceScope.Setup(x => x.ServiceProvider).Returns(serviceProvider.Object);
+
+            var serviceScopeFactory = new Mock<IServiceScopeFactory>();
+            serviceScopeFactory.Setup(x => x.CreateScope())
+                .Returns(serviceScope.Object);
+
             QpAbstractItemStorageBuilder builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
                Mock.Of<IQpUrlResolver>(),
                aiRepositoryMoq.Object,
                metaInfoMoq.Object,
                buildSettings,
-               Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
+               Mock.Of<ILogger<QpAbstractItemStorageBuilder>>(),
+               serviceScopeFactory.Object);
 
             AbstractItemStorage aiStorage = builder.Build();
 
@@ -592,12 +694,32 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 buildSettings.IsStage,
                 null)).Returns(baseContentFieldDictionary);
 
+            // Arrange serviceScopeFactory
+            var serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IQpUrlResolver)))
+                .Returns(Mock.Of<IQpUrlResolver>());
+            serviceProvider
+                .Setup(x => x.GetService(typeof(QpSiteStructureBuildSettings)))
+                .Returns(buildSettings);
+            serviceProvider
+                .Setup(x => x.GetService(typeof(ILogger<QpAbstractItemStorageBuilder>)))
+                .Returns(Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
+
+            var serviceScope = new Mock<IServiceScope>();
+            serviceScope.Setup(x => x.ServiceProvider).Returns(serviceProvider.Object);
+
+            var serviceScopeFactory = new Mock<IServiceScopeFactory>();
+            serviceScopeFactory.Setup(x => x.CreateScope())
+                .Returns(serviceScope.Object);
+
             var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
                 Mock.Of<IQpUrlResolver>(),
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
                 buildSettings,
-                Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
+                Mock.Of<ILogger<QpAbstractItemStorageBuilder>>(),
+                serviceScopeFactory.Object);
 
             var aiStorage = builder.Build();
 
@@ -658,12 +780,32 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 return null;
             });
 
+            // Arrange serviceScopeFactory
+            var serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IQpUrlResolver)))
+                .Returns(Mock.Of<IQpUrlResolver>());
+            serviceProvider
+                .Setup(x => x.GetService(typeof(QpSiteStructureBuildSettings)))
+                .Returns(buildSettings);
+            serviceProvider
+                .Setup(x => x.GetService(typeof(ILogger<QpAbstractItemStorageBuilder>)))
+                .Returns(Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
+
+            var serviceScope = new Mock<IServiceScope>();
+            serviceScope.Setup(x => x.ServiceProvider).Returns(serviceProvider.Object);
+
+            var serviceScopeFactory = new Mock<IServiceScopeFactory>();
+            serviceScopeFactory.Setup(x => x.CreateScope())
+                .Returns(serviceScope.Object);
+
             var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
                 Mock.Of<IQpUrlResolver>(),
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
                 buildSettings,
-                Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
+                Mock.Of<ILogger<QpAbstractItemStorageBuilder>>(),
+                serviceScopeFactory.Object);
 
             var aiStorage = builder.Build();
 

@@ -12,35 +12,35 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces.Data
 
         public AbstractItemExtensionCollection()
         {
-            _innerDictionary = new Dictionary<string, InnerItem>();
+            _innerDictionary = new Dictionary<string, InnerItem>(StringComparer.OrdinalIgnoreCase);
         }
 
         public void Add(string key, object value)
         {
-            if (!_innerDictionary.ContainsKey(key.ToUpper()))
-                _innerDictionary.Add(key.ToUpper(), new InnerItem(value));
+            if (!_innerDictionary.ContainsKey(key))
+                _innerDictionary.Add(key, new InnerItem(value));
         }
 
         public void Set(string key, object value)
         {
-            if (_innerDictionary.ContainsKey(key.ToUpper()))
-                _innerDictionary[key.ToUpper()].Value = value;
+            if (_innerDictionary.ContainsKey(key))
+                _innerDictionary[key].Value = value;
         }
 
         public ICollection<string> Keys => _innerDictionary.Keys;
 
         public object this[string key]
         {
-            get => _innerDictionary[key.ToUpper()].Value;
-            set => _innerDictionary[key.ToUpper()] = new InnerItem(value);
+            get => _innerDictionary[key].Value;
+            set => _innerDictionary[key] = new InnerItem(value);
         }
 
         public object Get(string key, Type type)
         {
-            if (!_innerDictionary.ContainsKey(key.ToUpper()))
+            if (!_innerDictionary.ContainsKey(key))
                 return null;
 
-            var value = _innerDictionary[key.ToUpper()].Value;
+            var value = _innerDictionary[key].Value;
             if (type == typeof(string))
             {
                 return Convert.ToString(value);
@@ -75,7 +75,7 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces.Data
 
         public bool ContainsKey(string key)
         {
-            return _innerDictionary.ContainsKey(key.ToUpper());
+            return _innerDictionary.ContainsKey(key);
         }
 
         public int Count => _innerDictionary.Count;

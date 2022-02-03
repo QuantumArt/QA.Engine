@@ -101,6 +101,9 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 .Setup(x => x.GetService(typeof(QpSiteStructureBuildSettings)))
                 .Returns(buildSettings);
             serviceProvider
+                .Setup(x => x.GetService(typeof(IAbstractItemRepository)))
+                .Returns(aiRepositoryMoq.Object);
+            serviceProvider
                 .Setup(x => x.GetService(typeof(ILogger<QpAbstractItemStorageBuilder>)))
                 .Returns(Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
 
@@ -237,6 +240,9 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 .Setup(x => x.GetService(typeof(QpSiteStructureBuildSettings)))
                 .Returns(buildSettings);
             serviceProvider
+                .Setup(x => x.GetService(typeof(IAbstractItemRepository)))
+                .Returns(aiRepositoryMoq.Object);
+            serviceProvider
                 .Setup(x => x.GetService(typeof(ILogger<QpAbstractItemStorageBuilder>)))
                 .Returns(Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
 
@@ -361,6 +367,9 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             serviceProvider
                 .Setup(x => x.GetService(typeof(QpSiteStructureBuildSettings)))
                 .Returns(buildSettings);
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IAbstractItemRepository)))
+                .Returns(aiRepositoryMoq.Object);
             serviceProvider
                 .Setup(x => x.GetService(typeof(ILogger<QpAbstractItemStorageBuilder>)))
                 .Returns(Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
@@ -532,6 +541,9 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 .Setup(x => x.GetService(typeof(QpSiteStructureBuildSettings)))
                 .Returns(buildSettings);
             serviceProvider
+                .Setup(x => x.GetService(typeof(IAbstractItemRepository)))
+                .Returns(aiRepositoryMoq.Object);
+            serviceProvider
                 .Setup(x => x.GetService(typeof(ILogger<QpAbstractItemStorageBuilder>)))
                 .Returns(Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
 
@@ -612,6 +624,9 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             serviceProvider
                 .Setup(x => x.GetService(typeof(QpSiteStructureBuildSettings)))
                 .Returns(buildSettings);
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IAbstractItemRepository)))
+                .Returns(aiRepositoryMoq.Object);
             serviceProvider
                 .Setup(x => x.GetService(typeof(ILogger<QpAbstractItemStorageBuilder>)))
                 .Returns(Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
@@ -703,6 +718,9 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 .Setup(x => x.GetService(typeof(QpSiteStructureBuildSettings)))
                 .Returns(buildSettings);
             serviceProvider
+                .Setup(x => x.GetService(typeof(IAbstractItemRepository)))
+                .Returns(aiRepositoryMoq.Object);
+            serviceProvider
                 .Setup(x => x.GetService(typeof(ILogger<QpAbstractItemStorageBuilder>)))
                 .Returns(Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
 
@@ -788,6 +806,9 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             serviceProvider
                 .Setup(x => x.GetService(typeof(QpSiteStructureBuildSettings)))
                 .Returns(buildSettings);
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IAbstractItemRepository)))
+                .Returns(aiRepositoryMoq.Object);
             serviceProvider
                 .Setup(x => x.GetService(typeof(ILogger<QpAbstractItemStorageBuilder>)))
                 .Returns(Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());

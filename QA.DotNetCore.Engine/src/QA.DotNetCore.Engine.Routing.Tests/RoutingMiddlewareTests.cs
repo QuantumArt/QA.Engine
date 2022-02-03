@@ -187,6 +187,9 @@ namespace QA.DotNetCore.Engine.Routing.Tests
                 .Setup(x => x.GetService(typeof(QpSiteStructureBuildSettings)))
                 .Returns(Mock.Of<QpSiteStructureBuildSettings>());
             serviceProvider
+                .Setup(x => x.GetService(typeof(IAbstractItemRepository)))
+                .Returns(aiRepositoryMoq.Object);
+            serviceProvider
                 .Setup(x => x.GetService(typeof(ILogger<QpAbstractItemStorageBuilder>)))
                 .Returns(Mock.Of<ILogger<QpAbstractItemStorageBuilder>>());
 

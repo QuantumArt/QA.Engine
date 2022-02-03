@@ -229,16 +229,33 @@ namespace QA.DotNetCore.Engine.QpData
         }
 
         private IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionId,
-            IEnumerable<int> abstractItemIds, ContentPersistentData baseContent, string logBuildId)
+            IEnumerable<int> abstractItemIds, ContentPersistentData baseContent, string logId)
         {
-            _logger.LogDebug("Load data from extension table {0}. Build id: {1}", extensionId.ToString(),
-                logBuildId);
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var abstractItemRepository = scope.ServiceProvider.GetRequiredService<IAbstractItemRepository>();
+                var buildSettings = scope.ServiceProvider.GetRequiredService<QpSiteStructureBuildSettings>();
+                var logger = scope.ServiceProvider.GetRequiredService<ILogger<QpAbstractItemStorageBuilder>>();
+                return GetAbstractItemExtensionData(abstractItemRepository,buildSettings,logger,
+                    extensionId, abstractItemIds, baseContent, logId);
+            }
+        }
+
+        private static IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(
+            IAbstractItemRepository abstractItemRepository,
+            QpSiteStructureBuildSettings buildSettings,
+            ILogger logger,
+            int extensionId,
+            IEnumerable<int> abstractItemIds, ContentPersistentData baseContent, string logId)
+        {
+            logger.LogDebug("Load data from extension table {0}. Build id: {1}", extensionId.ToString(),
+                logId);
 
             var extensionData = extensionId == 0
-                ? _abstractItemRepository.GetAbstractItemExtensionlessData(abstractItemIds, baseContent,
-                    _buildSettings.IsStage)
-                : _abstractItemRepository.GetAbstractItemExtensionData(extensionId, abstractItemIds, baseContent,
-                    _buildSettings.LoadAbstractItemFieldsToDetailsCollection, _buildSettings.IsStage);
+                ? abstractItemRepository.GetAbstractItemExtensionlessData(abstractItemIds, baseContent,
+                    buildSettings.IsStage)
+                : abstractItemRepository.GetAbstractItemExtensionData(extensionId, abstractItemIds, baseContent,
+                    buildSettings.LoadAbstractItemFieldsToDetailsCollection, buildSettings.IsStage);
 
             return extensionData;
         }
@@ -251,14 +268,14 @@ namespace QA.DotNetCore.Engine.QpData
         /// <param name="extensionContents"></param>
         /// <param name="baseContent"></param>
         /// <param name="extensionsM2MData">Данные о связях m2m у расширения</param>
-        /// <param name="logBuildId"></param>
+        /// <param name="logId"></param>
         /// <returns></returns>
         private AbstractItemExtensionCollection BuildDetails(AbstractItem item,
             Lazy<IDictionary<int, AbstractItemExtensionCollection>> extensionDataLazy,
             IDictionary<int, ContentPersistentData> extensionContents,
             ContentPersistentData baseContent,
             IDictionary<int, M2mRelations> extensionsM2MData,
-            string logBuildId)
+            string logId)
         {
             using (var scope = _scopeFactory.CreateScope())
             {
@@ -266,7 +283,7 @@ namespace QA.DotNetCore.Engine.QpData
                 var buildSettings = scope.ServiceProvider.GetRequiredService<QpSiteStructureBuildSettings>();
                 var logger = scope.ServiceProvider.GetRequiredService<ILogger<QpAbstractItemStorageBuilder>>();
                 return BuildDetails(qpUrlResolver, buildSettings, logger,
-                    item, extensionDataLazy, extensionContents, baseContent, extensionsM2MData, logBuildId);
+                    item, extensionDataLazy, extensionContents, baseContent, extensionsM2MData, logId);
             }
         }
 
@@ -278,7 +295,7 @@ namespace QA.DotNetCore.Engine.QpData
         /// <param name="extensionContents"></param>
         /// <param name="baseContent"></param>
         /// <param name="extensionsM2MData">Данные о связях m2m у расширения</param>
-        /// <param name="logBuildId"></param>
+        /// <param name="logId"></param>
         /// <returns></returns>
         private static AbstractItemExtensionCollection BuildDetails(
             IQpUrlResolver qpUrlResolver,
@@ -289,7 +306,7 @@ namespace QA.DotNetCore.Engine.QpData
             IDictionary<int, ContentPersistentData> extensionContents,
             ContentPersistentData baseContent,
             IDictionary<int, M2mRelations> extensionsM2MData,
-            string logBuildId)
+            string logId)
         {
             var extensionContentId = item.ExtensionId.GetValueOrDefault(0);
 
@@ -297,7 +314,7 @@ namespace QA.DotNetCore.Engine.QpData
             if (!extensionData.TryGetValue(item.Id, out var details))
             {
                 logger.LogDebug("Not found data for extension {0}. Build id: {1}", extensionContentId.ToString(),
-                    logBuildId);
+                    logId);
                 return null;
             }
 

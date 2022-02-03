@@ -149,11 +149,6 @@ namespace QA.DotNetCore.Engine.Routing.Tests
 
             aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteID, isStage, null)).Returns(abstractItemPersistentDatas);
 
-            aiRepositoryMoq.Setup(x => x.GetExtensionContentsWithPlainAbstractItems(siteID, isStage, null))
-                .Returns(abstractItemPersistentDatas
-                    .GroupBy(x => x.ExtensionId ?? 0)
-                    .ToDictionary(x => x.Key, x => x.ToArray()));
-
             aiRepositoryMoq.Setup(x => x.GetAbstractItemExtensionIds(
                     It.IsAny<Dictionary<int, IEnumerable<int>>>(), isStage, null))
                 .Returns(new int[0]);

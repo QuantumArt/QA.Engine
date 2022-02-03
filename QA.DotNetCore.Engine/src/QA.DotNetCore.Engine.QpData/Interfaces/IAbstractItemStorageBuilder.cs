@@ -37,6 +37,6 @@ namespace QA.DotNetCore.Engine.QpData.Interfaces
         /// </summary>
         /// <param name="extensions"></param>
         /// <returns></returns>
-        void BuildContext(IDictionary<int, AbstractItemPersistentData[]> extensions);
+        void Init(IDictionary<int, AbstractItemPersistentData[]> extensions);
     }
 }

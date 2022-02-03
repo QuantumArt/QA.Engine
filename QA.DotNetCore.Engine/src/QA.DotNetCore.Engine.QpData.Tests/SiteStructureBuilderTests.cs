@@ -69,11 +69,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             };
             aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteId, isStage, null)).Returns(aiArray);
 
-            aiRepositoryMoq.Setup(x => x.GetExtensionContentsWithPlainAbstractItems(siteId, isStage, null))
-                .Returns(aiArray
-                    .GroupBy(x => x.ExtensionId ?? 0)
-                    .ToDictionary(x => x.Key, x => x.ToArray()));
-
             var metaInfoMoq = new Mock<IMetaInfoRepository>();
             metaInfoMoq.Setup(x => x.GetContent(abstractItemNetName, siteId, null)).Returns(new ContentPersistentData
             {
@@ -200,11 +195,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             };
             aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteId, isStage, null)).Returns(aiArray);
 
-            aiRepositoryMoq.Setup(x => x.GetExtensionContentsWithPlainAbstractItems(siteId, isStage, null))
-                .Returns(aiArray
-                    .GroupBy(x => x.ExtensionId ?? 0)
-                    .ToDictionary(x => x.Key, x => x.ToArray()));
-
             //extension-поля стартовых страниц
             var startPageBaseExt = new AbstractItemExtensionCollection();
             startPageBaseExt.Add("DnsBinding", "quantumart.ru");
@@ -321,11 +311,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 new AbstractItemPersistentData{ Id = 3, Title = "виджет картинки", Alias = "pic", Discriminator = typeof(PictureWidget).Name, IsPage = false, ParentId = 2, ExtensionId = extensionId }
             };
             aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteId, isStage, null)).Returns(aiArray);
-
-            aiRepositoryMoq.Setup(x => x.GetExtensionContentsWithPlainAbstractItems(siteId, isStage, null))
-                .Returns(aiArray
-                    .GroupBy(x => x.ExtensionId ?? 0)
-                    .ToDictionary(x => x.Key, x => x.ToArray()));
 
             //extension-поля, среди них:
             //поля с картинками (которые приходят к нам без базового урла)
@@ -467,11 +452,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             };
             aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteId, isStage, null)).Returns(aiArray);
 
-            aiRepositoryMoq.Setup(x => x.GetExtensionContentsWithPlainAbstractItems(siteId, isStage, null))
-                .Returns(aiArray
-                    .GroupBy(x => x.ExtensionId ?? 0)
-                    .ToDictionary(x => x.Key, x => x.ToArray()));
-
             aiRepositoryMoq.Setup(x => x.GetAbstractItemExtensionIds(
                     It.IsAny<Dictionary<int, IEnumerable<int>>>(), isStage, null))
                 .Returns(new[]
@@ -588,11 +568,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             };
             aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteId, isStage, null)).Returns(aiArray);
 
-            aiRepositoryMoq.Setup(x => x.GetExtensionContentsWithPlainAbstractItems(siteId, isStage, null))
-                .Returns(aiArray
-                    .GroupBy(x => x.ExtensionId ?? 0)
-                    .ToDictionary(x => x.Key, x => x.ToArray()));
-
             Mock<IMetaInfoRepository> metaInfoMoq = new Mock<IMetaInfoRepository>();
             metaInfoMoq.Setup(x => x.GetContent(abstractItemNetName, siteId, null)).Returns(new ContentPersistentData
             {
@@ -671,11 +646,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 new AbstractItemPersistentData{ Id = 3, Title = "страница без extension", Alias = "foo", Discriminator = typeof(StubPage).Name, IsPage = true, ParentId = 2, ExtensionId = null },
             };
             aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteId, isStage, null)).Returns(aiArray);
-
-            aiRepositoryMoq.Setup(x => x.GetExtensionContentsWithPlainAbstractItems(siteId, isStage, null))
-                .Returns(aiArray
-                    .GroupBy(x => x.ExtensionId ?? 0)
-                    .ToDictionary(x => x.Key, x => x.ToArray()));
 
             var metaInfoMoq = new Mock<IMetaInfoRepository>();
             metaInfoMoq.
@@ -766,11 +736,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 new AbstractItemPersistentData{ Id = 3, Title = "стартовая страница 2", Alias = "start2", Discriminator = typeof(StartPage).Name, IsPage = true, ParentId = 1, ExtensionId = extensionId }
             };
             aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteId, isStage, null)).Returns(aiArray);
-
-            aiRepositoryMoq.Setup(x => x.GetExtensionContentsWithPlainAbstractItems(siteId, isStage, null))
-                .Returns(aiArray
-                    .GroupBy(x => x.ExtensionId ?? 0)
-                    .ToDictionary(x => x.Key, x => x.ToArray()));
 
             //extension-поля стартовых страниц
             var startPageBaseExt = new AbstractItemExtensionCollection();

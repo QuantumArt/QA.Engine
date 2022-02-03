@@ -18,14 +18,6 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces
 
         IDictionary<int, M2mRelations> GetManyToManyData(IEnumerable<int> ids, bool isStage, IDbTransaction transaction = null);
 
-        /// <summary>
-        /// Получить словарь ID контентов расширений и их AbstractItemPersistents
-        /// </summary>
-        /// <param name="logId"></param>
-        /// <returns></returns>
-        IDictionary<int, AbstractItemPersistentData[]> GetExtensionContentsWithPlainAbstractItems(int siteId,
-            bool isStage, IDbTransaction transaction = null);
-
 
         /// <summary>
         /// Получить Content_item_id расширений

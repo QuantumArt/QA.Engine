@@ -170,10 +170,18 @@ namespace QA.DotNetCore.Engine.QpData
 
         public AbstractItemStorage Build()
         {
-            var extensionsWithAbsItems = _abstractItemRepository.GetExtensionContentsWithPlainAbstractItems(
-                _buildSettings.SiteId,
-                _buildSettings.IsStage);
-            BuildContext(extensionsWithAbsItems);
+            var abstractItemsPlain =
+                _abstractItemRepository.GetPlainAllAbstractItems(_buildSettings.SiteId,
+                    _buildSettings.IsStage);
+
+            //сгруппируем AbsractItem-ы по extensionId
+            var extensionsWithAbsItems = abstractItemsPlain
+                .GroupBy(x => x.ExtensionId.GetValueOrDefault(0))
+                .ToDictionary(
+                    x => x.Key,
+                    x => x.ToArray());
+
+            Init(extensionsWithAbsItems);
 
             var abstractItems = extensionsWithAbsItems
                 .SelectMany(x => BuildAbstractItems(x.Key, x.Value))
@@ -187,7 +195,7 @@ namespace QA.DotNetCore.Engine.QpData
         /// </summary>
         /// <param name="extensions"></param>
         /// <returns></returns>
-        public void BuildContext(IDictionary<int, AbstractItemPersistentData[]> extensions)
+        public void Init(IDictionary<int, AbstractItemPersistentData[]> extensions)
         {
             _context = new AbstractItemStorageBuilderContext
             {

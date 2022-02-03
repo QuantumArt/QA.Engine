@@ -1,4 +1,4 @@
-using QA.DotNetCore.Caching.Interfaces;
+﻿using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Settings;
@@ -14,7 +14,7 @@ namespace QA.DotNetCore.Engine.QpData
     /// <summary>
     /// Предоставляет доступ к структуре сайта, изготовленной строителем по требованию. Может кешировать.
     /// </summary>
-    public class SimpleAbstractItemStorageProvider : IAbstractItemStorageProvider
+    public class GranularCacheAbstractItemStorageProvider : IAbstractItemStorageProvider
     {
         private readonly IAbstractItemStorageBuilder _builder;
         private readonly ICacheProvider _cacheProvider;
@@ -23,7 +23,7 @@ namespace QA.DotNetCore.Engine.QpData
         private readonly QpSiteStructureBuildSettings _buildSettings;
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
 
-        public SimpleAbstractItemStorageProvider(
+        public GranularCacheAbstractItemStorageProvider(
             ICacheProvider cacheProvider,
             IAbstractItemStorageBuilder builder,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
@@ -78,7 +78,7 @@ namespace QA.DotNetCore.Engine.QpData
             IDictionary<int, AbstractItemPersistentData[]> extensionsWithAbsItems,
             WidgetsAndPagesCacheTags cacheTags)
         {
-            _builder.BuildContext(extensionsWithAbsItems);
+            _builder.Init(extensionsWithAbsItems);
             return BuildStorage(GetCachedAbstractItems(extensionsWithAbsItems, cacheTags));
         }
 
@@ -147,7 +147,17 @@ namespace QA.DotNetCore.Engine.QpData
             => _builder.BuildAbstractItems(extensionContentId, plainAbstractItems);
 
         private IDictionary<int, AbstractItemPersistentData[]> GetExtensionContentsWithAbstractItemPersistents()
-            => _abstractItemRepository.GetExtensionContentsWithPlainAbstractItems(_buildSettings.SiteId,
-                _buildSettings.IsStage);
+        {
+            var abstractItemsPlain =
+                _abstractItemRepository.GetPlainAllAbstractItems(_buildSettings.SiteId,
+                    _buildSettings.IsStage);
+
+            //сгруппируем AbsractItem-ы по extensionId
+            return abstractItemsPlain
+                .GroupBy(x => x.ExtensionId.GetValueOrDefault(0))
+                .ToDictionary(
+                    x => x.Key,
+                    x => x.ToArray());
+        }
     }
 }

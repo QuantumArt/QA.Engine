@@ -48,25 +48,6 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
         }
 
         /// <summary>
-        /// Получить словарь ID контентов расширений и их AbstractItemPersistents
-        /// </summary>
-        /// <param name="logId"></param>
-        /// <returns></returns>
-        public IDictionary<int, AbstractItemPersistentData[]> GetExtensionContentsWithPlainAbstractItems(int siteId,
-            bool isStage, IDbTransaction transaction = null)
-        {
-            var abstractItems = GetPlainAllAbstractItems(siteId, isStage, transaction).ToArray(); //плоский список dto
-
-            //сгруппируем AbsractItem-ы по extensionId
-            //все элементы с пустым extensionId будут в одной группе с ключом 0
-            return abstractItems
-                .GroupBy(x => x.ExtensionId.GetValueOrDefault(0))
-                .ToDictionary(
-                    x => x.Key,
-                    x => x.ToArray());
-        }
-
-        /// <summary>
         /// Получить Content_item_id расширений
         /// </summary>
         /// <param name="extensionsContents">Словарь ID контента расширений и использующия их коллекция AbstractItems</param>

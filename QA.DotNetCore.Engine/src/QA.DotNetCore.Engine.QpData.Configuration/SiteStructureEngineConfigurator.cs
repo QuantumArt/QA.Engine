@@ -161,8 +161,18 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             Services.TryAddScoped<IItemDefinitionRepository, ItemDefinitionRepository>();
 
             Services.TryAddScoped<IQpUrlResolver, QpUrlResolver>();
-            Services.AddTransient<IAbstractItemStorageBuilder, QpAbstractItemStorageBuilder>();
-            Services.TryAddScoped<IAbstractItemStorageProvider, GranularCacheAbstractItemStorageProvider>();
+            Services.TryAddTransient<IAbstractItemStorageBuilder, QpAbstractItemStorageBuilder>();
+            Services.TryAddTransient<IAbstractItemContextStorageBuilder, QpAbstractItemStorageBuilder>();
+
+            if (options.SiteStructureCachePeriod <= TimeSpan.Zero)
+            {
+                Services.TryAddScoped<IAbstractItemStorageProvider, AbstractItemStorageProvider>();
+            }
+            else
+            {
+                Services.TryAddScoped<IAbstractItemStorageProvider, GranularCacheAbstractItemStorageProvider>();
+            }
+
             Services.TryAddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
             Services.TryAddScoped<IQpContentCacheTagNamingProvider, DefaultQpContentCacheTagNamingProvider>();
             Services.TryAddSingleton<ITargetingFilterAccessor, NullTargetingFilterAccessor>();

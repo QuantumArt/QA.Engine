@@ -99,7 +99,7 @@ namespace QA.DotNetCore.Engine.QpData
         internal int? VersionOfId { get; set; }
         internal string Discriminator { get; set; }
         internal bool Published { get; set; }
-        internal Lazy<AbstractItemExtensionCollection> Details { get; set; }
+        internal Lazy<AbstractItemExtensionCollection> LazyDetails { get; set; }
         internal M2mRelations M2mRelations { get; set; }
         internal List<string> M2mFieldNames { get; set; }
 
@@ -108,7 +108,7 @@ namespace QA.DotNetCore.Engine.QpData
         /// </summary>
         public virtual T GetDetail<T>(string name, T defaultValue)
         {
-            var value = Details?.Value?.Get(name, typeof(T));
+            var value = LazyDetails?.Value?.Get(name, typeof(T));
             if (value == null)
             {
                 return defaultValue;

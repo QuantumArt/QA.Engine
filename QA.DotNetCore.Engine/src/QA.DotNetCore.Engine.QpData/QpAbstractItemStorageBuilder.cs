@@ -17,12 +17,11 @@ namespace QA.DotNetCore.Engine.QpData
     /// <summary>
     /// Строитель структуры сайта из базы QP
     /// </summary>
-    public class QpAbstractItemStorageBuilder : IAbstractItemStorageBuilder
+    public class QpAbstractItemStorageBuilder : IAbstractItemStorageBuilder, IAbstractItemContextStorageBuilder
     {
         private AbstractItemStorageBuilderContext _context;
 
         private readonly IAbstractItemFactory _itemFactory;
-        private readonly IQpUrlResolver _qpUrlResolver;
         private readonly IAbstractItemRepository _abstractItemRepository;
         private readonly IMetaInfoRepository _metaInfoRepository;
         private readonly QpSiteStructureBuildSettings _buildSettings;
@@ -31,7 +30,6 @@ namespace QA.DotNetCore.Engine.QpData
 
         public QpAbstractItemStorageBuilder(
             IAbstractItemFactory itemFactory,
-            IQpUrlResolver qpUrlResolver,
             IAbstractItemRepository abstractItemRepository,
             IMetaInfoRepository metaInfoRepository,
             QpSiteStructureBuildSettings buildSettings,
@@ -39,7 +37,6 @@ namespace QA.DotNetCore.Engine.QpData
             IServiceScopeFactory scopeFactory)
         {
             _itemFactory = itemFactory;
-            _qpUrlResolver = qpUrlResolver;
             _abstractItemRepository = abstractItemRepository;
             _metaInfoRepository = metaInfoRepository;
             _buildSettings = buildSettings;
@@ -50,14 +47,13 @@ namespace QA.DotNetCore.Engine.QpData
 
         public AbstractItemStorage BuildStorage(AbstractItem[] abstractItems)
         {
-            _logger.LogDebug(
+            _logger.LogInformation(
                 "AbstractItemStorage build via AbstractItems collection started. Build id: {0}, SiteId: {0}, IsStage: {1}",
                 _context.LogId, _buildSettings.SiteId, _buildSettings.IsStage);
             var root = abstractItems.First(x => x.Discriminator == _buildSettings.RootPageDiscriminator);
             return new AbstractItemStorage(root, abstractItems);
         }
 
-        private static int Counter = 0;
         /// <summary>
         /// Формирование AbstractItem
         /// </summary>
@@ -66,11 +62,10 @@ namespace QA.DotNetCore.Engine.QpData
         /// <returns></returns>
         public AbstractItem[] BuildAbstractItems(int extensionContentId, AbstractItemPersistentData[] abstractItemPersistentDatas)
         {
-            Counter++;
             if (_context == null)
                 throw new ArgumentNullException(nameof(_context));
 
-            _logger.LogDebug("AbstractItem build via QP started. Build id: {0}, SiteId: {0}, IsStage: {1}",
+            _logger.LogInformation("AbstractItem build via QP started. Build id: {0}, SiteId: {0}, IsStage: {1}",
                 _context.LogId, _buildSettings.SiteId, _buildSettings.IsStage);
 
             var activatedAbstractItems = new Dictionary<int, AbstractItem>();
@@ -86,15 +81,15 @@ namespace QA.DotNetCore.Engine.QpData
             }
 
 
-            _logger.LogDebug("Activated abstract items: {0}. Build id: {1}", activatedAbstractItems.Count, _context.LogId);
+            _logger.LogInformation("Activated abstract items: {0}. Build id: {1}", activatedAbstractItems.Count, _context.LogId);
 
             if (extensionContentId > 0 || _buildSettings.LoadAbstractItemFieldsToDetailsCollection)
             {
                 foreach (var abstractItem in activatedAbstractItems.Values)
                 {
-                    abstractItem.Details = new Lazy<AbstractItemExtensionCollection>(() =>
+                    abstractItem.LazyDetails = new Lazy<AbstractItemExtensionCollection>(() =>
                         BuildDetails(abstractItem,
-                            _context.ExtensionDataLazy[extensionContentId],
+                            _context.LazyExtensionData[extensionContentId],
                             _context.ExtensionContents,
                             _context.BaseContent,
                             _context.ExtensionsM2MData,
@@ -103,7 +98,7 @@ namespace QA.DotNetCore.Engine.QpData
             }
             else
             {
-                _logger.LogDebug(
+                _logger.LogInformation(
                     "Skip load data for extension-less elements (LoadAbstractItemFieldsToDetailsCollection = false). Build id: {1}",
                     _context.LogId);
             }
@@ -112,7 +107,7 @@ namespace QA.DotNetCore.Engine.QpData
 
             if (_context.NeedLoadM2mInAbstractItem)
             {
-                _logger.LogDebug("Load data for many-to-many fields in main content (QPAbstractItem). Build id: {1}",
+                _logger.LogInformation("Load data for many-to-many fields in main content (QPAbstractItem). Build id: {1}",
                     _context.LogId);
 
                 if (_context.AbstractItemsM2MData != null)
@@ -215,7 +210,7 @@ namespace QA.DotNetCore.Engine.QpData
                     .ToDictionary(c => c.ContentId);
 
 
-                _context.ExtensionDataLazy = extensions.ToDictionary(x => x.Key,
+                _context.LazyExtensionData = extensions.ToDictionary(x => x.Key,
                     x => new Lazy<IDictionary<int, AbstractItemExtensionCollection>>(() =>
                         GetAbstractItemExtensionData(x.Key, x.Value.Select(i => i.Id), _context.BaseContent,
                             _context.LogId)));

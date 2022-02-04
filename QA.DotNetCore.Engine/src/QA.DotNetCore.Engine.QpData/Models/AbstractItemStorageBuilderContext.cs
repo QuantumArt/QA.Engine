@@ -14,7 +14,7 @@ namespace QA.DotNetCore.Engine.QpData.Models
         /// <summary>
         /// Словарь, где ключ - это Content Id расширения, в значение - это статьи расширения, где поля раскиданы по ключам
         /// </summary>
-        public IDictionary<int, Lazy<IDictionary<int, AbstractItemExtensionCollection>>> ExtensionDataLazy { get; set; }
+        public IDictionary<int, Lazy<IDictionary<int, AbstractItemExtensionCollection>>> LazyExtensionData { get; set; }
 
         /// <summary>
         /// Информация обо всех контентах-расширениях, которые используются

@@ -195,7 +195,7 @@ namespace QA.DotNetCore.Engine.Routing.Tests
             serviceScopeFactory.Setup(x => x.CreateScope())
                 .Returns(serviceScope.Object);
 
-            QpAbstractItemStorageBuilder builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object, Mock.Of<IQpUrlResolver>(), aiRepositoryMoq.Object,
+            QpAbstractItemStorageBuilder builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object, aiRepositoryMoq.Object,
                 metaInfoMoq.Object, buildSettings, logger, serviceScopeFactory.Object);
 
             return builder.Build();

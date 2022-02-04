@@ -110,7 +110,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 .Returns(serviceScope.Object);
 
             var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
-                Mock.Of<IQpUrlResolver>(),
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
                 buildSettings,
@@ -244,7 +243,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 .Returns(serviceScope.Object);
 
             var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
-                Mock.Of<IQpUrlResolver>(),
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
                 buildSettings,
@@ -367,7 +365,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 .Returns(serviceScope.Object);
 
             var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
-                urlResolver, // реальный urlresolver
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
                 buildSettings,
@@ -535,7 +532,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 .Returns(serviceScope.Object);
 
             var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
-                Mock.Of<IQpUrlResolver>(),
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
                 buildSettings,
@@ -614,7 +610,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 .Returns(serviceScope.Object);
 
             QpAbstractItemStorageBuilder builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
-               Mock.Of<IQpUrlResolver>(),
                aiRepositoryMoq.Object,
                metaInfoMoq.Object,
                buildSettings,
@@ -702,7 +697,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 .Returns(serviceScope.Object);
 
             var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
-                Mock.Of<IQpUrlResolver>(),
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
                 buildSettings,
@@ -786,7 +780,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 .Returns(serviceScope.Object);
 
             var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
-                Mock.Of<IQpUrlResolver>(),
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
                 buildSettings,

@@ -20,9 +20,9 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces
 
 
         /// <summary>
-        /// Получить Content_item_id расширений
+        /// Получить id статей-расширений
         /// </summary>
-        /// <param name="extensionsContents">Словарь ID контента расширений и использующия их коллекция AbstractItems</param>
+        /// <param name="extensionsContents">Словарь ID контента расширений и ссылающиеся на нее AbstractItems</param>
         /// <returns></returns>
         IEnumerable<int> GetAbstractItemExtensionIds(IDictionary<int, IEnumerable<int>> extensionsContents,
             bool isStage, IDbTransaction transaction = null);

@@ -16,7 +16,7 @@ namespace QA.DotNetCore.Engine.QpData
     /// </summary>
     public class GranularCacheAbstractItemStorageProvider : IAbstractItemStorageProvider
     {
-        private readonly IAbstractItemStorageBuilder _builder;
+        private readonly IAbstractItemContextStorageBuilder _builder;
         private readonly ICacheProvider _cacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly IAbstractItemRepository _abstractItemRepository;
@@ -25,7 +25,7 @@ namespace QA.DotNetCore.Engine.QpData
 
         public GranularCacheAbstractItemStorageProvider(
             ICacheProvider cacheProvider,
-            IAbstractItemStorageBuilder builder,
+            IAbstractItemContextStorageBuilder builder,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
             QpSiteStructureBuildSettings buildSettings,
             QpSiteStructureCacheSettings cacheSettings,
@@ -41,14 +41,9 @@ namespace QA.DotNetCore.Engine.QpData
 
         public AbstractItemStorage Get()
         {
-            if (_cacheSettings.SiteStructureCachePeriod <= TimeSpan.Zero)
-            {
-                return BuildStorageWithoutCache();
-            }
+            var extensionsWithAbsItems = GetExtensionContentsWithAbstractItemPersistentData();
 
-            var extensionsWithAbsItems = GetExtensionContentsWithAbstractItemPersistents();
-
-            // Соберем все теги для общего кэша
+            // Соберем все теги
             var cacheTags = new WidgetsAndPagesCacheTags
             {
                 AbstractItemTag = _qpContentCacheTagNamingProvider.GetByNetName(KnownNetNames.AbstractItem,
@@ -79,24 +74,7 @@ namespace QA.DotNetCore.Engine.QpData
             WidgetsAndPagesCacheTags cacheTags)
         {
             _builder.Init(extensionsWithAbsItems);
-            return BuildStorage(GetCachedAbstractItems(extensionsWithAbsItems, cacheTags));
-        }
-
-        /// <summary>
-        /// Формирование storage
-        /// </summary>
-        /// <remarks>Без кэш</remarks>
-        /// <returns></returns>
-        private AbstractItemStorage BuildStorageWithoutCache()
-            => _builder.Build();
-
-        /// <summary>
-        /// Формирование storage
-        /// </summary>
-        /// <param name="abstractItems"></param>
-        /// <returns></returns>
-        private AbstractItemStorage BuildStorage(AbstractItem[] abstractItems)
-        {
+            var abstractItems = GetCachedAbstractItems(extensionsWithAbsItems, cacheTags);
             _builder.SetRelationsBetweenAbstractItems(abstractItems);
             return _builder.BuildStorage(abstractItems);
         }
@@ -146,7 +124,7 @@ namespace QA.DotNetCore.Engine.QpData
             AbstractItemPersistentData[] plainAbstractItems)
             => _builder.BuildAbstractItems(extensionContentId, plainAbstractItems);
 
-        private IDictionary<int, AbstractItemPersistentData[]> GetExtensionContentsWithAbstractItemPersistents()
+        private IDictionary<int, AbstractItemPersistentData[]> GetExtensionContentsWithAbstractItemPersistentData()
         {
             var abstractItemsPlain =
                 _abstractItemRepository.GetPlainAllAbstractItems(_buildSettings.SiteId,

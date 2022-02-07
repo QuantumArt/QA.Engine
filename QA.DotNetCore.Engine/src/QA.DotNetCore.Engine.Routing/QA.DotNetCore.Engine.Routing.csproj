@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.1;netstandard2.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.5.15-beta6</Version>
+    <Version>1.5.15-beta7</Version>
     <Authors>Grigorenko Paul, Karlov Nickolay</Authors>
     <Company>Quantum Art</Company>
     <Description>Provides routing features for site structure engine.</Description>

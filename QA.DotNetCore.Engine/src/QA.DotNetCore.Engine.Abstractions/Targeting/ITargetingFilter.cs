@@ -17,5 +17,10 @@ namespace QA.DotNetCore.Engine.Abstractions.Targeting
         {
             return filter.Pipe(items);
         }
+
+        public static ITargetingFilter AddFilter(this ITargetingFilter f1, ITargetingFilter f2)
+        {
+            return new UnitedFilter(f1, f2);
+        }
     }
 }

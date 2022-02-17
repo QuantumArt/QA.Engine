@@ -19,23 +19,21 @@ namespace QA.DotNetCore.Engine.Abstractions
         {
             Root = root;
             AddItemRecursive(root);
-
-            foreach (var startPage in Root.GetChildren().OfType<IStartPage>())
-            {
-                var dns = startPage.GetDNSBindings();
-                Array.ForEach(dns, x => _startPageByDnsPatternMappings[x] = startPage);
-            }
+            SetStartPages();
         }
 
         public AbstractItemStorage(IAbstractItem root, IEnumerable<IAbstractItem> abstractItems)
         {
             Root = root;
             AddItems(abstractItems);
+            SetStartPages();
+        }
 
+        private void SetStartPages()
+        {
             foreach (var startPage in Root.GetChildren().OfType<IStartPage>())
             {
                 var dns = startPage.GetDNSBindings();
-                // Разве здесь не будет перетирания стартовой страницы, если домен(биндинг) единый для всех регионов??
                 Array.ForEach(dns, x => _startPageByDnsPatternMappings[x] = startPage);
             }
         }

@@ -1,6 +1,8 @@
 using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace QA.DotNetCore.Engine.CacheTags
 {
@@ -12,7 +14,8 @@ namespace QA.DotNetCore.Engine.CacheTags
         private readonly IMetaInfoRepository _metaInfoRepository;
         private readonly ICacheProvider _cacheProvider;
 
-        public DefaultQpContentCacheTagNamingProvider(IMetaInfoRepository metaInfoRepository, ICacheProvider cacheProvider)
+        public DefaultQpContentCacheTagNamingProvider(IMetaInfoRepository metaInfoRepository,
+            ICacheProvider cacheProvider)
         {
             _metaInfoRepository = metaInfoRepository;
             _cacheProvider = cacheProvider;
@@ -26,12 +29,25 @@ namespace QA.DotNetCore.Engine.CacheTags
 
         public string GetByNetName(string contentNetName, int siteId, bool isStage)
         {
-            var contentInfo = _cacheProvider.GetOrAdd($"CacheTagCache_{contentNetName}_{siteId}", TimeSpan.FromDays(1), () => {
-                return _metaInfoRepository.GetContent(contentNetName, siteId);
-            });
+            var contentInfo = _cacheProvider.GetOrAdd($"CacheTagCache_{contentNetName}_{siteId}", TimeSpan.FromDays(1),
+                () => _metaInfoRepository.GetContent(contentNetName, siteId));
             if (contentInfo == null)
                 throw new ArgumentException($"Did not find content {contentNetName} in the site {siteId}");
             return Get(contentInfo.ContentName, siteId, isStage);
+        }
+
+        public Dictionary<int, string> GetByContentIds(int[] contentIds, int siteId, bool isStage)
+        {
+            var contentIdsStr = string.Join("|", contentIds.OrderBy(x => x));
+            return _cacheProvider.GetOrAdd($"CacheTagCache_{contentIdsStr}_{siteId}", TimeSpan.FromDays(1),
+                () =>
+                {
+                    var contentsInfo = _metaInfoRepository.GetContentsById(contentIds, siteId);
+                    return contentsInfo.ToDictionary(
+                        x => x.ContentId,
+                        x => Get(x.ContentName, siteId, isStage));
+                }
+            );
         }
     }
 }

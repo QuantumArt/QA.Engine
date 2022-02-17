@@ -19,11 +19,34 @@ namespace QA.DotNetCore.Engine.Abstractions
         {
             Root = root;
             AddItemRecursive(root);
+            SetStartPages();
+        }
 
+        public AbstractItemStorage(IAbstractItem root, IEnumerable<IAbstractItem> abstractItems)
+        {
+            Root = root;
+            AddItems(abstractItems);
+            SetStartPages();
+        }
+
+        private void SetStartPages()
+        {
             foreach (var startPage in Root.GetChildren().OfType<IStartPage>())
             {
                 var dns = startPage.GetDNSBindings();
                 Array.ForEach(dns, x => _startPageByDnsPatternMappings[x] = startPage);
+            }
+        }
+
+        /// <summary>
+        /// Созданение элементов в словаре
+        /// </summary>
+        /// <param name="abstractItems"></param>
+        private void AddItems(IEnumerable<IAbstractItem> abstractItems)
+        {
+            foreach (var item in abstractItems)
+            {
+                _items[item.Id] = item;
             }
         }
 
@@ -48,17 +71,49 @@ namespace QA.DotNetCore.Engine.Abstractions
 
         public IAbstractItem GetStartPage(string host, ITargetingFilter filter = null)
         {
-            var bindings = new List<string>();
-
-            foreach (var startPage in Root.GetChildren(filter).OfType<IStartPage>())
-            {
-                var dns = startPage.GetDNSBindings();
-                bindings.AddRange(dns);
-            }
-
-            var matcher = new WildcardMatcher(WildcardMatchingOption.FullMatch, bindings);
-            var pattern = matcher.MatchLongest(host);
+            var pattern = GetBindingPattern(host, filter);
             return pattern != null ? _startPageByDnsPatternMappings[pattern] : null;
+        }
+
+        /// <summary>
+        /// Получить коллекцию нод по фильтрам
+        /// </summary>
+        /// <param name="host">Фильтр домена</param>
+        /// <param name="startPageFilter">Фильтр определения стартовой страницы</param>
+        /// <param name="nodeFilter">Фильтр для плоской структуры нод</param>
+        /// <returns>Коллекция нод || null</returns>
+        public T[] GetNodes<T>(string host, ITargetingFilter startPageFilter = null,
+            ITargetingFilter nodeFilter = null)
+            where T : class, IAbstractItem
+        {
+            var pattern = GetBindingPattern(host, startPageFilter);
+            var startPage = pattern != null ? _startPageByDnsPatternMappings[pattern] : null;
+
+            if (startPage == null)
+                return null;
+
+            var flatten = Flatten<T>(startPage);
+            return flatten.Pipe(nodeFilter).ToArray();
+        }
+
+        private static IEnumerable<T> Flatten<T>(IAbstractItem item)
+            where T : class, IAbstractItem
+        {
+            if (item is T targetItem)
+                yield return targetItem;
+
+            var children = item.GetChildren();
+
+            if (children == null)
+                yield break;
+
+            foreach (var child in children)
+            {
+                foreach (var childItem in Flatten<T>(child))
+                {
+                    yield return childItem;
+                }
+            }
         }
 
         public TAbstractItem GetStartPage<TAbstractItem>(string host, ITargetingFilter filter = null) where TAbstractItem : class, IAbstractItem
@@ -67,6 +122,18 @@ namespace QA.DotNetCore.Engine.Abstractions
             return startPage != null ?
                 startPage as TAbstractItem :
                 null;
+        }
+
+
+        private string GetBindingPattern(string host, ITargetingFilter filter)
+        {
+            var bindings = Root
+                .GetChildren(filter)
+                .OfType<IStartPage>()
+                .SelectMany(startPage => startPage.GetDNSBindings());
+
+            var matcher = new WildcardMatcher(WildcardMatchingOption.FullMatch, bindings);
+            return matcher.MatchLongest(host);
         }
     }
 }

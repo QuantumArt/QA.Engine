@@ -33,7 +33,7 @@ namespace QA.DotNetCore.Engine.QpData
         }
 
 
-        public override IEnumerable<TAbstractItem> GetChildren<TAbstractItem>(ITargetingFilter filter = null) 
+        public override IEnumerable<TAbstractItem> GetChildren<TAbstractItem>(ITargetingFilter filter = null)
         {
             return GetChildren(filter).OfType<TAbstractItem>();
         }
@@ -79,6 +79,18 @@ namespace QA.DotNetCore.Engine.QpData
                 RawSortOrder = main.RawSortOrder;
         }
 
+        internal AbstractItem CleanVersionOf()
+        {
+            VersionOf = null;
+            return this;
+        }
+
+        internal AbstractItem CleanChildren()
+        {
+            Children = new HashSet<IAbstractItem>();
+            return this;
+        }
+
         internal IAbstractItem VersionOf { get; private set; }
         internal ICollection<IAbstractItem> Children { get; set; }
         internal int? RawSortOrder { get; set; }
@@ -87,7 +99,7 @@ namespace QA.DotNetCore.Engine.QpData
         internal int? VersionOfId { get; set; }
         internal string Discriminator { get; set; }
         internal bool Published { get; set; }
-        internal AbstractItemExtensionCollection Details { get; set; }
+        internal Lazy<AbstractItemExtensionCollection> LazyDetails { get; set; }
         internal M2mRelations M2mRelations { get; set; }
         internal List<string> M2mFieldNames { get; set; }
 
@@ -96,11 +108,7 @@ namespace QA.DotNetCore.Engine.QpData
         /// </summary>
         public virtual T GetDetail<T>(string name, T defaultValue)
         {
-            if (Details == null)
-            {
-                return defaultValue;
-            }
-            var value = Details.Get(name, typeof(T));
+            var value = LazyDetails?.Value?.Get(name, typeof(T));
             if (value == null)
             {
                 return defaultValue;

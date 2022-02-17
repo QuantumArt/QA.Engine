@@ -7,275 +7,380 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using QA.DotNetCore.Engine.QpData.Models;
 
 namespace QA.DotNetCore.Engine.QpData
 {
     /// <summary>
     /// Строитель структуры сайта из базы QP
     /// </summary>
-    public class QpAbstractItemStorageBuilder : IAbstractItemStorageBuilder
+    public class QpAbstractItemStorageBuilder : IAbstractItemStorageBuilder, IAbstractItemContextStorageBuilder
     {
+        private AbstractItemStorageBuilderContext _context;
+
         private readonly IAbstractItemFactory _itemFactory;
-        private readonly IQpUrlResolver _qpUrlResolver;
         private readonly IAbstractItemRepository _abstractItemRepository;
         private readonly IMetaInfoRepository _metaInfoRepository;
         private readonly QpSiteStructureBuildSettings _buildSettings;
         private readonly ILogger<QpAbstractItemStorageBuilder> _logger;
+        private readonly IServiceScopeFactory _scopeFactory;
 
         public QpAbstractItemStorageBuilder(
             IAbstractItemFactory itemFactory,
-            IQpUrlResolver qpUrlResolver,
             IAbstractItemRepository abstractItemRepository,
             IMetaInfoRepository metaInfoRepository,
             QpSiteStructureBuildSettings buildSettings,
-            ILogger<QpAbstractItemStorageBuilder> logger)
+            ILogger<QpAbstractItemStorageBuilder> logger,
+            IServiceScopeFactory scopeFactory)
         {
             _itemFactory = itemFactory;
-            _qpUrlResolver = qpUrlResolver;
             _abstractItemRepository = abstractItemRepository;
             _metaInfoRepository = metaInfoRepository;
             _buildSettings = buildSettings;
             _logger = logger;
-            UsedContentNetNames = new string[2] { KnownNetNames.AbstractItem, KnownNetNames.ItemDefinition };
+            _scopeFactory = scopeFactory;
         }
 
-        public AbstractItemStorage Build()
+
+        public AbstractItemStorage BuildStorage(AbstractItem[] abstractItems)
         {
-            var logBuildId = Guid.NewGuid();
-            _logger.LogDebug("AbstractItemStorage build via QP started. Build id: {0}, SiteId: {0}, IsStage: {1}", logBuildId, _buildSettings.SiteId, _buildSettings.IsStage);
+            _logger.LogInformation(
+                "AbstractItemStorage build via AbstractItems collection started. Build id: {0}, SiteId: {0}, IsStage: {1}",
+                _context.LogId, _buildSettings.SiteId, _buildSettings.IsStage);
+            var root = abstractItems.First(x => x.Discriminator == _buildSettings.RootPageDiscriminator);
+            return new AbstractItemStorage(root, abstractItems);
+        }
 
-            var plainList = _abstractItemRepository.GetPlainAllAbstractItems(_buildSettings.SiteId, _buildSettings.IsStage).ToList();//плоский список dto
-            var activated = new Dictionary<int, AbstractItem>();
-            AbstractItem root = null;
+        /// <summary>
+        /// Формирование AbstractItem
+        /// </summary>
+        /// <param name="extensionContentId">Идентификатор контента расширения</param>
+        /// <param name="abstractItemPersistentDatas">Идентификаторы связанный AbstractItem</param>
+        /// <returns></returns>
+        public AbstractItem[] BuildAbstractItems(int extensionContentId, AbstractItemPersistentData[] abstractItemPersistentDatas)
+        {
+            if (_context == null)
+                throw new ArgumentNullException(nameof(_context));
 
-            _logger.LogDebug("Found abstract items: {0}. Build id: {1}", plainList.Count(), logBuildId);
+            _logger.LogInformation("AbstractItem build via QP started. Build id: {0}, SiteId: {0}, IsStage: {1}",
+                _context.LogId, _buildSettings.SiteId, _buildSettings.IsStage);
 
+            var activatedAbstractItems = new Dictionary<int, AbstractItem>();
             //первый проход списка - активируем, т.е. создаём AbsractItem-ы с правильным типом и набором заполненных полей, запоминаем root
-            foreach (var persistentItem in plainList)
+            foreach (var persistentItem in abstractItemPersistentDatas)
             {
                 var activatedItem = _itemFactory.Create(persistentItem.Discriminator);
                 if (activatedItem == null)
                     continue;
 
                 activatedItem.MapPersistent(persistentItem);
-                activated.Add(persistentItem.Id, activatedItem);
-
-                if (persistentItem.Discriminator == _buildSettings.RootPageDiscriminator)
-                    root = activatedItem;
+                activatedAbstractItems.Add(persistentItem.Id, activatedItem);
             }
 
-            _logger.LogDebug("Activated abstract items: {0}. Build id: {1}", activated.Count, logBuildId);
 
-            if (root != null)
+            _logger.LogInformation("Activated abstract items: {0}. Build id: {1}", activatedAbstractItems.Count, _context.LogId);
+
+            if (extensionContentId > 0 || _buildSettings.LoadAbstractItemFieldsToDetailsCollection)
             {
-                //сгруппируем AbsractItem-ы по extensionId
-                //все элементы с пустым extensionId будут в одной группе
-                var groupsByExtensions = activated
-                    .GroupBy(_ => _.Value.ExtensionId.GetValueOrDefault(0), _ => _.Value)
-                    .ToList();
-
-                //словарь, каким элементам нужна загрузка связи m2m
-                var needLoadM2mInExtensionDict = new Dictionary<int, AbstractItem>();
-
-                //получим инфу об основном контенте (AbstractItem), она нам пригодится. Мы зашиваемся на netName контента - это легально
-                var baseContent = _metaInfoRepository.GetContent(KnownNetNames.AbstractItem, _buildSettings.SiteId);
-                if (baseContent == null)
+                foreach (var abstractItem in activatedAbstractItems.Values)
                 {
-                    _logger.LogWarning($"Failed to obtain content definition for {1}. Build id: {0}", logBuildId, KnownNetNames.AbstractItem);
+                    abstractItem.LazyDetails = new Lazy<AbstractItemExtensionCollection>(() =>
+                        BuildDetails(abstractItem,
+                            _context.LazyExtensionData[extensionContentId],
+                            _context.ExtensionContents,
+                            _context.BaseContent,
+                            _context.ExtensionsM2MData,
+                            _context.LogId));
                 }
+            }
+            else
+            {
+                _logger.LogInformation(
+                    "Skip load data for extension-less elements (LoadAbstractItemFieldsToDetailsCollection = false). Build id: {1}",
+                    _context.LogId);
+            }
 
+            //догрузим связи m2m в основном контенте, если это нужно
+
+            if (_context.NeedLoadM2mInAbstractItem)
+            {
+                _logger.LogInformation("Load data for many-to-many fields in main content (QPAbstractItem). Build id: {1}",
+                    _context.LogId);
+
+                if (_context.AbstractItemsM2MData != null)
+                {
+                    foreach (var key in _context.AbstractItemsM2MData.Keys)
+                    {
+                        if (activatedAbstractItems.TryGetValue(key, out var item))
+                        {
+                            item.M2mRelations.Merge(_context.AbstractItemsM2MData[key]);
+                        }
+                    }
+                }
+            }
+
+            return activatedAbstractItems.Values.ToArray();
+        }
+
+        /// <summary>
+        /// Заполняем поля иерархии Parent-Children, на основании ParentId. Заполняем VersionOf
+        /// </summary>
+        /// <param name="abstractItems"></param>
+        public void SetRelationsBetweenAbstractItems(AbstractItem[] abstractItems)
+        {
+            CleanRelationsBetweenAbstractItems(abstractItems);
+
+            var activatedAbstractItems = abstractItems.ToDictionary(x => x.Id, x => x);
+            foreach (var item in activatedAbstractItems.Values)
+            {
+                if (item.VersionOfId.HasValue && activatedAbstractItems.ContainsKey(item.VersionOfId.Value))
+                {
+                    var main = activatedAbstractItems[item.VersionOfId.Value];
+                    item.MapVersionOf(main);
+
+                    if (main.ParentId.HasValue && activatedAbstractItems.ContainsKey(main.ParentId.Value))
+                        activatedAbstractItems[main.ParentId.Value].AddChild(item);
+                }
+                else if (item.ParentId.HasValue && activatedAbstractItems.ContainsKey(item.ParentId.Value))
+                    activatedAbstractItems[item.ParentId.Value].AddChild(item);
+            }
+        }
+
+        /// <summary>
+        /// Очищаем поля иерархии Parent-Children, VersionOf
+        /// </summary>
+        /// <param name="abstractItems"></param>
+        private static void CleanRelationsBetweenAbstractItems(AbstractItem[] abstractItems)
+        {
+            foreach (var abstractItem in abstractItems)
+            {
+                abstractItem
+                    .CleanVersionOf()
+                    .CleanChildren();
+            }
+        }
+
+        public AbstractItemStorage Build()
+        {
+            var abstractItemsPlain =
+                _abstractItemRepository.GetPlainAllAbstractItems(_buildSettings.SiteId,
+                    _buildSettings.IsStage);
+
+            //сгруппируем AbsractItem-ы по extensionId
+            var extensionsWithAbsItems = abstractItemsPlain
+                .GroupBy(x => x.ExtensionId.GetValueOrDefault(0))
+                .ToDictionary(
+                    x => x.Key,
+                    x => x.ToArray());
+
+            Init(extensionsWithAbsItems);
+
+            var abstractItems = extensionsWithAbsItems
+                .SelectMany(x => BuildAbstractItems(x.Key, x.Value))
+                .ToArray();
+            SetRelationsBetweenAbstractItems(abstractItems);
+            return BuildStorage(abstractItems);
+        }
+
+        /// <summary>
+        /// Формирование контекста
+        /// </summary>
+        /// <param name="extensions"></param>
+        /// <returns></returns>
+        public void Init(IDictionary<int, AbstractItemPersistentData[]> extensions)
+        {
+            _context = new AbstractItemStorageBuilderContext
+            {
+                BaseContent = _metaInfoRepository.GetContent(KnownNetNames.AbstractItem, _buildSettings.SiteId),
+            };
+            _context.NeedLoadM2mInAbstractItem = _buildSettings.LoadAbstractItemFieldsToDetailsCollection &&
+                                                 _context.BaseContent.ContentAttributes.Any(ca => ca.IsManyToManyField);
+
+            if (extensions != null)
+            {
                 //получим инфу обо всех контентах-расширениях, которые используются
-                var extensionContents = _metaInfoRepository
-                    .GetContentsById(groupsByExtensions
+                _context.ExtensionContents = _metaInfoRepository
+                    .GetContentsById(extensions
                         .Select(g => g.Key)
                         .Where(extId => extId > 0)
                         .ToArray(), _buildSettings.SiteId)
                     .ToDictionary(c => c.ContentId);
 
-                //догрузим нетипизированные поля в коллекцию Details из контентов-расширений и основного контента(AbstractItem)
-                foreach (var group in groupsByExtensions)
-                {
-                    var extensionId = group.Key;
-                    if (extensionId == 0 && !_buildSettings.LoadAbstractItemFieldsToDetailsCollection)
-                    {
-                        _logger.LogDebug("Skip load data for extension-less elements (LoadAbstractItemFieldsToDetailsCollection = false). Build id: {1}", logBuildId);
-                        continue;
-                    }
 
-                    var ids = group.Select(_ => _.Id).ToArray();
+                _context.LazyExtensionData = extensions.ToDictionary(x => x.Key,
+                    x => new Lazy<IDictionary<int, AbstractItemExtensionCollection>>(() =>
+                        GetAbstractItemExtensionData(x.Key, x.Value.Select(i => i.Id), _context.BaseContent,
+                            _context.LogId)));
 
-                    _logger.LogDebug("Load data from extension table {0}. Build id: {1}", extensionId, logBuildId);
+                // m2m для базового AbstractItem
+                _context.AbstractItemsM2MData = _abstractItemRepository.GetManyToManyData(
+                    extensions.Values
+                        .SelectMany(x=>x)
+                        .Select(x=>x.Id),
+                    _buildSettings.IsStage);
 
-                    var extensionData = extensionId == 0 ?
-                        _abstractItemRepository.GetAbstractItemExtensionlessData(ids, baseContent, _buildSettings.IsStage) :
-                        _abstractItemRepository.GetAbstractItemExtensionData(extensionId, ids, baseContent,
-                            _buildSettings.LoadAbstractItemFieldsToDetailsCollection, _buildSettings.IsStage);
-                    if (extensionData == null)
-                    {
-                        _logger.LogDebug("Not found data for extension {0}. Build id: {1}", extensionId, logBuildId);
-                        continue;
-                    }
-
-                    var extensionContent = extensionContents.ContainsKey(extensionId) ? extensionContents[extensionId] : null;
-
-                    var m2mFieldNames = new List<string>(); ;
-                    var fileFields = new List<ContentAttributePersistentData>();
-                    if (extensionContent?.ContentAttributes != null)
-                    {
-                        m2mFieldNames = extensionContent.ContentAttributes.Where(ca => ca.IsManyToManyField).Select(ca => ca.ColumnName).ToList();
-                        fileFields = extensionContent.ContentAttributes.Where(ca => ca.IsFileField).ToList();
-                    }
-                    if (_buildSettings.LoadAbstractItemFieldsToDetailsCollection)
-                    {
-                        m2mFieldNames = m2mFieldNames.Union(baseContent.ContentAttributes.Where(ca => ca.IsManyToManyField).Select(ca => ca.ColumnName)).ToList();
-                        fileFields = fileFields.Union(baseContent.ContentAttributes.Where(ca => ca.IsFileField)).ToList();
-                    }
-
-                    foreach (var item in group)
-                    {
-                        if (extensionData.ContainsKey(item.Id))
-                        {
-                            item.M2mFieldNames.AddRange(m2mFieldNames);
-
-                            var details = extensionData[item.Id];
-
-                            //проведём замены в некоторых значениях доп полей
-                            foreach (var key in details.Keys)
-                            {
-                                if (m2mFieldNames.Any() && key == "CONTENT_ITEM_ID")
-                                {
-                                    needLoadM2mInExtensionDict[Convert.ToInt32(details[key])] = item;
-                                }
-
-                                if (details[key] is string stringValue)
-                                {
-                                    //1) надо заменить плейсхолдер <%=upload_url%> на реальный урл
-                                    details.Set(key, stringValue.Replace(_buildSettings.UploadUrlPlaceholder, _qpUrlResolver.UploadUrl(_buildSettings.SiteId)));
-
-                                    //2) проверим, является ли это поле ссылкой на файл, тогда нужно преобразовать его в полный урл
-                                    var fileField = fileFields.FirstOrDefault(f => f.ColumnName.Equals(key, StringComparison.InvariantCultureIgnoreCase));
-                                    if (fileField != null)
-                                    {
-                                        var baseUrl = _qpUrlResolver.UrlForImage(_buildSettings.SiteId, fileField);
-                                        if (!String.IsNullOrEmpty(baseUrl))
-                                        {
-                                            details.Set(key, baseUrl + "/" + stringValue);
-                                        }
-                                    }
-                                }
-                            }
-
-                            item.Details = details;
-                        }
-
-                    }
-                }
-
-                //догрузим связи m2m в контентах расширений, в которых они есть
-                if (needLoadM2mInExtensionDict.Any())
-                {
-                    _logger.LogDebug("Load data for many-to-many fields in extensions. Build id: {1}", logBuildId);
-                    var m2mData = _abstractItemRepository.GetManyToManyData(needLoadM2mInExtensionDict.Keys.ToArray(), _buildSettings.IsStage);
-                    foreach (var key in m2mData.Keys)
-                    {
-                        if (!needLoadM2mInExtensionDict.ContainsKey(key))
-                            continue;
-
-                        needLoadM2mInExtensionDict[key].M2mRelations.Merge(m2mData[key]);
-                    }
-                }
-
-                //догрузим связи m2m в основном контенте, если это нужно
-                var needLoadM2mInAbstractItem = _buildSettings.LoadAbstractItemFieldsToDetailsCollection &&
-                    baseContent.ContentAttributes.Any(ca => ca.IsManyToManyField);
-                if (needLoadM2mInAbstractItem)
-                {
-                    _logger.LogDebug("Load data for many-to-many fields in main content (QPAbstractItem). Build id: {1}", logBuildId);
-                    var m2mData = _abstractItemRepository.GetManyToManyData(activated.Keys.ToArray(), _buildSettings.IsStage);
-                    foreach (var key in m2mData.Keys)
-                    {
-                        activated[key].M2mRelations.Merge(m2mData[key]);
-                    }
-                }
-
-                //второй проход списка: заполняем поля иерархии Parent-Children, на основании ParentId. Заполняем VersionOf
-                foreach (var item in activated.Values)
-                {
-                    if (item.VersionOfId.HasValue && activated.ContainsKey(item.VersionOfId.Value))
-                    {
-                        var main = activated[item.VersionOfId.Value];
-                        item.MapVersionOf(main);
-
-                        if (main.ParentId.HasValue && activated.ContainsKey(main.ParentId.Value))
-                            activated[main.ParentId.Value].AddChild(item);
-                    }
-                    else if (item.ParentId.HasValue && activated.ContainsKey(item.ParentId.Value))
-                        activated[item.ParentId.Value].AddChild(item);
-                }
-
-                return new AbstractItemStorage(root);
+                // m2m для расширений
+                var allExtensionContentItemIds = _abstractItemRepository.GetAbstractItemExtensionIds(
+                    extensions.ToDictionary(ext => ext.Key, ext => ext.Value.Select(ai => ai.Id)),
+                    _buildSettings.IsStage);
+                _context.ExtensionsM2MData =
+                    _abstractItemRepository.GetManyToManyData(allExtensionContentItemIds, _buildSettings.IsStage);
             }
-            else
+        }
+
+        private IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionId,
+            IEnumerable<int> abstractItemIds, ContentPersistentData baseContent, string logId)
+        {
+            using (var scope = _scopeFactory.CreateScope())
             {
-                _logger.LogWarning(@"Root was not found! Possible causes: 1) not found item with discriminator = {0} 2) not found item definition for root discriminator 3) not found .net class matching with root page item definition. Build id: {1}", _buildSettings.RootPageDiscriminator, logBuildId);
-                return null;
+                var abstractItemRepository = scope.ServiceProvider.GetRequiredService<IAbstractItemRepository>();
+                var buildSettings = scope.ServiceProvider.GetRequiredService<QpSiteStructureBuildSettings>();
+                var logger = scope.ServiceProvider.GetRequiredService<ILogger<QpAbstractItemStorageBuilder>>();
+                return GetAbstractItemExtensionData(abstractItemRepository,buildSettings,logger,
+                    extensionId, abstractItemIds, baseContent, logId);
+            }
+        }
+
+        private static IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(
+            IAbstractItemRepository abstractItemRepository,
+            QpSiteStructureBuildSettings buildSettings,
+            ILogger logger,
+            int extensionId,
+            IEnumerable<int> abstractItemIds, ContentPersistentData baseContent, string logId)
+        {
+            logger.LogDebug("Load data from extension table {0}. Build id: {1}", extensionId.ToString(),
+                logId);
+
+            var extensionData = extensionId == 0
+                ? abstractItemRepository.GetAbstractItemExtensionlessData(abstractItemIds, baseContent,
+                    buildSettings.IsStage)
+                : abstractItemRepository.GetAbstractItemExtensionData(extensionId, abstractItemIds, baseContent,
+                    buildSettings.LoadAbstractItemFieldsToDetailsCollection, buildSettings.IsStage);
+
+            return extensionData;
+        }
+
+        /// <summary>
+        /// Возвращает данные контента расширения для AbstractItem <paramref name="item"/>
+        /// </summary>
+        /// <param name="item">AbstractItem</param>
+        /// <param name="extensionDataLazy">Словарь, где ключ - это CID расширения, в значение - это данные расширения</param>
+        /// <param name="extensionContents"></param>
+        /// <param name="baseContent"></param>
+        /// <param name="extensionsM2MData">Данные о связях m2m у расширения</param>
+        /// <param name="logId"></param>
+        /// <returns></returns>
+        private AbstractItemExtensionCollection BuildDetails(AbstractItem item,
+            Lazy<IDictionary<int, AbstractItemExtensionCollection>> extensionDataLazy,
+            IDictionary<int, ContentPersistentData> extensionContents,
+            ContentPersistentData baseContent,
+            IDictionary<int, M2mRelations> extensionsM2MData,
+            string logId)
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var qpUrlResolver = scope.ServiceProvider.GetRequiredService<IQpUrlResolver>();
+                var buildSettings = scope.ServiceProvider.GetRequiredService<QpSiteStructureBuildSettings>();
+                var logger = scope.ServiceProvider.GetRequiredService<ILogger<QpAbstractItemStorageBuilder>>();
+                return BuildDetails(qpUrlResolver, buildSettings, logger,
+                    item, extensionDataLazy, extensionContents, baseContent, extensionsM2MData, logId);
             }
         }
 
         /// <summary>
-        /// Нужно для определения списка кеш-тегов. Чтобы понимать обновления в каких контентах должны приводить к сбрасыванию закешированной структуры сайта
+        /// Возвращает данные контента расширения для AbstractItem <paramref name="item"/>
         /// </summary>
-        public string[] UsedContentNetNames { get; private set; }
+        /// <param name="item">AbstractItem</param>
+        /// <param name="extensionDataLazy">Словарь, где ключ - это CID расширения, в значение - это данные расширения</param>
+        /// <param name="extensionContents"></param>
+        /// <param name="baseContent"></param>
+        /// <param name="extensionsM2MData">Данные о связях m2m у расширения</param>
+        /// <param name="logId"></param>
+        /// <returns></returns>
+        private static AbstractItemExtensionCollection BuildDetails(
+            IQpUrlResolver qpUrlResolver,
+            QpSiteStructureBuildSettings buildSettings,
+            ILogger logger,
+            AbstractItem item,
+            Lazy<IDictionary<int, AbstractItemExtensionCollection>> extensionDataLazy,
+            IDictionary<int, ContentPersistentData> extensionContents,
+            ContentPersistentData baseContent,
+            IDictionary<int, M2mRelations> extensionsM2MData,
+            string logId)
+        {
+            var extensionContentId = item.ExtensionId.GetValueOrDefault(0);
 
-        //private readonly ConcurrentDictionary<Type, IReadOnlyList<ILoaderOption>> _loadOptions = new ConcurrentDictionary<Type, IReadOnlyList<ILoaderOption>>();
+            var extensionData = extensionDataLazy.Value;
+            if (!extensionData.TryGetValue(item.Id, out var details))
+            {
+                logger.LogDebug("Not found data for extension {0}. Build id: {1}", extensionContentId.ToString(),
+                    logId);
+                return null;
+            }
 
-        ///// <summary>
-        ///// Получить список опций загрузки для типа
-        ///// </summary>
-        ///// <param name="t"></param>
-        ///// <param name="contentId"></param>
-        ///// <param name="baseContentId"></param>
-        ///// <returns></returns>
-        //private IReadOnlyList<ILoaderOption> ProcessLoadOptions(Type t, int contentId, int baseContentId)
-        //{
-        //    return _loadOptions.GetOrAdd(t, key =>
-        //    {
-        //        var lst = new List<ILoaderOption>();
-        //        var properties = t.GetProperties();
+            var extensionContent = extensionContents.ContainsKey(extensionContentId) ? extensionContents[extensionContentId] : null;
 
-        //        foreach (var prop in properties)
-        //        {
-        //            var attrs = prop.GetCustomAttributes(typeof(ILoaderOption), false)
-        //                .Cast<ILoaderOption>();
+            var m2mFieldNames = new List<string>();
+            var fileFields = new List<ContentAttributePersistentData>();
+            int? extensionContentItemId = null;
 
-        //            foreach (var attr in attrs)
-        //            {
-        //                attr.AttachTo(t, (attr.PropertyName ?? prop.Name).ToUpper(), contentId, baseContentId);
-        //                lst.Add(attr);
-        //            }
-        //        }
+            if (extensionContent?.ContentAttributes != null)
+            {
+                m2mFieldNames = extensionContent.ContentAttributes.Where(ca => ca.IsManyToManyField)
+                    .Select(ca => ca.ColumnName).ToList();
+                fileFields = extensionContent.ContentAttributes.Where(ca => ca.IsFileField).ToList();
+            }
 
-        //        return lst;
-        //    });
-        //}
+            if (buildSettings.LoadAbstractItemFieldsToDetailsCollection)
+            {
+                m2mFieldNames = m2mFieldNames.Union(baseContent.ContentAttributes.Where(ca => ca.IsManyToManyField)
+                    .Select(ca => ca.ColumnName)).ToList();
+                fileFields = fileFields.Union(baseContent.ContentAttributes.Where(ca => ca.IsFileField)).ToList();
+            }
 
-        //private readonly ConcurrentDictionary<Type, bool> _m2mOptions = new ConcurrentDictionary<Type, bool>();
+            item.M2mFieldNames.AddRange(m2mFieldNames);
 
-        ///// <summary>
-        ///// Нужно ли грузить M2M для экстеншна, соответствующего типу
-        ///// </summary>
-        ///// <param name="t"></param>
-        ///// <returns></returns>
-        //private bool NeedManyToManyLoad(Type t)
-        //{
-        //    return _m2mOptions.GetOrAdd(t, key =>
-        //    {
-        //        //если атрибутом LoadManyToManyRelations помечен сам класс или какое-то из его полей
-        //        return t.GetCustomAttributes(typeof(LoadManyToManyRelationsAttribute), false).Any()
-        //            || t.GetProperties().Any(prop => prop.GetCustomAttributes(typeof(LoadManyToManyRelationsAttribute), false).Any());
-        //    });
-        //}
+            //проведём замены в некоторых значениях доп полей
+            foreach (var key in details.Keys)
+            {
+                if (m2mFieldNames.Any() && key == "CONTENT_ITEM_ID")
+                {
+                    extensionContentItemId = Convert.ToInt32(details[key]);
+                }
+
+                if (details[key] is string stringValue)
+                {
+                    //1) надо заменить плейсхолдер <%=upload_url%> на реальный урл
+                    details.Set(key,
+                        stringValue.Replace(buildSettings.UploadUrlPlaceholder,
+                            qpUrlResolver.UploadUrl(buildSettings.SiteId)));
+
+                    //2) проверим, является ли это поле ссылкой на файл, тогда нужно преобразовать его в полный урл
+                    var fileField = fileFields.FirstOrDefault(f =>
+                        f.ColumnName.Equals(key, StringComparison.InvariantCultureIgnoreCase));
+                    if (fileField != null)
+                    {
+                        var baseUrl = qpUrlResolver.UrlForImage(buildSettings.SiteId, fileField);
+                        if (!String.IsNullOrEmpty(baseUrl))
+                        {
+                            details.Set(key, baseUrl + "/" + stringValue);
+                        }
+                    }
+                }
+            }
+
+            //установим связи m2m в контентах расширений, в которых они есть
+            if (extensionContentItemId.HasValue &&
+                extensionsM2MData != null &&
+                extensionsM2MData.TryGetValue(extensionContentItemId.Value, out var relations))
+            {
+                item.M2mRelations.Merge(relations);
+            }
+
+            return details;
+        }
     }
 }

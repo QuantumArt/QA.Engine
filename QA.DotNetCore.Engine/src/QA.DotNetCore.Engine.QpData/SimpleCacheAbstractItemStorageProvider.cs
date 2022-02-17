@@ -4,13 +4,14 @@ using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Settings;
 using System;
 using System.Linq;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
 
 namespace QA.DotNetCore.Engine.QpData
 {
     /// <summary>
     /// Предоставляет доступ к структуре сайта, изготовленной строителем по требованию. Может кешировать.
     /// </summary>
-    public class SimpleAbstractItemStorageProvider : IAbstractItemStorageProvider
+    public class SimpleCacheAbstractItemStorageProvider : IAbstractItemStorageProvider
     {
         private readonly IAbstractItemStorageBuilder _builder;
         private readonly ICacheProvider _cacheProvider;
@@ -18,7 +19,10 @@ namespace QA.DotNetCore.Engine.QpData
         private readonly QpSiteStructureBuildSettings _buildSettings;
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
 
-        public SimpleAbstractItemStorageProvider(
+        private readonly string[] CommonContentsNetNames =
+            new string[] {KnownNetNames.AbstractItem, KnownNetNames.ItemDefinition};
+
+        public SimpleCacheAbstractItemStorageProvider(
             ICacheProvider cacheProvider,
             IAbstractItemStorageBuilder builder,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
@@ -38,11 +42,13 @@ namespace QA.DotNetCore.Engine.QpData
                 return BuildStorage();
 
             var cacheKey = "QpAbstractItemStorageProvider.Get";
-            var cacheTags = _builder.UsedContentNetNames.Select(c => _qpContentCacheTagNamingProvider.GetByNetName(c, _buildSettings.SiteId, _buildSettings.IsStage))
+            var cacheTags = CommonContentsNetNames.Select(c =>
+                    _qpContentCacheTagNamingProvider.GetByNetName(c, _buildSettings.SiteId, _buildSettings.IsStage))
                 .Where(t => t != null)
                 .ToArray();
 
-            return _cacheProvider.GetOrAdd(cacheKey, cacheTags, _cacheSettings.SiteStructureCachePeriod, BuildStorage, _buildSettings.CacheFetchTimeoutAbstractItemStorage);
+            return _cacheProvider.GetOrAdd(cacheKey, cacheTags, _cacheSettings.SiteStructureCachePeriod, BuildStorage,
+                _buildSettings.CacheFetchTimeoutAbstractItemStorage);
         }
 
         private AbstractItemStorage BuildStorage()

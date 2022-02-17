@@ -2,15 +2,15 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.5.14</Version>
+    <Version>1.5.15</Version>
     <Authors>Grigorenko Paul, Karlov Nickolay</Authors>
     <Company>Quantum Art</Company>
     <Description>Provides widget features for site structure engine.</Description>
     <Copyright>Copyright © 2022 Quantum Art</Copyright>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
-    <AssemblyVersion>1.5.14.0</AssemblyVersion>
-    <FileVersion>1.5.14.0</FileVersion>
+    <AssemblyVersion>1.5.15.0</AssemblyVersion>
+    <FileVersion>1.5.15.0</FileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0;|AnyCPU'">
     <NoWarn>1701;1702;1705;1591</NoWarn>

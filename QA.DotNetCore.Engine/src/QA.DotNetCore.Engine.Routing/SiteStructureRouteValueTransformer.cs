@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 
 namespace QA.DotNetCore.Engine.Routing
 {
-#if NETCOREAPP3_1_OR_GREATER
     public class SiteStructureRouteValueTransformer : DynamicRouteValueTransformer
     {
         public SiteStructureRouteValueTransformer(ITargetingFilterAccessor targetingFilterAccessor,
@@ -92,5 +91,4 @@ namespace QA.DotNetCore.Engine.Routing
             return new PathFinder();
         }
     }
-#endif
 }

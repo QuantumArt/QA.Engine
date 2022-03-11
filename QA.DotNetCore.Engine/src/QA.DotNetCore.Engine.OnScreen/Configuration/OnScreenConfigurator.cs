@@ -7,6 +7,7 @@ using QA.DotNetCore.Engine.Persistent.Interfaces;
 using Quantumart.QPublishing.Authentication;
 using Quantumart.QPublishing.Database;
 using System;
+using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
 
 namespace QA.DotNetCore.Engine.OnScreen.Configuration
 {
@@ -62,11 +63,7 @@ namespace QA.DotNetCore.Engine.OnScreen.Configuration
             var onScreenAssembly = typeof(OnScreenViewComponent).Assembly;
             mvcBuilder.AddApplicationPart(onScreenAssembly);
 
-#if NETCOREAPP3_1_OR_GREATER
-            services.Configure<Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation.MvcRazorRuntimeCompilationOptions>(o => { o.FileProviders.Add(new EmbeddedFileProvider(onScreenAssembly)); });
-#else
-            services.Configure<RazorViewEngineOptions>(o => { o.FileProviders.Add(new EmbeddedFileProvider(onScreenAssembly)); });
-#endif
+            services.Configure<MvcRazorRuntimeCompilationOptions>(o => { o.FileProviders.Add(new EmbeddedFileProvider(onScreenAssembly)); });
         }
     }
 }

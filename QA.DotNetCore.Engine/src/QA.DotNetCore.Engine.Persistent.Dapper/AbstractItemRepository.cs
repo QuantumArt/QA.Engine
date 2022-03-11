@@ -51,6 +51,8 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
         /// Получить Content_item_id расширений
         /// </summary>
         /// <param name="extensionsContents">Словарь ID контента расширений и использующия их коллекция AbstractItems</param>
+        /// <param name="isStage"></param>
+        /// <param name="transaction"></param>
         /// <returns></returns>
         public IEnumerable<int> GetAbstractItemExtensionIds(IDictionary<int, IEnumerable<int>> extensionsContents, bool isStage, IDbTransaction transaction = null)
         {

@@ -23,6 +23,8 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces
         /// Получить id статей-расширений
         /// </summary>
         /// <param name="extensionsContents">Словарь ID контента расширений и ссылающиеся на нее AbstractItems</param>
+        /// <param name="isStage"></param>
+        /// <param name="transaction"></param>
         /// <returns></returns>
         IEnumerable<int> GetAbstractItemExtensionIds(IDictionary<int, IEnumerable<int>> extensionsContents,
             bool isStage, IDbTransaction transaction = null);

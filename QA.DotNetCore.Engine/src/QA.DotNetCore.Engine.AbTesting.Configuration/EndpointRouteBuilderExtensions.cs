@@ -5,7 +5,7 @@ namespace QA.DotNetCore.Engine.AbTesting.Configuration
 {
     public static class EndpointRouteBuilderExtensions
     {
-#if NETCOREAPP3_1
+#if NETCOREAPP3_1_OR_GREATER
         public static void MapAbtestEndpointRoute(this IEndpointRouteBuilder endpoints, string pattern = "/abtest/inlinescript")
         {
             endpoints.MapControllerRoute("widget platform abtesting", pattern, defaults: new { controller = "AbTest", action = "InlineScript" });

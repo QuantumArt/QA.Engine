@@ -25,7 +25,7 @@ namespace QA.DotNetCore.Engine.AbTesting.Mvc
                     string url = AbTestControllerUrl();
 
                     return new HtmlString($@"
-<script> 
+<script>
         var qa_abtScriptUrl = '{url}';
         qa_abtScriptUrl += '/?p=' + encodeURIComponent(window.location.pathname) + '&d=' + encodeURIComponent(window.location.host) + '&t=' + (new Date()).getTime();
         if (window.location.href.indexOf('?') > 0){{
@@ -36,13 +36,13 @@ namespace QA.DotNetCore.Engine.AbTesting.Mvc
                     qa_abtScriptUrl += '&' + qparams[i];
             }}
         }}
-       
+
         document.write(""<scr"" + ""ipt src='""+qa_abtScriptUrl+""'></sc"" + ""ript>"");
 </script>"
 );
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return new HtmlString("<!-- Error while initializing A/B tests container is occured. -->");
             }

@@ -2,9 +2,9 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netcoreapp3.1;net6.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.5.15</Version>
-    <AssemblyVersion>1.5.15.0</AssemblyVersion>
-    <FileVersion>1.5.15.0</FileVersion>
+    <Version>1.5.16-beta1</Version>
+    <AssemblyVersion>1.5.16.0</AssemblyVersion>
+    <FileVersion>1.5.16.0</FileVersion>
     <Authors>Grigorenko Paul, Karlov Nickolay</Authors>
     <Company>Quantum Art</Company>
     <Copyright>Copyright © 2022 Quantum Art</Copyright>

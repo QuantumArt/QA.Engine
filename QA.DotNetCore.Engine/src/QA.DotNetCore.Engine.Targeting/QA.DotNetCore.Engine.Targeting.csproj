@@ -2,9 +2,9 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netcoreapp3.1;net6.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.5.15</Version>
-    <AssemblyVersion>1.5.15.0</AssemblyVersion>
-    <FileVersion>1.5.15.0</FileVersion>
+    <Version>1.5.16-beta1</Version>
+    <AssemblyVersion>1.5.16.0</AssemblyVersion>
+    <FileVersion>1.5.16.0</FileVersion>
     <Authors>Grigorenko Paul, Karlov Nickolay</Authors>
     <Company>Quantum Art</Company>
     <Copyright>Copyright © 2022 Quantum Art</Copyright>
@@ -36,7 +36,6 @@
     <DocumentationFile>bin\Release\net6.0\QA.DotNetCore.Engine.Targeting.xml</DocumentationFile>
     <NoWarn>1701;1702;1705;1591</NoWarn>
   </PropertyGroup>
-
   <Choose>
     <When Condition="'$(TargetFramework)' == 'netcoreapp3.1' or '$(TargetFramework)' == 'net6.0'">
       <ItemGroup>
@@ -49,7 +48,6 @@
       </ItemGroup>
     </Otherwise>
   </Choose>
-
   <ItemGroup>
     <ProjectReference Include="..\QA.DotNetCore.Engine.Abstractions\QA.DotNetCore.Engine.Abstractions.csproj" />
   </ItemGroup>

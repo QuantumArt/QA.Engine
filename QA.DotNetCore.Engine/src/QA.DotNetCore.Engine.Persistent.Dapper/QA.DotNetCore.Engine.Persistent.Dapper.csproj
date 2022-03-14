@@ -1,38 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.5.15</Version>
+    <Version>2.0.0</Version>
     <Authors>Grigorenko Paul, Karlov Nickolay</Authors>
     <Company>Quantum Art</Company>
     <Description>Provides persistent layer via Dapper for .Net Core site structure.</Description>
     <Copyright>Copyright © 2022 Quantum Art</Copyright>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
-    <AssemblyVersion>1.5.15.0</AssemblyVersion>
-    <FileVersion>1.5.15.0</FileVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-    <NoWarn>1701;1702;1705;1591</NoWarn>
-    <DocumentationFile>bin\Debug\netstandard2.0\QA.DotNetCore.Engine.Persistent.Dapper.xml</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
-    <DocumentationFile>bin\Release\netstandard2.0\QA.DotNetCore.Engine.Persistent.Dapper.xml</DocumentationFile>
-    <NoWarn>1701;1702;1705;1591</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
-    <DocumentationFile>bin\Debug\netcoreapp3.1\QA.DotNetCore.Engine.Persistent.Dapper.xml</DocumentationFile>
-    <NoWarn>1701;1702;1705;1591</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.1|AnyCPU'">
-    <DocumentationFile>bin\Release\netcoreapp3.1\QA.DotNetCore.Engine.Persistent.Dapper.xml</DocumentationFile>
-    <NoWarn>1701;1702;1705;1591</NoWarn>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.0.35" />
-    <PackageReference Include="Npgsql" Version="4.1.3.1" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.3" />
+    <PackageReference Include="Dapper" Version="2.0.123" />
+    <PackageReference Include="Npgsql" Version="6.0.3" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\QA.DotNetCore.Engine.Persistent.Interfaces\QA.DotNetCore.Engine.Persistent.Interfaces.csproj" />

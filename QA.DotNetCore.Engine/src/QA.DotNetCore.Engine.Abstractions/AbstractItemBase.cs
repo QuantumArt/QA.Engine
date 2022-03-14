@@ -12,7 +12,6 @@ namespace QA.DotNetCore.Engine.Abstractions
     public abstract class AbstractItemBase : IAbstractItem
     {
         private string _trail;
-        private IStartPage _startPage;
 
         public virtual int Id { get; protected set; }
         public virtual IAbstractItem Parent { get; protected set; }

@@ -293,12 +293,15 @@ namespace QA.DotNetCore.Engine.QpData
         /// <summary>
         /// Возвращает данные контента расширения для AbstractItem <paramref name="item"/>
         /// </summary>
+        /// <param name="buildSettings"></param>
+        /// <param name="logger"></param>
         /// <param name="item">AbstractItem</param>
         /// <param name="extensionDataLazy">Словарь, где ключ - это CID расширения, в значение - это данные расширения</param>
         /// <param name="extensionContents"></param>
         /// <param name="baseContent"></param>
         /// <param name="extensionsM2MData">Данные о связях m2m у расширения</param>
         /// <param name="logId"></param>
+        /// <param name="qpUrlResolver"></param>
         /// <returns></returns>
         private static AbstractItemExtensionCollection BuildDetails(
             IQpUrlResolver qpUrlResolver,

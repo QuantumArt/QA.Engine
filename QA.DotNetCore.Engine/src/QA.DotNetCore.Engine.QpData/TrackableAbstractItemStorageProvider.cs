@@ -11,16 +11,13 @@ namespace QA.DotNetCore.Engine.QpData
     /// </summary>
     public class TrackableAbstractItemStorageProvider : IAbstractItemStorageProvider
     {
-        readonly Func<IAbstractItemStorageBuilder> _builder;
-        readonly QpSiteStructureBuildSettings _settings;
-        readonly Timer _job;
 
         public TrackableAbstractItemStorageProvider(
             Func<IAbstractItemStorageBuilder> builder,
             QpSiteStructureBuildSettings settings)
         {
-            _builder = builder;
-            _settings = settings;
+            //_builder = builder;
+            //_settings = settings;
             //_job = new Timer(OnUpdate, null, TimeSpan.FromTicks(0), _settings.PollPeriod);
         }
 

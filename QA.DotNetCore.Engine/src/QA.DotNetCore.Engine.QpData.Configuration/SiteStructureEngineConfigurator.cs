@@ -69,9 +69,7 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             services.TryAddSingleton<ITargetingUrlTransformator, TargetingUrlTransformator>();
             services.TryAddSingleton<UrlTokenTargetingProvider>();
 
-#if NETCOREAPP3_1
             services.TryAddSingleton<SiteStructureRouteValueTransformer>();
-#endif
             services.TryAdd(new ServiceDescriptor(typeof(ITypeFinder), provider => options.TypeFinder, ServiceLifetime.Singleton));
 
             if (options.ItemDefinitionConvention == ItemDefinitionConvention.Name)

@@ -7,12 +7,11 @@ using System.Threading;
 
 namespace QA.DotNetCore.Caching.Redis
 {
-    // TODO: Add async operations support.
     /// <summary>
     /// Distributed cache using Redis.
     /// <para>Uses <c>StackExchange.Redis</c> as the Redis client.</para>
     /// </summary>
-    public class RedisCache : IDisposable
+    public partial class RedisCache : IDistributedTaggedCache
     {
         /// <summary>
         /// Sets tag new expiry only if its exceeds current expiry.

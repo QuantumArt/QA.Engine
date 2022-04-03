@@ -1,3 +1,6 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using QA.DotNetCore.Caching.Interfaces;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
@@ -22,6 +25,14 @@ namespace QA.DotNetCore.Caching.Redis
                 throw new ArgumentNullException(nameof(tags));
 
             return tags.Select(keyFactory.CreateTag);
+        }
+
+        public static IServiceCollection AddRedisCache(this IServiceCollection services)
+        {
+            services.TryAddSingleton<IDistributedTaggedCache, RedisCache>();
+            services.TryAddSingleton<IAsyncDistributedTaggedCache>((provider) => provider.GetRequiredService<IDistributedTaggedCache>());
+
+            return services.AddSingleton<ICacheProvider, RedisCacheProvider>();
         }
     }
 }

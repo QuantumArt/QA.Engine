@@ -14,7 +14,7 @@ namespace QA.DotNetCore.Engine.QpData
     public class SimpleCacheAbstractItemStorageProvider : IAbstractItemStorageProvider
     {
         private readonly IAbstractItemStorageBuilder _builder;
-        private readonly ICacheProvider _cacheProvider;
+        private readonly ICompositeCacheProvider _compositeCacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly QpSiteStructureBuildSettings _buildSettings;
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
@@ -23,14 +23,14 @@ namespace QA.DotNetCore.Engine.QpData
             new string[] {KnownNetNames.AbstractItem, KnownNetNames.ItemDefinition};
 
         public SimpleCacheAbstractItemStorageProvider(
-            ICacheProvider cacheProvider,
+            ICompositeCacheProvider compositeCacheProvider,
             IAbstractItemStorageBuilder builder,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
             QpSiteStructureBuildSettings buildSettings,
             QpSiteStructureCacheSettings cacheSettings)
         {
             _builder = builder;
-            _cacheProvider = cacheProvider;
+            _compositeCacheProvider = compositeCacheProvider;
             _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
             _cacheSettings = cacheSettings;
             _buildSettings = buildSettings;
@@ -41,13 +41,17 @@ namespace QA.DotNetCore.Engine.QpData
             if (_cacheSettings.SiteStructureCachePeriod <= TimeSpan.Zero)
                 return BuildStorage();
 
-            var cacheKey = "QpAbstractItemStorageProvider.Get";
-            var cacheTags = CommonContentsNetNames.Select(c =>
-                    _qpContentCacheTagNamingProvider.GetByNetName(c, _buildSettings.SiteId, _buildSettings.IsStage))
+            string cacheKey = $"{nameof(SimpleCacheAbstractItemStorageProvider)}.{nameof(Get)}";
+            var cacheTags = CommonContentsNetNames
+                .Select(c => _qpContentCacheTagNamingProvider.GetByNetName(c, _buildSettings.SiteId, _buildSettings.IsStage))
                 .Where(t => t != null)
                 .ToArray();
 
-            return _cacheProvider.GetOrAdd(cacheKey, cacheTags, _cacheSettings.SiteStructureCachePeriod, BuildStorage,
+            return _compositeCacheProvider.GetOrAdd(
+                cacheKey,
+                cacheTags,
+                _cacheSettings.SiteStructureCachePeriod,
+                BuildStorage,
                 _buildSettings.CacheFetchTimeoutAbstractItemStorage);
         }
 

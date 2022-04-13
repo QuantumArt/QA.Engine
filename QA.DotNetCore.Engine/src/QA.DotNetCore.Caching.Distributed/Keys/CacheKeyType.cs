@@ -1,4 +1,4 @@
-namespace QA.DotNetCore.Caching
+namespace QA.DotNetCore.Caching.Distributed
 {
     public enum CacheKeyType
     {

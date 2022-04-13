@@ -1,11 +1,12 @@
 using Microsoft.Extensions.Options;
+using QA.DotNetCore.Caching.Interfaces;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace QA.DotNetCore.Caching.Redis
+namespace QA.DotNetCore.Caching.Distributed
 {
     /// <summary>
     /// Distributed cache using Redis.

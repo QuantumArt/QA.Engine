@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\QA.DotNetCore.Caching\QA.DotNetCore.Caching.csproj" />
+    <ProjectReference Include="..\QA.DotNetCore.Caching.Distributed\QA.DotNetCore.Caching.Distributed.csproj" />
   </ItemGroup>
 
 </Project>

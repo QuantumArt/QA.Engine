@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace QA.DotNetCore.Caching.Redis
+namespace QA.DotNetCore.Caching.Distributed
 {
     public static class RedisCacheExtensions
     {
@@ -30,8 +30,7 @@ namespace QA.DotNetCore.Caching.Redis
         public static IServiceCollection AddRedisCache(this IServiceCollection services)
         {
             services.TryAddSingleton<IDistributedTaggedCache, RedisCache>();
-            services.TryAddSingleton<IAsyncDistributedTaggedCache>((provider) => provider.GetRequiredService<IDistributedTaggedCache>());
-
+            
             return services.AddSingleton<ICacheProvider, RedisCacheProvider>();
         }
     }

@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Options;
-using QA.DotNetCore.Caching.Redis;
+using QA.DotNetCore.Caching.Distributed;
 using StackExchange.Redis;
 using System;
 using System.Linq;
@@ -14,7 +14,6 @@ namespace QA.DotNetCore.Caching.Tests
 
         private static RedisCache CreateRedisCache()
         {
-            // TODO: Pass connection multiplexer? For unit tests
             return new RedisCache(Options.Create(new RedisCacheOptions
             {
                 Configuration = ConnectionString,
@@ -26,7 +25,6 @@ namespace QA.DotNetCore.Caching.Tests
 
         private static RedisCache CreateRedisCacheThatAlwaysCompacts()
         {
-            // TODO: Pass connection multiplexer? For unit tests
             return new RedisCache(Options.Create(new RedisCacheOptions
             {
                 Configuration = ConnectionString,
@@ -38,7 +36,6 @@ namespace QA.DotNetCore.Caching.Tests
 
         private static RedisCache CreateRedisCacheWithRareCompacts()
         {
-            // TODO: Pass connection multiplexer? For unit tests
             return new RedisCache(Options.Create(new RedisCacheOptions
             {
                 Configuration = ConnectionString,

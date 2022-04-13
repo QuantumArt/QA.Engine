@@ -5,9 +5,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace QA.DotNetCore.Caching.Redis
+namespace QA.DotNetCore.Caching.Distributed
 {
-    public partial class RedisCache : IAsyncDistributedTaggedCache
+    public partial class RedisCache
     {
         public async Task<bool> IsExistsAsync(string key, CancellationToken token = default)
         {

@@ -57,7 +57,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{A6
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.WidgetPlatform.Api", "QA.WidgetPlatform.Api\QA.WidgetPlatform.Api.csproj", "{0B9DA0D3-FAC1-47D7-A9CB-D2C3D1212785}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Caching.Tests", "QA.DotNetCore.Caching.Tests\QA.DotNetCore.Caching.Tests.csproj", "{B47C3078-4611-452A-B06F-922686733A1E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Caching.Distributed.Tests", "QA.DotNetCore.Caching.Distributed.Tests\QA.DotNetCore.Caching.Distributed.Tests.csproj", "{B47C3078-4611-452A-B06F-922686733A1E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QA.DotNetCore.Caching.Distributed", "QA.DotNetCore.Caching.Distributed\QA.DotNetCore.Caching.Distributed.csproj", "{23E720A7-9820-4EC6-A195-12DDF8505E8F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{328BDC61-7594-4288-A7D9-C78B61B17196}"
 	ProjectSection(SolutionItems) = preProject
@@ -174,6 +176,10 @@ Global
 		{B47C3078-4611-452A-B06F-922686733A1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B47C3078-4611-452A-B06F-922686733A1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B47C3078-4611-452A-B06F-922686733A1E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23E720A7-9820-4EC6-A195-12DDF8505E8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23E720A7-9820-4EC6-A195-12DDF8505E8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23E720A7-9820-4EC6-A195-12DDF8505E8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23E720A7-9820-4EC6-A195-12DDF8505E8F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -187,7 +193,7 @@ Global
 		{EF0796A3-0662-4113-8B77-886C1A944E42} = {643A033A-63A5-4D4C-9E66-28CFD52A21F4}
 		{D955E0B5-3CF6-43EC-B3C6-A137714AE799} = {71743891-E4AA-4F47-8499-57980637F53A}
 		{0B9DA0D3-FAC1-47D7-A9CB-D2C3D1212785} = {A66C4C11-6253-46DD-8A7B-459C039EF942}
-		{B47C3078-4611-452A-B06F-922686733A1E} = {643A033A-63A5-4D4C-9E66-28CFD52A21F4}
+		{B47C3078-4611-452A-B06F-922686733A1E} = {71743891-E4AA-4F47-8499-57980637F53A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05B47769-EDD2-4180-A8DF-018E5283C45D}

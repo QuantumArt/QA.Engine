@@ -6,12 +6,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace QA.DotNetCore.Caching.Redis
+namespace QA.DotNetCore.Caching.Distributed
 {
     /// <summary>
     /// Adapter for IDistributedTaggedCache.
     /// </summary>
-    // TODO: Make ICacheProvider disposable.
     public class RedisCacheProvider : ICacheProvider, IDisposable
     {
         private bool disposedValue;

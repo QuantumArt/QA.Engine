@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace QA.DotNetCore.Caching.Redis
+namespace QA.DotNetCore.Caching.Distributed
 {
     /// <summary>
     /// Configuration options for <see cref="RedisCache"/>.

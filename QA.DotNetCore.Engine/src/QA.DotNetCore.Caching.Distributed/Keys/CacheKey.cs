@@ -1,6 +1,6 @@
 using System;
 
-namespace QA.DotNetCore.Caching
+namespace QA.DotNetCore.Caching.Distributed
 {
     public class CacheKey : IEquatable<CacheKey>
     {

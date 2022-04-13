@@ -12,6 +12,7 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// <param name="key">Ключ</param>
         /// <returns></returns>
         object Get(string key);
+
         /// <summary>
         /// Записывает данные в кэш
         /// </summary>
@@ -19,6 +20,7 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// <param name="data">Данные</param>
         /// <param name="cacheTimeInSeconds">Время кэширования в секундах</param>
         void Set(string key, object data, int cacheTimeInSeconds);
+
         /// <summary>
         /// Записывает данные в кэш
         /// </summary>
@@ -26,12 +28,14 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// <param name="data">Данные</param>
         /// <param name="expiration">Время кэширования (sliding expiration)</param>
         void Set(string key, object data, TimeSpan expiration);
+
         /// <summary>
         /// Проверяет наличие данных в кэше
         /// </summary>
         /// <param name="key">Ключ</param>
         /// <returns></returns>
         bool IsSet(string key);
+
         /// <summary>
         /// Пытается получить данные из кэша по ключу
         /// </summary>
@@ -39,10 +43,12 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// <param name="result">Результат</param>
         /// <returns></returns>
         bool TryGetValue(string key, out object result);
+
         /// <summary>
         /// Очищает кэш по ключу
         /// </summary>
         /// <param name="key">Ключ</param>
+        [Obsolete("Use " + nameof(ICacheInvalidator) + " interface instead.")]
         void Invalidate(string key);
 
         /// <summary>
@@ -53,15 +59,19 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// <param name="tags">Теги</param>
         /// <param name="expiration">Время кэширования (sliding expiration)</param>
         void Add(object data, string key, string[] tags, TimeSpan expiration);
+
         /// <summary>
         /// Инвалидирует все записи в кэше по тегу
         /// </summary>
         /// <param name="tag">Тег</param>
+        [Obsolete("Use " + nameof(ICacheInvalidator) + " interface instead.")]
         void InvalidateByTag(string tag);
+
         /// <summary>
         /// Инвалидирует все записи в кэше по тегам
         /// </summary>
         /// <param name="tags">Теги</param>
+        [Obsolete("Use " + nameof(ICacheInvalidator) + " interface instead.")]
         void InvalidateByTags(params string[] tags);
 
         /// <summary>
@@ -83,6 +93,7 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// на обновления данных в кеше, а старых данные ещё (или уже) нет</exception>
         T GetOrAdd<T>(string cacheKey, TimeSpan expiration, Func<T> getData,
             TimeSpan waitForCalculateTimeout = default(TimeSpan));
+
         /// <summary>
         /// Потокобезопасно берет объект из кэша, если его там нет, то вызывает функцию для получения данных
         /// и кладет результат в кэш, маркируя его тегами. При устаревании кэша старый результат еще хранится какое-то время.
@@ -103,6 +114,7 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// на обновления данных в кеше, а старых данные ещё (или уже) нет</exception>
         T GetOrAdd<T>(string cacheKey, string[] tags, TimeSpan expiration, Func<T> getData,
             TimeSpan waitForCalculateTimeout = default(TimeSpan));
+
         /// <summary>
         /// Потокобезопасно берет объект из кэша, если его там нет, то вызывает функцию для получения данных
         /// и кладет результат в кэш. При устаревании кэша старый результат еще хранится какое-то время.
@@ -123,6 +135,7 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// на обновления данных в кеше, а старых данные ещё (или уже) нет</exception>
         Task<T> GetOrAddAsync<T>(string cacheKey, TimeSpan expiration, Func<Task<T>> getData,
             TimeSpan waitForCalculateTimeout = default(TimeSpan));
+
         /// <summary>
         /// Потокобезопасно берет объект из кэша, если его там нет, то вызывает функцию для получения данных
         /// и кладет результат в кэш, маркируя его тегами. При устаревании кэша старый результат еще хранится какое-то время.

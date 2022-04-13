@@ -30,8 +30,11 @@ namespace QA.DotNetCore.Caching.Distributed
         public static IServiceCollection AddRedisCache(this IServiceCollection services)
         {
             services.TryAddSingleton<IDistributedTaggedCache, RedisCache>();
-            
-            return services.AddSingleton<ICacheProvider, RedisCacheProvider>();
+
+            _ = services.AddSingleton<ICacheProvider, RedisCacheProvider>();
+            _ = services.AddSingleton<ICacheInvalidator, RedisCacheProvider>();
+
+            return services;
         }
     }
 }

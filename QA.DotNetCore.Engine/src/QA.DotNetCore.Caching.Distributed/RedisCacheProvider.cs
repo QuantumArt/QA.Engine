@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 namespace QA.DotNetCore.Caching.Distributed
 {
     /// <summary>
-    /// Adapter for IDistributedTaggedCache.
+    /// Adapter from IDistributedTaggedCache to ICacheProvider.
     /// </summary>
-    public class RedisCacheProvider : ICacheProvider, IDisposable
+    public class RedisCacheProvider : ICacheProvider, ICacheInvalidator, IDisposable
     {
-        private bool disposedValue;
+        private bool _disposedValue;
         private readonly IDistributedTaggedCache _cache;
         private static readonly JsonSerializer s_serializer = JsonSerializer.CreateDefault();
 
@@ -47,12 +47,12 @@ namespace QA.DotNetCore.Caching.Distributed
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (!_disposedValue)
             {
                 if (disposing)
                     _cache.Dispose();
 
-                disposedValue = true;
+                _disposedValue = true;
             }
         }
 
@@ -86,20 +86,8 @@ namespace QA.DotNetCore.Caching.Distributed
             return result != null;
         }
 
-        public void Invalidate(string key) =>
-            _cache.Invalidate(key);
-
         public void Add(object value, string key, string[] tags, TimeSpan expiration) =>
             _cache.Set(key, tags, expiration, ConvertToData(value));
-
-        public void InvalidateByTag(string tag) =>
-            _cache.InvalidateTag(tag);
-
-        public void InvalidateByTags(params string[] tags)
-        {
-            foreach (var tag in tags)
-                _cache.InvalidateTag(tag);
-        }
 
         public T GetOrAdd<T>(string cacheKey, TimeSpan expiration, Func<T> getValue, TimeSpan waitForCalculateTimeout = default) =>
             GetOrAdd(cacheKey, Array.Empty<string>(), expiration, getValue, waitForCalculateTimeout);
@@ -148,6 +136,18 @@ namespace QA.DotNetCore.Caching.Distributed
             return timeout == default
                 ? new CancellationTokenSource()
                 : new CancellationTokenSource(timeout);
+        }
+
+        public void Invalidate(string key) =>
+            _cache.Invalidate(key);
+
+        public void InvalidateByTag(string tag) =>
+            _cache.InvalidateTag(tag);
+
+        public void InvalidateByTags(params string[] tags)
+        {
+            foreach (var tag in tags)
+                _cache.InvalidateTag(tag);
         }
     }
 }

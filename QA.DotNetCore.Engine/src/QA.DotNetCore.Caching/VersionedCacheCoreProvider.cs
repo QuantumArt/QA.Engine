@@ -12,12 +12,12 @@ namespace QA.DotNetCore.Caching
     /// <summary>
     /// Реализует провайдер кеширования данных
     /// </summary>
-    public class VersionedCacheCoreProvider : ICacheProvider
+    public class VersionedCacheCoreProvider : ICacheProvider, ICacheInvalidator
     {
         private readonly IMemoryCache _cache;
         private readonly TimeSpan _defaultWaitForCalculateTimeout = TimeSpan.FromSeconds(5);
-        private static ConcurrentDictionary<string, object> _lockers = new ConcurrentDictionary<string, object>();
-        private static ConcurrentDictionary<string, SemaphoreSlim> _semaphores = new ConcurrentDictionary<string, SemaphoreSlim>();
+        private static readonly ConcurrentDictionary<string, object> _lockers = new ConcurrentDictionary<string, object>();
+        private static readonly ConcurrentDictionary<string, SemaphoreSlim> _semaphores = new ConcurrentDictionary<string, SemaphoreSlim>();
 
         public VersionedCacheCoreProvider(IMemoryCache cache)
         {

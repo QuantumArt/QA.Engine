@@ -9,16 +9,17 @@ namespace QA.DotNetCore.Caching
     public class CacheTagWatcher : ICacheTagWatcher
     {
         private readonly ICacheTrackersAccessor _trackersAccessor;
-        private readonly ICacheProvider _cacheProvider;
+        private readonly ICacheInvalidator _cacheInvalidator;
         private readonly ILogger _logger;
         private Dictionary<string, CacheTagModification> _modifications = new Dictionary<string, CacheTagModification>();
 
-        public CacheTagWatcher(ICacheTrackersAccessor trackersAccessor,
-            ICacheProvider cacheProvider,
+        public CacheTagWatcher(
+            ICacheTrackersAccessor trackersAccessor,
+            ICacheInvalidator cacheInvalidator,
             ILogger<CacheTagWatcher> logger)
         {
             _trackersAccessor = trackersAccessor;
-            _cacheProvider = cacheProvider;
+            _cacheInvalidator = cacheInvalidator;
             _logger = logger;
         }
 
@@ -67,7 +68,7 @@ namespace QA.DotNetCore.Caching
                     if (cacheTagsToUpdate.Any())
                     {
                         _logger.LogInformation("Invalidate tags: {0}", String.Join(";", cacheTagsToUpdate));
-                        _cacheProvider.InvalidateByTags(cacheTagsToUpdate.ToArray());
+                        _cacheInvalidator.InvalidateByTags(cacheTagsToUpdate.ToArray());
                     }
                 }
 

@@ -1,7 +1,6 @@
-using System;
-using Microsoft.AspNetCore.Http;
 using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions;
+using System;
 using System.Collections.Generic;
 
 namespace QA.DotNetCore.Engine.CacheTags

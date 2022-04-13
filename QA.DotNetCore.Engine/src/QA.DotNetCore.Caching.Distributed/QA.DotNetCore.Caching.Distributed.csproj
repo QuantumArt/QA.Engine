@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>Provides distributed implementation of cache provider.</Description>
   </PropertyGroup>
 
   <ItemGroup>

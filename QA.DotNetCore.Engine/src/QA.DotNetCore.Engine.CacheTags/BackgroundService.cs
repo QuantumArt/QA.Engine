@@ -9,6 +9,7 @@ namespace QA.DotNetCore.Engine.CacheTags
     /// <summary>
     /// Base class for implementing a long running <see cref="IHostedService"/>.
     /// </summary>
+    [Obsolete("Use duplicate from .net runtime.")]
     public abstract class BackgroundService : IHostedService, IDisposable
     {
         private Task _executingTask;

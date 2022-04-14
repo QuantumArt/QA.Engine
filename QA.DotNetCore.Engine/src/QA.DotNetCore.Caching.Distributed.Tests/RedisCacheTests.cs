@@ -10,39 +10,43 @@ namespace QA.DotNetCore.Caching.Tests
 {
     public class RedisCacheTests
     {
-        private const string ConnectionString = "localhost";
+        private const string ConnectionString = "SPBREDIS01.ARTQ.COM:6407";
+        private const string InstanceName = "MTS.WidgetPlatform.Tests";
+
+        private static RedisCacheOptions CreateDefaultRedisCacheOptions() =>
+            new()
+            {
+                Configuration = ConnectionString,
+                InstanceName = InstanceName,
+                TagExpirationOffset = TimeSpan.FromSeconds(1),
+                CompactTagSizeThreshold = 100,
+                CompactTagFrequency = 100,
+            };
 
         private static RedisCache CreateRedisCache()
         {
-            return new RedisCache(Options.Create(new RedisCacheOptions
-            {
-                Configuration = ConnectionString,
-                TagExpirationOffset = TimeSpan.FromSeconds(1),
-                CompactTagSizeThreshold = 100,
-                CompactTagFrequency = 100
-            }));
+            var options = CreateDefaultRedisCacheOptions();
+
+            return new RedisCache(Options.Create(options));
         }
 
         private static RedisCache CreateRedisCacheThatAlwaysCompacts()
         {
-            return new RedisCache(Options.Create(new RedisCacheOptions
-            {
-                Configuration = ConnectionString,
-                TagExpirationOffset = TimeSpan.FromSeconds(1),
-                CompactTagSizeThreshold = 0,
-                CompactTagFrequency = 0
-            }));
+            var options = CreateDefaultRedisCacheOptions();
+
+            options.CompactTagSizeThreshold = 0;
+            options.CompactTagFrequency = 0;
+
+            return new RedisCache(Options.Create(options));
         }
 
         private static RedisCache CreateRedisCacheWithRareCompacts()
         {
-            return new RedisCache(Options.Create(new RedisCacheOptions
-            {
-                Configuration = ConnectionString,
-                TagExpirationOffset = TimeSpan.FromSeconds(1),
-                CompactTagSizeThreshold = 0,
-                CompactTagFrequency = 100
-            }));
+            var options = CreateDefaultRedisCacheOptions();
+
+            options.CompactTagSizeThreshold = 0;
+
+            return new RedisCache(Options.Create(options));
         }
 
         private static RedisCache CreateRedisCacheWithoutTagOffset()
@@ -51,7 +55,8 @@ namespace QA.DotNetCore.Caching.Tests
             return new RedisCache(Options.Create(new RedisCacheOptions
             {
                 Configuration = ConnectionString,
-                TagExpirationOffset = TimeSpan.Zero
+                TagExpirationOffset = TimeSpan.Zero,
+                InstanceName = InstanceName
             }));
         }
 
@@ -221,9 +226,10 @@ namespace QA.DotNetCore.Caching.Tests
             // Arrange
             string key = "key1";
             byte[] cachedData = GetRandomData();
+            var expiry = TimeSpan.FromSeconds(1);
 
             using (var connection = CreateConnection())
-                _ = await connection.GetDatabase().StringSetAsync(GetKey(key), cachedData);
+                _ = await connection.GetDatabase().StringSetAsync(GetKey(key), cachedData, expiry);
 
             using var redisCache = CreateRedisCache();
 
@@ -273,7 +279,7 @@ namespace QA.DotNetCore.Caching.Tests
             var expiry = TimeSpan.FromSeconds(1);
 
             using (var connection = CreateConnection())
-                _ = await connection.GetDatabase().StringSetAsync(GetKey(key), cachedData);
+                _ = await connection.GetDatabase().StringSetAsync(GetKey(key), cachedData, expiry);
 
             using var redisCache = CreateRedisCache();
 
@@ -417,6 +423,7 @@ namespace QA.DotNetCore.Caching.Tests
             // Arrange
             string tag = "tag1";
             var keys = new[] { "key1", "key2" }.Select(GetKey).ToArray();
+            var expiry = TimeSpan.FromSeconds(1);
 
             using (var connection = CreateConnection())
             {
@@ -424,7 +431,7 @@ namespace QA.DotNetCore.Caching.Tests
                 _ = await cache.KeyDeleteAsync(GetTag(tag));
                 _ = await cache.SetAddAsync(GetTag(tag), keys.Select(key => new RedisValue(key)).ToArray());
                 foreach (var key in keys)
-                    _ = await cache.StringSetAsync(key, "value");
+                    _ = await cache.StringSetAsync(key, "value", expiry);
             }
 
             using (var redisCache = CreateRedisCache())
@@ -446,6 +453,7 @@ namespace QA.DotNetCore.Caching.Tests
         {
             // Arrange
             string tag = "tag1";
+            TimeSpan expiry = TimeSpan.FromSeconds(1);
 
             using (var connection = CreateConnection())
             {
@@ -453,7 +461,7 @@ namespace QA.DotNetCore.Caching.Tests
                 await Task.WhenAll(
                     cache.KeyDeleteAsync(GetTag(tag)),
                     cache.SetAddAsync(GetTag(tag), Array.Empty<RedisValue>()),
-                    cache.StringSetAsync(GetLock(tag), long.MaxValue));
+                    cache.StringSetAsync(GetLock(tag), long.MaxValue, expiry));
             }
 
             using (var redisCache = CreateRedisCache())
@@ -473,9 +481,10 @@ namespace QA.DotNetCore.Caching.Tests
         {
             // Arrange
             string key = "key1";
+            var expiry = TimeSpan.FromSeconds(1);
 
             using (var connection = CreateConnection())
-                _ = await connection.GetDatabase().StringSetAsync(GetKey(key), "value");
+                _ = await connection.GetDatabase().StringSetAsync(GetKey(key), "value", expiry);
 
             using (var redisCache = CreateRedisCache())
                 // Act
@@ -504,12 +513,12 @@ namespace QA.DotNetCore.Caching.Tests
                 Assert.False(await connection.GetDatabase().KeyExistsAsync(GetKey(key)));
         }
 
-        private static string GetKey(string key) => "key:" + key;
+        private static string GetKey(string key) => $"{InstanceName}:key:{key}";
 
-        private static string GetTag(string tag) => "tag:" + tag;
+        private static string GetTag(string tag) => $"{InstanceName}:tag:{tag}";
 
-        private static string GetPack(string tag) => "pack:" + tag;
+        private static string GetPack(string tag) => $"{InstanceName}:pack:{tag}";
 
-        private static string GetLock(string tag) => new CacheKeyFactory().CreateTag(tag).GetLock().ToString();
+        private static string GetLock(string tag) => new CacheKeyFactory(InstanceName).CreateTag(tag).GetLock().ToString();
     }
 }

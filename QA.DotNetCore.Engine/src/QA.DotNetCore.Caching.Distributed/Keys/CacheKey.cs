@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace QA.DotNetCore.Caching.Distributed
 {
@@ -19,8 +21,13 @@ namespace QA.DotNetCore.Caching.Distributed
 
             Type = type;
             Key = key;
-            Instance = instance;
-            _fullKey = $"{Type.ToString().ToLower()}:{Instance}{Key}";
+            Instance = instance?.Trim();
+
+            var keyParts = new List<string> { Type.ToString().ToLower(), Key };
+            if (!string.IsNullOrEmpty(Instance))
+                keyParts.Insert(0, Instance);
+
+            _fullKey = string.Join(":", keyParts);
         }
 
         public override string ToString() => _fullKey;

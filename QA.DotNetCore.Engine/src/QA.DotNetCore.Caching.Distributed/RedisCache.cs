@@ -63,6 +63,7 @@ namespace QA.DotNetCore.Caching.Distributed
             end
 
             safe_increment(lock)
+            redis.call('EXPIRE', lock, '1200')
 
             local keys = redis.call('SMEMBERS', tag)
             redis.call('DEL', tag, 'pack:' .. tag, unpack(keys))

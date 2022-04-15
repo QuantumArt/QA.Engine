@@ -2,6 +2,7 @@ root = true
 
 [*]
 charset = utf-8
+bom = false
 end_of_line = crlf
 insert_final_newline = true
 trim_trailing_whitespace = true
@@ -95,19 +96,19 @@ indent_style = space
 
 [*.sln]
 indent_size = 2
-indent_style = tab
+indent_style = space
 
 [*.proj]
 indent_size = 2
-indent_style = tab
+indent_style = space
 
 [*.props]
 indent_size = 2
-indent_style = tab
+indent_style = space
 
 [*.targets]
 indent_size = 2
-indent_style = tab
+indent_style = space
 
 
 

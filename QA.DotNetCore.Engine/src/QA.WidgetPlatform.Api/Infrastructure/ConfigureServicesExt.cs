@@ -1,15 +1,12 @@
-using System;
-using System.IO;
-using System.Text.Json.Serialization;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
+using QA.DotNetCore.Engine.CacheTags;
 using QA.DotNetCore.Engine.CacheTags.Configuration;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 using QA.DotNetCore.Engine.QpData.Configuration;
 using QA.WidgetPlatform.Api.Services;
 using QA.WidgetPlatform.Api.Services.Abstract;
+using System.Text.Json.Serialization;
 
 namespace QA.WidgetPlatform.Api.Infrastructure
 {
@@ -24,7 +21,7 @@ namespace QA.WidgetPlatform.Api.Infrastructure
 
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1", new OpenApiInfo {Title = "Widget Platform API", Version = "v1"});
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "Widget Platform API", Version = "v1" });
                 foreach (var xmlFile in Directory.GetFiles(AppContext.BaseDirectory, "*.xml"))
                 {
                     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -40,26 +37,34 @@ namespace QA.WidgetPlatform.Api.Infrastructure
             });
 
             //подключение сервисов для работы кештегов
-            services.AddCacheTagServices(options =>
+            var cacheTagBuilder = services
+                .AddCacheTagServices()
+                .WithCacheTrackers(trackers =>
+                {
+                    //регистрация одного или нескольких ICacheTagTracker
+                    //QpContentCacheTracker - уже реализованный ICacheTagTracker, который работает на базе механизма CONTENT_MODIFICATION из QP
+                    trackers.Register<QpContentCacheTracker>();
+                });
+
+            //[обязательная]
+            //настройка стратегии инвалидации по кештегам
+            if (qpSettings.IsStage)
             {
-                //настройка стратегии инвалидации по кештегам
-                if (qpSettings.IsStage)
-                {
-                    //при каждом запросе запускать все зарегистрированные ICacheTagTracker,
-                    //чтобы получить все теги по которым нужно сбросить кеш, и сбросить его
-                    options.InvalidateByMiddleware(@"^.*\/(__webpack.*|.+\.[a-zA-Z0-9]+)$");//отсекаем левые запросы для статики (для каждого сайта может настраиваться индивидуально)
-                }
-                else
-                {
-                    //по таймеру запускать все зарегистрированные ICacheTagTracker,
-                    //чтобы получить все теги по которым нужно сбросить кеш, и сбросить его
-                    options.InvalidateByTimer( TimeSpan.FromSeconds(30));
-                }
-            });
+                //при каждом запросе запускать все зарегистрированные ICacheTagTracker,
+                //чтобы получить все теги по которым нужно сбросить кеш, и сбросить его
+                _ = cacheTagBuilder.WithInvalidationByMiddleware(@"^.*\/(__webpack.*|.+\.[a-zA-Z0-9]+)$");//отсекаем левые запросы для статики (для каждого сайта может настраиваться индивидуально)
+            }
+            else
+            {
+                //по таймеру запускать все зарегистрированные ICacheTagTracker,
+                //чтобы получить все теги по которым нужно сбросить кеш, и сбросить его
+                _ = cacheTagBuilder.WithInvalidationByTimer();
+            }
+
             services.AddScoped<ISiteStructureService, SiteStructureService>();
             services.TryAddSingleton<ITargetingFiltersFactory, EmptyTargetingFiltersFactory>();
 
             return services;
-        } 
+        }
     }
 }

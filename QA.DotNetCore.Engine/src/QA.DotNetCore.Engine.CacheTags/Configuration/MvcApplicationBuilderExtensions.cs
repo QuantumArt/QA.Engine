@@ -14,18 +14,29 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
         /// <param name="app"></param>
         /// <param name="configureTrackers"></param>
         /// <returns></returns>
+        [Obsolete("Prefer configuring trackers using " + nameof(MvcServiceCollectionExtensions.AddCacheTagServices) + " method instead.")]
         public static IApplicationBuilder UseCacheTagsInvalidation(this IApplicationBuilder app, Action<ServiceSetConfigurator<ICacheTagTracker>> configureTrackers)
         {
             var cfgTrackers = app.ApplicationServices.GetRequiredService<ServiceSetConfigurator<ICacheTagTracker>>();
-            configureTrackers(cfgTrackers);//наполняем CacheTagsTrackersConfigurator трекерами, которые были настроены
+
+            //наполняем CacheTagsTrackersConfigurator трекерами, которые были настроены
+            configureTrackers?.Invoke(cfgTrackers);
 
             var cfg = app.ApplicationServices.GetRequiredService<CacheTagsRegistrationConfigurator>();
             if (cfg.UseMiddleware)
             {
                 app.UseMiddleware<CacheInvalidationMiddleware>(cfg.ExcludeRequestPathRegex);
             }
-            
+
             return app;
         }
+
+        /// <summary>
+        /// Встраивание в пайплайн инвалидации по кештегам.
+        /// </summary>
+        public static IApplicationBuilder UseCacheTagsInvalidation(this IApplicationBuilder app) =>
+#pragma warning disable CS0618 // Type or member is obsolete
+            app.UseCacheTagsInvalidation(null);
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

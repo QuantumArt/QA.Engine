@@ -1,7 +1,8 @@
-using System.Data;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using System.Collections.Generic;
+using System.Data;
 
-namespace  QA.DotNetCore.Engine.Persistent.Interfaces
+namespace QA.DotNetCore.Engine.Persistent.Interfaces
 {
     public interface IMetaInfoRepository
     {
@@ -12,6 +13,8 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces
         ContentAttributePersistentData GetContentAttributeByNetName(int contentId, string fieldNetName, IDbTransaction transaction = null);
 
         ContentPersistentData GetContent(string contentNetName, int siteId, IDbTransaction transaction = null);
+
+        ContentPersistentData[] GetContents(ICollection<string> contentNetNames, int siteId, IDbTransaction transaction = null);
 
         ContentPersistentData[] GetContentsById(int[] ids, int siteId, IDbTransaction transaction = null);
     }

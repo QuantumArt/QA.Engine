@@ -4,7 +4,7 @@ using NUnit.Framework;
 using QA.DotNetCore.Caching;
 using QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
-using QA.DotNetCore.Engine.QpData.Settings;
+using System;
 using System.Linq;
 
 namespace Tests
@@ -17,7 +17,7 @@ namespace Tests
         public void Setup()
         {
             var serviceProvider = Global.CreateMockServiceProviderWithConnection();
-            var settings = CreateDefaultCacheSettings();
+            var settings = TestUtils.CreateDefaultCacheSettings();
             var cacheProvider = new VersionedCacheCoreProvider(new MemoryCache(Options.Create(new MemoryCacheOptions())));
             var metaRepository = new MetaInfoRepository(serviceProvider);
             var sqlAnalyzer = new NetNameQueryAnalyzer(metaRepository, cacheProvider, settings);
@@ -31,21 +31,11 @@ namespace Tests
             {
                 var defs = _repository.GetAllItemDefinitions(Global.SiteId, false);
 
-                var startPageDef = defs.FirstOrDefault(d => d.Discriminator.Equals("start_page", System.StringComparison.InvariantCultureIgnoreCase));
+                var startPageDef = defs.FirstOrDefault(d => d.Discriminator.Equals("start_page", StringComparison.InvariantCultureIgnoreCase));
 
                 Assert.IsNotNull(startPageDef);
                 Assert.AreEqual(startPageDef.TypeName, "StartPage");
             });
-        }
-
-        private QpSiteStructureCacheSettings CreateDefaultCacheSettings()
-        {
-            return new QpSiteStructureCacheSettings
-            {
-                QpSchemeCachePeriod = System.TimeSpan.MaxValue,
-                ItemDefinitionCachePeriod = System.TimeSpan.MaxValue,
-                SiteStructureCachePeriod = System.TimeSpan.MaxValue
-            };
         }
     }
 }

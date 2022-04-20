@@ -1,23 +1,36 @@
 using Dapper;
-using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using Microsoft.Extensions.DependencyInjection;
+using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using QA.DotNetCore.Engine.QpData.Settings;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
     public class ItemDefinitionRepository : IItemDefinitionRepository
     {
+        private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
+        private readonly ICacheProvider _cacheProvider;
+        private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly IServiceProvider _serviceProvider;
         private readonly INetNameQueryAnalyzer _netNameQueryAnalyzer;
 
-        public ItemDefinitionRepository(IServiceProvider serviceProvider, INetNameQueryAnalyzer netNameQueryAnalyzer)
+        public ItemDefinitionRepository(
+            IServiceProvider serviceProvider,
+            INetNameQueryAnalyzer netNameQueryAnalyzer,
+            IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
+            ICacheProvider cacheProvider,
+            QpSiteStructureCacheSettings cacheSettings)
         {
             _serviceProvider = serviceProvider;
             _netNameQueryAnalyzer = netNameQueryAnalyzer;
+            _cacheSettings = cacheSettings;
+            _cacheProvider = cacheProvider;
+            _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
         }
 
         protected IUnitOfWork UnitOfWork { get { return _serviceProvider.GetRequiredService<IUnitOfWork>(); } }
@@ -39,8 +52,19 @@ FROM |QPDiscriminator|
 
         public IEnumerable<ItemDefinitionPersistentData> GetAllItemDefinitions(int siteId, bool isStage, IDbTransaction transaction = null)
         {
-            var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAll, siteId, isStage);
-            return UnitOfWork.Connection.Query<ItemDefinitionPersistentData>(query, transaction).ToList();
+            var cacheKey = $"{nameof(ItemDefinitionRepository)}.{nameof(GetAllItemDefinitions)}({nameof(siteId)}:{siteId},{nameof(isStage)}:{isStage})";
+            var cacheTags = _netNameQueryAnalyzer.GetContentNetNames(CmdGetAll, siteId, isStage)
+                .Select(name => _qpContentCacheTagNamingProvider.Get(name, siteId, isStage))
+                .ToArray();
+            var expiry = _cacheSettings.ItemDefinitionCachePeriod;
+
+            return _cacheProvider.GetOrAdd(cacheKey, cacheTags, expiry, GetActualItemDefinitions);
+
+            IEnumerable<ItemDefinitionPersistentData> GetActualItemDefinitions()
+            {
+                var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAll, siteId, isStage);
+                return UnitOfWork.Connection.Query<ItemDefinitionPersistentData>(query, transaction).ToList();
+            }
         }
     }
 }

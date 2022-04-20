@@ -59,7 +59,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             {
                 var missingTables = new HashSet<string>(tableToColumnsDict.Keys, StringComparer.OrdinalIgnoreCase);
                 missingTables.SymmetricExceptWith(contentsMetadata.Keys);
-                throw new Exception($"Content netnames '{string.Join("', '", missingTables)}' haven't been found for site {siteId}");
+                throw new Exception($"Some content netnames ('{string.Join("', '", missingTables)}') haven't been found for site {siteId}");
             }
 
             var replacements = new Dictionary<string, string>(tableToColumnPairs.Length, StringComparer.OrdinalIgnoreCase);
@@ -75,8 +75,14 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 
                 foreach (var columnNetName in tableToColumnsGroup.Value)
                 {
-                    ContentAttributePersistentData contentAttribute = tableMetadata.ContentAttributes.FirstOrDefault(attribute => attribute.NetName == columnNetName)
-                        ?? throw new Exception($"Content attribute with netname '{columnNetName}' was not found for table '{tableNetName}' and site {siteId}");
+                    ContentAttributePersistentData contentAttribute = tableMetadata.ContentAttributes
+                        .FirstOrDefault(attribute => attribute.NetName == columnNetName);
+
+                    if (contentAttribute is null)
+                    {
+                        throw new Exception($"Content attribute with netname '{columnNetName}' " +
+                            $"haven't been found for table '{tableNetName}' and site {siteId}");
+                    }
 
                     replacements.Add($"|{tableNetName}.{columnNetName}|", contentAttribute.ColumnName);
                 }
@@ -96,7 +102,10 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
                     cacheKey,
                     _qpSchemeSettings.QpSchemeCachePeriod,
                     () => _metaInfoRepository.GetContent(contentNetNames.Single(), siteId));
-                return new[] { contentMetadata };
+
+                return contentMetadata is null
+                    ? Array.Empty<ContentPersistentData>()
+                    : new[] { contentMetadata };
             }
 
             return _cacheProvider.GetOrAdd(

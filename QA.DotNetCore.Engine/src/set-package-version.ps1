@@ -11,7 +11,7 @@ foreach($csprojFile in $csprojFiles)
 {
     $csprojFilePath = $csprojFile.FullName
 
-    [xml]$xml = Get-Content $csprojFilePath
+    [xml]$xml = Get-Content $csprojFilePath -Encoding UTF8
     $ns = New-Object System.Xml.XmlNamespaceManager($xml.NameTable)
     $ns.AddNamespace("ns", $xml.DocumentElement.NamespaceURI)
 

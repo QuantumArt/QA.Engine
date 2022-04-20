@@ -1,7 +1,11 @@
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using NUnit.Framework;
+using QA.DotNetCore.Caching;
 using QA.DotNetCore.Engine.Persistent.Dapper;
 using QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
+using QA.DotNetCore.Engine.QpData.Settings;
 
 namespace Tests
 {
@@ -13,9 +17,10 @@ namespace Tests
         public void Setup()
         {
             var serviceProvider = Global.CreateMockServiceProviderWithConnection();
-
+            var settings = CreateDefaultCacheSettings();
+            var cacheProvider = new VersionedCacheCoreProvider(new MemoryCache(Options.Create(new MemoryCacheOptions())));
             var metaRepository = new MetaInfoRepository(serviceProvider);
-            var sqlAnalyzer = new NetNameQueryAnalyzer(metaRepository);
+            var sqlAnalyzer = new NetNameQueryAnalyzer(metaRepository, cacheProvider, settings);
             _repository = new AbTestRepository(serviceProvider, sqlAnalyzer);
         }
 
@@ -55,5 +60,14 @@ namespace Tests
             });
         }
 
+        private QpSiteStructureCacheSettings CreateDefaultCacheSettings()
+        {
+            return new QpSiteStructureCacheSettings
+            {
+                QpSchemeCachePeriod = System.TimeSpan.MaxValue,
+                ItemDefinitionCachePeriod = System.TimeSpan.MaxValue,
+                SiteStructureCachePeriod = System.TimeSpan.MaxValue
+            };
+        }
     }
 }

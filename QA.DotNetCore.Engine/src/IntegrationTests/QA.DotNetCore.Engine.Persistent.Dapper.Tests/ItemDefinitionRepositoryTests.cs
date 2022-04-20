@@ -1,8 +1,11 @@
-using System.Linq;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using NUnit.Framework;
-using QA.DotNetCore.Engine.Persistent.Dapper;
+using QA.DotNetCore.Caching;
 using QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
+using QA.DotNetCore.Engine.QpData.Settings;
+using System.Linq;
 
 namespace Tests
 {
@@ -14,10 +17,11 @@ namespace Tests
         public void Setup()
         {
             var serviceProvider = Global.CreateMockServiceProviderWithConnection();
-
+            var settings = CreateDefaultCacheSettings();
+            var cacheProvider = new VersionedCacheCoreProvider(new MemoryCache(Options.Create(new MemoryCacheOptions())));
             var metaRepository = new MetaInfoRepository(serviceProvider);
-            var sqlAnalyzer = new NetNameQueryAnalyzer(metaRepository);
-            _repository = new ItemDefinitionRepository(serviceProvider, sqlAnalyzer);
+            var sqlAnalyzer = new NetNameQueryAnalyzer(metaRepository, cacheProvider, settings);
+            _repository = new ItemDefinitionRepository(serviceProvider, sqlAnalyzer, new StubNamingProvider(), cacheProvider, settings);
         }
 
         [Test]
@@ -32,6 +36,16 @@ namespace Tests
                 Assert.IsNotNull(startPageDef);
                 Assert.AreEqual(startPageDef.TypeName, "StartPage");
             });
+        }
+
+        private QpSiteStructureCacheSettings CreateDefaultCacheSettings()
+        {
+            return new QpSiteStructureCacheSettings
+            {
+                QpSchemeCachePeriod = System.TimeSpan.MaxValue,
+                ItemDefinitionCachePeriod = System.TimeSpan.MaxValue,
+                SiteStructureCachePeriod = System.TimeSpan.MaxValue
+            };
         }
     }
 }

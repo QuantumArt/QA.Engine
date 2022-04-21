@@ -20,7 +20,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             _metaInfoRepository = metaInfoRepository;
         }
 
-        public IEnumerable<string> GetContentNetNames(string netNameQuery, int siteId, bool isStage, bool useUnited = false)
+        public IEnumerable<string> GetContentTableNames(string netNameQuery, int siteId, bool isStage, bool useUnited = false)
         {
             if (netNameQuery is null)
                 throw new ArgumentNullException(nameof(netNameQuery));
@@ -32,7 +32,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             ContentPersistentData[] contentsMetadata = GetContentsMetadata(contentNetNames, siteId);
 
             foreach (var metadata in contentsMetadata)
-                yield return GetActualContentName(metadata, isStage, useUnited);
+                yield return GetContentTableName(metadata, isStage, useUnited);
         }
 
         public string PrepareQuery(string netNameQuery, int siteId, bool isStage, bool useUnited = false)
@@ -60,7 +60,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
                 Debug.Assert(contentsMetadata.ContainsKey(tableNetName), "Obtained metadata is inconsistent with requested names.");
 
                 ContentPersistentData tableMetadata = contentsMetadata[tableNetName];
-                string tableName = GetActualContentName(tableMetadata, isStage, useUnited);
+                string tableName = GetContentTableName(tableMetadata, isStage, useUnited);
 
                 replacements.Add($"|{tableNetName}|", tableName);
 
@@ -110,7 +110,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             }
         }
 
-        private string GetActualContentName(ContentPersistentData tableMetadata, bool isStage, bool useUnited = false) =>
+        private string GetContentTableName(ContentPersistentData tableMetadata, bool isStage, bool useUnited = false) =>
             useUnited ? tableMetadata.GetUnitedTableName() : tableMetadata.GetTableName(isStage);
 
         private string ReplaceTokens(string query, Dictionary<string, string> replacements) =>

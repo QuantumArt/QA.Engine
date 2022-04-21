@@ -1,8 +1,6 @@
-using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Dapper;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
-using QA.DotNetCore.Engine.QpData.Settings;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,18 +13,11 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
     {
         private static readonly Regex s_tokenRegex = new Regex(@"\|[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)?\|", RegexOptions.Compiled);
 
-        private readonly QpSiteStructureCacheSettings _qpSchemeSettings;
-        private readonly ICacheProvider _cacheProvider;
         private readonly IMetaInfoRepository _metaInfoRepository;
 
-        public NetNameQueryAnalyzer(
-            IMetaInfoRepository metaInfoRepository,
-            ICacheProvider cacheProvider,
-            QpSiteStructureCacheSettings qpSchemeSettings)
+        public NetNameQueryAnalyzer(IMetaInfoRepository metaInfoRepository)
         {
             _metaInfoRepository = metaInfoRepository;
-            _cacheProvider = cacheProvider;
-            _qpSchemeSettings = qpSchemeSettings ?? throw new ArgumentNullException(nameof(qpSchemeSettings));
         }
 
         public IEnumerable<string> GetContentNetNames(string netNameQuery, int siteId, bool isStage, bool useUnited = false)
@@ -91,28 +82,8 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             return ReplaceTokens(netNameQuery, replacements);
         }
 
-        private ContentPersistentData[] GetContentsMetadata(ICollection<string> contentNetNames, int siteId)
-        {
-            var cacheKey = $"CacheTagCache_{string.Join(",", contentNetNames)}_{siteId}";
-
-            // Compatibility with single content name in DefaultQpContentCacheTagNamingProvider.
-            if (contentNetNames.Count == 1)
-            {
-                var contentMetadata = _cacheProvider.GetOrAdd(
-                    cacheKey,
-                    _qpSchemeSettings.QpSchemeCachePeriod,
-                    () => _metaInfoRepository.GetContent(contentNetNames.Single(), siteId));
-
-                return contentMetadata is null
-                    ? Array.Empty<ContentPersistentData>()
-                    : new[] { contentMetadata };
-            }
-
-            return _cacheProvider.GetOrAdd(
-                cacheKey,
-                _qpSchemeSettings.QpSchemeCachePeriod,
-                () => _metaInfoRepository.GetContents(contentNetNames, siteId));
-        }
+        private ContentPersistentData[] GetContentsMetadata(ICollection<string> contentNetNames, int siteId) =>
+            _metaInfoRepository.GetContents(contentNetNames, siteId);
 
         /// <summary>
         /// Вычленяет из запроса токены с указанными netname таблиц и полей

@@ -19,8 +19,8 @@ namespace Tests
             var serviceProvider = Global.CreateMockServiceProviderWithConnection();
             var settings = TestUtils.CreateDefaultCacheSettings();
             var cacheProvider = new VersionedCacheCoreProvider(new MemoryCache(Options.Create(new MemoryCacheOptions())));
-            var metaRepository = new MetaInfoRepository(serviceProvider);
-            var sqlAnalyzer = new NetNameQueryAnalyzer(metaRepository, cacheProvider, settings);
+            var metaRepository = new MetaInfoRepository(serviceProvider, cacheProvider, settings);
+            var sqlAnalyzer = new NetNameQueryAnalyzer(metaRepository);
             _repository = new ItemDefinitionRepository(serviceProvider, sqlAnalyzer, new StubNamingProvider(), cacheProvider, settings);
         }
 

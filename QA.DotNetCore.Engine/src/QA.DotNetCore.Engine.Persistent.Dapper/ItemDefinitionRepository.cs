@@ -52,19 +52,20 @@ FROM |QPDiscriminator|
 
         public IEnumerable<ItemDefinitionPersistentData> GetAllItemDefinitions(int siteId, bool isStage, IDbTransaction transaction = null)
         {
-            var cacheKey = $"{nameof(ItemDefinitionRepository)}.{nameof(GetAllItemDefinitions)}({nameof(siteId)}:{siteId},{nameof(isStage)}:{isStage})";
+            var connection = UnitOfWork.Connection;
+            var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAll, siteId, isStage);
+
+            var cacheKey = query;
             var cacheTags = _netNameQueryAnalyzer.GetContentNetNames(CmdGetAll, siteId, isStage)
                 .Select(name => _qpContentCacheTagNamingProvider.Get(name, siteId, isStage))
                 .ToArray();
             var expiry = _cacheSettings.ItemDefinitionCachePeriod;
 
-            return _cacheProvider.GetOrAdd(cacheKey, cacheTags, expiry, GetActualItemDefinitions);
-
-            IEnumerable<ItemDefinitionPersistentData> GetActualItemDefinitions()
-            {
-                var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAll, siteId, isStage);
-                return UnitOfWork.Connection.Query<ItemDefinitionPersistentData>(query, transaction).ToList();
-            }
+            return _cacheProvider.GetOrAdd(
+                cacheKey,
+                cacheTags,
+                expiry,
+                () => connection.Query<ItemDefinitionPersistentData>(query, transaction).ToList());
         }
     }
 }

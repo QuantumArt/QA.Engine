@@ -56,20 +56,20 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
 ";
         public IEnumerable<AbstractItemPersistentData> GetPlainAllAbstractItems(int siteId, bool isStage, IDbTransaction transaction = null)
         {
-            var cacheKey = $"{nameof(AbstractItemRepository)}.{nameof(GetPlainAllAbstractItems)}(" +
-                $"{nameof(siteId)}:{siteId},{nameof(isStage)}:{isStage})";
+            var connection = UnitOfWork.Connection;
+            var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAbstractItem, siteId, isStage);
+
+            var cacheKey = query;
             var cacheTags = _netNameQueryAnalyzer.GetContentNetNames(CmdGetAbstractItem, siteId, isStage)
                 .Select(name => _qpContentCacheTagNamingProvider.Get(name, siteId, isStage))
                 .ToArray();
             var expiry = _cacheSettings.SiteStructureCachePeriod;
 
-            return _cacheProvider.GetOrAdd(cacheKey, cacheTags, expiry, GetActualPlainAbstractItems);
-
-            IEnumerable<AbstractItemPersistentData> GetActualPlainAbstractItems()
-            {
-                var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAbstractItem, siteId, isStage);
-                return UnitOfWork.Connection.Query<AbstractItemPersistentData>(query, transaction: transaction);
-            }
+            return _cacheProvider.GetOrAdd(
+                cacheKey,
+                cacheTags,
+                expiry,
+                () => connection.Query<AbstractItemPersistentData>(query, transaction: transaction));
         }
 
         /// <summary>

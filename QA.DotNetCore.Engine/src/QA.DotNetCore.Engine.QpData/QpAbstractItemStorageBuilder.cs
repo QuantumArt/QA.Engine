@@ -47,7 +47,7 @@ namespace QA.DotNetCore.Engine.QpData
         public AbstractItemStorage BuildStorage(AbstractItem[] abstractItems)
         {
             _logger.LogInformation(
-                "AbstractItemStorage build via AbstractItems collection started. Build id: {0}, SiteId: {0}, IsStage: {1}",
+                "AbstractItemStorage build via AbstractItems collection started. Build id: {0}, SiteId: {1}, IsStage: {2}",
                 _context.LogId, _buildSettings.SiteId, _buildSettings.IsStage);
             var root = abstractItems.First(x => x.Discriminator == _buildSettings.RootPageDiscriminator);
             return new AbstractItemStorage(root, abstractItems);
@@ -64,7 +64,7 @@ namespace QA.DotNetCore.Engine.QpData
             if (_context == null)
                 throw new ArgumentNullException(nameof(_context));
 
-            _logger.LogInformation("AbstractItem build via QP started. Build id: {0}, SiteId: {0}, IsStage: {1}",
+            _logger.LogInformation("AbstractItem build via QP started. Build id: {0}, SiteId: {1}, IsStage: {2}",
                 _context.LogId, _buildSettings.SiteId, _buildSettings.IsStage);
 
             var activatedAbstractItems = new Dictionary<int, AbstractItem>();
@@ -97,7 +97,7 @@ namespace QA.DotNetCore.Engine.QpData
             else
             {
                 _logger.LogInformation(
-                    "Skip load data for extension-less elements (LoadAbstractItemFieldsToDetailsCollection = false). Build id: {1}",
+                    "Skip load data for extension-less elements (LoadAbstractItemFieldsToDetailsCollection = false). Build id: {0}",
                     _context.LogId);
             }
 
@@ -105,7 +105,7 @@ namespace QA.DotNetCore.Engine.QpData
 
             if (_context.NeedLoadM2mInAbstractItem)
             {
-                _logger.LogInformation("Load data for many-to-many fields in main content (QPAbstractItem). Build id: {1}",
+                _logger.LogInformation("Load data for many-to-many fields in main content (QPAbstractItem). Build id: {0}",
                     _context.LogId);
 
                 if (_context.AbstractItemsM2MData != null)

@@ -1,4 +1,7 @@
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using NUnit.Framework;
+using QA.DotNetCore.Caching;
 using QA.DotNetCore.Engine.Persistent.Dapper;
 using QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
@@ -13,8 +16,9 @@ namespace Tests
         public void Setup()
         {
             var serviceProvider = Global.CreateMockServiceProviderWithConnection();
-
-            var metaRepository = new MetaInfoRepository(serviceProvider);
+            var settings = TestUtils.CreateDefaultCacheSettings();
+            var cacheProvider = new VersionedCacheCoreProvider(new MemoryCache(Options.Create(new MemoryCacheOptions())));
+            var metaRepository = new MetaInfoRepository(serviceProvider, cacheProvider, settings);
             var sqlAnalyzer = new NetNameQueryAnalyzer(metaRepository);
             _repository = new AbTestRepository(serviceProvider, sqlAnalyzer);
         }
@@ -54,6 +58,5 @@ namespace Tests
                 var containers = _repository.GetActiveTestsContainers(Global.SiteId, false);
             });
         }
-
     }
 }

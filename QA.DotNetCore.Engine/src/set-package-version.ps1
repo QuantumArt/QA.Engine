@@ -6,12 +6,12 @@ param (
 $invocation = (Get-Variable MyInvocation).Value
 $srcDir = Split-Path $invocation.MyCommand.Path
 
-$csprojFiles = Get-ChildItem -Path $srcDir -Filter QA.DotNetCore.*.csproj -File -Recurse
+$csprojFiles = Get-ChildItem -Path $srcDir -Include QA.DotNetCore.*.csproj,Directory.Build.props -File -Recurse -Depth 2
 foreach($csprojFile in $csprojFiles)
 {
     $csprojFilePath = $csprojFile.FullName
 
-    [xml]$xml = Get-Content $csprojFilePath
+    [xml]$xml = Get-Content $csprojFilePath -Encoding UTF8
     $ns = New-Object System.Xml.XmlNamespaceManager($xml.NameTable)
     $ns.AddNamespace("ns", $xml.DocumentElement.NamespaceURI)
 

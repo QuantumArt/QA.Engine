@@ -1,20 +1,32 @@
 using Dapper;
-using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
-using QA.DotNetCore.Engine.Persistent.Interfaces;
-using System.Data;
-using System.Linq;
-using System;
 using Microsoft.Extensions.DependencyInjection;
+using QA.DotNetCore.Caching.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using QA.DotNetCore.Engine.QpData.Settings;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
 
 namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
     public class MetaInfoRepository : IMetaInfoRepository
     {
+        private readonly ICacheProvider _cacheProvider;
+        private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly IServiceProvider _serviceProvider;
 
-        public MetaInfoRepository(IServiceProvider serviceProvider)
+        public MetaInfoRepository(
+            IServiceProvider serviceProvider,
+            ICacheProvider cacheProvider,
+            QpSiteStructureCacheSettings cacheSettings)
         {
             _serviceProvider = serviceProvider;
+            _cacheProvider = cacheProvider;
+            _cacheSettings = cacheSettings;
         }
 
         protected IUnitOfWork UnitOfWork { get { return _serviceProvider.GetRequiredService<IUnitOfWork>(); } }
@@ -58,43 +70,26 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID=ca.ATTRIBUTE_TYPE_ID
 WHERE ca.CONTENT_ID={0} AND lower(ca.NET_ATTRIBUTE_NAME)=lower('{1}')
 ";
 
-        private const string CmdGetContent = @"
+        private const string BaseCmdGetContents = @"
 SELECT
-    c.CONTENT_NAME as ContentName,
-    c.NET_CONTENT_NAME as ContentNetName,
-    c.USE_DEFAULT_FILTRATION as UseDefaultFiltration,
-    ca.ATTRIBUTE_ID as Id,
-    ca.CONTENT_ID as ContentId,
-    ca.ATTRIBUTE_NAME as ColumnName,
-    ca.NET_ATTRIBUTE_NAME as NetName,
-    ca.USE_SITE_LIBRARY as UseSiteLibrary,
-    ca.SUBFOLDER,
-    at.TYPE_NAME as TypeName,
-    ca.LINK_ID as M2mLinkId
+    c.CONTENT_NAME as " + nameof(ContentPersistentData.ContentName) + @",
+    c.NET_CONTENT_NAME as " + nameof(ContentPersistentData.ContentNetName) + @",
+    c.USE_DEFAULT_FILTRATION as " + nameof(ContentAttributePersistentData.UseDefaultFiltration) + @",
+    ca.ATTRIBUTE_ID as " + nameof(ContentAttributePersistentData.Id) + @",
+    ca.CONTENT_ID as " + nameof(ContentAttributePersistentData.ContentId) + @",
+    ca.ATTRIBUTE_NAME as " + nameof(ContentAttributePersistentData.ColumnName) + @",
+    ca.NET_ATTRIBUTE_NAME as " + nameof(ContentAttributePersistentData.NetName) + @",
+    ca.USE_SITE_LIBRARY as " + nameof(ContentAttributePersistentData.UseSiteLibrary) + @",
+    ca.SUBFOLDER as " + nameof(ContentAttributePersistentData.SubFolder) + @",
+    at.TYPE_NAME as " + nameof(ContentAttributePersistentData.TypeName) + @",
+    ca.LINK_ID as " + nameof(ContentAttributePersistentData.M2mLinkId) + @"
 FROM CONTENT c
 INNER JOIN CONTENT_ATTRIBUTE ca on ca.CONTENT_ID = c.CONTENT_ID
-INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID=ca.ATTRIBUTE_TYPE_ID
-WHERE c.SITE_ID={0} AND lower(c.NET_CONTENT_NAME)=lower('{1}')
-";
+INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
+WHERE c.SITE_ID = {0}";
 
-        private const string CmdGetContentsById = @"
-SELECT
-    c.CONTENT_NAME as ContentName,
-    c.NET_CONTENT_NAME as ContentNetName,
-    c.USE_DEFAULT_FILTRATION as UseDefaultFiltration,
-    ca.ATTRIBUTE_ID as Id,
-    ca.CONTENT_ID as ContentId,
-    ca.ATTRIBUTE_NAME as ColumnName,
-    ca.NET_ATTRIBUTE_NAME as NetName,
-    ca.USE_SITE_LIBRARY as UseSiteLibrary,
-    ca.SUBFOLDER,
-    at.TYPE_NAME as TypeName,
-    ca.LINK_ID as M2mLinkId
-FROM CONTENT c
-INNER JOIN CONTENT_ATTRIBUTE ca on ca.CONTENT_ID = c.CONTENT_ID
-INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID=ca.ATTRIBUTE_TYPE_ID
-WHERE c.SITE_ID={0} AND c.CONTENT_ID in ({1})
-";
+        private const string CmdGetContentsByNetName = BaseCmdGetContents + " AND lower(c.NET_CONTENT_NAME) IN ({1})";
+        private const string CmdGetContentsById = BaseCmdGetContents + " AND c.CONTENT_ID in ({1})";
 
         public QpSitePersistentData GetSite(int siteId)
         {
@@ -123,43 +118,103 @@ WHERE c.SITE_ID={0} AND c.CONTENT_ID in ({1})
                 string.Format(CmdGetContentAttributeByNetName, contentId, fieldNetName), transaction: transaction);
         }
 
-        public ContentPersistentData GetContent(string contentNetName, int siteId, IDbTransaction transaction = null)
+        public ContentPersistentData[] GetContents(ICollection<string> contentNetNames, int siteId, IDbTransaction transaction = null)
         {
-            string query = string.Format(CmdGetContent, siteId, contentNetName);
-            var contentAttributes = UnitOfWork.Connection
-                .Query<ContentAttributePersistentData>(query, transaction: transaction)
-                .ToList();
-            if (contentAttributes == null || !contentAttributes.Any())
-                return null;
-            var contentAttribute = contentAttributes.First();
-            return new ContentPersistentData
-            {
-                ContentId = contentAttribute.ContentId,
-                ContentName = contentAttribute.ContentName,
-                ContentNetName = contentNetName,
-                ContentAttributes = contentAttributes
-            };
+            string[] normalizedNames = contentNetNames.Select(name => name.ToLower()).ToArray();
+            return GetContentsCore(
+                nameof(CmdGetContentsByNetName),
+                CmdGetContentsByNetName,
+                normalizedNames,
+                siteId,
+                transaction);
         }
 
-        public ContentPersistentData[] GetContentsById(int[] contentIds, int siteId, IDbTransaction transaction = null)
+        public ContentPersistentData GetContent(string contentNetName, int siteId, IDbTransaction transaction = null) =>
+            GetContents(new[] { contentNetName }, siteId, transaction).FirstOrDefault();
+
+        public ContentPersistentData[] GetContentsById(int[] contentIds, int siteId, IDbTransaction transaction = null) =>
+            GetContentsCore(
+                nameof(CmdGetContentsById),
+                CmdGetContentsById,
+                contentIds,
+                siteId,
+                transaction);
+
+        private ContentPersistentData[] GetContentsCore<T>(
+            string templateId,
+            string queryTemplate,
+            ICollection<T> parameterValues,
+            int siteId,
+            IDbTransaction transaction = null)
         {
-            if (contentIds == null || contentIds.Length == 0)
-                return new ContentPersistentData[0];
+            Debug.Assert(queryTemplate != null);
 
-            string query = string.Format(CmdGetContentsById, siteId, string.Join(",", contentIds));
-            var contentAttributes = UnitOfWork.Connection
-                .Query<ContentAttributePersistentData>(query, transaction: transaction)
-                .ToList();
+            if (parameterValues is null)
+                throw new ArgumentNullException(nameof(parameterValues));
 
-            return contentAttributes
-                .GroupBy(ca => ca.ContentId)
-                .Select(g => new ContentPersistentData
+            if (!parameterValues.Any())
+                throw new ArgumentException("Argument must be non-empty collection.", nameof(parameterValues));
+
+            var (queryFragment, parameters) = GetParametersInfo(parameterValues);
+
+            string query = string.Format(queryTemplate, siteId, queryFragment);
+
+            // TODO: Add support for array of keys to request a batch from redis for more persistent cache. Consider adding lazy interface.
+            string parametersList = string.Join("|", parameterValues.OrderBy(value => value));
+            string cacheKey = $"{nameof(GetContentsCore)}_{templateId}_{parametersList}_{siteId}";
+            TimeSpan expiry = _cacheSettings.QpSchemeCachePeriod;
+
+            var attributes = _cacheProvider.GetOrAdd(
+                cacheKey,
+                expiry,
+                () => UnitOfWork.Connection.Query<ContentAttributePersistentData>(query, parameters, transaction));
+
+            return GroupAttributesIntoContents(attributes).ToArray();
+        }
+
+        private static (string queryFragment, Dictionary<string, object> parameters) GetParametersInfo<T>(
+            ICollection<T> parameterValues)
+        {
+            if (parameterValues is null)
+                throw new ArgumentNullException(nameof(parameterValues));
+
+            if (!parameterValues.Any())
+                throw new ArgumentException("Argument must be non-empty collection.", nameof(parameterValues));
+
+            const int maximumExpectedParameterNameSize = 6;
+
+            var parametersQuery = new StringBuilder(parameterValues.Count * maximumExpectedParameterNameSize);
+            var parameters = new Dictionary<string, object>();
+            using (IEnumerator<T> namesEnumerator = parameterValues.GetEnumerator())
+            {
+                for (int i = 0; namesEnumerator.MoveNext(); i++)
                 {
-                    ContentId = g.Key,
-                    ContentName = g.First().ContentName,
-                    ContentNetName = g.First().ContentNetName,
-                    ContentAttributes = g.ToArray()
-                }).ToArray();
+                    var parameterName = $"@t{i}";
+                    _ = parametersQuery.Append(parameterName).Append(',');
+                    parameters.Add(parameterName, namesEnumerator.Current);
+                }
+                // Removing trailing comma.
+                if (parametersQuery.Length > 0)
+                    parametersQuery.Length--;
+            }
+
+            return (parametersQuery.ToString(), parameters);
+        }
+
+        private static IEnumerable<ContentPersistentData> GroupAttributesIntoContents(
+            IEnumerable<ContentAttributePersistentData> attributes)
+        {
+            return attributes
+                .GroupBy(
+                    attribute => (attribute.ContentId, attribute.ContentName, attribute.ContentNetName),
+                    attribute => attribute,
+                    (key, value) => new ContentPersistentData
+                    {
+                        ContentId = key.ContentId,
+                        ContentName = key.ContentName,
+                        ContentNetName = key.ContentNetName,
+                        ContentAttributes = value
+                    });
         }
     }
 }

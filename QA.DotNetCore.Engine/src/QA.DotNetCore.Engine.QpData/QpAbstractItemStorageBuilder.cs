@@ -1,16 +1,15 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Engine.Abstractions;
-using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using QA.DotNetCore.Engine.QpData.Interfaces;
+using QA.DotNetCore.Engine.QpData.Models;
 using QA.DotNetCore.Engine.QpData.Replacements;
 using QA.DotNetCore.Engine.QpData.Settings;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
-using QA.DotNetCore.Engine.QpData.Models;
 
 namespace QA.DotNetCore.Engine.QpData
 {
@@ -48,7 +47,7 @@ namespace QA.DotNetCore.Engine.QpData
         public AbstractItemStorage BuildStorage(AbstractItem[] abstractItems)
         {
             _logger.LogInformation(
-                "AbstractItemStorage build via AbstractItems collection started. Build id: {0}, SiteId: {0}, IsStage: {1}",
+                "AbstractItemStorage build via AbstractItems collection started. Build id: {0}, SiteId: {1}, IsStage: {2}",
                 _context.LogId, _buildSettings.SiteId, _buildSettings.IsStage);
             var root = abstractItems.First(x => x.Discriminator == _buildSettings.RootPageDiscriminator);
             return new AbstractItemStorage(root, abstractItems);
@@ -65,7 +64,7 @@ namespace QA.DotNetCore.Engine.QpData
             if (_context == null)
                 throw new ArgumentNullException(nameof(_context));
 
-            _logger.LogInformation("AbstractItem build via QP started. Build id: {0}, SiteId: {0}, IsStage: {1}",
+            _logger.LogInformation("AbstractItem build via QP started. Build id: {0}, SiteId: {1}, IsStage: {2}",
                 _context.LogId, _buildSettings.SiteId, _buildSettings.IsStage);
 
             var activatedAbstractItems = new Dictionary<int, AbstractItem>();
@@ -79,7 +78,6 @@ namespace QA.DotNetCore.Engine.QpData
                 activatedItem.MapPersistent(persistentItem);
                 activatedAbstractItems.Add(persistentItem.Id, activatedItem);
             }
-
 
             _logger.LogInformation("Activated abstract items: {0}. Build id: {1}", activatedAbstractItems.Count, _context.LogId);
 
@@ -99,7 +97,7 @@ namespace QA.DotNetCore.Engine.QpData
             else
             {
                 _logger.LogInformation(
-                    "Skip load data for extension-less elements (LoadAbstractItemFieldsToDetailsCollection = false). Build id: {1}",
+                    "Skip load data for extension-less elements (LoadAbstractItemFieldsToDetailsCollection = false). Build id: {0}",
                     _context.LogId);
             }
 
@@ -107,7 +105,7 @@ namespace QA.DotNetCore.Engine.QpData
 
             if (_context.NeedLoadM2mInAbstractItem)
             {
-                _logger.LogInformation("Load data for many-to-many fields in main content (QPAbstractItem). Build id: {1}",
+                _logger.LogInformation("Load data for many-to-many fields in main content (QPAbstractItem). Build id: {0}",
                     _context.LogId);
 
                 if (_context.AbstractItemsM2MData != null)
@@ -188,27 +186,25 @@ namespace QA.DotNetCore.Engine.QpData
         /// <summary>
         /// Формирование контекста
         /// </summary>
-        /// <param name="extensions"></param>
-        /// <returns></returns>
         public void Init(IDictionary<int, AbstractItemPersistentData[]> extensions)
         {
             _context = new AbstractItemStorageBuilderContext
             {
                 BaseContent = _metaInfoRepository.GetContent(KnownNetNames.AbstractItem, _buildSettings.SiteId),
             };
-            _context.NeedLoadM2mInAbstractItem = _buildSettings.LoadAbstractItemFieldsToDetailsCollection &&
-                                                 _context.BaseContent.ContentAttributes.Any(ca => ca.IsManyToManyField);
+
+            _context.NeedLoadM2mInAbstractItem =
+                _buildSettings.LoadAbstractItemFieldsToDetailsCollection
+                && _context.BaseContent.ContentAttributes.Any(ca => ca.IsManyToManyField);
 
             if (extensions != null)
             {
                 //получим инфу обо всех контентах-расширениях, которые используются
                 _context.ExtensionContents = _metaInfoRepository
-                    .GetContentsById(extensions
-                        .Select(g => g.Key)
-                        .Where(extId => extId > 0)
-                        .ToArray(), _buildSettings.SiteId)
+                    .GetContentsById(
+                        extensions.Select(group => group.Key).Where(key => key > 0).ToArray(),
+                        _buildSettings.SiteId)
                     .ToDictionary(c => c.ContentId);
-
 
                 _context.LazyExtensionData = extensions.ToDictionary(x => x.Key,
                     x => new Lazy<IDictionary<int, AbstractItemExtensionCollection>>(() =>
@@ -218,8 +214,8 @@ namespace QA.DotNetCore.Engine.QpData
                 // m2m для базового AbstractItem
                 _context.AbstractItemsM2MData = _abstractItemRepository.GetManyToManyData(
                     extensions.Values
-                        .SelectMany(x=>x)
-                        .Select(x=>x.Id),
+                        .SelectMany(x => x)
+                        .Select(x => x.Id),
                     _buildSettings.IsStage);
 
                 // m2m для расширений
@@ -239,7 +235,7 @@ namespace QA.DotNetCore.Engine.QpData
                 var abstractItemRepository = scope.ServiceProvider.GetRequiredService<IAbstractItemRepository>();
                 var buildSettings = scope.ServiceProvider.GetRequiredService<QpSiteStructureBuildSettings>();
                 var logger = scope.ServiceProvider.GetRequiredService<ILogger<QpAbstractItemStorageBuilder>>();
-                return GetAbstractItemExtensionData(abstractItemRepository,buildSettings,logger,
+                return GetAbstractItemExtensionData(abstractItemRepository, buildSettings, logger,
                     extensionId, abstractItemIds, baseContent, logId);
             }
         }
@@ -367,7 +363,7 @@ namespace QA.DotNetCore.Engine.QpData
                     if (fileField != null)
                     {
                         var baseUrl = qpUrlResolver.UrlForImage(buildSettings.SiteId, fileField);
-                        if (!String.IsNullOrEmpty(baseUrl))
+                        if (!string.IsNullOrEmpty(baseUrl))
                         {
                             details.Set(key, baseUrl + "/" + stringValue);
                         }

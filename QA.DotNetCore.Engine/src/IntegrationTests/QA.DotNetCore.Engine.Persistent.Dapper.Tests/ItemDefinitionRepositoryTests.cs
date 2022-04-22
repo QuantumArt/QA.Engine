@@ -1,8 +1,11 @@
-using System.Linq;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using NUnit.Framework;
-using QA.DotNetCore.Engine.Persistent.Dapper;
+using QA.DotNetCore.Caching;
 using QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
+using System;
+using System.Linq;
 
 namespace Tests
 {
@@ -14,10 +17,11 @@ namespace Tests
         public void Setup()
         {
             var serviceProvider = Global.CreateMockServiceProviderWithConnection();
-
-            var metaRepository = new MetaInfoRepository(serviceProvider);
+            var settings = TestUtils.CreateDefaultCacheSettings();
+            var cacheProvider = new VersionedCacheCoreProvider(new MemoryCache(Options.Create(new MemoryCacheOptions())));
+            var metaRepository = new MetaInfoRepository(serviceProvider, cacheProvider, settings);
             var sqlAnalyzer = new NetNameQueryAnalyzer(metaRepository);
-            _repository = new ItemDefinitionRepository(serviceProvider, sqlAnalyzer);
+            _repository = new ItemDefinitionRepository(serviceProvider, sqlAnalyzer, new StubNamingProvider(), cacheProvider, settings);
         }
 
         [Test]
@@ -27,7 +31,7 @@ namespace Tests
             {
                 var defs = _repository.GetAllItemDefinitions(Global.SiteId, false);
 
-                var startPageDef = defs.FirstOrDefault(d => d.Discriminator.Equals("start_page", System.StringComparison.InvariantCultureIgnoreCase));
+                var startPageDef = defs.FirstOrDefault(d => d.Discriminator.Equals("start_page", StringComparison.InvariantCultureIgnoreCase));
 
                 Assert.IsNotNull(startPageDef);
                 Assert.AreEqual(startPageDef.TypeName, "StartPage");

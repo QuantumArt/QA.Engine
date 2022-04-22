@@ -213,7 +213,7 @@ WHERE c.SITE_ID = {0}";
                         ContentId = key.ContentId,
                         ContentName = key.ContentName,
                         ContentNetName = key.ContentNetName,
-                        ContentAttributes = attributes
+                        ContentAttributes = value
                     });
         }
     }

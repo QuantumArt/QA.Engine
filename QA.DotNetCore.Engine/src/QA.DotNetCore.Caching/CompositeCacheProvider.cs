@@ -22,7 +22,11 @@ namespace QA.DotNetCore.Caching
         public override object Get(string key)
         {
             object cachedValue = base.Get(key);
-            return _globalCacheProvider.IsSet(GetGlobalKey(key)) ? cachedValue : null;
+
+            if (cachedValue == null || !_globalCacheProvider.IsSet(GetGlobalKey(key)))
+                return null;
+
+            return cachedValue;
         }
 
         public override void Add(object data, string key, string[] tags, TimeSpan expiration)

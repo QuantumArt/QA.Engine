@@ -15,11 +15,8 @@ namespace QA.DotNetCore.Engine.QpData
     /// <summary>
     /// Предоставляет доступ к структуре сайта, изготовленной строителем по требованию. Может кешировать.
     /// </summary>
-    // TODO: Change name: not as granular as it claims to be.
     public class GranularCacheAbstractItemStorageProvider : IAbstractItemStorageProvider
     {
-        private static readonly SemaphoreSlim _cacheStorageSemaphore = new SemaphoreSlim(1, 1);
-
         private readonly IAbstractItemContextStorageBuilder _builder;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly IAbstractItemRepository _abstractItemRepository;

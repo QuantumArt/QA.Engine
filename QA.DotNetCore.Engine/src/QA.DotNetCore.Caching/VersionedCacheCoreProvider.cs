@@ -12,7 +12,7 @@ namespace QA.DotNetCore.Caching
     /// <summary>
     /// Реализует провайдер кеширования данных
     /// </summary>
-    public class VersionedCacheCoreProvider : ICacheProvider, IMemoryCacheProvider
+    public class VersionedCacheCoreProvider : ICacheProvider
     {
         private readonly IMemoryCache _cache;
         private readonly TimeSpan _defaultWaitForCalculateTimeout = TimeSpan.FromSeconds(5);
@@ -108,7 +108,7 @@ namespace QA.DotNetCore.Caching
         /// <param name="data">Данные</param>
         /// <param name="tags">Теги</param>
         /// <param name="expiration">Время кеширования (sliding expiration)</param>
-        public void Add(object data, string key, string[] tags, TimeSpan expiration)
+        public virtual void Add(object data, string key, string[] tags, TimeSpan expiration)
         {
             var policy = new MemoryCacheEntryOptions
             {
@@ -194,7 +194,11 @@ namespace QA.DotNetCore.Caching
         /// Актуален только когда в кэше нет устаревшего значения. По умолчанию используется 5 секунд.</param>
         /// <exception cref="DeprecateCacheIsExpiredOrMissingException">Выбрасывается в том случае, если другой поток уже выполняет запрос
         /// на обновления данных в кеше, а старых данные ещё (или уже) нет</exception>
-        public virtual T GetOrAdd<T>(string cacheKey, string[] tags, TimeSpan expiration, Func<T> getData,
+        public virtual T GetOrAdd<T>(
+            string cacheKey,
+            string[] tags,
+            TimeSpan expiration,
+            Func<T> getData,
             TimeSpan waitForCalculateTimeout = default(TimeSpan))
         {
             var deprecatedCacheKey = GetDeprecatedCacheKey(cacheKey);

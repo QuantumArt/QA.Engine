@@ -21,32 +21,26 @@ namespace QA.DotNetCore.Engine.QpData
         private static readonly SemaphoreSlim _cacheStorageSemaphore = new SemaphoreSlim(1, 1);
 
         private readonly IAbstractItemContextStorageBuilder _builder;
-        private readonly ICacheProvider _cacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly IAbstractItemRepository _abstractItemRepository;
         private readonly QpSiteStructureBuildSettings _buildSettings;
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
-        private readonly INodeIdentifier _nodeIdentifier;
-        private readonly IMemoryCacheProvider _memoryCacheProvider;
+        private readonly ICompositeCacheProvider _compositeCacheProvider;
 
         public GranularCacheAbstractItemStorageProvider(
-            ICacheProvider cacheProvider,
             IAbstractItemContextStorageBuilder builder,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
             QpSiteStructureBuildSettings buildSettings,
             QpSiteStructureCacheSettings cacheSettings,
             IAbstractItemRepository abstractItemRepository,
-            INodeIdentifier nodeIdentifier,
-            IMemoryCacheProvider memoryCacheProvider)
+            ICompositeCacheProvider compositeCacheProvider)
         {
             _builder = builder;
             _abstractItemRepository = abstractItemRepository;
             _buildSettings = buildSettings;
             _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
-            _cacheProvider = cacheProvider;
             _cacheSettings = cacheSettings;
-            _nodeIdentifier = nodeIdentifier;
-            _memoryCacheProvider = memoryCacheProvider;
+            _compositeCacheProvider = compositeCacheProvider;
         }
 
         public AbstractItemStorage Get()
@@ -56,7 +50,7 @@ namespace QA.DotNetCore.Engine.QpData
             int siteId = _buildSettings.SiteId;
             bool isStage = _buildSettings.IsStage;
 
-            var allTags = new WidgetsAndPagesCacheTags
+            var tags = new WidgetsAndPagesCacheTags
             {
                 AbstractItemTag = _qpContentCacheTagNamingProvider.GetByNetName(
                     KnownNetNames.AbstractItem, siteId, isStage),
@@ -64,51 +58,27 @@ namespace QA.DotNetCore.Engine.QpData
                     KnownNetNames.ItemDefinition, siteId, isStage),
                 ExtensionsTags = _qpContentCacheTagNamingProvider.GetByContentIds(
                     extensionsWithAbsItems.Keys.ToArray(), siteId, isStage)
-            }.AllTags;
+            };
 
             TimeSpan expiry = _cacheSettings.SiteStructureCachePeriod;
-            const string localCacheKey = nameof(AbstractItemStorage) + "." + nameof(Get);
-            string globalCacheKey = $"{_nodeIdentifier.GetUniqueId()}:{localCacheKey}";
+            const string cacheKey = nameof(GranularCacheAbstractItemStorageProvider) + "." + nameof(Get);
 
-            _cacheStorageSemaphore.Wait();
-
-            // TODO: Extract to separate abstraction (combined cache).
-            try
-            {
-                bool isStorageGloballyFresh = _cacheProvider.IsSet(globalCacheKey);
-
-                if (isStorageGloballyFresh)
-                {
-                    return _memoryCacheProvider.GetOrAdd(localCacheKey, expiry, RebuildStorage);
-                }
-                else
-                {
-                    var storage = RebuildStorage();
-                    _memoryCacheProvider.Set(localCacheKey, storage, expiry);
-                    return storage;
-                }
-            }
-            finally
-            {
-                _ = _cacheStorageSemaphore.Release();
-            }
-
-            AbstractItemStorage RebuildStorage()
-            {
-                var storage = BuildStorage(extensionsWithAbsItems);
-                _cacheProvider.Add(true, globalCacheKey, allTags, expiry);
-                return storage;
-            }
+            return _compositeCacheProvider.GetOrAdd(
+                cacheKey,
+                tags.AllTags,
+                expiry,
+                () => BuildStorageWithCache(extensionsWithAbsItems, tags));
         }
 
         /// <summary>
         /// Формирование storage
         /// </summary>
-        private AbstractItemStorage BuildStorage(
-            IDictionary<int, AbstractItemPersistentData[]> extensionsWithAbsItems)
+        private AbstractItemStorage BuildStorageWithCache(
+            IDictionary<int, AbstractItemPersistentData[]> extensionsWithAbsItems,
+            WidgetsAndPagesCacheTags cacheTags)
         {
             _builder.Init(extensionsWithAbsItems);
-            var abstractItems = GetAbstractItems(extensionsWithAbsItems);
+            var abstractItems = GetCachedAbstractItems(extensionsWithAbsItems, cacheTags);
             _builder.SetRelationsBetweenAbstractItems(abstractItems);
             return _builder.BuildStorage(abstractItems);
         }
@@ -116,8 +86,9 @@ namespace QA.DotNetCore.Engine.QpData
         /// <summary>
         /// Получение всех AbstractItem
         /// </summary>
-        private AbstractItem[] GetAbstractItems(
-            IDictionary<int, AbstractItemPersistentData[]> extensionsWithAbsItems)
+        private AbstractItem[] GetCachedAbstractItems(
+            IDictionary<int, AbstractItemPersistentData[]> extensionsWithAbsItems,
+            WidgetsAndPagesCacheTags cacheTags)
         {
             var result = new List<AbstractItem>();
             foreach (var extension in extensionsWithAbsItems)
@@ -125,7 +96,18 @@ namespace QA.DotNetCore.Engine.QpData
                 var extensionContentId = extension.Key;
                 var plainAbstractItems = extension.Value;
 
-                var abstractItems = BuildAbstractItems(extensionContentId, plainAbstractItems);
+                var cacheKey = $"{nameof(GranularCacheAbstractItemStorageProvider)}.{nameof(GetCachedAbstractItems)}({extensionContentId})";
+
+                var tags = cacheTags.ExtensionsTags.TryGetValue(extensionContentId, out var extCacheTag)
+                    ? new[] { cacheTags.ItemDefinitionTag, extCacheTag }
+                    : new[] { cacheTags.ItemDefinitionTag, cacheTags.AbstractItemTag };
+
+                AbstractItem[] abstractItems = _compositeCacheProvider.GetOrAdd(
+                    cacheKey,
+                    tags,
+                    _cacheSettings.SiteStructureCachePeriod,
+                    () => BuildAbstractItems(extensionContentId, plainAbstractItems),
+                    _buildSettings.CacheFetchTimeoutAbstractItemStorage);
 
                 result.AddRange(abstractItems);
             }

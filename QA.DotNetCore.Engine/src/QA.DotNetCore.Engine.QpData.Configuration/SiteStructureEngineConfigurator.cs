@@ -172,7 +172,7 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             }
 
             Services.TryAddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
-            Services.TryAddSingleton<IMemoryCacheProvider, VersionedCacheCoreProvider>();
+            Services.TryAddSingleton<ICompositeCacheProvider, CompositeCacheProvider>();
             Services.TryAddSingleton<INodeIdentifier>(StandaloneNodeIdentifier.Instance);
             Services.TryAddScoped<IQpContentCacheTagNamingProvider, DefaultQpContentCacheTagNamingProvider>();
             Services.TryAddSingleton<ITargetingFilterAccessor, NullTargetingFilterAccessor>();

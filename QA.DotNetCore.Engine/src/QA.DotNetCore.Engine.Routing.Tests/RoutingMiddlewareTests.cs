@@ -1,10 +1,13 @@
-using System;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using QA.DotNetCore.Caching;
 using QA.DotNetCore.Caching.Exceptions;
+using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
@@ -16,13 +19,9 @@ using QA.DotNetCore.Engine.QpData.Settings;
 using QA.DotNetCore.Engine.QpData.Tests.FakePagesAndWidgets;
 using QA.DotNetCore.Engine.Routing.Exceptions;
 using QA.DotNetCore.Engine.Routing.Tests.StubClasses;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using QA.DotNetCore.Caching;
-using Microsoft.Extensions.Caching.Memory;
-using QA.DotNetCore.Caching.Interfaces;
 
 namespace QA.DotNetCore.Engine.Routing.Tests
 {
@@ -200,11 +199,11 @@ namespace QA.DotNetCore.Engine.Routing.Tests
 
             var cacheProvider = new VersionedCacheCoreProvider(new MemoryCache(new MemoryCacheOptions()));
             var cacheSettings = new QpSiteStructureCacheSettings
-                {
-                    ItemDefinitionCachePeriod = TimeSpan.FromSeconds(30),
-                    QpSchemeCachePeriod = TimeSpan.FromSeconds(30),
-                    SiteStructureCachePeriod = TimeSpan.FromSeconds(30)
-                };
+            {
+                ItemDefinitionCachePeriod = TimeSpan.FromSeconds(30),
+                QpSchemeCachePeriod = TimeSpan.FromSeconds(30),
+                SiteStructureCachePeriod = TimeSpan.FromSeconds(30)
+            };
 
             QpAbstractItemStorageBuilder builder = new QpAbstractItemStorageBuilder(
                 aiFactoryMoq.Object,

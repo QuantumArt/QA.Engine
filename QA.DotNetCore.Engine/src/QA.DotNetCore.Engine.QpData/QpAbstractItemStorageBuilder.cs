@@ -267,25 +267,21 @@ namespace QA.DotNetCore.Engine.QpData
 
         private (string[] abstractItemTags, string[] extensionItemTags) GenerateM2mContentTags(IEnumerable<int> extensions)
         {
-            var abstractItemTag = _qpContentCacheTagNamingProvider.GetByNetName(
-                KnownNetNames.AbstractItem,
-                _buildSettings.SiteId,
-                _buildSettings.IsStage);
+            var tags = new WidgetsAndPagesCacheTags
+            {
+                AbstractItemTag = _qpContentCacheTagNamingProvider.GetByNetName(
+                    KnownNetNames.AbstractItem, _buildSettings.SiteId, _buildSettings.IsStage),
+                ItemDefinitionTag = _qpContentCacheTagNamingProvider.GetByNetName(
+                    KnownNetNames.ItemDefinition, _buildSettings.SiteId, _buildSettings.IsStage),
+                ExtensionsTags = _qpContentCacheTagNamingProvider.GetByContentIds(
+                    extensions.ToArray(), _buildSettings.SiteId, _buildSettings.IsStage)
+            };
 
-            var itemDefinitionTag = _qpContentCacheTagNamingProvider.GetByNetName(
-                KnownNetNames.ItemDefinition,
-                _buildSettings.SiteId,
-                _buildSettings.IsStage);
-
-            var extensionsTags = _qpContentCacheTagNamingProvider.GetByContentIds(
-                extensions.ToArray(),
-                _buildSettings.SiteId,
-                _buildSettings.IsStage);
-
-            var abstractItemTags = new[] { itemDefinitionTag, abstractItemTag };
-            var extensionItemTags = extensionsTags.Values.Concat(abstractItemTags).ToArray();
-
-            return (abstractItemTags, extensionItemTags);
+            var abstractItemTags = new[] { tags.ItemDefinitionTag, tags.AbstractItemTag }
+                .Where(tag => !string.IsNullOrEmpty(tag))
+                .ToArray();
+            
+            return (abstractItemTags, tags.AllTags);
         }
 
         private IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionId,

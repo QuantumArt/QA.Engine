@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using QA.DotNetCore.Caching.Interfaces;
 
 namespace QA.DotNetCore.Engine.QpData.Tests
 {
@@ -24,12 +25,12 @@ namespace QA.DotNetCore.Engine.QpData.Tests
     /// </summary>
     public class SiteStructureBuilderTests
     {
-        const int siteId = 1;
-        const bool isStage = false;
-        static string abstractItemNetName = KnownNetNames.AbstractItem;
-        const int abstractItemContentId = 666;
-        const string uploadUrlPlaceholder = "<%upload_url%>";
-        readonly QpSiteStructureBuildSettings buildSettings = new QpSiteStructureBuildSettings
+        private const int siteId = 1;
+        private const bool isStage = false;
+        private static string abstractItemNetName = KnownNetNames.AbstractItem;
+        private const int abstractItemContentId = 666;
+        private const string uploadUrlPlaceholder = "<%upload_url%>";
+        private readonly QpSiteStructureBuildSettings buildSettings = new QpSiteStructureBuildSettings
         {
             SiteId = siteId,
             IsStage = isStage,
@@ -37,18 +38,20 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             UploadUrlPlaceholder = uploadUrlPlaceholder,
             LoadAbstractItemFieldsToDetailsCollection = true
         };
-        readonly QpSiteStructureCacheSettings cacheSettings = new QpSiteStructureCacheSettings
+        private readonly QpSiteStructureCacheSettings cacheSettings = new QpSiteStructureCacheSettings
         {
             ItemDefinitionCachePeriod = TimeSpan.FromSeconds(30),
             QpSchemeCachePeriod = TimeSpan.FromSeconds(30),
             SiteStructureCachePeriod = TimeSpan.FromSeconds(30)
         };
-        readonly QpSitePersistentData siteData = new QpSitePersistentData
+        private readonly QpSitePersistentData siteData = new QpSitePersistentData
         {
             UseAbsoluteUploadUrl = true,
             UploadUrlPrefix = "http://storage.quntumart.ru",
             UploadUrl = "/upload"
         };
+        private readonly ICacheProvider _cacheProvider = new VersionedCacheCoreProvider(
+            new MemoryCache(new MemoryCacheOptions()));
 
         [Fact]
         public void GeneralBuildIsCorrect()
@@ -109,11 +112,10 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             serviceScopeFactory.Setup(x => x.CreateScope())
                 .Returns(serviceScope.Object);
 
-            var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
+            var builder = CreateQpAbstractItemStorageBuilder(
+                aiFactoryMoq.Object,
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
-                buildSettings,
-                Mock.Of<ILogger<QpAbstractItemStorageBuilder>>(),
                 serviceScopeFactory.Object);
 
             var aiStorage = builder.Build();
@@ -242,11 +244,10 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             serviceScopeFactory.Setup(x => x.CreateScope())
                 .Returns(serviceScope.Object);
 
-            var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
+            var builder = CreateQpAbstractItemStorageBuilder(
+                aiFactoryMoq.Object,
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
-                buildSettings,
-                Mock.Of<ILogger<QpAbstractItemStorageBuilder>>(),
                 serviceScopeFactory.Object);
 
             var aiStorage = builder.Build();
@@ -338,9 +339,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 return null;
             });
 
-            var cache = new MemoryCache(new MemoryCacheOptions());
-            var cacheProvider = new VersionedCacheCoreProvider(cache);
-            var urlResolver = new QpUrlResolver(cacheProvider, metaInfoMoq.Object, cacheSettings);
+            var urlResolver = new QpUrlResolver(_cacheProvider, metaInfoMoq.Object, cacheSettings);
 
             // Arrange serviceScopeFactory
             var serviceProvider = new Mock<IServiceProvider>();
@@ -364,11 +363,12 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             serviceScopeFactory.Setup(x => x.CreateScope())
                 .Returns(serviceScope.Object);
 
-            var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
+            var qpContentCacheTagNamingProvider = Mock.Of<IQpContentCacheTagNamingProvider>();
+
+            var builder = CreateQpAbstractItemStorageBuilder(
+                aiFactoryMoq.Object,
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
-                buildSettings,
-                Mock.Of<ILogger<QpAbstractItemStorageBuilder>>(),
                 serviceScopeFactory.Object);
 
             var aiStorage = builder.Build();
@@ -411,7 +411,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             metaInfoMoq.Setup(x => x.GetContent(abstractItemNetName, siteId, null)).Returns(new ContentPersistentData
             {
                 ContentId = abstractItemContentId,
-                ContentAttributes = new List<ContentAttributePersistentData> {baseContentRelationField}
+                ContentAttributes = new List<ContentAttributePersistentData> { baseContentRelationField }
             });
             metaInfoMoq.Setup(x => x.GetContentsById(It.Is<int[]>(ids => ids.Contains(extensionId)), siteId, null))
                 .Returns(new ContentPersistentData[1]
@@ -456,7 +456,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                     widgetExtId
                 });
 
-        //extension-поля виджета:
+            //extension-поля виджета:
             //поле SomeRelations - это поле m2m(значением будет является некий relationid),
             //CONTENT_ITEM_ID - это id самого виджета
             //extension-поле из базового контента: поле BaseContentRelations - тоже m2m
@@ -531,11 +531,10 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             serviceScopeFactory.Setup(x => x.CreateScope())
                 .Returns(serviceScope.Object);
 
-            var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
+            var builder = CreateQpAbstractItemStorageBuilder(
+                aiFactoryMoq.Object,
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
-                buildSettings,
-                Mock.Of<ILogger<QpAbstractItemStorageBuilder>>(),
                 serviceScopeFactory.Object);
 
             var aiStorage = builder.Build();
@@ -609,12 +608,11 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             serviceScopeFactory.Setup(x => x.CreateScope())
                 .Returns(serviceScope.Object);
 
-            QpAbstractItemStorageBuilder builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
-               aiRepositoryMoq.Object,
-               metaInfoMoq.Object,
-               buildSettings,
-               Mock.Of<ILogger<QpAbstractItemStorageBuilder>>(),
-               serviceScopeFactory.Object);
+            QpAbstractItemStorageBuilder builder = CreateQpAbstractItemStorageBuilder(
+                aiFactoryMoq.Object,
+                aiRepositoryMoq.Object,
+                metaInfoMoq.Object,
+                serviceScopeFactory.Object);
 
             AbstractItemStorage aiStorage = builder.Build();
 
@@ -646,10 +644,10 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             metaInfoMoq.
                 Setup(x => x.GetContent(abstractItemNetName, siteId, null)).
                 Returns(new ContentPersistentData
-            {
-                ContentId = abstractItemContentId,
-                ContentAttributes = new List<ContentAttributePersistentData>()
-            });
+                {
+                    ContentId = abstractItemContentId,
+                    ContentAttributes = new List<ContentAttributePersistentData>()
+                });
 
             //фабрика элементов структуры сайта
             var aiFactoryMoq = new Mock<IAbstractItemFactory>();
@@ -696,11 +694,10 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             serviceScopeFactory.Setup(x => x.CreateScope())
                 .Returns(serviceScope.Object);
 
-            var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
+            var builder = CreateQpAbstractItemStorageBuilder(
+                aiFactoryMoq.Object,
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
-                buildSettings,
-                Mock.Of<ILogger<QpAbstractItemStorageBuilder>>(),
                 serviceScopeFactory.Object);
 
             var aiStorage = builder.Build();
@@ -779,11 +776,10 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             serviceScopeFactory.Setup(x => x.CreateScope())
                 .Returns(serviceScope.Object);
 
-            var builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object,
+            var builder = CreateQpAbstractItemStorageBuilder(
+                aiFactoryMoq.Object,
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
-                buildSettings,
-                Mock.Of<ILogger<QpAbstractItemStorageBuilder>>(),
                 serviceScopeFactory.Object);
 
             var aiStorage = builder.Build();
@@ -804,6 +800,24 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             Assert.Equal("start2", aiStorage.GetStartPage("test.job.quantumart.ru").Alias);
 
             Assert.Null(aiStorage.GetStartPage("unrecognized.ru"));
+        }
+
+        private QpAbstractItemStorageBuilder CreateQpAbstractItemStorageBuilder(
+            IAbstractItemFactory itemFactory,
+            IAbstractItemRepository abstractItemRepository,
+            IMetaInfoRepository metaInfoRepository,
+            IServiceScopeFactory scopeFactory)
+        {
+            return new QpAbstractItemStorageBuilder(
+                itemFactory,
+                abstractItemRepository,
+                metaInfoRepository,
+                buildSettings,
+                Mock.Of<ILogger<QpAbstractItemStorageBuilder>>(),
+                scopeFactory,
+                Mock.Of<IQpContentCacheTagNamingProvider>(),
+                _cacheProvider,
+                cacheSettings);
         }
     }
 }

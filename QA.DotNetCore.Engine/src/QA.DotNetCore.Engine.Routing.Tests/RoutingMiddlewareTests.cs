@@ -20,6 +20,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using QA.DotNetCore.Caching;
+using Microsoft.Extensions.Caching.Memory;
+using QA.DotNetCore.Caching.Interfaces;
 
 namespace QA.DotNetCore.Engine.Routing.Tests
 {
@@ -195,8 +198,24 @@ namespace QA.DotNetCore.Engine.Routing.Tests
             serviceScopeFactory.Setup(x => x.CreateScope())
                 .Returns(serviceScope.Object);
 
-            QpAbstractItemStorageBuilder builder = new QpAbstractItemStorageBuilder(aiFactoryMoq.Object, aiRepositoryMoq.Object,
-                metaInfoMoq.Object, buildSettings, logger, serviceScopeFactory.Object);
+            var cacheProvider = new VersionedCacheCoreProvider(new MemoryCache(new MemoryCacheOptions()));
+            var cacheSettings = new QpSiteStructureCacheSettings
+                {
+                    ItemDefinitionCachePeriod = TimeSpan.FromSeconds(30),
+                    QpSchemeCachePeriod = TimeSpan.FromSeconds(30),
+                    SiteStructureCachePeriod = TimeSpan.FromSeconds(30)
+                };
+
+            QpAbstractItemStorageBuilder builder = new QpAbstractItemStorageBuilder(
+                aiFactoryMoq.Object,
+                aiRepositoryMoq.Object,
+                metaInfoMoq.Object,
+                buildSettings,
+                logger,
+                serviceScopeFactory.Object,
+                Mock.Of<IQpContentCacheTagNamingProvider>(),
+                cacheProvider,
+                cacheSettings);
 
             return builder.Build();
         }

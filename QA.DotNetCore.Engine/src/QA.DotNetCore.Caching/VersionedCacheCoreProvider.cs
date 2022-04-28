@@ -12,7 +12,7 @@ namespace QA.DotNetCore.Caching
     /// <summary>
     /// Реализует провайдер кеширования данных
     /// </summary>
-    public class VersionedCacheCoreProvider : ICacheProvider
+    public class VersionedCacheCoreProvider : ICacheProvider, IMemoryCacheProvider
     {
         private readonly IMemoryCache _cache;
         private readonly TimeSpan _defaultWaitForCalculateTimeout = TimeSpan.FromSeconds(5);

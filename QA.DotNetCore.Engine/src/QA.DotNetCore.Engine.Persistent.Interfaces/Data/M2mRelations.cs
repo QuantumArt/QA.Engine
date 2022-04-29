@@ -1,17 +1,30 @@
+using QA.DotNetCore.Engine.Persistent.Interfaces.Serialization;
+using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
-namespace  QA.DotNetCore.Engine.Persistent.Interfaces.Data
+namespace QA.DotNetCore.Engine.Persistent.Interfaces.Data
 {
-    public class M2mRelations
+    [Serializable]
+    public class M2mRelations : ISerializable
     {
-        Dictionary<int, HashSet<int>> _relations = new Dictionary<int, HashSet<int>>();
+        private readonly Dictionary<int, HashSet<int>> _relations = new Dictionary<int, HashSet<int>>();
+
+        public M2mRelations()
+        {
+        }
+
+        protected M2mRelations(SerializationInfo info, StreamingContext context)
+        {
+            _relations = info.GetValue(() => _relations);
+        }
 
         public void AddRelation(int relationId, int value)
         {
             if (!_relations.ContainsKey(relationId))
                 _relations[relationId] = new HashSet<int>();
 
-            _relations[relationId].Add(value);
+            _ = _relations[relationId].Add(value);
         }
 
         public IEnumerable<int> GetRelationValue(int relationId)
@@ -29,6 +42,11 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces.Data
             foreach (var rel in other.GetRelations())
                 foreach (var link in other.GetRelationValue(rel))
                     AddRelation(rel, link);
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue(() => _relations);
         }
     }
 }

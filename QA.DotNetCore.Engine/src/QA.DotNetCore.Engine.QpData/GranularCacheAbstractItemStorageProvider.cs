@@ -127,9 +127,7 @@ namespace QA.DotNetCore.Engine.QpData
             //сгруппируем AbsractItem-ы по extensionId
             return abstractItemsPlain
                 .GroupBy(x => x.ExtensionId.GetValueOrDefault(0))
-                .ToDictionary(
-                    x => x.Key,
-                    x => x.ToArray());
+                .ToDictionary(x => x.Key, x => x.ToArray());
         }
     }
 }

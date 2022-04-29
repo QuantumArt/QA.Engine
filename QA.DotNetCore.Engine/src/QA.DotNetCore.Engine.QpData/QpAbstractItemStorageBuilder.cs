@@ -53,7 +53,6 @@ namespace QA.DotNetCore.Engine.QpData
             _cacheSettings = cacheSettings;
         }
 
-
         public AbstractItemStorage BuildStorage(AbstractItem[] abstractItems)
         {
             _logger.LogInformation(
@@ -280,7 +279,7 @@ namespace QA.DotNetCore.Engine.QpData
             var abstractItemTags = new[] { tags.ItemDefinitionTag, tags.AbstractItemTag }
                 .Where(tag => !string.IsNullOrEmpty(tag))
                 .ToArray();
-            
+
             return (abstractItemTags, tags.AllTags);
         }
 

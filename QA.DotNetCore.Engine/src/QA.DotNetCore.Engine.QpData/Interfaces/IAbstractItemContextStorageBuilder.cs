@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using System.Collections.Generic;
 
 namespace QA.DotNetCore.Engine.QpData.Interfaces
 {

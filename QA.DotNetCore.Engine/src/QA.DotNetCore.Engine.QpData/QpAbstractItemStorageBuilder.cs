@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
@@ -26,6 +27,9 @@ namespace QA.DotNetCore.Engine.QpData
         private readonly QpSiteStructureBuildSettings _buildSettings;
         private readonly ILogger<QpAbstractItemStorageBuilder> _logger;
         private readonly IServiceScopeFactory _scopeFactory;
+        private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
+        private readonly ICacheProvider _cacheProvider;
+        private readonly QpSiteStructureCacheSettings _cacheSettings;
 
         public QpAbstractItemStorageBuilder(
             IAbstractItemFactory itemFactory,
@@ -33,7 +37,10 @@ namespace QA.DotNetCore.Engine.QpData
             IMetaInfoRepository metaInfoRepository,
             QpSiteStructureBuildSettings buildSettings,
             ILogger<QpAbstractItemStorageBuilder> logger,
-            IServiceScopeFactory scopeFactory)
+            IServiceScopeFactory scopeFactory,
+            IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
+            ICacheProvider cacheProvider,
+            QpSiteStructureCacheSettings cacheSettings)
         {
             _itemFactory = itemFactory;
             _abstractItemRepository = abstractItemRepository;
@@ -41,6 +48,9 @@ namespace QA.DotNetCore.Engine.QpData
             _buildSettings = buildSettings;
             _logger = logger;
             _scopeFactory = scopeFactory;
+            _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
+            _cacheProvider = cacheProvider;
+            _cacheSettings = cacheSettings;
         }
 
 
@@ -186,6 +196,7 @@ namespace QA.DotNetCore.Engine.QpData
         /// <summary>
         /// Формирование контекста
         /// </summary>
+        /// <param name="extensions">Content items from AbstractItems content grouped by extension type.</param>
         public void Init(IDictionary<int, AbstractItemPersistentData[]> extensions)
         {
             _context = new AbstractItemStorageBuilderContext
@@ -211,20 +222,66 @@ namespace QA.DotNetCore.Engine.QpData
                         GetAbstractItemExtensionData(x.Key, x.Value.Select(i => i.Id), _context.BaseContent,
                             _context.LogId)));
 
+                (string[] abstractItemTags, string[] extensionItemTags) = GenerateM2mContentTags(extensions.Keys);
+
+                _context.AbstractItemsM2MData = _cacheProvider.GetOrAdd(
+                    $"{nameof(Init)}.{nameof(GetAbstractItemsManyToManyRelations)}",
+                    abstractItemTags,
+                    _cacheSettings.SiteStructureCachePeriod,
+                    GetAbstractItemsManyToManyRelations,
+                    _buildSettings.CacheFetchTimeoutAbstractItemStorage);
+
+                var allExtensionContentItemIds = _cacheProvider.GetOrAdd(
+                    $"{nameof(Init)}.{nameof(GetAbstractItemExtensionIds)}",
+                    extensionItemTags,
+                    _cacheSettings.SiteStructureCachePeriod,
+                    GetAbstractItemExtensionIds,
+                    _buildSettings.CacheFetchTimeoutAbstractItemStorage);
+
+                _context.ExtensionsM2MData = _cacheProvider.GetOrAdd(
+                    $"{nameof(Init)}.{nameof(GetExtensionItemsManyToManyRelations)}",
+                    extensionItemTags,
+                    _cacheSettings.SiteStructureCachePeriod,
+                    GetExtensionItemsManyToManyRelations,
+                    _buildSettings.CacheFetchTimeoutAbstractItemStorage);
+
                 // m2m для базового AbstractItem
-                _context.AbstractItemsM2MData = _abstractItemRepository.GetManyToManyData(
-                    extensions.Values
-                        .SelectMany(x => x)
-                        .Select(x => x.Id),
-                    _buildSettings.IsStage);
+                IDictionary<int, M2mRelations> GetAbstractItemsManyToManyRelations() =>
+                    _abstractItemRepository.GetManyToManyData(
+                        extensions.Values
+                            .SelectMany(x => x)
+                            .Select(item => item.Id),
+                        _buildSettings.IsStage);
+
+                // Получение идентификаторов статей расширений связанных с абстрактными статьями.
+                IEnumerable<int> GetAbstractItemExtensionIds() =>
+                    _abstractItemRepository.GetAbstractItemExtensionIds(
+                        extensions.ToDictionary(ext => ext.Key, ext => ext.Value.Select(ai => ai.Id)),
+                        _buildSettings.IsStage);
 
                 // m2m для расширений
-                var allExtensionContentItemIds = _abstractItemRepository.GetAbstractItemExtensionIds(
-                    extensions.ToDictionary(ext => ext.Key, ext => ext.Value.Select(ai => ai.Id)),
-                    _buildSettings.IsStage);
-                _context.ExtensionsM2MData =
+                IDictionary<int, M2mRelations> GetExtensionItemsManyToManyRelations() =>
                     _abstractItemRepository.GetManyToManyData(allExtensionContentItemIds, _buildSettings.IsStage);
             }
+        }
+
+        private (string[] abstractItemTags, string[] extensionItemTags) GenerateM2mContentTags(IEnumerable<int> extensions)
+        {
+            var tags = new WidgetsAndPagesCacheTags
+            {
+                AbstractItemTag = _qpContentCacheTagNamingProvider.GetByNetName(
+                    KnownNetNames.AbstractItem, _buildSettings.SiteId, _buildSettings.IsStage),
+                ItemDefinitionTag = _qpContentCacheTagNamingProvider.GetByNetName(
+                    KnownNetNames.ItemDefinition, _buildSettings.SiteId, _buildSettings.IsStage),
+                ExtensionsTags = _qpContentCacheTagNamingProvider.GetByContentIds(
+                    extensions.ToArray(), _buildSettings.SiteId, _buildSettings.IsStage)
+            };
+
+            var abstractItemTags = new[] { tags.ItemDefinitionTag, tags.AbstractItemTag }
+                .Where(tag => !string.IsNullOrEmpty(tag))
+                .ToArray();
+            
+            return (abstractItemTags, tags.AllTags);
         }
 
         private IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionId,

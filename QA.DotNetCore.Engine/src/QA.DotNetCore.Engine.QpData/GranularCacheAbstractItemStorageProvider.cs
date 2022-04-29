@@ -1,13 +1,14 @@
-﻿using QA.DotNetCore.Caching.Interfaces;
+using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using QA.DotNetCore.Engine.QpData.Interfaces;
+using QA.DotNetCore.Engine.QpData.Models;
 using QA.DotNetCore.Engine.QpData.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using QA.DotNetCore.Engine.Persistent.Interfaces;
-using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
-using QA.DotNetCore.Engine.QpData.Models;
+using System.Threading;
 
 namespace QA.DotNetCore.Engine.QpData
 {
@@ -17,58 +18,59 @@ namespace QA.DotNetCore.Engine.QpData
     public class GranularCacheAbstractItemStorageProvider : IAbstractItemStorageProvider
     {
         private readonly IAbstractItemContextStorageBuilder _builder;
-        private readonly ICacheProvider _cacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly IAbstractItemRepository _abstractItemRepository;
         private readonly QpSiteStructureBuildSettings _buildSettings;
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
+        private readonly ICompositeCacheProvider _compositeCacheProvider;
 
         public GranularCacheAbstractItemStorageProvider(
-            ICacheProvider cacheProvider,
             IAbstractItemContextStorageBuilder builder,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
             QpSiteStructureBuildSettings buildSettings,
             QpSiteStructureCacheSettings cacheSettings,
-            IAbstractItemRepository abstractItemRepository)
+            IAbstractItemRepository abstractItemRepository,
+            ICompositeCacheProvider compositeCacheProvider)
         {
             _builder = builder;
-            _cacheProvider = cacheProvider;
-            _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
-            _cacheSettings = cacheSettings;
             _abstractItemRepository = abstractItemRepository;
             _buildSettings = buildSettings;
+            _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
+            _cacheSettings = cacheSettings;
+            _compositeCacheProvider = compositeCacheProvider;
         }
 
         public AbstractItemStorage Get()
         {
             var extensionsWithAbsItems = GetExtensionContentsWithAbstractItemPersistentData();
 
-            // Соберем все теги
-            var cacheTags = new WidgetsAndPagesCacheTags
+            int siteId = _buildSettings.SiteId;
+            bool isStage = _buildSettings.IsStage;
+
+            var tags = new WidgetsAndPagesCacheTags
             {
-                AbstractItemTag = _qpContentCacheTagNamingProvider.GetByNetName(KnownNetNames.AbstractItem,
-                    _buildSettings.SiteId, _buildSettings.IsStage),
-                ItemDefinitionTag = _qpContentCacheTagNamingProvider.GetByNetName(KnownNetNames.ItemDefinition,
-                    _buildSettings.SiteId, _buildSettings.IsStage),
-                ExtensionsTags = _qpContentCacheTagNamingProvider.GetByContentIds(extensionsWithAbsItems.Keys.ToArray(),
-                    _buildSettings.SiteId, _buildSettings.IsStage)
+                AbstractItemTag = _qpContentCacheTagNamingProvider.GetByNetName(
+                    KnownNetNames.AbstractItem, siteId, isStage),
+                ItemDefinitionTag = _qpContentCacheTagNamingProvider.GetByNetName(
+                    KnownNetNames.ItemDefinition, siteId, isStage),
+                ExtensionsTags = _qpContentCacheTagNamingProvider.GetByContentIds(
+                    extensionsWithAbsItems.Keys.ToArray(), siteId, isStage)
             };
 
-            const string cacheKey = "QpAbstractItemStorageProvider.Get";
-            return _cacheProvider.GetOrAdd(cacheKey,
-                cacheTags.AllTags,
-                _cacheSettings.SiteStructureCachePeriod,
-                () => BuildStorageWithCache(extensionsWithAbsItems, cacheTags),
+            TimeSpan expiry = _cacheSettings.SiteStructureCachePeriod;
+            const string cacheKey = nameof(GranularCacheAbstractItemStorageProvider) + "." + nameof(Get);
+
+            return _compositeCacheProvider.GetOrAdd(
+                cacheKey,
+                tags.AllTags,
+                expiry,
+                () => BuildStorageWithCache(extensionsWithAbsItems, tags),
                 _buildSettings.CacheFetchTimeoutAbstractItemStorage);
         }
 
         /// <summary>
         /// Формирование storage
         /// </summary>
-        /// <param name="extensionsWithAbsItems"></param>
-        /// <param name="cacheTags">Кэш теги</param>
-        /// <remarks>с кэш</remarks>
-        /// <returns></returns>
         private AbstractItemStorage BuildStorageWithCache(
             IDictionary<int, AbstractItemPersistentData[]> extensionsWithAbsItems,
             WidgetsAndPagesCacheTags cacheTags)
@@ -82,10 +84,6 @@ namespace QA.DotNetCore.Engine.QpData
         /// <summary>
         /// Получение всех AbstractItem
         /// </summary>
-        /// <param name="extensionsWithAbsItems"></param>
-        /// <param name="cacheTags">Кэш теги</param>
-        /// <remarks>С кэш</remarks>
-        /// <returns></returns>
         private AbstractItem[] GetCachedAbstractItems(
             IDictionary<int, AbstractItemPersistentData[]> extensionsWithAbsItems,
             WidgetsAndPagesCacheTags cacheTags)
@@ -95,14 +93,16 @@ namespace QA.DotNetCore.Engine.QpData
             {
                 var extensionContentId = extension.Key;
                 var plainAbstractItems = extension.Value;
-                var cacheKey = $"QpAbstractItemStorageProvider.Get#{extensionContentId.ToString()}";
+
+                var cacheKey = $"{nameof(GranularCacheAbstractItemStorageProvider)}.{nameof(GetCachedAbstractItems)}({extensionContentId})";
 
                 var tags = cacheTags.ExtensionsTags.TryGetValue(extensionContentId, out var extCacheTag)
-                    ? new[] {cacheTags.ItemDefinitionTag, extCacheTag}
-                    : new[] {cacheTags.AbstractItemTag, cacheTags.ItemDefinitionTag};
+                    ? new[] { cacheTags.ItemDefinitionTag, extCacheTag }
+                    : new[] { cacheTags.ItemDefinitionTag, cacheTags.AbstractItemTag };
 
-                var abstractItems = _cacheProvider.GetOrAdd(cacheKey,
-                    tags.ToArray(),
+                AbstractItem[] abstractItems = _compositeCacheProvider.GetOrAdd(
+                    cacheKey,
+                    tags,
                     _cacheSettings.SiteStructureCachePeriod,
                     () => BuildAbstractItems(extensionContentId, plainAbstractItems),
                     _buildSettings.CacheFetchTimeoutAbstractItemStorage);
@@ -116,19 +116,14 @@ namespace QA.DotNetCore.Engine.QpData
         /// <summary>
         /// Формирование AbstractItem
         /// </summary>
-        /// <param name="extensionContentId"></param>
-        /// <param name="plainAbstractItems"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        private AbstractItem[] BuildAbstractItems(int extensionContentId,
-            AbstractItemPersistentData[] plainAbstractItems)
+        private AbstractItem[] BuildAbstractItems(int extensionContentId, AbstractItemPersistentData[] plainAbstractItems)
             => _builder.BuildAbstractItems(extensionContentId, plainAbstractItems);
 
         private IDictionary<int, AbstractItemPersistentData[]> GetExtensionContentsWithAbstractItemPersistentData()
         {
-            var abstractItemsPlain =
-                _abstractItemRepository.GetPlainAllAbstractItems(_buildSettings.SiteId,
-                    _buildSettings.IsStage);
+            var abstractItemsPlain = _abstractItemRepository.GetPlainAllAbstractItems(
+                _buildSettings.SiteId,
+                _buildSettings.IsStage);
 
             //сгруппируем AbsractItem-ы по extensionId
             return abstractItemsPlain

@@ -64,7 +64,8 @@ namespace QA.DotNetCore.Engine.QpData
                 cacheKey,
                 tags.AllTags,
                 expiry,
-                () => BuildStorageWithCache(extensionsWithAbsItems, tags));
+                () => BuildStorageWithCache(extensionsWithAbsItems, tags),
+                _buildSettings.CacheFetchTimeoutAbstractItemStorage);
         }
 
         /// <summary>

@@ -7,7 +7,7 @@ namespace QA.DotNetCore.Caching.Distributed
     /// <summary>
     /// Configuration options for <see cref="RedisCache"/>.
     /// </summary>
-    public class RedisCacheOptions : IValidatableObject
+    public class RedisCacheSettings : IValidatableObject
     {
         private static readonly TimeSpan s_minTagExpirationOffset = TimeSpan.FromSeconds(1);
         private static readonly TimeSpan s_defaultTagExpirationOffset = TimeSpan.FromSeconds(5);

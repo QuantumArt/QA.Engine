@@ -13,7 +13,7 @@ namespace QA.DotNetCore.Caching.Tests
         private const string ConnectionString = "SPBREDIS01.ARTQ.COM:6407";
         private const string InstanceName = "MTS.WidgetPlatform.Tests";
 
-        private static RedisCacheOptions CreateDefaultRedisCacheOptions() =>
+        private static RedisCacheSettings CreateDefaultRedisCacheOptions() =>
             new()
             {
                 Configuration = ConnectionString,
@@ -52,7 +52,7 @@ namespace QA.DotNetCore.Caching.Tests
         private static RedisCache CreateRedisCacheWithoutTagOffset()
         {
             // TODO: Pass connection multiplexer? For unit tests
-            return new RedisCache(Options.Create(new RedisCacheOptions
+            return new RedisCache(Options.Create(new RedisCacheSettings
             {
                 Configuration = ConnectionString,
                 TagExpirationOffset = TimeSpan.Zero,

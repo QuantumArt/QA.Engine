@@ -87,7 +87,7 @@ namespace QA.DotNetCore.Caching.Distributed
 
         private static readonly Version LeastSupportedServerVersion = new Version(4, 0, 0);
 
-        private readonly RedisCacheOptions _options;
+        private readonly RedisCacheSettings _options;
         private readonly CacheKeyFactory _keyFactory;
         private readonly SemaphoreSlim _connectionLock = new SemaphoreSlim(initialCount: 1, maxCount: 1);
 
@@ -99,7 +99,7 @@ namespace QA.DotNetCore.Caching.Distributed
         /// Initializes a new instance of <see cref="RedisCache"/>.
         /// </summary>
         /// <param name="optionsAccessor">The configuration options.</param>
-        public RedisCache(IOptions<RedisCacheOptions> optionsAccessor)
+        public RedisCache(IOptions<RedisCacheSettings> optionsAccessor)
         {
             if (optionsAccessor == null)
                 throw new ArgumentNullException(nameof(optionsAccessor));

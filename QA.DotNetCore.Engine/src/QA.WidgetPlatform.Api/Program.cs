@@ -4,7 +4,7 @@ using QA.WidgetPlatform.Api.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.ConfigureBaseServices(builder.Configuration);
-    
+
 var app = builder.Build();
 
 app.UseMiddleware<StatusCodeExceptionHandlerMiddleware>();

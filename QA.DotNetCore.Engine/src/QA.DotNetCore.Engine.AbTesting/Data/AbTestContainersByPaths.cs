@@ -36,10 +36,8 @@ namespace QA.DotNetCore.Engine.AbTesting.Data
 
         protected AbTestContainersByPaths(SerializationInfo info, StreamingContext context)
         {
-            if (info is null)
-                throw new ArgumentNullException(nameof(info));
-
-            DomainsAndPaths = info.GetValue(() => DomainsAndPaths);
+            DomainsAndPaths = info.GetValue<Dictionary<string, IReadOnlyDictionary<string, IEnumerable<AbTestContainerBasePersistentData>>>>(
+                nameof(DomainsAndPaths));
         }
 
         public IEnumerable<AbTestContainerBasePersistentData> Find(string domain, string path)
@@ -77,8 +75,7 @@ namespace QA.DotNetCore.Engine.AbTesting.Data
 
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            Debug.Assert(info != null);
-            info.AddValue(() => DomainsAndPaths);
+            info.AddValue(nameof(DomainsAndPaths), DomainsAndPaths);
         }
     }
 }

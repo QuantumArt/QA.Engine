@@ -16,7 +16,7 @@ namespace QA.DotNetCore.Engine.Persistent.Interfaces.Data
 
         protected M2mRelations(SerializationInfo info, StreamingContext context)
         {
-            _relations = info.GetValue(() => _relations);
+            _relations = info.GetValue<Dictionary<int, HashSet<int>>>(nameof(_relations));
         }
 
         public void AddRelation(int relationId, int value)
@@ -46,7 +46,7 @@ namespace QA.DotNetCore.Engine.Persistent.Interfaces.Data
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue(() => _relations);
+            info.AddValue(nameof(_relations), _relations);
         }
     }
 }

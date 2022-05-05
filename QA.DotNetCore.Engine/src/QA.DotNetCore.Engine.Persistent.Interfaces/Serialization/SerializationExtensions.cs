@@ -1,39 +1,24 @@
-using System;
-using System.Linq.Expressions;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 
 namespace QA.DotNetCore.Engine.Persistent.Interfaces.Serialization
 {
     public static class SerializationExtensions
     {
-        public static TValue GetValue<TValue>(this SerializationInfo info, Expression<Func<TValue>> propertyExpression)
+        public static TValue GetValue<TValue>(this SerializationInfo info, string propertyName)
         {
-            if (info is null)
-                throw new ArgumentNullException(nameof(info));
+            Debug.Assert(info != null);
+            Debug.Assert(!string.IsNullOrWhiteSpace(propertyName), $"'{nameof(propertyName)}' cannot be null or whitespace.");
 
-            if (propertyExpression is null)
-                throw new ArgumentNullException(nameof(propertyExpression));
-
-            if (!(propertyExpression.Body is MemberExpression property))
-                throw new ArgumentException(
-                    nameof(propertyExpression),
-                    "Invalid property expression. Only member accessors are supported (e.g. () => Property)");
-
-            return (TValue)info.GetValue(property.Member.Name, typeof(TValue));
+            return (TValue)info.GetValue(propertyName, typeof(TValue));
         }
 
-        public static void AddValue<TValue>(this SerializationInfo info, Expression<Func<TValue>> propertyExpression)
+        public static void AddValue<TValue>(this SerializationInfo info, string propertyName, TValue value)
         {
-            if (info is null)
-                throw new ArgumentNullException(nameof(info));
+            Debug.Assert(info != null);
+            Debug.Assert(!string.IsNullOrWhiteSpace(propertyName), $"'{nameof(propertyName)}' cannot be null or whitespace.");
 
-            if (propertyExpression is null)
-                throw new ArgumentNullException(nameof(propertyExpression));
-
-            if (!(propertyExpression.Body is MemberExpression property))
-                throw new ArgumentException(nameof(propertyExpression), "Invalid property expression.");
-
-            info.AddValue(property.Member.Name, propertyExpression.Compile()());
+            info.AddValue(propertyName, value);
         }
     }
 }

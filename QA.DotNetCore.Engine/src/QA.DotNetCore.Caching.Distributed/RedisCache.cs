@@ -101,12 +101,27 @@ namespace QA.DotNetCore.Caching.Distributed
         /// <param name="optionsAccessor">The configuration options.</param>
         public RedisCache(IOptions<RedisCacheSettings> optionsAccessor)
         {
-            if (optionsAccessor == null)
+            if (optionsAccessor is null)
                 throw new ArgumentNullException(nameof(optionsAccessor));
 
             _options = optionsAccessor.Value;
 
             _keyFactory = new CacheKeyFactory(_options.InstanceName);
+        }
+
+        public string GetClientId(CancellationToken token = default)
+        {
+            Connect(token);
+
+            const int maxAttempts = 20;
+            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            {
+                string guid = Guid.NewGuid().ToString();
+                if (_cache.StringSet(guid, string.Empty, when: When.NotExists))
+                    return guid;
+            }
+
+            throw new InvalidOperationException($"Unable to generate unique client id.");
         }
 
         public bool IsExists(string key, CancellationToken token = default)
@@ -158,8 +173,8 @@ namespace QA.DotNetCore.Caching.Distributed
             Func<byte[]> dataFactory,
             CancellationToken token = default)
         {
-            if (tags == null)
-                throw new ArgumentNullException(nameof(key));
+            if (tags is null)
+                throw new ArgumentNullException(nameof(tags));
 
             if (dataFactory is null)
                 throw new ArgumentNullException(nameof(dataFactory));
@@ -188,8 +203,8 @@ namespace QA.DotNetCore.Caching.Distributed
             byte[] data,
             CancellationToken token = default)
         {
-            if (tags == null)
-                throw new ArgumentNullException(nameof(key));
+            if (tags is null)
+                throw new ArgumentNullException(nameof(tags));
 
             CacheKey dataKey = _keyFactory.CreateKey(key);
             IEnumerable<CacheKey> tagKeys = _keyFactory.CreateTags(tags).ToList();

@@ -7,6 +7,8 @@ namespace QA.DotNetCore.Caching.Interfaces
 {
     public interface IDistributedTaggedCache : IDisposable
     {
+        string GetClientId(CancellationToken token = default);
+
         /// <summary>
         /// Synchronous alternative of <see cref="IAsyncDistributedTaggedCache.GetAsync(string, CancellationToken)"/>.
         /// </summary>

@@ -100,7 +100,7 @@ namespace QA.DotNetCore.Caching.Distributed
             {
                 using (var timeoutSource = CreateTimeoutSource(waitForCalculateTimeout))
                 {
-                    byte[] data = _cache.GetOrAdd(cacheKey, tags, expiration, getData);
+                    byte[] data = _cache.GetOrAdd(cacheKey, tags, expiration, getData, timeoutSource.Token);
                     return ConvertFromData<T>(data);
                 }
             }

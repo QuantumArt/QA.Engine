@@ -40,6 +40,7 @@ namespace QA.DotNetCore.Caching.Distributed
 
             _ = services.AddSingleton<ICacheProvider, RedisCacheProvider>();
             _ = services.AddSingleton<ICacheInvalidator, RedisCacheProvider>();
+            _ = services.AddSingleton<INodeIdentifier, RedisNodeIdentifier>();
 
             return services;
         }

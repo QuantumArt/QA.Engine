@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using QA.DotNetCore.Caching.Interfaces;
@@ -27,7 +28,13 @@ namespace QA.DotNetCore.Caching.Distributed
             return tags.Select(keyFactory.CreateTag);
         }
 
-        public static IServiceCollection AddRedisCache(this IServiceCollection services)
+        public static IServiceCollection AddRedisCache(this IServiceCollection services, Action<RedisCacheSettings> configureSettings) =>
+            services.AddRedisCacheCore().Configure(configureSettings);
+
+        public static IServiceCollection AddRedisCache(this IServiceCollection services, IConfigurationSection redisSettingsSection) =>
+            services.AddRedisCacheCore().Configure<RedisCacheSettings>(redisSettingsSection);
+
+        private static IServiceCollection AddRedisCacheCore(this IServiceCollection services)
         {
             services.TryAddSingleton<IDistributedTaggedCache, RedisCache>();
 

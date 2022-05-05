@@ -15,17 +15,17 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
     public class MetaInfoRepository : IMetaInfoRepository
     {
-        private readonly ICacheProvider _cacheProvider;
+        private readonly IMemoryCacheProvider _memoryCacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly IServiceProvider _serviceProvider;
 
         public MetaInfoRepository(
             IServiceProvider serviceProvider,
-            ICacheProvider cacheProvider,
+            IMemoryCacheProvider memoryCacheProvider,
             QpSiteStructureCacheSettings cacheSettings)
         {
             _serviceProvider = serviceProvider;
-            _cacheProvider = cacheProvider;
+            _memoryCacheProvider = memoryCacheProvider;
             _cacheSettings = cacheSettings;
         }
 
@@ -164,7 +164,7 @@ WHERE c.SITE_ID = {0}";
             string cacheKey = $"{nameof(GetContentsCore)}_{templateId}_{parametersList}_{siteId}";
             TimeSpan expiry = _cacheSettings.QpSchemeCachePeriod;
 
-            var attributes = _cacheProvider.GetOrAdd(
+            var attributes = _memoryCacheProvider.GetOrAdd(
                 cacheKey,
                 expiry,
                 () => UnitOfWork.Connection.Query<ContentAttributePersistentData>(query, parameters, transaction));

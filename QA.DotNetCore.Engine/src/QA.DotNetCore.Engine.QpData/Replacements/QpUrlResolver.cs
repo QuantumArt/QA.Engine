@@ -12,16 +12,16 @@ namespace QA.DotNetCore.Engine.QpData.Replacements
     /// </summary>
     public class QpUrlResolver : IQpUrlResolver
     {
-        ICacheProvider _cacheProvider;
-        IMetaInfoRepository _metaInfoRepository;
-        QpSiteStructureCacheSettings _qpSchemeSettings;
+        private readonly IMemoryCacheProvider _memoryCacheProvider;
+        private readonly IMetaInfoRepository _metaInfoRepository;
+        private readonly QpSiteStructureCacheSettings _qpSchemeSettings;
 
         public QpUrlResolver(
-            ICacheProvider cacheProvider,
+            IMemoryCacheProvider memoryCacheProvider,
             IMetaInfoRepository metaInfoRepository,
             QpSiteStructureCacheSettings qpSchemeSettings)
         {
-            _cacheProvider = cacheProvider;
+            _memoryCacheProvider = memoryCacheProvider;
             _metaInfoRepository = metaInfoRepository;
             _qpSchemeSettings = qpSchemeSettings;
         }
@@ -83,7 +83,7 @@ namespace QA.DotNetCore.Engine.QpData.Replacements
                 sb.Append(!removeScheme ? "http://" : "//");
                 sb.Append(site.Dns.TrimEnd('/'));
             }
-            
+
             sb.Append(site.UploadUrl);
 
             return sb.ToString();
@@ -91,12 +91,18 @@ namespace QA.DotNetCore.Engine.QpData.Replacements
 
         private QpSitePersistentData GetSite(int siteId)
         {
-            return _cacheProvider.GetOrAdd($"QpUrlResolver.GetSite{siteId}", _qpSchemeSettings.QpSchemeCachePeriod, () => _metaInfoRepository.GetSite(siteId));
+            return _memoryCacheProvider.GetOrAdd(
+                $"QpUrlResolver.GetSite{siteId}",
+                _qpSchemeSettings.QpSchemeCachePeriod,
+                () => _metaInfoRepository.GetSite(siteId));
         }
 
         private ContentAttributePersistentData GetContentAttribute(int contentId, string fieldName)
         {
-            return _cacheProvider.GetOrAdd($"QpUrlResolver.GetContentAttribute_{contentId}_{fieldName.ToUpper()}", _qpSchemeSettings.QpSchemeCachePeriod, () => _metaInfoRepository.GetContentAttribute(contentId, fieldName));
+            return _memoryCacheProvider.GetOrAdd(
+                $"QpUrlResolver.GetContentAttribute_{contentId}_{fieldName.ToUpper()}",
+                _qpSchemeSettings.QpSchemeCachePeriod,
+                () => _metaInfoRepository.GetContentAttribute(contentId, fieldName));
         }
 
         private static string ConvertUrlToSchemaInvariant(string prefix)

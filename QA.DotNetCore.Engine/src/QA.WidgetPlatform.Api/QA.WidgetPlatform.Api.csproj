@@ -7,8 +7,11 @@
   </PropertyGroup>
     
   <ItemGroup>
-    <PackageReference Include="QA.DotNetCore.Engine.QpData.Configuration" Version="2.0.1-beta1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
+  </ItemGroup>
+    
+  <ItemGroup>
+    <ProjectReference Include="..\QA.DotNetCore.Engine.QpData.Configuration\QA.DotNetCore.Engine.QpData.Configuration.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

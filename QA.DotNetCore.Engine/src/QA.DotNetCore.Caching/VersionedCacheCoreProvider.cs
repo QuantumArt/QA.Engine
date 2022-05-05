@@ -239,7 +239,7 @@ namespace QA.DotNetCore.Caching
                             {
                                 //добавим новое значение в кэш и сразу обновим deprecated значение, которое хранится в 2 раза дольше, чем основное
                                 Add(result, cacheKey, tags, expiration);
-                                Add(result, deprecatedCacheKey, null, TimeSpan.FromTicks(expiration.Ticks * 2));
+                                Add(result, deprecatedCacheKey, Array.Empty<string>(), TimeSpan.FromTicks(expiration.Ticks * 2));
                             }
                         }
                     }

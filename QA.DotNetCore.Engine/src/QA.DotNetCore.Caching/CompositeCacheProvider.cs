@@ -31,7 +31,7 @@ namespace QA.DotNetCore.Caching
 
         public override void Add(object data, string key, string[] tags, TimeSpan expiration)
         {
-            _globalCacheProvider.Add(true, GetGlobalKey(key), tags, expiration);
+            _globalCacheProvider.Add(string.Empty, GetGlobalKey(key), tags, expiration);
             base.Add(data, key, tags, expiration);
         }
 

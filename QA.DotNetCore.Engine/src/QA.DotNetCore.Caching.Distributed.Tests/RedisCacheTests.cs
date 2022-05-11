@@ -2,6 +2,7 @@ using Microsoft.Extensions.Options;
 using QA.DotNetCore.Caching.Distributed;
 using StackExchange.Redis;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -81,7 +82,7 @@ namespace QA.DotNetCore.Caching.Tests
 
             using (var redisCache = CreateRedisCache())
                 // Act
-                redisCache.Set(key, new[] { tag }, expiry, GetRandomData());
+                redisCache.Set(key, new[] { tag }, expiry, GetRandomDataStream());
 
             // Assert
             using (var connection = CreateConnection())
@@ -113,7 +114,7 @@ namespace QA.DotNetCore.Caching.Tests
 
             using (var redisCache = CreateRedisCacheThatAlwaysCompacts())
                 // Act
-                redisCache.Set(key, new[] { tag }, expiry, GetRandomData());
+                redisCache.Set(key, new[] { tag }, expiry, GetRandomDataStream());
 
             // Assert
             using (var connection = CreateConnection())
@@ -147,7 +148,7 @@ namespace QA.DotNetCore.Caching.Tests
 
             using (var redisCache = CreateRedisCache())
                 // Act
-                redisCache.Set(key, new[] { tag }, expiry, GetRandomData());
+                redisCache.Set(key, new[] { tag }, expiry, GetRandomDataStream());
 
             // Assert
             using (var connection = CreateConnection())
@@ -175,13 +176,13 @@ namespace QA.DotNetCore.Caching.Tests
                     cache.KeyDeleteAsync(GetTag(tag)));
 
                 using var redisCache = CreateRedisCacheThatAlwaysCompacts();
-                redisCache.Set(expiredKey, new[] { tag }, expiry, GetRandomData());
+                redisCache.Set(expiredKey, new[] { tag }, expiry, GetRandomDataStream());
                 _ = await cache.KeyDeleteAsync(GetKey(expiredKey));
             }
 
             using (var redisCache = CreateRedisCacheWithRareCompacts())
                 // Act
-                redisCache.Set(key, new[] { tag }, expiry, GetRandomData());
+                redisCache.Set(key, new[] { tag }, expiry, GetRandomDataStream());
 
             // Assert
             using (var connection = CreateConnection())
@@ -209,7 +210,7 @@ namespace QA.DotNetCore.Caching.Tests
 
             using (var redisCache = CreateRedisCacheWithoutTagOffset())
                 // Act
-                redisCache.Set(key, new[] { tag }, expiry, GetRandomData());
+                redisCache.Set(key, new[] { tag }, expiry, GetRandomDataStream());
 
             // Assert
             using (var connection = CreateConnection())
@@ -239,6 +240,8 @@ namespace QA.DotNetCore.Caching.Tests
             // Assert
             Assert.Equal(cachedData, result);
         }
+
+        private static MemoryStream GetRandomDataStream() => new(GetRandomData());
 
         private static byte[] GetRandomData()
         {
@@ -275,7 +278,7 @@ namespace QA.DotNetCore.Caching.Tests
             string key = "key1";
             string[] tags = new[] { "tag1", "tag2" };
             byte[] cachedData = GetRandomData();
-            byte[] dataFactory() => cachedData.Append((byte)0).ToArray();
+            MemoryStream dataFactory() => new(cachedData.Append((byte)0).ToArray());
             var expiry = TimeSpan.FromSeconds(1);
 
             using (var connection = CreateConnection())
@@ -297,7 +300,7 @@ namespace QA.DotNetCore.Caching.Tests
             string key = "key1";
             string[] tags = new[] { "tag1", "tag2" };
             byte[] realData = GetRandomData();
-            byte[] dataFactory() => realData;
+            MemoryStream dataFactory() => new(realData);
             var expiry = TimeSpan.FromSeconds(1);
 
             using (var connection = CreateConnection())
@@ -317,7 +320,7 @@ namespace QA.DotNetCore.Caching.Tests
         {
             // Arrange
             string key = "key1";
-            static byte[] dataFactory() => GetRandomData();
+            static MemoryStream dataFactory() => GetRandomDataStream();
             var expiry = TimeSpan.FromSeconds(1);
 
             using (var connection = CreateConnection())
@@ -339,7 +342,7 @@ namespace QA.DotNetCore.Caching.Tests
             var key = "key1";
             var tag = "tag1";
             var expiry = TimeSpan.Zero;
-            static byte[] dataFactory() => GetRandomData();
+            static MemoryStream dataFactory() => GetRandomDataStream();
 
             using (var connection = CreateConnection())
             {
@@ -369,12 +372,12 @@ namespace QA.DotNetCore.Caching.Tests
             string key = "key1";
             string sharedTag = "tag1";
             var expiry = TimeSpan.FromSeconds(1);
-            byte[] dataFactory()
+            MemoryStream dataFactory()
             {
                 using var redisCache = CreateRedisCache();
                 redisCache.InvalidateTag(sharedTag);
 
-                return GetRandomData();
+                return GetRandomDataStream();
             }
 
             using (var connection = CreateConnection())
@@ -397,12 +400,12 @@ namespace QA.DotNetCore.Caching.Tests
             var tag = "tag1";
             var invalidatedTag = "tag2";
             var expiry = TimeSpan.FromSeconds(1);
-            byte[] dataFactory()
+            MemoryStream dataFactory()
             {
                 using var redisCache = CreateRedisCache();
                 redisCache.InvalidateTag(invalidatedTag);
 
-                return GetRandomData();
+                return GetRandomDataStream();
             }
 
             using (var connection = CreateConnection())

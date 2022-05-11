@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,9 +16,9 @@ namespace QA.DotNetCore.Caching.Interfaces
         byte[] Get(string key, CancellationToken token = default);
 
         /// <summary>
-        /// Synchronous alternative of <see cref="IAsyncDistributedTaggedCache.GetOrAddAsync(string, string[], TimeSpan, Func{Task{byte[]}}, CancellationToken)"/>.
+        /// Synchronous alternative of <see cref="IAsyncDistributedTaggedCache.GetOrAddAsync(string, string[], TimeSpan, Func{Task{MemoryStream}}, CancellationToken)"/>.
         /// </summary>
-        byte[] GetOrAdd(string key, string[] tags, TimeSpan expiry, Func<byte[]> dataFactory, CancellationToken token = default);
+        byte[] GetOrAdd(string key, string[] tags, TimeSpan expiry, Func<MemoryStream> dataFactory, CancellationToken token = default);
 
         /// <summary>
         /// Synchronous alternative of <see cref="IAsyncDistributedTaggedCache.InvalidateAsync(string, CancellationToken)"/>.
@@ -35,9 +36,9 @@ namespace QA.DotNetCore.Caching.Interfaces
         bool IsExists(string key, CancellationToken token = default);
 
         /// <summary>
-        /// Synchronous alternative of <see cref="IAsyncDistributedTaggedCache.SetAsync(string, IEnumerable{string}, TimeSpan, byte[], CancellationToken)"/>.
+        /// Synchronous alternative of <see cref="IAsyncDistributedTaggedCache.SetAsync(string, IEnumerable{string}, TimeSpan, MemoryStream, CancellationToken)"/>.
         /// </summary>
-        void Set(string key, IEnumerable<string> tags, TimeSpan expiry, byte[] data, CancellationToken token = default);
+        void Set(string key, IEnumerable<string> tags, TimeSpan expiry, MemoryStream data, CancellationToken token = default);
 
         /// <summary>
         /// Get cached data by the paramref name="key"/>.
@@ -56,7 +57,7 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// <param name="dataFactory">Method to retrieve fresh data.</param>
         /// <param name="token">Operation cancellation token</param>
         /// <returns>Cached data.</returns>
-        Task<byte[]> GetOrAddAsync(string key, string[] tags, TimeSpan expiry, Func<Task<byte[]>> dataFactory, CancellationToken token = default);
+        Task<byte[]> GetOrAddAsync(string key, string[] tags, TimeSpan expiry, Func<Task<MemoryStream>> dataFactory, CancellationToken token = default);
 
         /// <summary>
         /// Remove data from cache by the <paramref name="key"/>.
@@ -88,9 +89,9 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// <param name="key">Key associated with data.</param>
         /// <param name="tags">Tags to link to key.</param>
         /// <param name="expiry">Data expiration time in cache.</param>
-        /// <param name="data">Data to cache.</param>
+        /// <param name="dataStream">Data to cache.</param>
         /// <param name="token">Operation cancellation token</param>
         /// <returns>Caching task.</returns>
-        Task SetAsync(string key, IEnumerable<string> tags, TimeSpan expiry, byte[] data, CancellationToken token = default);
+        Task SetAsync(string key, IEnumerable<string> tags, TimeSpan expiry, MemoryStream dataStream, CancellationToken token = default);
     }
 }

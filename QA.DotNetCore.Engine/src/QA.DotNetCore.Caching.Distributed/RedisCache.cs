@@ -3,6 +3,7 @@ using QA.DotNetCore.Caching.Interfaces;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 
@@ -170,14 +171,14 @@ namespace QA.DotNetCore.Caching.Distributed
             string key,
             string[] tags,
             TimeSpan expiry,
-            Func<byte[]> dataFactory,
+            Func<MemoryStream> dataStreamFactory,
             CancellationToken token = default)
         {
             if (tags is null)
                 throw new ArgumentNullException(nameof(tags));
 
-            if (dataFactory is null)
-                throw new ArgumentNullException(nameof(dataFactory));
+            if (dataStreamFactory is null)
+                throw new ArgumentNullException(nameof(dataStreamFactory));
 
             CacheKey dataKey = _keyFactory.CreateKey(key);
             IEnumerable<CacheKey> tagKeys = _keyFactory.CreateTags(tags).ToList();
@@ -189,7 +190,7 @@ namespace QA.DotNetCore.Caching.Distributed
 
             IEnumerable<Condition> invalidationsState = tagKeys.Select(WatchTagInvalidation).ToList();
 
-            byte[] data = dataFactory();
+            var data = RedisValue.CreateFrom(dataStreamFactory());
 
             _ = TrySet(dataKey, tagKeys, expiry, data, invalidationsState);
 
@@ -200,7 +201,7 @@ namespace QA.DotNetCore.Caching.Distributed
             string key,
             IEnumerable<string> tags,
             TimeSpan expiry,
-            byte[] data,
+            MemoryStream dataStream,
             CancellationToken token = default)
         {
             if (tags is null)
@@ -211,14 +212,14 @@ namespace QA.DotNetCore.Caching.Distributed
 
             Connect(token);
 
-            _ = TrySet(dataKey, tagKeys, expiry, data);
+            _ = TrySet(dataKey, tagKeys, expiry, RedisValue.CreateFrom(dataStream));
         }
 
         private bool TrySet(
             CacheKey key,
             IEnumerable<CacheKey> tags,
             TimeSpan expiry,
-            byte[] data,
+            RedisValue data,
             IEnumerable<Condition> conditions = null)
         {
             ITransaction transaction = CreateSetCacheTransaction(key, tags, expiry, data, conditions);
@@ -231,7 +232,12 @@ namespace QA.DotNetCore.Caching.Distributed
             return result;
         }
 
-        private ITransaction CreateSetCacheTransaction(CacheKey key, IEnumerable<CacheKey> tags, TimeSpan expiry, byte[] data, IEnumerable<Condition> conditions)
+        private ITransaction CreateSetCacheTransaction(
+            CacheKey key,
+            IEnumerable<CacheKey> tags,
+            TimeSpan expiry,
+            RedisValue data,
+            IEnumerable<Condition> conditions)
         {
             ITransaction transaction = _cache.CreateTransaction();
 

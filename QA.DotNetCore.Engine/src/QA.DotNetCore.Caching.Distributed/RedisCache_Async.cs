@@ -1,6 +1,7 @@
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,13 +28,13 @@ namespace QA.DotNetCore.Caching.Distributed
             return await GetAsync(dataKey);
         }
 
-        public async Task<byte[]> GetOrAddAsync(string key, string[] tags, TimeSpan expiry, Func<Task<byte[]>> dataFactory, CancellationToken token = default)
+        public async Task<byte[]> GetOrAddAsync(string key, string[] tags, TimeSpan expiry, Func<Task<MemoryStream>> dataStreamFactory, CancellationToken token = default)
         {
             if (tags == null)
                 throw new ArgumentNullException(nameof(key));
 
-            if (dataFactory is null)
-                throw new ArgumentNullException(nameof(dataFactory));
+            if (dataStreamFactory is null)
+                throw new ArgumentNullException(nameof(dataStreamFactory));
 
             CacheKey dataKey = _keyFactory.CreateKey(key);
             IEnumerable<CacheKey> tagKeys = _keyFactory.CreateTags(tags).ToList();
@@ -46,7 +47,9 @@ namespace QA.DotNetCore.Caching.Distributed
 
             IEnumerable<Condition> invalidationsState = tagKeys.Select(WatchTagInvalidation).ToList();
 
-            byte[] data = await dataFactory();
+            RedisValue data;
+            using (var dataStream = await dataStreamFactory())
+                data = RedisValue.CreateFrom(dataStream);
 
             _ = await TrySetAsync(dataKey, tagKeys, expiry, data, invalidationsState);
 
@@ -75,7 +78,7 @@ namespace QA.DotNetCore.Caching.Distributed
                 new[] { lockKey });
         }
 
-        public async Task SetAsync(string key, IEnumerable<string> tags, TimeSpan expiry, byte[] data, CancellationToken token = default)
+        public async Task SetAsync(string key, IEnumerable<string> tags, TimeSpan expiry, MemoryStream dataStream, CancellationToken token = default)
         {
             if (tags == null)
                 throw new ArgumentNullException(nameof(key));
@@ -85,14 +88,14 @@ namespace QA.DotNetCore.Caching.Distributed
 
             await ConnectAsync(token);
 
-            _ = await TrySetAsync(dataKey, tagKeys, expiry, data);
+            _ = await TrySetAsync(dataKey, tagKeys, expiry, RedisValue.CreateFrom(dataStream));
         }
 
         private async Task<bool> TrySetAsync(
             CacheKey key,
             IEnumerable<CacheKey> tags,
             TimeSpan expiry,
-            byte[] data,
+            RedisValue data,
             IEnumerable<Condition> conditions = null)
         {
             ITransaction transaction = CreateSetCacheTransaction(key, tags, expiry, data, conditions);

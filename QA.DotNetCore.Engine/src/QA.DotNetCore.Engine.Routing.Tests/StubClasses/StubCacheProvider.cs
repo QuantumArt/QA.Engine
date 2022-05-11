@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace QA.DotNetCore.Engine.Routing.Tests.StubClasses
 {
-    public class StubCacheProvider : ICacheProvider
+    public class StubCacheProvider : IMemoryCacheProvider
     {
         public void Add(object data, string key, string[] tags, TimeSpan expiration)
         {

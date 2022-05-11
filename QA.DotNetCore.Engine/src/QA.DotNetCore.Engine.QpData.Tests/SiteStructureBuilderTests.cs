@@ -50,7 +50,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             UploadUrlPrefix = "http://storage.quntumart.ru",
             UploadUrl = "/upload"
         };
-        private readonly ICacheProvider _cacheProvider = new VersionedCacheCoreProvider(
+        private readonly VersionedCacheCoreProvider _cacheProvider = new VersionedCacheCoreProvider(
             new MemoryCache(new MemoryCacheOptions()));
 
         [Fact]

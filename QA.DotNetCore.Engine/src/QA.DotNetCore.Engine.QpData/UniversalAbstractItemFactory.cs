@@ -3,6 +3,7 @@ using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Settings;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,12 +12,15 @@ namespace QA.DotNetCore.Engine.QpData
     public class UniversalAbstractItemFactory : IAbstractItemFactory
     {
         readonly IItemDefinitionRepository _repository;
-        readonly ICacheProvider _cacheProvider;
+        readonly ICompositeCacheProvider _cacheProvider;
+        readonly IMemoryCacheProvider _memoryCacheProvider;
         readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         readonly QpSiteStructureCacheSettings _cacheSettings;
         readonly QpSiteStructureBuildSettings _buildSettings;
 
-        public UniversalAbstractItemFactory(ICacheProvider cacheProvider,
+        public UniversalAbstractItemFactory(
+            ICompositeCacheProvider cacheProvider,
+            IMemoryCacheProvider memoryCacheProvider,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
             IItemDefinitionRepository repository,
             QpSiteStructureCacheSettings cacheSettings,
@@ -27,8 +31,8 @@ namespace QA.DotNetCore.Engine.QpData
             _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
             _cacheSettings = cacheSettings;
             _buildSettings = buildSettings;
+            _memoryCacheProvider = memoryCacheProvider;
         }
-
 
         public AbstractItem Create(string discriminator)
         {
@@ -47,10 +51,17 @@ namespace QA.DotNetCore.Engine.QpData
 
         private ItemDefinitionPersistentData GetItemDefinitionByDiscriminator(string discriminator)
         {
-            var all = GetCachedItemDefinitions();
-            if (!all.ContainsKey(discriminator))
-                return null;
-            return all[discriminator];
+            var itemDefinitionAcceptedStaleTime = TimeSpan.FromSeconds(5);
+
+            return _memoryCacheProvider.GetOrAdd(
+                $"{nameof(UniversalAbstractItemFactory)}.{nameof(GetItemDefinitionByDiscriminator)}({discriminator})",
+                itemDefinitionAcceptedStaleTime,
+                () =>
+                {
+                    var all = GetCachedItemDefinitions();
+                    _ = all.TryGetValue(discriminator, out ItemDefinitionPersistentData result);
+                    return result;
+                });
         }
 
         private Dictionary<string, ItemDefinitionPersistentData> GetCachedItemDefinitions()
@@ -58,10 +69,13 @@ namespace QA.DotNetCore.Engine.QpData
             var cacheTags = new string[1] { _qpContentCacheTagNamingProvider.GetByNetName(KnownNetNames.ItemDefinition, _buildSettings.SiteId, _buildSettings.IsStage) }
                 .Where(t => t != null)
                 .ToArray();
-            return _cacheProvider.GetOrAdd("UniversalAbstractItemFactory.GetCachedItemDefinitions",
+
+            var result = _cacheProvider.GetOrAdd("UniversalAbstractItemFactory.GetCachedItemDefinitions",
                 cacheTags,
                 _cacheSettings.ItemDefinitionCachePeriod,
                 () => _repository.GetAllItemDefinitions(_buildSettings.SiteId, _buildSettings.IsStage).ToDictionary(def => def.Discriminator));
+
+            return result;
         }
     }
 }

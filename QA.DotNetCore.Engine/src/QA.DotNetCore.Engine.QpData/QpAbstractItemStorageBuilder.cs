@@ -237,12 +237,7 @@ namespace QA.DotNetCore.Engine.QpData
                     GetAbstractItemExtensionIds,
                     _buildSettings.CacheFetchTimeoutAbstractItemStorage);
 
-                _context.ExtensionsM2MData = _cacheProvider.GetOrAdd(
-                    $"{nameof(Init)}.{nameof(GetExtensionItemsManyToManyRelations)}",
-                    extensionItemTags,
-                    _cacheSettings.SiteStructureCachePeriod,
-                    GetExtensionItemsManyToManyRelations,
-                    _buildSettings.CacheFetchTimeoutAbstractItemStorage);
+                _context.ExtensionsM2MData = GetExtensionItemsManyToManyRelations();
 
                 // m2m для базового AbstractItem
                 IDictionary<int, M2mRelations> GetAbstractItemsManyToManyRelations() =>

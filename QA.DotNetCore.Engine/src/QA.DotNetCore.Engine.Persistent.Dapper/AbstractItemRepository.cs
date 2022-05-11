@@ -15,7 +15,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
     public class AbstractItemRepository : IAbstractItemRepository
     {
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
-        private readonly ICacheProvider _cacheProvider;
+        private readonly ICompositeCacheProvider _cacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly IServiceProvider _serviceProvider;
         private readonly INetNameQueryAnalyzer _netNameQueryAnalyzer;
@@ -24,7 +24,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             IServiceProvider serviceProvider,
             INetNameQueryAnalyzer netNameQueryAnalyzer,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
-            ICacheProvider cacheProvider,
+            ICompositeCacheProvider cacheProvider,
             QpSiteStructureCacheSettings cacheSettings)
         {
             _serviceProvider = serviceProvider;

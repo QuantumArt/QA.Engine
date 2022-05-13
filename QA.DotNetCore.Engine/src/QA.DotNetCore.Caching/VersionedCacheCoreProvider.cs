@@ -60,7 +60,8 @@ namespace QA.DotNetCore.Caching
 
             var policy = new MemoryCacheEntryOptions
             {
-                AbsoluteExpiration = DateTime.Now + expiration
+                AbsoluteExpiration = DateTime.Now + expiration,
+                Size = 1
             };
 
             _cache.Set(key, data, policy);
@@ -112,7 +113,8 @@ namespace QA.DotNetCore.Caching
         {
             var policy = new MemoryCacheEntryOptions
             {
-                AbsoluteExpiration = DateTime.Now + expiration
+                AbsoluteExpiration = DateTime.Now + expiration,
+                Size = 1
             };
 
             if (tags != null && tags.Length > 0)
@@ -397,6 +399,7 @@ namespace QA.DotNetCore.Caching
                 {
                     Priority = CacheItemPriority.NeverRemove,
                     AbsoluteExpiration = tagExpiration,
+                    Size = 1
                 };
                 options.RegisterPostEvictionCallback(EvictionTagCallback, this);
                 _cache.Set(item, result, options);

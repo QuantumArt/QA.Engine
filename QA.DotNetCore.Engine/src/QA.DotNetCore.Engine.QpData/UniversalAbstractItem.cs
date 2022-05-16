@@ -21,15 +21,17 @@ namespace QA.DotNetCore.Engine.QpData
 
         public string Type { get; private set; }
 
-        public Dictionary<string, object> UntypedFields
+        public IReadOnlyDictionary<string, object> UntypedFields
         {
             get
             {
-                if (LazyDetails?.Value == null)
-                    return new Dictionary<string, object>();
+                if (LazyDetails?.Value is null)
+                    return new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
-                return LazyDetails.Value.Keys.ToDictionary(fieldName => fieldName,
-                    fieldName => GetUntypedDetail(fieldName));
+                return LazyDetails.Value.Keys.ToDictionary(
+                    fieldName => fieldName,
+                    fieldName => GetUntypedDetail(fieldName),
+                    StringComparer.OrdinalIgnoreCase);
             }
         }
 

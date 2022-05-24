@@ -1,28 +1,28 @@
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using QA.DotNetCore.Caching;
 using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.Abstractions.Finder;
+using QA.DotNetCore.Engine.Abstractions.Targeting;
+using QA.DotNetCore.Engine.CacheTags;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 using QA.DotNetCore.Engine.QpData.Replacements;
+using QA.DotNetCore.Engine.QpData.Settings;
+using QA.DotNetCore.Engine.Routing;
 using QA.DotNetCore.Engine.Routing.Mappers;
+using QA.DotNetCore.Engine.Routing.UrlResolve;
+using QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching;
+using QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching;
+using QA.DotNetCore.Engine.Routing.UrlResolve.Targeting;
 using QA.DotNetCore.Engine.Widgets;
 using QA.DotNetCore.Engine.Widgets.Mappers;
 using System;
-using System.Linq;
-using QA.DotNetCore.Engine.QpData.Settings;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using QA.DotNetCore.Engine.Abstractions.Finder;
-using QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching;
-using QA.DotNetCore.Engine.Routing.UrlResolve;
-using QA.DotNetCore.Engine.Routing;
-using QA.DotNetCore.Engine.Abstractions.Targeting;
-using QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching;
-using QA.DotNetCore.Engine.Routing.UrlResolve.Targeting;
 using System.Collections.Generic;
-using QA.DotNetCore.Engine.CacheTags;
+using System.Linq;
 
 namespace QA.DotNetCore.Engine.QpData.Configuration
 {
@@ -47,7 +47,7 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             {
                 DefaultTailPattern = options.DefaultUrlTailPattern,
                 TailPatternsByControllers = options.UrlTailPatternsByControllers,
-                HeadPatterns = options.UrlHeadPatterns ?? new List<HeadUrlMatchingPattern> { new HeadUrlMatchingPattern { Pattern = "/"} }
+                HeadPatterns = options.UrlHeadPatterns ?? new List<HeadUrlMatchingPattern> { new HeadUrlMatchingPattern { Pattern = "/" } }
             });
 
 

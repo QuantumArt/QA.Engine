@@ -29,7 +29,7 @@ namespace QA.DotNetCore.Engine.Abstractions
         public virtual IAbstractItem GetChildPageByAlias(string alias, ITargetingFilter filter = null)
         {
             return GetChildren(filter)
-                .FirstOrDefault(children => string.Equals(children.Alias, alias, StringComparison.InvariantCultureIgnoreCase) && children.IsPage);
+                .FirstOrDefault(children => children.IsPage && string.Equals(children.Alias, alias, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>

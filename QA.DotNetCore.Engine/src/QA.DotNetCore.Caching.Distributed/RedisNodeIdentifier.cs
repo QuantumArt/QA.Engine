@@ -16,14 +16,18 @@ namespace QA.DotNetCore.Caching.Distributed
         public string GetUniqueId()
         {
             if (_id != null)
+            {
                 return _id;
+            }
 
             lock (_syncId)
             {
                 string newId = _distributedTaggedCache.GetClientId();
 
                 if (_id is null)
+                {
                     _id = newId;
+                }
 
                 return _id;
             }

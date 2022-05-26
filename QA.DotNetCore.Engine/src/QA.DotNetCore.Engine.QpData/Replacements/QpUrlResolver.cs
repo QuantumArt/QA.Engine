@@ -40,7 +40,9 @@ namespace QA.DotNetCore.Engine.QpData.Replacements
         public string UrlForImage(int siteId, ContentAttributePersistentData attr, bool removeScheme = false)
         {
             if (attr == null)
+            {
                 return null;
+            }
 
             var baseUrl = new StringBuilder();
             if (attr.UseSiteLibrary)
@@ -65,7 +67,9 @@ namespace QA.DotNetCore.Engine.QpData.Replacements
         {
             var site = GetSite(siteId);
             if (site == null)
+            {
                 return null;
+            }
 
             var sb = new StringBuilder();
             var prefix = site.UseAbsoluteUploadUrl ? site.UploadUrlPrefix : string.Empty;

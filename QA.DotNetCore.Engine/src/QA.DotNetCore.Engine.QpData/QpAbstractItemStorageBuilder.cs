@@ -71,7 +71,9 @@ namespace QA.DotNetCore.Engine.QpData
         public AbstractItem[] BuildAbstractItems(int extensionContentId, AbstractItemPersistentData[] abstractItemPersistentDatas)
         {
             if (_context == null)
+            {
                 throw new ArgumentNullException(nameof(_context));
+            }
 
             _logger.LogInformation("AbstractItem build via QP started. Build id: {0}, SiteId: {1}, IsStage: {2}",
                 _context.LogId, _buildSettings.SiteId, _buildSettings.IsStage);
@@ -82,7 +84,9 @@ namespace QA.DotNetCore.Engine.QpData
             {
                 var activatedItem = _itemFactory.Create(persistentItem.Discriminator);
                 if (activatedItem == null)
+                {
                     continue;
+                }
 
                 activatedItem.MapPersistent(persistentItem);
                 activatedAbstractItems.Add(persistentItem.Id, activatedItem);
@@ -149,10 +153,14 @@ namespace QA.DotNetCore.Engine.QpData
                     item.MapVersionOf(main);
 
                     if (main.ParentId.HasValue && activatedAbstractItems.ContainsKey(main.ParentId.Value))
+                    {
                         activatedAbstractItems[main.ParentId.Value].AddChild(item);
+                    }
                 }
                 else if (item.ParentId.HasValue && activatedAbstractItems.ContainsKey(item.ParentId.Value))
+                {
                     activatedAbstractItems[item.ParentId.Value].AddChild(item);
+                }
             }
         }
 

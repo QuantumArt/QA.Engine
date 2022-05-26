@@ -64,7 +64,9 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
             this ICacheTagConfigurationBuilder builder)
         {
             if (builder is null)
+            {
                 throw new ArgumentNullException(nameof(builder));
+            }
 
             _ = builder.Services.Configure<CacheTagsRegistrationConfigurator>(options => options.InvalidateByTimer());
             _ = builder.Services.AddSingleton<IHostedService, CacheInvalidationService>();
@@ -77,7 +79,9 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
             string excludeRequestPathRegex)
         {
             if (builder is null)
+            {
                 throw new ArgumentNullException(nameof(builder));
+            }
 
             _ = builder.Services.Configure<CacheTagsRegistrationConfigurator>(options => options.InvalidateByMiddleware(excludeRequestPathRegex));
 
@@ -89,10 +93,14 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
             Action<ServiceSetConfigurator<ICacheTagTracker>> configureTrackers)
         {
             if (builder is null)
+            {
                 throw new ArgumentNullException(nameof(builder));
+            }
 
             if (configureTrackers is null)
+            {
                 throw new ArgumentNullException(nameof(configureTrackers));
+            }
 
             _ = builder.Services.Configure(configureTrackers);
 

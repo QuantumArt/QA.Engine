@@ -11,12 +11,12 @@ namespace QA.DotNetCore.Engine.QpData
 {
     public class UniversalAbstractItemFactory : IAbstractItemFactory
     {
-        readonly IItemDefinitionRepository _repository;
-        readonly ICompositeCacheProvider _cacheProvider;
-        readonly IMemoryCacheProvider _memoryCacheProvider;
-        readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
-        readonly QpSiteStructureCacheSettings _cacheSettings;
-        readonly QpSiteStructureBuildSettings _buildSettings;
+        private readonly IItemDefinitionRepository _repository;
+        private readonly ICompositeCacheProvider _cacheProvider;
+        private readonly IMemoryCacheProvider _memoryCacheProvider;
+        private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
+        private readonly QpSiteStructureCacheSettings _cacheSettings;
+        private readonly QpSiteStructureBuildSettings _buildSettings;
 
         public UniversalAbstractItemFactory(
             ICompositeCacheProvider cacheProvider,
@@ -38,13 +38,19 @@ namespace QA.DotNetCore.Engine.QpData
         {
             var itemDefinition = GetItemDefinitionByDiscriminator(discriminator);
             if (itemDefinition == null)
+            {
                 return null;//элементов без ItemDefinition для структуры сайта не существует
+            }
 
             AbstractItem newItem;
             if (itemDefinition.IsPage)
+            {
                 newItem = new UniversalPage(discriminator);
+            }
             else
+            {
                 newItem = new UniversalWidget(discriminator);
+            }
 
             return newItem;
         }

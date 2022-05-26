@@ -28,7 +28,10 @@ namespace QA.DotNetCore.Engine.CacheTags
         {
             var contentInfo = _metaInfoRepository.GetContent(contentNetName, siteId);
             if (contentInfo == null)
+            {
                 throw new ArgumentException($"Did not find content {contentNetName} in the site {siteId}");
+            }
+
             return Get(contentInfo.ContentName, siteId, isStage);
         }
 

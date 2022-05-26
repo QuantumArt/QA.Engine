@@ -73,19 +73,31 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             services.TryAdd(new ServiceDescriptor(typeof(ITypeFinder), provider => options.TypeFinder, ServiceLifetime.Singleton));
 
             if (options.ItemDefinitionConvention == ItemDefinitionConvention.Name)
+            {
                 services.TryAddScoped<IItemDefinitionProvider, NameConventionalItemDefinitionProvider>();
+            }
             else if (options.ItemDefinitionConvention == ItemDefinitionConvention.Attribute)
+            {
                 throw new NotImplementedException("AttributeConventionalItemDefinitionProvider not implemented yet");
+            }
 
             if (options.ControllerMapperConvention == ControllerMapperConvention.Name)
+            {
                 services.TryAddSingleton<IControllerMapper, NameConventionalControllerMapper>();
+            }
             else if (options.ControllerMapperConvention == ControllerMapperConvention.Attribute)
+            {
                 services.TryAddSingleton<IControllerMapper, AttributeConventionalControllerMapper>();
+            }
 
             if (options.ComponentMapperConvention == ComponentMapperConvention.Name)
+            {
                 services.TryAddSingleton<IComponentMapper, NameConventionalComponentMapper>();
+            }
             else if (options.ComponentMapperConvention == ComponentMapperConvention.Attribute)
+            {
                 services.TryAddSingleton<IComponentMapper, AttributeConventionalComponentMapper>();
+            }
 
             //декорируем дефолтный MVC-ный IViewComponentInvokerFactory собственной реализацией
             //для возможности рендеринга виджетов как viewcomponent
@@ -118,7 +130,9 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
         private void ConfigureGeneralServices(SiteStructureOptions options)
         {
             if (options.SiteId == 0)
+            {
                 throw new Exception("SiteId is not configured.");
+            }
 
             //настройки
             Services.AddSingleton(new QpSiteStructureBuildSettings
@@ -142,10 +156,14 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             if (!Services.Any(x => x.ServiceType == typeof(IUnitOfWork)))
             {
                 if (String.IsNullOrWhiteSpace(options.QpConnectionString))
+                {
                     throw new Exception("QpConnectionString is not configured.");
+                }
 
                 if (String.IsNullOrWhiteSpace(options.QpDatabaseType))
+                {
                     throw new Exception("QpDatabaseType is not configured.");
+                }
 
                 Services.AddScoped<IUnitOfWork, UnitOfWork>(sp =>
                 {

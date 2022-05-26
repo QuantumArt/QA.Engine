@@ -103,7 +103,9 @@ namespace QA.DotNetCore.Caching.Distributed
         public RedisCache(IOptions<RedisCacheSettings> optionsAccessor)
         {
             if (optionsAccessor is null)
+            {
                 throw new ArgumentNullException(nameof(optionsAccessor));
+            }
 
             _options = optionsAccessor.Value;
 
@@ -119,7 +121,9 @@ namespace QA.DotNetCore.Caching.Distributed
             {
                 string guid = Guid.NewGuid().ToString();
                 if (_cache.StringSet(guid, string.Empty, when: When.NotExists))
+                {
                     return guid;
+                }
             }
 
             throw new InvalidOperationException($"Unable to generate unique client id.");
@@ -175,10 +179,14 @@ namespace QA.DotNetCore.Caching.Distributed
             CancellationToken token = default)
         {
             if (tags is null)
+            {
                 throw new ArgumentNullException(nameof(tags));
+            }
 
             if (dataStreamFactory is null)
+            {
                 throw new ArgumentNullException(nameof(dataStreamFactory));
+            }
 
             CacheKey dataKey = _keyFactory.CreateKey(key);
             IEnumerable<CacheKey> tagKeys = _keyFactory.CreateTags(tags).ToList();
@@ -186,7 +194,9 @@ namespace QA.DotNetCore.Caching.Distributed
             Connect(token);
 
             if (TryGet(dataKey, out byte[] cachedData))
+            {
                 return cachedData;
+            }
 
             IEnumerable<Condition> invalidationsState = tagKeys.Select(WatchTagInvalidation).ToList();
 
@@ -205,7 +215,9 @@ namespace QA.DotNetCore.Caching.Distributed
             CancellationToken token = default)
         {
             if (tags is null)
+            {
                 throw new ArgumentNullException(nameof(tags));
+            }
 
             CacheKey dataKey = _keyFactory.CreateKey(key);
             IEnumerable<CacheKey> tagKeys = _keyFactory.CreateTags(tags).ToList();
@@ -227,7 +239,9 @@ namespace QA.DotNetCore.Caching.Distributed
 
             var tagExpiry = GetTagExpiry(expiry);
             foreach (var tag in tags)
+            {
                 CompactTag(tag, tagExpiry);
+            }
 
             return result;
         }
@@ -242,7 +256,9 @@ namespace QA.DotNetCore.Caching.Distributed
             ITransaction transaction = _cache.CreateTransaction();
 
             foreach (var condition in conditions ?? Enumerable.Empty<Condition>())
+            {
                 _ = transaction.AddCondition(condition);
+            }
 
             var dataKey = key.GetRedisKey();
             var tagExpiry = GetTagExpiry(expiry);
@@ -333,13 +349,17 @@ namespace QA.DotNetCore.Caching.Distributed
             token.ThrowIfCancellationRequested();
 
             if (_cache != null)
+            {
                 return;
+            }
 
             _connectionLock.Wait(token);
             try
             {
                 if (_cache != null)
+                {
                     return;
+                }
 
                 _connection = ConnectionMultiplexer.Connect(_options.Configuration);
                 ValidateServerFeatures();
@@ -369,7 +389,9 @@ namespace QA.DotNetCore.Caching.Distributed
         public void Dispose()
         {
             if (_disposed)
+            {
                 return;
+            }
 
             _disposed = true;
             _connection?.Close();
@@ -378,7 +400,9 @@ namespace QA.DotNetCore.Caching.Distributed
         private void CheckDisposed()
         {
             if (_disposed)
+            {
                 throw new ObjectDisposedException(GetType().FullName);
+            }
         }
     }
 }

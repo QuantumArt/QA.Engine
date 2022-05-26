@@ -2,7 +2,6 @@ using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Serialization;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 
@@ -45,10 +44,14 @@ namespace QA.DotNetCore.Engine.AbTesting.Data
             IEnumerable<AbTestContainerBasePersistentData> result = new List<AbTestContainerBasePersistentData>();
 
             if (DomainsAndPaths.ContainsKey(domain))
+            {
                 result = result.Union(FindContainersInLookup(DomainsAndPaths[domain], path));
+            }
 
             if (DomainsAndPaths.ContainsKey(EmptyDomainKey))
+            {
                 result = result.Union(FindContainersInLookup(DomainsAndPaths[EmptyDomainKey], path));
+            }
 
             return result;
         }
@@ -67,9 +70,15 @@ namespace QA.DotNetCore.Engine.AbTesting.Data
         private static bool CheckUrlPattern(string pattern, string path)
         {
             if (pattern.EndsWith("*") && path.StartsWith(pattern.TrimEnd('*').TrimEnd('/')))
+            {
                 return true;
+            }
+
             if (pattern.TrimEnd('/') == path.TrimEnd('/'))
+            {
                 return true;
+            }
+
             return false;
         }
 

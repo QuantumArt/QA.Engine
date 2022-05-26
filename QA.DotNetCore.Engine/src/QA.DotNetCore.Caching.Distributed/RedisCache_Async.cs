@@ -31,10 +31,14 @@ namespace QA.DotNetCore.Caching.Distributed
         public async Task<byte[]> GetOrAddAsync(string key, string[] tags, TimeSpan expiry, Func<Task<MemoryStream>> dataStreamFactory, CancellationToken token = default)
         {
             if (tags == null)
+            {
                 throw new ArgumentNullException(nameof(key));
+            }
 
             if (dataStreamFactory is null)
+            {
                 throw new ArgumentNullException(nameof(dataStreamFactory));
+            }
 
             CacheKey dataKey = _keyFactory.CreateKey(key);
             IEnumerable<CacheKey> tagKeys = _keyFactory.CreateTags(tags).ToList();
@@ -43,13 +47,17 @@ namespace QA.DotNetCore.Caching.Distributed
 
             byte[] cachedData = await GetAsync(dataKey);
             if (cachedData != null)
+            {
                 return cachedData;
+            }
 
             IEnumerable<Condition> invalidationsState = tagKeys.Select(WatchTagInvalidation).ToList();
 
             RedisValue data;
             using (var dataStream = await dataStreamFactory())
+            {
                 data = RedisValue.CreateFrom(dataStream);
+            }
 
             _ = await TrySetAsync(dataKey, tagKeys, expiry, data, invalidationsState);
 
@@ -81,7 +89,9 @@ namespace QA.DotNetCore.Caching.Distributed
         public async Task SetAsync(string key, IEnumerable<string> tags, TimeSpan expiry, MemoryStream dataStream, CancellationToken token = default)
         {
             if (tags == null)
+            {
                 throw new ArgumentNullException(nameof(key));
+            }
 
             CacheKey dataKey = _keyFactory.CreateKey(key);
             IEnumerable<CacheKey> tagKeys = _keyFactory.CreateTags(tags).ToList();
@@ -103,7 +113,9 @@ namespace QA.DotNetCore.Caching.Distributed
 
             var tagExpiry = GetTagExpiry(expiry);
             foreach (var tag in tags)
+            {
                 await CompactTagAsync(tag, tagExpiry);
+            }
 
             return result;
         }
@@ -114,13 +126,17 @@ namespace QA.DotNetCore.Caching.Distributed
             token.ThrowIfCancellationRequested();
 
             if (_cache != null)
+            {
                 return;
+            }
 
             await _connectionLock.WaitAsync(token);
             try
             {
                 if (_cache != null)
+                {
                     return;
+                }
 
                 _connection = ConnectionMultiplexer.Connect(_options.Configuration);
                 ValidateServerFeatures();
@@ -138,7 +154,9 @@ namespace QA.DotNetCore.Caching.Distributed
             RedisValue cachedData = await _cache.StringGetAsync(dataKey);
 
             if (!cachedData.HasValue)
+            {
                 return default;
+            }
 
             return cachedData;
         }

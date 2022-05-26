@@ -1,8 +1,8 @@
+using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Caching.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Extensions.Logging;
-using System;
 
 namespace QA.DotNetCore.Caching
 {

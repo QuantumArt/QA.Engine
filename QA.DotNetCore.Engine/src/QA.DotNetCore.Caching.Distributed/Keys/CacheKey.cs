@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace QA.DotNetCore.Caching.Distributed
 {
@@ -17,7 +16,9 @@ namespace QA.DotNetCore.Caching.Distributed
         public CacheKey(CacheKeyType type, string key, string instance)
         {
             if (string.IsNullOrEmpty(key))
+            {
                 throw new ArgumentException($"'{nameof(key)}' cannot be null or empty.", nameof(key));
+            }
 
             Type = type;
             Key = key;
@@ -25,7 +26,9 @@ namespace QA.DotNetCore.Caching.Distributed
 
             var keyParts = new List<string> { Type.ToString().ToLower(), Key };
             if (!string.IsNullOrEmpty(Instance))
+            {
                 keyParts.Insert(0, Instance);
+            }
 
             _fullKey = string.Join(":", keyParts);
         }

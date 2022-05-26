@@ -60,7 +60,9 @@ namespace QA.DotNetCore.Caching.Distributed
             if (!_disposedValue)
             {
                 if (disposing)
+                {
                     _cache.Dispose();
+                }
 
                 _disposedValue = true;
             }
@@ -157,7 +159,9 @@ namespace QA.DotNetCore.Caching.Distributed
         public void InvalidateByTags(params string[] tags)
         {
             foreach (var tag in tags)
+            {
                 _cache.InvalidateTag(tag);
+            }
         }
     }
 }

@@ -13,7 +13,9 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
         {
             UseTimer = true;
             if (interval != default)
+            {
                 TimerInterval = interval;
+            }
         }
 
         public void InvalidateByMiddleware(string excludeRequestPathRegex)

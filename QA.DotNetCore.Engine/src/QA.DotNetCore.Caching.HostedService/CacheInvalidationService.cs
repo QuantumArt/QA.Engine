@@ -1,23 +1,23 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.CacheTags.Configuration;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace QA.DotNetCore.Engine.CacheTags
 {
     /// <summary>
     /// Фоновый процесс, отслеживающий изменения кештегов
     /// </summary>
-    public class CacheInvalidationService: IHostedService, IDisposable
+    public class CacheInvalidationService : IHostedService, IDisposable
     {
         private readonly ICacheTagWatcher _cacheTagWatcher;
         private readonly ILogger<CacheInvalidationService> _logger;
         private readonly TimeSpan _interval;
-        private IServiceScopeFactory _factory;
+        private readonly IServiceScopeFactory _factory;
 
         private readonly Timer _timer;
 

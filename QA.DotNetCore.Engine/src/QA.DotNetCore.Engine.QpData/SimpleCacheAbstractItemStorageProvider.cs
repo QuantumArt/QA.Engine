@@ -1,10 +1,10 @@
 using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Settings;
 using System;
 using System.Linq;
-using QA.DotNetCore.Engine.Persistent.Interfaces;
 
 namespace QA.DotNetCore.Engine.QpData
 {
@@ -20,7 +20,7 @@ namespace QA.DotNetCore.Engine.QpData
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
 
         private readonly string[] CommonContentsNetNames =
-            new string[] {KnownNetNames.AbstractItem, KnownNetNames.ItemDefinition};
+            new string[] { KnownNetNames.AbstractItem, KnownNetNames.ItemDefinition };
 
         public SimpleCacheAbstractItemStorageProvider(
             ICompositeCacheProvider compositeCacheProvider,
@@ -39,7 +39,9 @@ namespace QA.DotNetCore.Engine.QpData
         public AbstractItemStorage Get()
         {
             if (_cacheSettings.SiteStructureCachePeriod <= TimeSpan.Zero)
+            {
                 return BuildStorage();
+            }
 
             string cacheKey = $"{nameof(SimpleCacheAbstractItemStorageProvider)}.{nameof(Get)}";
             var cacheTags = CommonContentsNetNames

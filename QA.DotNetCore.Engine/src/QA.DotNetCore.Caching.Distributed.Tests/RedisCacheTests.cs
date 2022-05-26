@@ -81,8 +81,10 @@ namespace QA.DotNetCore.Caching.Tests
             }
 
             using (var redisCache = CreateRedisCache())
+            {
                 // Act
                 redisCache.Set(key, new[] { tag }, expiry, GetRandomDataStream());
+            }
 
             // Assert
             using (var connection = CreateConnection())
@@ -113,8 +115,10 @@ namespace QA.DotNetCore.Caching.Tests
             }
 
             using (var redisCache = CreateRedisCacheThatAlwaysCompacts())
+            {
                 // Act
                 redisCache.Set(key, new[] { tag }, expiry, GetRandomDataStream());
+            }
 
             // Assert
             using (var connection = CreateConnection())
@@ -147,8 +151,10 @@ namespace QA.DotNetCore.Caching.Tests
             }
 
             using (var redisCache = CreateRedisCache())
+            {
                 // Act
                 redisCache.Set(key, new[] { tag }, expiry, GetRandomDataStream());
+            }
 
             // Assert
             using (var connection = CreateConnection())
@@ -181,8 +187,10 @@ namespace QA.DotNetCore.Caching.Tests
             }
 
             using (var redisCache = CreateRedisCacheWithRareCompacts())
+            {
                 // Act
                 redisCache.Set(key, new[] { tag }, expiry, GetRandomDataStream());
+            }
 
             // Assert
             using (var connection = CreateConnection())
@@ -209,8 +217,10 @@ namespace QA.DotNetCore.Caching.Tests
             }
 
             using (var redisCache = CreateRedisCacheWithoutTagOffset())
+            {
                 // Act
                 redisCache.Set(key, new[] { tag }, expiry, GetRandomDataStream());
+            }
 
             // Assert
             using (var connection = CreateConnection())
@@ -230,7 +240,9 @@ namespace QA.DotNetCore.Caching.Tests
             var expiry = TimeSpan.FromSeconds(1);
 
             using (var connection = CreateConnection())
+            {
                 _ = await connection.GetDatabase().StringSetAsync(GetKey(key), cachedData, expiry);
+            }
 
             using var redisCache = CreateRedisCache();
 
@@ -260,7 +272,9 @@ namespace QA.DotNetCore.Caching.Tests
             string key = "key1";
 
             using (var connection = CreateConnection())
+            {
                 _ = await connection.GetDatabase().KeyDeleteAsync(GetKey(key));
+            }
 
             using var redisCache = CreateRedisCache();
 
@@ -282,7 +296,9 @@ namespace QA.DotNetCore.Caching.Tests
             var expiry = TimeSpan.FromSeconds(1);
 
             using (var connection = CreateConnection())
+            {
                 _ = await connection.GetDatabase().StringSetAsync(GetKey(key), cachedData, expiry);
+            }
 
             using var redisCache = CreateRedisCache();
 
@@ -304,7 +320,9 @@ namespace QA.DotNetCore.Caching.Tests
             var expiry = TimeSpan.FromSeconds(1);
 
             using (var connection = CreateConnection())
+            {
                 _ = await connection.GetDatabase().KeyDeleteAsync(GetKey(key));
+            }
 
             using var redisCache = CreateRedisCache();
 
@@ -324,15 +342,21 @@ namespace QA.DotNetCore.Caching.Tests
             var expiry = TimeSpan.FromSeconds(1);
 
             using (var connection = CreateConnection())
+            {
                 _ = await connection.GetDatabase().KeyDeleteAsync(GetKey(key));
+            }
 
             using (var redisCache = CreateRedisCache())
+            {
                 // Act
                 _ = redisCache.GetOrAdd(key, Array.Empty<string>(), expiry, dataFactory);
+            }
 
             // Assert
             using (var connection = CreateConnection())
+            {
                 Assert.True(await connection.GetDatabase().KeyExistsAsync(GetKey(key)));
+            }
         }
 
         [Fact]
@@ -353,8 +377,10 @@ namespace QA.DotNetCore.Caching.Tests
             }
 
             using (var redisCache = CreateRedisCacheWithoutTagOffset())
+            {
                 // Act
                 _ = redisCache.GetOrAdd(key, new[] { tag }, expiry, dataFactory);
+            }
 
             // Assert
             using (var connection = CreateConnection())
@@ -381,15 +407,21 @@ namespace QA.DotNetCore.Caching.Tests
             }
 
             using (var connection = CreateConnection())
+            {
                 _ = await connection.GetDatabase().KeyDeleteAsync(GetKey(key));
+            }
 
             using (var redisCache = CreateRedisCache())
+            {
                 // Act
                 _ = redisCache.GetOrAdd(key, new[] { sharedTag }, expiry, dataFactory);
+            }
 
             // Assert
             using (var connection = CreateConnection())
+            {
                 Assert.False(await connection.GetDatabase().KeyExistsAsync(GetKey(key)));
+            }
         }
 
         [Fact]
@@ -409,15 +441,21 @@ namespace QA.DotNetCore.Caching.Tests
             }
 
             using (var connection = CreateConnection())
+            {
                 _ = await connection.GetDatabase().KeyDeleteAsync(GetKey(key));
+            }
 
             using (var redisCache = CreateRedisCache())
+            {
                 // Act
                 _ = redisCache.GetOrAdd(key, new[] { tag }, expiry, dataFactory);
+            }
 
             // Assert
             using (var connection = CreateConnection())
+            {
                 Assert.True(await connection.GetDatabase().KeyExistsAsync(GetKey(key)));
+            }
         }
 
         [Fact]
@@ -434,12 +472,16 @@ namespace QA.DotNetCore.Caching.Tests
                 _ = await cache.KeyDeleteAsync(GetTag(tag));
                 _ = await cache.SetAddAsync(GetTag(tag), keys.Select(key => new RedisValue(key)).ToArray());
                 foreach (var key in keys)
+                {
                     _ = await cache.StringSetAsync(key, "value", expiry);
+                }
             }
 
             using (var redisCache = CreateRedisCache())
+            {
                 // Act
                 redisCache.InvalidateTag(tag);
+            }
 
             // Assert
             using (var connection = CreateConnection())
@@ -468,8 +510,10 @@ namespace QA.DotNetCore.Caching.Tests
             }
 
             using (var redisCache = CreateRedisCache())
+            {
                 // Act
                 redisCache.InvalidateTag(tag);
+            }
 
             // Assert
             using (var connection = CreateConnection())
@@ -487,15 +531,21 @@ namespace QA.DotNetCore.Caching.Tests
             var expiry = TimeSpan.FromSeconds(1);
 
             using (var connection = CreateConnection())
+            {
                 _ = await connection.GetDatabase().StringSetAsync(GetKey(key), "value", expiry);
+            }
 
             using (var redisCache = CreateRedisCache())
+            {
                 // Act
                 redisCache.Invalidate(key);
+            }
 
             // Assert
             using (var connection = CreateConnection())
+            {
                 Assert.False(await connection.GetDatabase().KeyExistsAsync(GetKey(key)));
+            }
         }
 
         [Fact]
@@ -505,15 +555,21 @@ namespace QA.DotNetCore.Caching.Tests
             string key = "key1";
 
             using (var connection = CreateConnection())
+            {
                 _ = await connection.GetDatabase().KeyDeleteAsync(GetKey(key));
+            }
 
             using (var redisCache = CreateRedisCache())
+            {
                 // Act
                 redisCache.Invalidate(key);
+            }
 
             // Assert
             using (var connection = CreateConnection())
+            {
                 Assert.False(await connection.GetDatabase().KeyExistsAsync(GetKey(key)));
+            }
         }
 
         private static string GetKey(string key) => $"{InstanceName}:key:{key}";

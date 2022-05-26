@@ -24,7 +24,9 @@ namespace QA.DotNetCore.Caching
             object cachedValue = base.Get(key);
 
             if (cachedValue == null || !_globalCacheProvider.IsSet(GetGlobalKey(key)))
+            {
                 return null;
+            }
 
             return cachedValue;
         }

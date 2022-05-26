@@ -12,7 +12,9 @@ namespace QA.DotNetCore.Caching.Distributed
         private static uint GetLockNumber(CacheKey key)
         {
             if (key is null)
+            {
                 throw new ArgumentNullException(nameof(key));
+            }
 
             const int maxLocksNumber = 65536;
             return (uint)key.GetHashCode() % maxLocksNumber;

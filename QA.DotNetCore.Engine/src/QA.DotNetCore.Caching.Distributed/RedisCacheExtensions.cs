@@ -20,10 +20,14 @@ namespace QA.DotNetCore.Caching.Distributed
         public static IEnumerable<CacheKey> CreateTags(this CacheKeyFactory keyFactory, IEnumerable<string> tags)
         {
             if (keyFactory is null)
+            {
                 throw new ArgumentNullException(nameof(keyFactory));
+            }
 
             if (tags is null)
+            {
                 throw new ArgumentNullException(nameof(tags));
+            }
 
             return tags.Select(keyFactory.CreateTag);
         }

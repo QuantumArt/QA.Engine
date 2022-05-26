@@ -138,7 +138,9 @@ namespace QA.DotNetCore.Caching
         public void InvalidateByTag(string tag)
         {
             if (String.IsNullOrEmpty(tag))
+            {
                 throw new ArgumentNullException("tag");
+            }
 
             _cache.Remove(tag);
         }
@@ -226,7 +228,9 @@ namespace QA.DotNetCore.Caching
                         //если взял, то т.к. deprecated значения нет, то надо ждать освобождения блокировки, чтобы нам было что вернуть
                         //но ждать будем не дольше, чем waitForCalculateTimeout
                         if (waitForCalculateTimeout == default(TimeSpan))
+                        {
                             waitForCalculateTimeout = _defaultWaitForCalculateTimeout;
+                        }
 
                         Monitor.TryEnter(locker, (int)waitForCalculateTimeout.TotalMilliseconds, ref lockTaken);
                     }
@@ -248,7 +252,9 @@ namespace QA.DotNetCore.Caching
                     else
                     {
                         if (deprecatedResult == null)
+                        {
                             throw new DeprecateCacheIsExpiredOrMissingException();
+                        }
 
                         result = deprecatedResult;
                     }
@@ -336,7 +342,9 @@ namespace QA.DotNetCore.Caching
                         //если взял, то т.к. deprecated значения нет, то надо ждать освобождения блокировки, чтобы нам было что вернуть
                         //но ждать будем не дольше, чем waitForCalculateTimeout
                         if (waitForCalculateTimeout == default(TimeSpan))
+                        {
                             waitForCalculateTimeout = _defaultWaitForCalculateTimeout;
+                        }
 
                         lockTaken = await locker
                             .WaitAsync(waitForCalculateTimeout)
@@ -360,7 +368,9 @@ namespace QA.DotNetCore.Caching
                     else
                     {
                         if (deprecatedResult == null)
+                        {
                             throw new DeprecateCacheIsExpiredOrMissingException();
+                        }
 
                         result = deprecatedResult;
                     }
@@ -368,7 +378,9 @@ namespace QA.DotNetCore.Caching
                 finally
                 {
                     if (lockTaken)
+                    {
                         locker.Release();
+                    }
                 }
             }
 

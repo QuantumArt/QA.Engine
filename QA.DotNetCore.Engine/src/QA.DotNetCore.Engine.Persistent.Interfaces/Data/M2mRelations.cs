@@ -22,7 +22,9 @@ namespace QA.DotNetCore.Engine.Persistent.Interfaces.Data
         public void AddRelation(int relationId, int value)
         {
             if (!_relations.ContainsKey(relationId))
+            {
                 _relations[relationId] = new HashSet<int>();
+            }
 
             _ = _relations[relationId].Add(value);
         }
@@ -40,8 +42,12 @@ namespace QA.DotNetCore.Engine.Persistent.Interfaces.Data
         public void Merge(M2mRelations other)
         {
             foreach (var rel in other.GetRelations())
+            {
                 foreach (var link in other.GetRelationValue(rel))
+                {
                     AddRelation(rel, link);
+                }
+            }
         }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)

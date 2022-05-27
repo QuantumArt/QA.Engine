@@ -1,10 +1,10 @@
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using QA.DotNetCore.Caching.Interfaces;
 using System;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace QA.DotNetCore.Caching.Distributed
@@ -18,30 +18,32 @@ namespace QA.DotNetCore.Caching.Distributed
 
         private bool _disposedValue;
         private readonly IDistributedTaggedCache _cache;
+        private readonly ILogger<RedisCacheProvider> _logger;
 
-        public RedisCacheProvider(IDistributedTaggedCache cache)
+        public RedisCacheProvider(IDistributedTaggedCache cache, ILogger<RedisCacheProvider> logger)
         {
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+            _logger = logger;
         }
 
-        private static MemoryStream SerializeData<T>(T value)
+        private static MemoryStream SerializeData<T>(T data)
         {
-            var stream = new MemoryStream();
-
-            using (var writer = new StreamWriter(stream, Encoding.UTF8, -1, leaveOpen: true))
-            using (var jsonWriter = new JsonTextWriter(writer))
+            try
             {
-                try
+                var stream = new MemoryStream();
+
+                using (var writer = new StreamWriter(stream, Encoding.UTF8, bufferSize: -1, leaveOpen: true))
+                using (var jsonWriter = new JsonTextWriter(writer))
                 {
-                    s_serializer.Serialize(jsonWriter, value);
+                    s_serializer.Serialize(jsonWriter, data);
+                    jsonWriter.Flush();
+
+                    return stream;
                 }
-                catch (IOException)
-                {
-                    // TODO: Log it.
-                    return new MemoryStream();
-                }
-                jsonWriter.Flush();
-                return stream;
+            }
+            catch (Exception ex)
+            {
+                throw new CacheDataSerializationException("Unable to serialize value to cache.", data, ex);
             }
         }
 
@@ -74,32 +76,63 @@ namespace QA.DotNetCore.Caching.Distributed
             GC.SuppressFinalize(this);
         }
 
-        public object Get(string key)
-        {
-            return _cache.Get(key);
-        }
+        public object Get(string key) =>
+            _cache.Get(key);
 
         public void Set(string key, object data, int cacheTimeInSeconds) =>
-            _cache.Set(key, Enumerable.Empty<string>(), TimeSpan.FromSeconds(cacheTimeInSeconds), SerializeData(data));
+            Add(data, key, Array.Empty<string>(), TimeSpan.FromSeconds(cacheTimeInSeconds));
 
         public void Set(string key, object data, TimeSpan expiration) =>
-            _cache.Set(key, Enumerable.Empty<string>(), expiration, SerializeData(data));
+            Add(data, key, Array.Empty<string>(), expiration);
 
         public bool IsSet(string key) =>
             _cache.IsExist(key);
 
         public bool TryGetValue(string key, out object result)
         {
-            byte[] cachedData = _cache.Get(key);
+            try
+            {
+                byte[] cachedData = _cache.Get(key);
 
-            result = cachedData != null
-                ? DeserializeData<object>(cachedData)
-                : null;
-            return result != null;
+                if (cachedData != null)
+                {
+                    result = DeserializeData<object>(cachedData);
+                    return result != null;
+                }
+            }
+            catch (IOException ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Unable to deserialize cached data associated with the key {CacheKey}. " +
+                    "Try to erase inconsistent data from cache.",
+                    key);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Unable to get cached data associated with the key {CacheKey}.",
+                    key);
+            }
+
+            result = null;
+            return false;
         }
 
-        public void Add(object value, string key, string[] tags, TimeSpan expiration) =>
-            _cache.Set(key, tags, expiration, SerializeData(value));
+        public void Add(object value, string key, string[] tags, TimeSpan expiration)
+        {
+            try
+            {
+                var dataStream = SerializeData(value);
+                _cache.Set(key, tags, expiration, dataStream);
+            }
+            catch (CacheDataSerializationException ex)
+            {
+                _logger.LogError(ex, "Unable to cache value with the key {CacheKey}.", key);
+                Debug.Fail("Unable to cache value with the key " + key);
+            }
+        }
 
         public T GetOrAdd<T>(string cacheKey, TimeSpan expiration, Func<T> getValue, TimeSpan waitForCalculateTimeout = default) =>
             GetOrAdd(cacheKey, Array.Empty<string>(), expiration, getValue, waitForCalculateTimeout);
@@ -110,15 +143,15 @@ namespace QA.DotNetCore.Caching.Distributed
 
             try
             {
-                using (var timeoutSource = CreateTimeoutSource(waitForCalculateTimeout))
-                {
-                    byte[] data = _cache.GetOrAdd(cacheKey, tags, expiration, getData, timeoutSource.Token);
-                    return DeserializeData<T>(data);
-                }
+                byte[] data = _cache.GetOrAdd(cacheKey, tags, expiration, getData);
+                return DeserializeData<T>(data);
             }
-            catch (OperationCanceledException)
+            catch (CacheDataSerializationException ex)
             {
-                return default;
+                _logger.LogError(ex, "Unable to cache value with the key {CacheKey}", cacheKey);
+                Debug.Fail("Unable to cache value with the key " + cacheKey);
+
+                return (T)ex.Value;
             }
         }
 
@@ -131,23 +164,16 @@ namespace QA.DotNetCore.Caching.Distributed
 
             try
             {
-                using (var timeoutSource = CreateTimeoutSource(waitForCalculateTimeout))
-                {
-                    byte[] data = await _cache.GetOrAddAsync(cacheKey, tags, expiration, getData);
-                    return DeserializeData<T>(data);
-                }
+                byte[] data = await _cache.GetOrAddAsync(cacheKey, tags, expiration, getData);
+                return DeserializeData<T>(data);
             }
-            catch (OperationCanceledException)
+            catch (CacheDataSerializationException ex)
             {
-                return default;
-            }
-        }
+                _logger.LogError(ex, "Unable to cache value with the key {CacheKey}", cacheKey);
+                Debug.Fail("Unable to cache value with the key " + cacheKey);
 
-        private CancellationTokenSource CreateTimeoutSource(TimeSpan timeout = default)
-        {
-            return timeout == default
-                ? new CancellationTokenSource()
-                : new CancellationTokenSource(timeout);
+                return (T)ex.Value;
+            }
         }
 
         public void Invalidate(string key) =>

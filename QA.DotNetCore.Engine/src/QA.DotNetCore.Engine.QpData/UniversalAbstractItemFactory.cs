@@ -12,14 +12,14 @@ namespace QA.DotNetCore.Engine.QpData
     public class UniversalAbstractItemFactory : IAbstractItemFactory
     {
         private readonly IItemDefinitionRepository _repository;
-        private readonly ICompositeCacheProvider _cacheProvider;
+        private readonly IDistributedMemoryCacheProvider _cacheProvider;
         private readonly IMemoryCacheProvider _memoryCacheProvider;
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly QpSiteStructureBuildSettings _buildSettings;
 
         public UniversalAbstractItemFactory(
-            ICompositeCacheProvider cacheProvider,
+            IDistributedMemoryCacheProvider cacheProvider,
             IMemoryCacheProvider memoryCacheProvider,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
             IItemDefinitionRepository repository,

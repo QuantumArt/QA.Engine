@@ -2,6 +2,12 @@ using System;
 
 namespace QA.DotNetCore.Caching.Interfaces
 {
+    /// <summary>
+    /// Purely in-memory cache provider.
+    /// </summary>
+    /// <remarks>
+    /// For the data that doesn't need invalidation.
+    /// </remarks>
     public interface IMemoryCacheProvider
     {
         /// <summary>

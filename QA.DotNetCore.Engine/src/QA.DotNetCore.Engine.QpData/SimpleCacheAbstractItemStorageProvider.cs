@@ -14,7 +14,7 @@ namespace QA.DotNetCore.Engine.QpData
     public class SimpleCacheAbstractItemStorageProvider : IAbstractItemStorageProvider
     {
         private readonly IAbstractItemStorageBuilder _builder;
-        private readonly ICompositeCacheProvider _compositeCacheProvider;
+        private readonly IDistributedMemoryCacheProvider _compositeCacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly QpSiteStructureBuildSettings _buildSettings;
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
@@ -23,7 +23,7 @@ namespace QA.DotNetCore.Engine.QpData
             new string[] { KnownNetNames.AbstractItem, KnownNetNames.ItemDefinition };
 
         public SimpleCacheAbstractItemStorageProvider(
-            ICompositeCacheProvider compositeCacheProvider,
+            IDistributedMemoryCacheProvider compositeCacheProvider,
             IAbstractItemStorageBuilder builder,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
             QpSiteStructureBuildSettings buildSettings,

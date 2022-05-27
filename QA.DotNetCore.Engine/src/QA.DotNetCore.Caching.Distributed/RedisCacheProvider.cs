@@ -12,7 +12,7 @@ namespace QA.DotNetCore.Caching.Distributed
     /// <summary>
     /// Adapter from IDistributedTaggedCache to ICacheProvider.
     /// </summary>
-    public class RedisCacheProvider : ICacheProvider, ICacheInvalidator, IDisposable
+    public class RedisCacheProvider : ICacheProvider, ICacheInvalidator, IDistributedCacheProvider, IDisposable
     {
         private static readonly JsonSerializer s_serializer = JsonSerializer.CreateDefault();
 
@@ -134,9 +134,6 @@ namespace QA.DotNetCore.Caching.Distributed
             }
         }
 
-        public T GetOrAdd<T>(string cacheKey, TimeSpan expiration, Func<T> getValue, TimeSpan waitForCalculateTimeout = default) =>
-            GetOrAdd(cacheKey, Array.Empty<string>(), expiration, getValue, waitForCalculateTimeout);
-
         public T GetOrAdd<T>(string cacheKey, string[] tags, TimeSpan expiration, Func<T> getValue, TimeSpan waitForCalculateTimeout = default)
         {
             MemoryStream getData() => SerializeData(getValue());
@@ -154,9 +151,6 @@ namespace QA.DotNetCore.Caching.Distributed
                 return (T)ex.Value;
             }
         }
-
-        public Task<T> GetOrAddAsync<T>(string cacheKey, TimeSpan expiration, Func<Task<T>> getValue, TimeSpan waitForCalculateTimeout = default) =>
-            GetOrAddAsync(cacheKey, Array.Empty<string>(), expiration, getValue, waitForCalculateTimeout);
 
         public async Task<T> GetOrAddAsync<T>(string cacheKey, string[] tags, TimeSpan expiration, Func<Task<T>> getValue, TimeSpan waitForCalculateTimeout = default)
         {
@@ -178,9 +172,6 @@ namespace QA.DotNetCore.Caching.Distributed
 
         public void Invalidate(string key) =>
             _cache.Invalidate(key);
-
-        public void InvalidateByTag(string tag) =>
-            _cache.InvalidateTag(tag);
 
         public void InvalidateByTags(params string[] tags)
         {

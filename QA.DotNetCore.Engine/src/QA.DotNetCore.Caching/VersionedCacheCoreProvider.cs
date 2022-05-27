@@ -12,7 +12,7 @@ namespace QA.DotNetCore.Caching
     /// <summary>
     /// Реализует провайдер кеширования данных
     /// </summary>
-    public class VersionedCacheCoreProvider : ICacheProvider, ICacheInvalidator, IMemoryCacheProvider
+    public class VersionedCacheCoreProvider : ICacheProvider, ICacheInvalidator, IMemoryCacheProvider, IDistributedMemoryCacheProvider
     {
         private readonly IMemoryCache _cache;
         private readonly TimeSpan _defaultWaitForCalculateTimeout = TimeSpan.FromSeconds(5);
@@ -32,39 +32,6 @@ namespace QA.DotNetCore.Caching
         public virtual object Get(string key)
         {
             return string.IsNullOrEmpty(key) ? null : _cache.Get(key);
-        }
-
-        /// <summary>
-        /// Записывает данные в кеш
-        /// </summary>
-        /// <param name="key">Ключ</param>
-        /// <param name="data">Данные</param>
-        /// <param name="cacheTimeInSeconds">Время кеширования в секундах</param>
-        public virtual void Set(string key, object data, int cacheTimeInSeconds)
-        {
-            Set(key, data, TimeSpan.FromSeconds(cacheTimeInSeconds));
-        }
-
-        /// <summary>
-        /// Записывает данные в кеш
-        /// </summary>
-        /// <param name="key">Ключ</param>
-        /// <param name="data">Данные</param>
-        /// <param name="expiration">Время кеширования (sliding expiration)</param>
-        public virtual void Set(string key, object data, TimeSpan expiration)
-        {
-            if (string.IsNullOrEmpty(key))
-            {
-                return;
-            }
-
-            var policy = new MemoryCacheEntryOptions
-            {
-                AbsoluteExpiration = DateTime.Now + expiration,
-                Size = 1
-            };
-
-            _cache.Set(key, data, policy);
         }
 
         /// <summary>
@@ -92,6 +59,7 @@ namespace QA.DotNetCore.Caching
         /// Очищает кеш по ключу
         /// </summary>
         /// <param name="key">Ключ</param>
+        [Obsolete("Use " + nameof(ICacheInvalidator) + " interface instead.")]
         public virtual void Invalidate(string key)
         {
             if (string.IsNullOrEmpty(key))
@@ -131,25 +99,13 @@ namespace QA.DotNetCore.Caching
 
             _cache.Set(key, data, policy);
         }
-        /// <summary>
-        /// Инвалидирует все записи в кеше по тегу
-        /// </summary>
-        /// <param name="tag">Тег</param>
-        public void InvalidateByTag(string tag)
-        {
-            if (String.IsNullOrEmpty(tag))
-            {
-                throw new ArgumentNullException("tag");
-            }
-
-            _cache.Remove(tag);
-        }
 
         /// <summary>
         /// Инвалидирует все записи в кеше по тегам
         /// </summary>
         /// <param name="tags">Теги</param>
-        public void InvalidateByTags(params string[] tags)
+        [Obsolete("Use " + nameof(ICacheInvalidator) + " interface instead.")]
+        public virtual void InvalidateByTags(params string[] tags)
         {
             foreach (var tag in tags)
             {
@@ -157,28 +113,8 @@ namespace QA.DotNetCore.Caching
             }
         }
 
-        /// <summary>
-        /// Потокобезопасно берет объект из кэша, если его там нет, то вызывает функцию для получения данных
-        /// и кладет результат в кэш. При устаревании кэша старый результат еще хранится какое-то время.
-        /// Когда кэш устаревает, первый поток, который обратился за ним начинает вычислять новый результат, а в это время
-        /// другие параллельно обратившиеся потоки будут получать устаревшее значение, если оно есть.
-        /// Если устаревшего значения нет, то другие параллельные потоки будут ждать пока основной поток вычислит новый
-        /// результат (они могут не дождаться этого, если истечёт waitForCalculateTimeout, то будет возвращен null).
-        /// </summary>
-        /// <typeparam name="T">тип объектов в кэше</typeparam>
-        /// <param name="cacheKey">Ключ</param>
-        /// <param name="expiration">время жизни в кэше</param>
-        /// <param name="getData">функция для получения данных, если объектов кэше нет. нужно использовать анонимный делегат</param>
-        /// <param name="waitForCalculateTimeout">таймаут ожидания параллельными потоками события окончания
-        /// вычисления <paramref name="getData"/> по истечении  которого им будет возвращён null.
-        /// Актуален только когда в кэше нет устаревшего значения. По умолчанию используется 5 секунд.</param>
-        /// <exception cref="DeprecateCacheIsExpiredOrMissingException">Выбрасывается в том случае, если другой поток уже выполняет запрос
-        /// на обновления данных в кеше, а старых данные ещё (или уже) нет</exception>
-        public virtual T GetOrAdd<T>(string cacheKey, TimeSpan expiration, Func<T> getData,
-            TimeSpan waitForCalculateTimeout = default(TimeSpan))
-        {
-            return GetOrAdd(cacheKey, null, expiration, getData, waitForCalculateTimeout);
-        }
+        T IMemoryCacheProvider.GetOrAdd<T>(string cacheKey, TimeSpan expiration, Func<T> getData, TimeSpan waitForCalculateTimeout) =>
+            this.GetOrAdd(cacheKey, expiration, getData, waitForCalculateTimeout);
 
         /// <summary>
         /// Потокобезопасно берет объект из кэша, если его там нет, то вызывает функцию для получения данных
@@ -268,30 +204,6 @@ namespace QA.DotNetCore.Caching
                 }
             }
             return result;
-        }
-
-        /// <summary>
-        /// Потокобезопасно берет объект из кэша, если его там нет, то вызывает функцию для получения данных
-        /// и кладет результат в кэш. При устаревании кэша старый результат еще хранится какое-то время.
-        /// Когда кэш устаревает, первый поток, который обратился за ним начинает вычислять новый результат, а в это время
-        /// другие параллельно обратившиеся потоки будут получать устаревшее значение, если оно есть.
-        /// Если устаревшего значения нет, то другие параллельные потоки будут ждать пока основной поток вычислит новый
-        /// результат (они могут не дождаться этого, если истечёт waitForCalculateTimeout, то будет возвращен null).
-        /// ВАЖНО: не поддерживается рекурсивный вызов с одинаковыми ключами (ограничение SemaphoreSlim).
-        /// </summary>
-        /// <typeparam name="T">тип объектов в кэше</typeparam>
-        /// <param name="cacheKey">Ключ</param>
-        /// <param name="expiration">время жизни в кэше</param>
-        /// <param name="getData">функция для получения данных, если объектов кэше нет. нужно использовать анонимный делегат</param>
-        /// <param name="waitForCalculateTimeout">таймаут ожидания параллельными потоками события окончания
-        /// вычисления <paramref name="getData"/> по истечении  которого им будет возвращён null.
-        /// Актуален только когда в кэше нет устаревшего значения. По умолчанию используется 5 секунд.</param>
-        /// <exception cref="DeprecateCacheIsExpiredOrMissingException">Выбрасывается в том случае, если другой поток уже выполняет запрос
-        /// на обновления данных в кеше, а старых данные ещё (или уже) нет</exception>
-        public virtual Task<T> GetOrAddAsync<T>(string cacheKey, TimeSpan expiration,
-            Func<Task<T>> getData, TimeSpan waitForCalculateTimeout = default(TimeSpan))
-        {
-            return GetOrAddAsync(cacheKey, null, expiration, getData, waitForCalculateTimeout);
         }
 
         /// <summary>

@@ -2,7 +2,6 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using NUnit.Framework;
 using QA.DotNetCore.Caching;
-using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 
@@ -12,7 +11,7 @@ namespace Tests
     {
         private AbstractItemRepository _repository;
         private MetaInfoRepository _metaRepo;
-        
+
         [SetUp]
         public void Setup()
         {
@@ -20,10 +19,9 @@ namespace Tests
             var settings = TestUtils.CreateDefaultCacheSettings();
             var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
             var memoryCacheProvider = new VersionedCacheCoreProvider(memoryCache);
-            var cacheProvider = new CompositeCacheProvider(memoryCache, memoryCacheProvider, StandaloneNodeIdentifier.Instance);
-            _metaRepo = new MetaInfoRepository(serviceProvider, cacheProvider, settings);
+            _metaRepo = new MetaInfoRepository(serviceProvider, memoryCacheProvider, settings);
             var sqlAnalyzer = new NetNameQueryAnalyzer(_metaRepo);
-            _repository = new AbstractItemRepository(serviceProvider, sqlAnalyzer, new StubNamingProvider(), cacheProvider, settings);
+            _repository = new AbstractItemRepository(serviceProvider, sqlAnalyzer, new StubNamingProvider(), memoryCacheProvider, settings);
         }
 
         [Test]

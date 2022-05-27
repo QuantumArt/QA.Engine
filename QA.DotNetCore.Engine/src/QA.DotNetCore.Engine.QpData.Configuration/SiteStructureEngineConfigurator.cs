@@ -189,10 +189,11 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
                 Services.TryAddScoped<IAbstractItemStorageProvider, GranularCacheAbstractItemStorageProvider>();
             }
 
-            Services.TryAddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
             Services.TryAddSingleton<ICacheInvalidator, VersionedCacheCoreProvider>();
+            Services.TryAddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
             Services.TryAddSingleton<IMemoryCacheProvider, VersionedCacheCoreProvider>();
-            Services.TryAddSingleton<ICompositeCacheProvider, CompositeCacheProvider>();
+            Services.TryAddSingleton<IDistributedMemoryCacheProvider, VersionedCacheCoreProvider>();
+
             Services.TryAddSingleton<INodeIdentifier>(StandaloneNodeIdentifier.Instance);
             Services.TryAddScoped<IQpContentCacheTagNamingProvider, DefaultQpContentCacheTagNamingProvider>();
             Services.TryAddSingleton<ITargetingFilterAccessor, NullTargetingFilterAccessor>();

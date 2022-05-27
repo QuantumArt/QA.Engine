@@ -1,4 +1,6 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Moq;
 using QA.DotNetCore.Caching.Distributed;
 using StackExchange.Redis;
 using System;
@@ -24,11 +26,16 @@ namespace QA.DotNetCore.Caching.Tests
                 CompactTagFrequency = 100,
             };
 
+        private static ILogger<T> GetLogger<T>()
+        {
+            return Mock.Of<ILogger<T>>();
+        }
+
         private static RedisCache CreateRedisCache()
         {
             var options = CreateDefaultRedisCacheOptions();
 
-            return new RedisCache(Options.Create(options));
+            return new RedisCache(Options.Create(options), GetLogger<RedisCache>());
         }
 
         private static RedisCache CreateRedisCacheThatAlwaysCompacts()
@@ -38,7 +45,7 @@ namespace QA.DotNetCore.Caching.Tests
             options.CompactTagSizeThreshold = 0;
             options.CompactTagFrequency = 0;
 
-            return new RedisCache(Options.Create(options));
+            return new RedisCache(Options.Create(options), GetLogger<RedisCache>());
         }
 
         private static RedisCache CreateRedisCacheWithRareCompacts()
@@ -47,18 +54,19 @@ namespace QA.DotNetCore.Caching.Tests
 
             options.CompactTagSizeThreshold = 0;
 
-            return new RedisCache(Options.Create(options));
+            return new RedisCache(Options.Create(options), GetLogger<RedisCache>());
         }
 
         private static RedisCache CreateRedisCacheWithoutTagOffset()
         {
-            // TODO: Pass connection multiplexer? For unit tests
-            return new RedisCache(Options.Create(new RedisCacheSettings
+            IOptions<RedisCacheSettings> optionsAccessor = Options.Create(new RedisCacheSettings
             {
                 Configuration = ConnectionString,
                 TagExpirationOffset = TimeSpan.Zero,
                 InstanceName = InstanceName
-            }));
+            });
+
+            return new RedisCache(optionsAccessor, GetLogger<RedisCache>());
         }
 
         private static ConnectionMultiplexer CreateConnection() =>

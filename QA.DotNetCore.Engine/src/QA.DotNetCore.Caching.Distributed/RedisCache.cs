@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QA.DotNetCore.Caching.Interfaces;
 using StackExchange.Redis;
@@ -91,7 +92,7 @@ namespace QA.DotNetCore.Caching.Distributed
         private readonly RedisCacheSettings _options;
         private readonly CacheKeyFactory _keyFactory;
         private readonly SemaphoreSlim _connectionLock = new SemaphoreSlim(initialCount: 1, maxCount: 1);
-
+        private readonly ILogger<RedisCache> _logger;
         private volatile IConnectionMultiplexer _connection;
         private IDatabase _cache;
         private bool _disposed;
@@ -100,7 +101,7 @@ namespace QA.DotNetCore.Caching.Distributed
         /// Initializes a new instance of <see cref="RedisCache"/>.
         /// </summary>
         /// <param name="optionsAccessor">The configuration options.</param>
-        public RedisCache(IOptions<RedisCacheSettings> optionsAccessor)
+        public RedisCache(IOptions<RedisCacheSettings> optionsAccessor, ILogger<RedisCache> logger)
         {
             if (optionsAccessor is null)
             {
@@ -108,6 +109,7 @@ namespace QA.DotNetCore.Caching.Distributed
             }
 
             _options = optionsAccessor.Value;
+            _logger = logger;
 
             _keyFactory = new CacheKeyFactory(_options.InstanceName);
         }
@@ -234,16 +236,27 @@ namespace QA.DotNetCore.Caching.Distributed
             RedisValue data,
             IEnumerable<Condition> conditions = null)
         {
-            ITransaction transaction = CreateSetCacheTransaction(key, tags, expiry, data, conditions);
-            bool result = transaction.Execute();
-
-            var tagExpiry = GetTagExpiry(expiry);
-            foreach (var tag in tags)
+            try
             {
-                CompactTag(tag, tagExpiry);
-            }
+                ITransaction transaction = CreateSetCacheTransaction(key, tags, expiry, data, conditions);
+                bool isExecuted = transaction.Execute();
 
-            return result;
+                if (isExecuted)
+                {
+                    var tagExpiry = GetTagExpiry(expiry);
+                    foreach (var tag in tags)
+                    {
+                        CompactTag(tag, tagExpiry);
+                    }
+                }
+
+                return isExecuted;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unable to set cache with the key {CacheKey}", key);
+                return false;
+            }
         }
 
         private ITransaction CreateSetCacheTransaction(
@@ -281,18 +294,26 @@ namespace QA.DotNetCore.Caching.Distributed
 
         private bool TryGet(CacheKey key, out byte[] data)
         {
-            RedisKey dataKey = key.GetRedisKey();
-            RedisValue cachedData = _cache.StringGet(dataKey);
-
-            if (!cachedData.HasValue)
+            try
             {
+                RedisKey dataKey = key.GetRedisKey();
+                RedisValue cachedData = _cache.StringGet(dataKey);
+
+                if (!cachedData.HasValue)
+                {
+                    data = default;
+                    return false;
+                }
+
+                data = cachedData;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unable to get cache with the key {CacheKey}", key);
                 data = default;
                 return false;
             }
-
-            // TODO: Handle exception
-            data = cachedData;
-            return true;
         }
 
         private void CompactTag(CacheKey tag, TimeSpan expiry)

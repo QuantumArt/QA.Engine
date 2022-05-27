@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
@@ -108,16 +109,27 @@ namespace QA.DotNetCore.Caching.Distributed
             RedisValue data,
             IEnumerable<Condition> conditions = null)
         {
-            ITransaction transaction = CreateSetCacheTransaction(key, tags, expiry, data, conditions);
-            bool result = await transaction.ExecuteAsync();
-
-            var tagExpiry = GetTagExpiry(expiry);
-            foreach (var tag in tags)
+            try
             {
-                await CompactTagAsync(tag, tagExpiry);
-            }
+                ITransaction transaction = CreateSetCacheTransaction(key, tags, expiry, data, conditions);
+                bool isExecuted = await transaction.ExecuteAsync();
 
-            return result;
+                if (isExecuted)
+                {
+                    var tagExpiry = GetTagExpiry(expiry);
+                    foreach (var tag in tags)
+                    {
+                        await CompactTagAsync(tag, tagExpiry);
+                    }
+                }
+
+                return isExecuted;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unable to set cache with the key {CacheKey}", key);
+                return false;
+            }
         }
 
         private async Task ConnectAsync(CancellationToken token = default)
@@ -150,15 +162,23 @@ namespace QA.DotNetCore.Caching.Distributed
 
         private async Task<byte[]> GetAsync(CacheKey key)
         {
-            RedisKey dataKey = key.GetRedisKey();
-            RedisValue cachedData = await _cache.StringGetAsync(dataKey);
-
-            if (!cachedData.HasValue)
+            try
             {
-                return default;
-            }
+                RedisKey dataKey = key.GetRedisKey();
+                RedisValue cachedData = await _cache.StringGetAsync(dataKey);
 
-            return cachedData;
+                if (!cachedData.HasValue)
+                {
+                    return default;
+                }
+
+                return cachedData;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unable to get cache with the key {CacheKey}", key);
+                return null;
+            }
         }
 
         private async Task CompactTagAsync(CacheKey tag, TimeSpan expiry)

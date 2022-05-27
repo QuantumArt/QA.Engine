@@ -31,21 +31,22 @@ namespace QA.DotNetCore.Engine.Routing
         public ITailUrlResolver TailUrlResolver { get; }
         public IHeadUrlResolver HeadUrlResolver { get; }
 
-        public override async ValueTask<RouteValueDictionary> TransformAsync(HttpContext httpContext, RouteValueDictionary values)
+        public override ValueTask<RouteValueDictionary> TransformAsync(HttpContext httpContext, RouteValueDictionary values)
         {
             if (httpContext == null)
             {
                 throw new ArgumentNullException(nameof(httpContext));
             }
+
             if (values == null)
             {
                 throw new ArgumentNullException(nameof(values));
             }
 
-            var startPage = httpContext.Items[RoutingKeys.StartPage] as IStartPage;//стартовая страница, проставляется в RoutingMiddleware
-            if (startPage == null)
+            //стартовая страница, проставляется в RoutingMiddleware
+            if (!(httpContext.Items[RoutingKeys.StartPage] is IStartPage startPage))
             {
-                return values;
+                return ReturnValues();
             }
 
             var targetingFilter = TargetingFilterAccessor?.Get();//все зарегистрированные фильтры структуры сайта, объединенные в один
@@ -57,14 +58,14 @@ namespace QA.DotNetCore.Engine.Routing
 
             if (data == null)
             {
-                return values;
+                return ReturnValues();
             }
 
             //вычислим какой контроллер должен вызываться
             var controllerName = ControllerMapper.Map(data.AbstractItem);
             if (string.IsNullOrEmpty(controllerName))
             {
-                return values;
+                return ReturnValues();
             }
 
             //вычислим остальные route values из хвоста урла
@@ -72,7 +73,7 @@ namespace QA.DotNetCore.Engine.Routing
             if (!routeValues.Any())
             {
                 //не удалось определить из хвоста урла никаких route values
-                return values;
+                return ReturnValues();
             }
 
             values["controller"] = controllerName;
@@ -83,7 +84,9 @@ namespace QA.DotNetCore.Engine.Routing
                 values[rvKey] = routeValues[rvKey];
             }
 
-            return values;
+            return ReturnValues();
+
+            ValueTask<RouteValueDictionary> ReturnValues() => new ValueTask<RouteValueDictionary>(values);
         }
 
         private PathFinder CreatePathFinder()

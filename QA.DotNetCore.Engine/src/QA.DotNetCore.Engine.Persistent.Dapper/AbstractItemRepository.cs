@@ -15,7 +15,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
     public class AbstractItemRepository : IAbstractItemRepository
     {
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
-        private readonly IDistributedMemoryCacheProvider _cacheProvider;
+        private readonly ICacheProvider _cacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly IServiceProvider _serviceProvider;
         private readonly INetNameQueryAnalyzer _netNameQueryAnalyzer;
@@ -24,7 +24,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             IServiceProvider serviceProvider,
             INetNameQueryAnalyzer netNameQueryAnalyzer,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
-            IDistributedMemoryCacheProvider cacheProvider,
+            ICacheProvider cacheProvider,
             QpSiteStructureCacheSettings cacheSettings)
         {
             _serviceProvider = serviceProvider;
@@ -194,7 +194,9 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
                     {
                         var column = reader.GetName(i);
                         if (string.Equals(column, "Id", StringComparison.OrdinalIgnoreCase))
-                            id = Decimal.ToInt32(reader.GetDecimal(i));
+                        {
+                            id = decimal.ToInt32(reader.GetDecimal(i));
+                        }
                         else
                         {
                             var val = reader.GetValue(i);

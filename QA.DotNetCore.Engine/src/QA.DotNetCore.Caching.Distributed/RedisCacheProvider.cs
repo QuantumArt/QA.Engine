@@ -86,7 +86,7 @@ namespace QA.DotNetCore.Caching.Distributed
             _cache.Set(key, Enumerable.Empty<string>(), expiration, SerializeData(data));
 
         public bool IsSet(string key) =>
-            _cache.IsExists(key);
+            _cache.IsExist(key);
 
         public bool TryGetValue(string key, out object result)
         {

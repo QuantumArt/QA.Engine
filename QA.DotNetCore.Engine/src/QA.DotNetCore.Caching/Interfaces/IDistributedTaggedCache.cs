@@ -31,9 +31,9 @@ namespace QA.DotNetCore.Caching.Interfaces
         void InvalidateTag(string tag, CancellationToken token = default);
 
         /// <summary>
-        /// Synchronous alternative of <see cref="IAsyncDistributedTaggedCache.IsExistsAsync(string, CancellationToken)"/>.
+        /// Synchronous alternative of <see cref="IAsyncDistributedTaggedCache.IsExistAsync(string, CancellationToken)"/>.
         /// </summary>
-        bool IsExists(string key, CancellationToken token = default);
+        bool IsExist(string key, CancellationToken token = default);
 
         /// <summary>
         /// Synchronous alternative of <see cref="IAsyncDistributedTaggedCache.SetAsync(string, IEnumerable{string}, TimeSpan, MemoryStream, CancellationToken)"/>.
@@ -81,7 +81,7 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// <param name="key">Key to find.</param>
         /// <param name="token">Operation cancellation token</param>
         /// <returns>Search key operation task.</returns>
-        Task<bool> IsExistsAsync(string key, CancellationToken token = default);
+        Task<bool> IsExistAsync(string key, CancellationToken token = default);
 
         /// <summary>
         /// Set data in cache.

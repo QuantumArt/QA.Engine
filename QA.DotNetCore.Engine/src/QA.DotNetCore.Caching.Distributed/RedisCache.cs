@@ -129,7 +129,7 @@ namespace QA.DotNetCore.Caching.Distributed
             throw new InvalidOperationException($"Unable to generate unique client id.");
         }
 
-        public bool IsExists(string key, CancellationToken token = default)
+        public bool IsExist(string key, CancellationToken token = default)
         {
             RedisKey dataKey = _keyFactory.CreateKey(key).GetRedisKey();
 

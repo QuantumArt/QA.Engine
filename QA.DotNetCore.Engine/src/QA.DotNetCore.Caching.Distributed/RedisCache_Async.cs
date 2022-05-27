@@ -10,7 +10,7 @@ namespace QA.DotNetCore.Caching.Distributed
 {
     public partial class RedisCache
     {
-        public async Task<bool> IsExistsAsync(string key, CancellationToken token = default)
+        public async Task<bool> IsExistAsync(string key, CancellationToken token = default)
         {
             RedisKey dataKey = _keyFactory.CreateKey(key).GetRedisKey();
 

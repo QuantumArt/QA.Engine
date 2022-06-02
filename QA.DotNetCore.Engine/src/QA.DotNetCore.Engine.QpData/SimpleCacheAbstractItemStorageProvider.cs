@@ -1,10 +1,10 @@
 using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Settings;
 using System;
 using System.Linq;
-using QA.DotNetCore.Engine.Persistent.Interfaces;
 
 namespace QA.DotNetCore.Engine.QpData
 {
@@ -14,23 +14,23 @@ namespace QA.DotNetCore.Engine.QpData
     public class SimpleCacheAbstractItemStorageProvider : IAbstractItemStorageProvider
     {
         private readonly IAbstractItemStorageBuilder _builder;
-        private readonly ICacheProvider _cacheProvider;
+        private readonly IDistributedMemoryCacheProvider _cacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly QpSiteStructureBuildSettings _buildSettings;
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
 
         private readonly string[] CommonContentsNetNames =
-            new string[] {KnownNetNames.AbstractItem, KnownNetNames.ItemDefinition};
+            new string[] { KnownNetNames.AbstractItem, KnownNetNames.ItemDefinition };
 
         public SimpleCacheAbstractItemStorageProvider(
-            ICacheProvider cacheProvider,
+            IDistributedMemoryCacheProvider compositeCacheProvider,
             IAbstractItemStorageBuilder builder,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
             QpSiteStructureBuildSettings buildSettings,
             QpSiteStructureCacheSettings cacheSettings)
         {
             _builder = builder;
-            _cacheProvider = cacheProvider;
+            _cacheProvider = compositeCacheProvider;
             _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
             _cacheSettings = cacheSettings;
             _buildSettings = buildSettings;
@@ -39,15 +39,21 @@ namespace QA.DotNetCore.Engine.QpData
         public AbstractItemStorage Get()
         {
             if (_cacheSettings.SiteStructureCachePeriod <= TimeSpan.Zero)
+            {
                 return BuildStorage();
+            }
 
-            var cacheKey = "QpAbstractItemStorageProvider.Get";
-            var cacheTags = CommonContentsNetNames.Select(c =>
-                    _qpContentCacheTagNamingProvider.GetByNetName(c, _buildSettings.SiteId, _buildSettings.IsStage))
+            string cacheKey = $"{nameof(SimpleCacheAbstractItemStorageProvider)}.{nameof(Get)}";
+            var cacheTags = CommonContentsNetNames
+                .Select(c => _qpContentCacheTagNamingProvider.GetByNetName(c, _buildSettings.SiteId, _buildSettings.IsStage))
                 .Where(t => t != null)
                 .ToArray();
 
-            return _cacheProvider.GetOrAdd(cacheKey, cacheTags, _cacheSettings.SiteStructureCachePeriod, BuildStorage,
+            return _cacheProvider.GetOrAdd(
+                cacheKey,
+                cacheTags,
+                _cacheSettings.SiteStructureCachePeriod,
+                BuildStorage,
                 _buildSettings.CacheFetchTimeoutAbstractItemStorage);
         }
 

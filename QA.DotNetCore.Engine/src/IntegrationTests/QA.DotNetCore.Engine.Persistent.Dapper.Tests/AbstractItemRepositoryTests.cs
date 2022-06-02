@@ -17,10 +17,11 @@ namespace Tests
         {
             var serviceProvider = Global.CreateMockServiceProviderWithConnection();
             var settings = TestUtils.CreateDefaultCacheSettings();
-            var cacheProvider = new VersionedCacheCoreProvider(new MemoryCache(Options.Create(new MemoryCacheOptions())));
-            _metaRepo = new MetaInfoRepository(serviceProvider, cacheProvider, settings);
+            var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
+            var memoryCacheProvider = new VersionedCacheCoreProvider(memoryCache);
+            _metaRepo = new MetaInfoRepository(serviceProvider, memoryCacheProvider, settings);
             var sqlAnalyzer = new NetNameQueryAnalyzer(_metaRepo);
-            _repository = new AbstractItemRepository(serviceProvider, sqlAnalyzer, new StubNamingProvider(), cacheProvider, settings);
+            _repository = new AbstractItemRepository(serviceProvider, sqlAnalyzer, new StubNamingProvider(), memoryCacheProvider, settings);
         }
 
         [Test]

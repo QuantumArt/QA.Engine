@@ -9,10 +9,13 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
         public bool UseMiddleware { get; private set; }
         public string ExcludeRequestPathRegex { get; private set; }
 
-        public void InvalidateByTimer(TimeSpan interval)
+        public void InvalidateByTimer(TimeSpan interval = default)
         {
             UseTimer = true;
-            TimerInterval = interval;
+            if (interval != default)
+            {
+                TimerInterval = interval;
+            }
         }
 
         public void InvalidateByMiddleware(string excludeRequestPathRegex)

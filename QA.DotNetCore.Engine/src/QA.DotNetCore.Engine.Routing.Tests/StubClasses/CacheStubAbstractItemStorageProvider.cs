@@ -6,16 +6,19 @@ namespace QA.DotNetCore.Engine.Routing.Tests.StubClasses
 {
     public class CacheStubAbstractItemStorageProvider : IAbstractItemStorageProvider
     {
-        private readonly ICacheProvider _cacheProvider;
+        private readonly IMemoryCacheProvider _memoryCacheProvider;
 
-        public CacheStubAbstractItemStorageProvider(ICacheProvider cacheProvider)
+        public CacheStubAbstractItemStorageProvider(IMemoryCacheProvider memoryCacheProvider)
         {
-            _cacheProvider = cacheProvider;
+            _memoryCacheProvider = memoryCacheProvider;
         }
 
         public AbstractItemStorage Get()
         {
-            return _cacheProvider.GetOrAdd("SomeKey", TimeSpan.FromSeconds(5), new Func<AbstractItemStorage>(() => null));
+            return _memoryCacheProvider.GetOrAdd(
+                "SomeKey",
+                TimeSpan.FromSeconds(5),
+                new Func<AbstractItemStorage>(() => null));
         }
     }
 }

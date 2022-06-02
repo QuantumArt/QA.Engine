@@ -54,8 +54,12 @@ namespace QA.DotNetCore.Engine.AbTesting.Configuration
             services.TryAddScoped<AbTestChoiceResolver>();
             services.TryAddScoped<IAbTestRepository, AbTestRepository>();
             services.TryAddScoped<IAbTestService, AbTestService>();
+
+            services.TryAddSingleton<ICacheInvalidator, VersionedCacheCoreProvider>();
             services.TryAddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
-            services.TryAddSingleton<ICompositeCacheProvider, CompositeCacheProvider>();
+            services.TryAddSingleton<IMemoryCacheProvider, VersionedCacheCoreProvider>();
+            services.TryAddSingleton<IDistributedMemoryCacheProvider, VersionedCacheCoreProvider>();
+
             services.TryAddSingleton<INodeIdentifier>(StandaloneNodeIdentifier.Instance);
             services.TryAddSingleton<IQpContentCacheTagNamingProvider, NullQpContentCacheTagNamingProvider>();
             services.TryAddSingleton<ITargetingContext, NullTargetingContext>();

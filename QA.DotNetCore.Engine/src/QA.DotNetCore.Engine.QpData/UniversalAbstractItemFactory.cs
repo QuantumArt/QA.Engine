@@ -3,6 +3,7 @@ using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Settings;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,13 +11,16 @@ namespace QA.DotNetCore.Engine.QpData
 {
     public class UniversalAbstractItemFactory : IAbstractItemFactory
     {
-        readonly IItemDefinitionRepository _repository;
-        readonly ICacheProvider _cacheProvider;
-        readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
-        readonly QpSiteStructureCacheSettings _cacheSettings;
-        readonly QpSiteStructureBuildSettings _buildSettings;
+        private readonly IItemDefinitionRepository _repository;
+        private readonly IDistributedMemoryCacheProvider _cacheProvider;
+        private readonly IMemoryCacheProvider _memoryCacheProvider;
+        private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
+        private readonly QpSiteStructureCacheSettings _cacheSettings;
+        private readonly QpSiteStructureBuildSettings _buildSettings;
 
-        public UniversalAbstractItemFactory(ICacheProvider cacheProvider,
+        public UniversalAbstractItemFactory(
+            IDistributedMemoryCacheProvider cacheProvider,
+            IMemoryCacheProvider memoryCacheProvider,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
             IItemDefinitionRepository repository,
             QpSiteStructureCacheSettings cacheSettings,
@@ -27,30 +31,43 @@ namespace QA.DotNetCore.Engine.QpData
             _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
             _cacheSettings = cacheSettings;
             _buildSettings = buildSettings;
+            _memoryCacheProvider = memoryCacheProvider;
         }
-
 
         public AbstractItem Create(string discriminator)
         {
             var itemDefinition = GetItemDefinitionByDiscriminator(discriminator);
             if (itemDefinition == null)
+            {
                 return null;//элементов без ItemDefinition для структуры сайта не существует
+            }
 
             AbstractItem newItem;
             if (itemDefinition.IsPage)
+            {
                 newItem = new UniversalPage(discriminator);
+            }
             else
+            {
                 newItem = new UniversalWidget(discriminator);
+            }
 
             return newItem;
         }
 
         private ItemDefinitionPersistentData GetItemDefinitionByDiscriminator(string discriminator)
         {
-            var all = GetCachedItemDefinitions();
-            if (!all.ContainsKey(discriminator))
-                return null;
-            return all[discriminator];
+            var itemDefinitionAcceptedStaleTime = TimeSpan.FromSeconds(5);
+
+            return _memoryCacheProvider.GetOrAdd(
+                $"{nameof(UniversalAbstractItemFactory)}.{nameof(GetItemDefinitionByDiscriminator)}({discriminator})",
+                itemDefinitionAcceptedStaleTime,
+                () =>
+                {
+                    var all = GetCachedItemDefinitions();
+                    _ = all.TryGetValue(discriminator, out ItemDefinitionPersistentData result);
+                    return result;
+                });
         }
 
         private Dictionary<string, ItemDefinitionPersistentData> GetCachedItemDefinitions()
@@ -58,10 +75,13 @@ namespace QA.DotNetCore.Engine.QpData
             var cacheTags = new string[1] { _qpContentCacheTagNamingProvider.GetByNetName(KnownNetNames.ItemDefinition, _buildSettings.SiteId, _buildSettings.IsStage) }
                 .Where(t => t != null)
                 .ToArray();
-            return _cacheProvider.GetOrAdd("UniversalAbstractItemFactory.GetCachedItemDefinitions",
+
+            var result = _cacheProvider.GetOrAdd("UniversalAbstractItemFactory.GetCachedItemDefinitions",
                 cacheTags,
                 _cacheSettings.ItemDefinitionCachePeriod,
                 () => _repository.GetAllItemDefinitions(_buildSettings.SiteId, _buildSettings.IsStage).ToDictionary(def => def.Discriminator));
+
+            return result;
         }
     }
 }

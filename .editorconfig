@@ -16,8 +16,8 @@ trim_trailing_whitespace = false
 indent_size = 4
 indent_style = space
 
-
-
+# IDE0011: Add braces
+dotnet_diagnostic.IDE0011.severity = warning
 
 [*.json]
 indent_size = 2

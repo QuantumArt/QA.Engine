@@ -18,7 +18,6 @@ using QA.DotNetCore.Engine.Routing.Configuration;
 using QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching;
 using QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching;
 using QA.DotNetCore.Engine.Targeting.Configuration;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using static QA.DotNetCore.Engine.Routing.Configuration.ControllerEndpointRouteBuilderExtensions;
@@ -131,23 +130,29 @@ namespace DemoWebApplication
             });
 
             //подключение сервисов для работы кештегов
-            services.AddCacheTagServices(options =>
+            var cacheTagBuilder = services
+                .AddCacheTagServices()
+                .WithCacheTrackers(trackers =>
+                {
+                    //регистрация одного или нескольких ICacheTagTracker
+                    //QpContentCacheTracker - уже реализованный ICacheTagTracker, который работает на базе механизма CONTENT_MODIFICATION из QP
+                    trackers.Register<QpContentCacheTracker>();
+                });
+
+            //[обязательная]
+            //настройка стратегии инвалидации по кештегам
+            if (qpSettings.IsStage)
             {
-                //[обязательная]
-                //настройка стратегии инвалидации по кештегам
-                if (qpSettings.IsStage)
-                {
-                    //при каждом запросе запускать все зарегистрированные ICacheTagTracker,
-                    //чтобы получить все теги по которым нужно сбросить кеш, и сбросить его
-                    options.InvalidateByMiddleware(@"^.*\/(__webpack.*|.+\.[a-zA-Z0-9]+)$");//отсекаем левые запросы для статики (для каждого сайта может настраиваться индивидуально)
-                }
-                else
-                {
-                    //по таймеру запускать все зарегистрированные ICacheTagTracker,
-                    //чтобы получить все теги по которым нужно сбросить кеш, и сбросить его
-                    options.InvalidateByTimer(TimeSpan.FromSeconds(30));
-                }
-            });
+                //при каждом запросе запускать все зарегистрированные ICacheTagTracker,
+                //чтобы получить все теги по которым нужно сбросить кеш, и сбросить его
+                _ = cacheTagBuilder.WithInvalidationByMiddleware(@"^.*\/(__webpack.*|.+\.[a-zA-Z0-9]+)$");//отсекаем левые запросы для статики (для каждого сайта может настраиваться индивидуально)
+            }
+            else
+            {
+                //по таймеру запускать все зарегистрированные ICacheTagTracker,
+                //чтобы получить все теги по которым нужно сбросить кеш, и сбросить его
+                _ = cacheTagBuilder.WithInvalidationByTimer();
+            }
 
             //подключение сервисов для таргетирования
             services.AddTargeting();
@@ -170,13 +175,7 @@ namespace DemoWebApplication
             app.UseStaticFiles();
 
             //мидлвара для инвалидации кештегов
-            //необходимо, чтобы было подключено services.AddCacheTagServices
-            app.UseCacheTagsInvalidation(trackers =>
-            {
-                //регистрация одного или нескольких ICacheTagTracker
-                //QpContentCacheTracker - уже реализованный ICacheTagTracker, который работает на базе механизма CONTENT_MODIFICATION из QP
-                trackers.Register<QpContentCacheTracker>();
-            });
+            app.UseCacheTagsInvalidation();
 
             //мидлвара, добавляющая структуру сайта в pipeline запроса
             //необходимо, чтобы было подключено services.AddSiteStructureEngine

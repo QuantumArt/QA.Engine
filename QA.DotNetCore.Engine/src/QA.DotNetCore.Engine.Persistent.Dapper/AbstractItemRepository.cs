@@ -194,7 +194,9 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
                     {
                         var column = reader.GetName(i);
                         if (string.Equals(column, "Id", StringComparison.OrdinalIgnoreCase))
-                            id = Decimal.ToInt32(reader.GetDecimal(i));
+                        {
+                            id = decimal.ToInt32(reader.GetDecimal(i));
+                        }
                         else
                         {
                             var val = reader.GetValue(i);

@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Logging;
+using QA.DotNetCore.Caching.Helpers.Operations;
+using QA.DotNetCore.Caching.Interfaces;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
@@ -11,58 +13,152 @@ namespace QA.DotNetCore.Caching.Distributed
 {
     public partial class RedisCache
     {
-        public async Task<bool> IsExistAsync(string key, CancellationToken token = default)
+        public async Task<IEnumerable<bool>> ExistAsync(IEnumerable<string> keys, CancellationToken token = default)
         {
-            RedisKey dataKey = _keyFactory.CreateKey(key).GetRedisKey();
+            if (keys is null)
+            {
+                throw new ArgumentNullException(nameof(keys));
+            }
 
-            await ConnectAsync(token);
+            if (!keys.Any())
+            {
+                return Enumerable.Empty<bool>();
+            }
 
-            return await _cache.KeyExistsAsync(dataKey);
+            RedisKey[] dataKeys = keys
+                .Select(key => _keyFactory.CreateKey(key).GetRedisKey())
+                .ToArray();
+
+            Connect(token);
+
+            if (dataKeys.Length == 1)
+            {
+                return new[] { _cache.KeyExists(dataKeys[0]) };
+            }
+
+            var results = await _cache.ScriptEvaluateAsync(GetMultipleKeysExistance, dataKeys);
+
+            return (bool[])results;
         }
 
-        public async Task<byte[]> GetAsync(string key, CancellationToken token = default)
+        public async Task<IEnumerable<byte[]>> GetAsync(IEnumerable<string> keys, CancellationToken token = default)
         {
-            CacheKey dataKey = _keyFactory.CreateKey(key);
+            if (keys is null)
+            {
+                throw new ArgumentNullException(nameof(keys));
+            }
+
+            if (!keys.Any())
+            {
+                return s_emptyResult;
+            }
+
+            var dataKeys = keys
+                .Select(_keyFactory.CreateKey)
+                .ToArray();
 
             await ConnectAsync(token);
 
-            return await GetAsync(dataKey);
+            return await InnerGetAsync(dataKeys);
         }
 
-        public async Task<byte[]> GetOrAddAsync(string key, string[] tags, TimeSpan expiry, Func<Task<MemoryStream>> dataStreamFactory, CancellationToken token = default)
+        public async Task<IReadOnlyList<byte[]>> GetOrAddAsync<TId>(
+            CacheInfo<TId>[] cacheInfos,
+            AsyncDataValuesFactoryDelegate<TId, MemoryStream> dataStreamsFactory,
+            CancellationToken token = default)
         {
-            if (tags == null)
+            if (cacheInfos is null)
             {
-                throw new ArgumentNullException(nameof(key));
+                throw new ArgumentNullException(nameof(cacheInfos));
             }
 
-            if (dataStreamFactory is null)
+            if (dataStreamsFactory is null)
             {
-                throw new ArgumentNullException(nameof(dataStreamFactory));
+                throw new ArgumentNullException(nameof(dataStreamsFactory));
             }
 
-            CacheKey dataKey = _keyFactory.CreateKey(key);
-            IEnumerable<CacheKey> tagKeys = _keyFactory.CreateTags(tags).ToList();
-
-            await ConnectAsync(token);
-
-            byte[] cachedData = await GetAsync(dataKey);
-            if (cachedData != null)
+            if (cacheInfos.Length <= 0)
             {
-                return cachedData;
+                return s_emptyResult;
             }
 
-            IEnumerable<Condition> invalidationsState = tagKeys.Select(WatchTagInvalidation).ToList();
+            Connect(token);
 
-            RedisValue data;
-            using (var dataStream = await dataStreamFactory())
+            var results = await new AsyncOperationsChain<CacheInfo<TId>, byte[]>()
+                .AddOperation(GetCachedValuesAsync, isFinal: result => result != null)
+                .AddOperation((infos) => ObtainAndCacheRealValuesAsync(infos, dataStreamsFactory))
+                .ExecuteAsync(cacheInfos);
+
+            return results.ToList();
+        }
+
+        private async IAsyncEnumerable<byte[]> GetCachedValuesAsync<TId>(IEnumerable<CacheInfo<TId>> infos)
+        {
+            CacheKey[] cacheKeys = infos
+                .Select(info => _keyFactory.CreateKey(info.Key))
+                .ToArray();
+
+            foreach (var cachedValue in await InnerGetAsync(cacheKeys))
             {
-                data = RedisValue.CreateFrom(dataStream);
+                yield return cachedValue;
+            }
+        }
+
+        private async IAsyncEnumerable<byte[]> ObtainAndCacheRealValuesAsync<TId>(
+            CacheInfo<TId>[] infos,
+            AsyncDataValuesFactoryDelegate<TId, MemoryStream> dataStreamsFactory)
+        {
+            // TODO: Extract common between sync and async implementation.
+            var tagKeysGroups = new CacheKey[infos.Length][];
+            var allTagKeys = new List<CacheKey>(infos.Length);
+
+            for (int infoIndex = 0; infoIndex < infos.Length; infoIndex++)
+            {
+                tagKeysGroups[infoIndex] = new CacheKey[infos[infoIndex].Tags.Length];
+                for (int tagIndex = 0; tagIndex < infos[infoIndex].Tags.Length; tagIndex++)
+                {
+                    tagKeysGroups[infoIndex][tagIndex] = _keyFactory.CreateTag(infos[infoIndex].Tags[tagIndex]);
+                }
+
+                allTagKeys.AddRange(tagKeysGroups[infoIndex]);
             }
 
-            _ = await TrySetAsync(dataKey, tagKeys, expiry, data, invalidationsState);
+            // Obtain tags' invalidation versions for optimistic lock.
+            Condition[] conditions = await WatchTagInvalidationsAsync(allTagKeys);
 
-            return data;
+            var conditionGroups = new IEnumerable<Condition>[infos.Length];
+            for (int lastOffset = 0, i = 0; i < infos.Length; i++)
+            {
+                conditionGroups[i] = conditions
+                    .Skip(lastOffset)
+                    .Take(infos[i].Tags.Length);
+
+                lastOffset += infos[i].Tags.Length;
+            }
+
+            // Get real data for missing cache.
+            var dataStreams = await dataStreamsFactory(infos);
+
+            int recievedIndex;
+            using IEnumerator<MemoryStream> dataStreamsEnumerator = dataStreams.GetEnumerator();
+            // Set missing cache with real data.
+            for (recievedIndex = 0; dataStreamsEnumerator.MoveNext(); recievedIndex++)
+            {
+                var dataStream = dataStreamsEnumerator.Current;
+                var data = RedisValue.CreateFrom(dataStream);
+
+                yield return data;
+
+                var info = infos[recievedIndex];
+                var expiry = info.Expiration;
+                var cacheKey = _keyFactory.CreateKey(info.Key);
+                var tagKeys = tagKeysGroups[recievedIndex];
+                var invalidationsState = conditionGroups[recievedIndex];
+
+                _ = await TrySetAsync(cacheKey, tagKeys, expiry, data, invalidationsState);
+            }
+
+            CheckResultLength(recievedIndex, infos.Length, nameof(dataStreamsFactory));
         }
 
         public async Task InvalidateAsync(string key, CancellationToken token = default)
@@ -95,16 +191,40 @@ namespace QA.DotNetCore.Caching.Distributed
             }
 
             CacheKey dataKey = _keyFactory.CreateKey(key);
-            IEnumerable<CacheKey> tagKeys = _keyFactory.CreateTags(tags).ToList();
+            CacheKey[] tagKeys = _keyFactory.CreateTags(tags).ToArray();
 
             await ConnectAsync(token);
 
             _ = await TrySetAsync(dataKey, tagKeys, expiry, RedisValue.CreateFrom(dataStream));
         }
 
+        private async Task<Condition[]> WatchTagInvalidationsAsync(IReadOnlyList<CacheKey> tagKeys)
+        {
+            RedisKey[] lockKeys = new RedisKey[tagKeys.Count];
+            for (int i = 0; i < tagKeys.Count; i++)
+            {
+                lockKeys[i] = _keyFactory.CreateLock(tagKeys[i]).GetRedisKey();
+            }
+
+            RedisValue[] lockValues = await _cache.StringGetAsync(lockKeys);
+
+            Condition[] conditions = new Condition[lockValues.Length];
+            for (int i = 0; i < lockValues.Length; i++)
+            {
+                var lockKey = lockKeys[i];
+                var lockValue = lockValues[i];
+
+                conditions[i] = lockValue.HasValue
+                    ? Condition.StringEqual(lockKey, lockValue)
+                    : Condition.KeyNotExists(lockKey);
+            }
+
+            return conditions;
+        }
+
         private async Task<bool> TrySetAsync(
             CacheKey key,
-            IEnumerable<CacheKey> tags,
+            IReadOnlyList<CacheKey> tags,
             TimeSpan expiry,
             RedisValue data,
             IEnumerable<Condition> conditions = null)
@@ -117,10 +237,7 @@ namespace QA.DotNetCore.Caching.Distributed
                 if (isExecuted)
                 {
                     var tagExpiry = GetTagExpiry(expiry);
-                    foreach (var tag in tags)
-                    {
-                        await CompactTagAsync(tag, tagExpiry);
-                    }
+                    await CompactTagsAsync(tags, tagExpiry);
                 }
 
                 return isExecuted;
@@ -160,33 +277,33 @@ namespace QA.DotNetCore.Caching.Distributed
             }
         }
 
-        private async Task<byte[]> GetAsync(CacheKey key)
+        private async Task<IEnumerable<byte[]>> InnerGetAsync(IReadOnlyList<CacheKey> keys)
         {
+            RedisKey[] redisKeys = new RedisKey[keys.Count];
             try
             {
-                RedisKey dataKey = key.GetRedisKey();
-                RedisValue cachedData = await _cache.StringGetAsync(dataKey);
-
-                if (!cachedData.HasValue)
+                for (int i = 0; i < keys.Count; i++)
                 {
-                    return default;
+                    redisKeys[i] = keys[i].GetRedisKey();
                 }
 
-                return cachedData;
+                var redisResults = await _cache.StringGetAsync(redisKeys);
+
+                return redisResults.Select(result => result.HasValue ? (byte[])result : null);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unable to get cache with the key {CacheKey}", key);
-                return null;
+                _logger.LogError(ex, "Unable to get multiple caches ('{0}').", redisKeys);
+                return Enumerable.Repeat(Array.Empty<byte>(), keys.Count);
             }
         }
 
-        private async Task CompactTagAsync(CacheKey tag, TimeSpan expiry)
+        private async Task CompactTagsAsync(IReadOnlyList<CacheKey> tags, TimeSpan expiry)
         {
-            RedisKey packKey = _keyFactory.CreatePack(tag.Key).GetRedisKey();
-            RedisValue compactAttempts = await _cache.StringGetAsync(packKey);
+            RedisKey[] packKeys = tags.Select(tag => _keyFactory.CreatePack(tag.Key).GetRedisKey()).ToArray();
+            RedisValue[] compactAttempts = await _cache.StringGetAsync(packKeys);
 
-            ITransaction transaction = CreateTagCompactingTransaction(tag, expiry, compactAttempts);
+            ITransaction transaction = CreateTagCompactingTransaction(tags, expiry, packKeys, compactAttempts);
             _ = await transaction.ExecuteAsync();
         }
     }

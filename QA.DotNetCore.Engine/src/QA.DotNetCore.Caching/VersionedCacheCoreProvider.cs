@@ -1,9 +1,14 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Primitives;
 using QA.DotNetCore.Caching.Exceptions;
+using QA.DotNetCore.Caching.Helpers.Operations;
 using QA.DotNetCore.Caching.Interfaces;
 using System;
+using System.Buffers;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,7 +17,7 @@ namespace QA.DotNetCore.Caching
     /// <summary>
     /// Реализует провайдер кеширования данных
     /// </summary>
-    public class VersionedCacheCoreProvider : ICacheProvider, ICacheInvalidator, IMemoryCacheProvider, IDistributedMemoryCacheProvider
+    public partial class VersionedCacheCoreProvider : ICacheProvider, ICacheInvalidator, IMemoryCacheProvider, IDistributedMemoryCacheProvider
     {
         private readonly IMemoryCache _cache;
         private readonly TimeSpan _defaultWaitForCalculateTimeout = TimeSpan.FromSeconds(5);
@@ -25,23 +30,34 @@ namespace QA.DotNetCore.Caching
         }
 
         /// <summary>
-        /// Получает данные из кеша по ключу
+        /// Получает данные из кеша по ключам
         /// </summary>
-        /// <param name="key">Ключ</param>
-        /// <returns></returns>
-        public virtual object Get(string key)
+        /// <param name="keys">Ключи</param>
+        /// <returns>Данные в том же порядке что и ключи.</returns>
+        public virtual IEnumerable<object> Get(IEnumerable<string> keys)
         {
-            return string.IsNullOrEmpty(key) ? null : _cache.Get(key);
+            if (keys is null)
+            {
+                throw new ArgumentNullException(nameof(keys));
+            }
+
+            foreach (var key in keys)
+            {
+                yield return string.IsNullOrEmpty(key) ? null : _cache.Get(key);
+            }
         }
 
         /// <summary>
-        /// Проверяет наличие данных в кеше
+        /// Проверяет наличие данных в кеше по ключам
         /// </summary>
-        /// <param name="key">Ключ</param>
-        /// <returns></returns>
-        public virtual bool IsSet(string key)
+        /// <param name="keys">Ключи</param>
+        /// <returns>Список наличия ключей в кеше.</returns>
+        public virtual IEnumerable<bool> IsSet(IEnumerable<string> keys)
         {
-            return !string.IsNullOrEmpty(key) && _cache.TryGetValue(key, out object result);
+            foreach (var key in keys)
+            {
+                yield return !string.IsNullOrEmpty(key) && _cache.TryGetValue(key, out _);
+            }
         }
 
         /// <summary>
@@ -116,6 +132,112 @@ namespace QA.DotNetCore.Caching
         T IMemoryCacheProvider.GetOrAdd<T>(string cacheKey, TimeSpan expiration, Func<T> getData, TimeSpan waitForCalculateTimeout) =>
             this.GetOrAdd(cacheKey, expiration, getData, waitForCalculateTimeout);
 
+        public TResult[] GetOrAdd<TId, TResult>(
+            CacheInfo<TId>[] cacheInfos,
+            DataValuesFactoryDelegate<TId, TResult> dataValuesFactory,
+            TimeSpan waitForCalculateTimeout = default)
+        {
+            IDisposable locker = null;
+
+            try
+            {
+                return new OperationsChain<CacheInfo<TId>, TResult>()
+                    .AddOperation(GetExistingCache)
+                    .AddOperation((infos) => LockOrSetDeprecatedCache<TId, TResult>(infos, waitForCalculateTimeout, out locker))
+                    .AddOperation(GetExistingCache)
+                    .AddOperation((infos) => GetAndCacheRealData(infos, dataValuesFactory))
+                    .Execute(cacheInfos)
+                    .ToArray();
+            }
+            finally
+            {
+                locker?.Dispose();
+            }
+
+            IEnumerable<OperationResult<TResult>> GetExistingCache(CacheInfo<TId>[] infos) =>
+                GetExistingCache<TId, TResult>(infos);
+        }
+
+        private IEnumerable<OperationResult<TResult>> GetExistingCache<TId, TResult>(CacheInfo<TId>[] infos)
+        {
+            var keys = infos.Select(info => info.Key);
+
+            var results = Get(keys);
+
+            foreach (var result in results)
+            {
+                bool isFinalResult = result != null;
+
+                yield return new OperationResult<TResult>(Cast<TResult>(result), isFinalResult);
+            }
+        }
+
+        private IEnumerable<OperationResult<TResult>> LockOrSetDeprecatedCache<TId, TResult>(
+            CacheInfo<TId>[] infos,
+            TimeSpan lockEnterWaitTimeout,
+            out IDisposable locker)
+        {
+            var cacheKeys = infos.Select(info => info.Key).ToList();
+
+            var lockersCollection = new KeyLockersCollection(_lockers, cacheKeys, Get);
+
+            var results = new OperationResult<TResult>[infos.Length];
+
+            lockersCollection.Lock(
+                lockEnterWaitTimeout,
+                (cacheKey, index, deprecatedResult) => results[index] = new OperationResult<TResult>(Cast<TResult>(deprecatedResult), true));
+
+            locker = lockersCollection;
+
+            return results;
+        }
+
+        private IEnumerable<TResult> GetAndCacheRealData<TId, TResult>(
+            IEnumerable<CacheInfo<TId>> infosEnumerable,
+            DataValuesFactoryDelegate<TId, TResult> dataValuesFactory)
+        {
+            var infos = infosEnumerable.ToArray();
+            var realData = dataValuesFactory(infos);
+
+            // Fill missing results with real data.
+            using var resultsEnumerator = realData.GetEnumerator();
+
+            int recievedIndex;
+            for (recievedIndex = 0; resultsEnumerator.MoveNext(); recievedIndex++)
+            {
+                TResult currentResult = resultsEnumerator.Current;
+
+                yield return currentResult;
+
+                if (currentResult != null)
+                {
+                    var cacheInfo = infos[recievedIndex];
+                    var tags = cacheInfo.Tags;
+                    var expiration = cacheInfo.Expiration;
+                    string missingKey = cacheInfo.Key;
+                    string deprecatedCacheKey = GetDeprecatedCacheKey(missingKey);
+
+                    //добавим новое значение в кэш и сразу обновим deprecated значение, которое хранится в 2 раза дольше, чем основное
+                    Add(currentResult, missingKey, tags.ToArray(), expiration);
+                    Add(currentResult, deprecatedCacheKey, Array.Empty<string>(), expiration + expiration);
+                }
+            }
+
+            if (recievedIndex != infos.Length)
+            {
+                throw new InvalidOperationException(
+                    $"Factory {nameof(dataValuesFactory)} should return the same number of elements it recieved " +
+                    $"(expected: {infos.Length}, returned: {recievedIndex})");
+            }
+        }
+
+        private static bool IsCacheMissing(int index, in bool[] locked)
+        {
+            bool isDeprecatedCacheMissing = locked[index];
+            // Filter out missing key if by it had been obtained deprecated value.
+            return isDeprecatedCacheMissing;
+        }
+
         /// <summary>
         /// Потокобезопасно берет объект из кэша, если его там нет, то вызывает функцию для получения данных
         /// и кладет результат в кэш, маркируя его тегами. При устаревании кэша старый результат еще хранится какое-то время.
@@ -142,14 +264,14 @@ namespace QA.DotNetCore.Caching
             TimeSpan waitForCalculateTimeout = default(TimeSpan))
         {
             var deprecatedCacheKey = GetDeprecatedCacheKey(cacheKey);
-            var result = Convert<T>(Get(cacheKey));
+            var result = Cast<T>(this.Get(cacheKey));
             if (result == null)
             {
                 bool lockTaken = false;
                 var locker = _lockers.GetOrAdd(cacheKey, new object());
                 try
                 {
-                    var deprecatedResult = Convert<T>(Get(deprecatedCacheKey));
+                    var deprecatedResult = Cast<T>(this.Get(deprecatedCacheKey));
 
                     if (deprecatedResult != null)
                     {
@@ -173,7 +295,7 @@ namespace QA.DotNetCore.Caching
 
                     if (lockTaken)
                     {
-                        result = Convert<T>(Get(cacheKey));
+                        result = Cast<T>(this.Get(cacheKey));
                         if (result == null)
                         {
                             result = getData();
@@ -230,7 +352,7 @@ namespace QA.DotNetCore.Caching
         {
             var deprecatedCacheKey = GetDeprecatedCacheKey(cacheKey);
 
-            var result = Convert<T>(Get(cacheKey));
+            var result = Cast<T>(this.Get(cacheKey));
             if (result == null)
             {
                 SemaphoreSlim locker = _semaphores.GetOrAdd(cacheKey, _ => new SemaphoreSlim(1));
@@ -238,9 +360,10 @@ namespace QA.DotNetCore.Caching
 
                 try
                 {
-                    var deprecatedResult = Convert<T>(Get(deprecatedCacheKey));
+                    var deprecatedObjectResult = this.Get(deprecatedCacheKey);
+                    var deprecatedResult = Cast<T>(deprecatedObjectResult);
 
-                    if (deprecatedResult != null)
+                    if (deprecatedObjectResult != null)
                     {
                         //проверим, взял ли блокировку по этому кэшу какой-то поток (т.е. вычисляется ли уже новое значение).
                         //т.к. найдено deprecated значение, то не будем ждать освобождения блокировки, если она будет
@@ -265,7 +388,7 @@ namespace QA.DotNetCore.Caching
 
                     if (lockTaken)
                     {
-                        result = Convert<T>(Get(cacheKey));
+                        result = Cast<T>(this.Get(cacheKey));
                         if (result == null)
                         {
                             result = await getData().ConfigureAwait(false);
@@ -336,9 +459,9 @@ namespace QA.DotNetCore.Caching
             return originalKey + "__Deprecated";
         }
 
-        private static T Convert<T>(object result)
+        private static T Cast<T>(object result)
         {
-            return result == null ? default(T) : (T)result;
+            return result == null ? default : (T)result;
         }
     }
 }

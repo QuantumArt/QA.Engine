@@ -1,10 +1,41 @@
-﻿using System;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace QA.DotNetCore.Caching.Interfaces
 {
     public static class CacheProviderExtensions
     {
+        /// <summary>
+        /// Проверяет наличие данных в кэше
+        /// </summary>
+        /// <param name="keys">Ключ</param>
+        /// <returns>Присутствует ли ключ к кэше</returns>
+        public static bool IsSet(this ICacheProvider cacheProvider, string key)
+        {
+            if (cacheProvider is null)
+            {
+                throw new ArgumentNullException(nameof(cacheProvider));
+            }
+
+            return cacheProvider.IsSet(new[] { key }).Single();
+        }
+
+        /// <summary>
+        /// Получает данные из кэша по ключу
+        /// </summary>
+        /// <param name="key">Ключ</param>
+        /// <returns></returns>
+        public static object Get(this ICacheProvider cacheProvider, string key)
+        {
+            if (cacheProvider is null)
+            {
+                throw new ArgumentNullException(nameof(cacheProvider));
+            }
+
+            return cacheProvider.Get(new[] { key }).Single();
+        }
+
         /// <summary>
         /// Записывает данные в кеш
         /// </summary>
@@ -22,11 +53,11 @@ namespace QA.DotNetCore.Caching.Interfaces
         }
 
         /// <summary>
-        /// Записывает данные в кеш
+        /// Записывает данные в кеш.
         /// </summary>
         /// <param name="key">Ключ</param>
         /// <param name="data">Данные</param>
-        /// <param name="expiration">Время кеширования (sliding expiration)</param>
+        /// <param name="cacheTimeInSeconds">Время кеширования в секундах</param>
         public static void Set(this ICacheProvider cacheProvider, string key, object data, TimeSpan expiration)
         {
             if (cacheProvider is null)

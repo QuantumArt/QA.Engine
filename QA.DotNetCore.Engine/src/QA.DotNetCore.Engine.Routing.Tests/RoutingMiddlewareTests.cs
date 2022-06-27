@@ -151,8 +151,8 @@ namespace QA.DotNetCore.Engine.Routing.Tests
 
             aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteID, isStage, null)).Returns(abstractItemPersistentDatas);
 
-            aiRepositoryMoq.Setup(x => x.GetAbstractItemExtensionIds(
-                    It.IsAny<Dictionary<int, IEnumerable<int>>>(), isStage, null))
+            aiRepositoryMoq
+                .Setup(x => x.GetAbstractItemExtensionIds(It.IsAny<int[]>(), null))
                 .Returns(new int[0]);
 
             Mock<IMetaInfoRepository> metaInfoMoq = new Mock<IMetaInfoRepository>();

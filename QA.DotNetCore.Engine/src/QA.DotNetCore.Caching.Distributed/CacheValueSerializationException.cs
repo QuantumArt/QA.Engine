@@ -1,14 +1,14 @@
-﻿using System;
+using System;
 using System.Runtime.Serialization;
 
 namespace QA.DotNetCore.Caching.Distributed
 {
     [Serializable]
-    public class CacheDataSerializationException : ApplicationException
+    public class CacheDataSerializationException<TValue> : ApplicationException
     {
-        public object Value { get; }
+        public TValue Value { get; }
 
-        public CacheDataSerializationException(string message, object value, Exception inner) : base(message, inner)
+        public CacheDataSerializationException(string message, TValue value, Exception inner) : base(message, inner)
         {
             Value = value;
         }

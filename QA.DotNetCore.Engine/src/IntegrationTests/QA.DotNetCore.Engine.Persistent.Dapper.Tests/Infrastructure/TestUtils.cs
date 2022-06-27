@@ -1,3 +1,6 @@
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
+using QA.DotNetCore.Caching;
 using QA.DotNetCore.Engine.QpData.Settings;
 using System;
 
@@ -15,6 +18,12 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure
                 ItemDefinitionCachePeriod = s_generalExpiry,
                 SiteStructureCachePeriod = s_generalExpiry
             };
+        }
+
+        public static VersionedCacheCoreProvider CreateDefaultMemoryCacheProvider()
+        {
+            var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
+            return new VersionedCacheCoreProvider(memoryCache);
         }
     }
 }

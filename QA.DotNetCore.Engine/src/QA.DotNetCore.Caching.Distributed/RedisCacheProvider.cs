@@ -2,8 +2,10 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using QA.DotNetCore.Caching.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -26,67 +28,11 @@ namespace QA.DotNetCore.Caching.Distributed
             _logger = logger;
         }
 
-        private static MemoryStream SerializeData<T>(T data)
-        {
-            try
-            {
-                var stream = new MemoryStream();
+        public IEnumerable<object> Get(IEnumerable<string> keys) =>
+            _cache.Get(keys);
 
-                using (var writer = new StreamWriter(stream, Encoding.UTF8, bufferSize: -1, leaveOpen: true))
-                using (var jsonWriter = new JsonTextWriter(writer))
-                {
-                    s_serializer.Serialize(jsonWriter, data);
-                    jsonWriter.Flush();
-
-                    return stream;
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new CacheDataSerializationException("Unable to serialize value to cache.", data, ex);
-            }
-        }
-
-        private static T DeserializeData<T>(byte[] data)
-        {
-            using (var stream = new MemoryStream(data, false))
-            using (var reader = new StreamReader(stream, Encoding.UTF8))
-            using (var jsonReader = new JsonTextReader(reader))
-            {
-                return s_serializer.Deserialize<T>(jsonReader);
-            }
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposedValue)
-            {
-                if (disposing)
-                {
-                    _cache.Dispose();
-                }
-
-                _disposedValue = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-
-        public object Get(string key) =>
-            _cache.Get(key);
-
-        public void Set(string key, object data, int cacheTimeInSeconds) =>
-            Add(data, key, Array.Empty<string>(), TimeSpan.FromSeconds(cacheTimeInSeconds));
-
-        public void Set(string key, object data, TimeSpan expiration) =>
-            Add(data, key, Array.Empty<string>(), expiration);
-
-        public bool IsSet(string key) =>
-            _cache.IsExist(key);
+        public IEnumerable<bool> IsSet(IEnumerable<string> keys) =>
+            _cache.Exist(keys);
 
         public bool TryGetValue(string key, out object result)
         {
@@ -127,7 +73,7 @@ namespace QA.DotNetCore.Caching.Distributed
                 var dataStream = SerializeData(value);
                 _cache.Set(key, tags, expiration, dataStream);
             }
-            catch (CacheDataSerializationException ex)
+            catch (CacheDataSerializationException<object> ex)
             {
                 _logger.LogError(ex, "Unable to cache value with the key {CacheKey}.", key);
                 Debug.Fail("Unable to cache value with the key " + key);
@@ -143,13 +89,25 @@ namespace QA.DotNetCore.Caching.Distributed
                 byte[] data = _cache.GetOrAdd(cacheKey, tags, expiration, getData);
                 return DeserializeData<T>(data);
             }
-            catch (CacheDataSerializationException ex)
+            catch (CacheDataSerializationException<T> ex)
             {
                 _logger.LogError(ex, "Unable to cache value with the key {CacheKey}", cacheKey);
                 Debug.Fail("Unable to cache value with the key " + cacheKey);
 
-                return (T)ex.Value;
+                return ex.Value;
             }
+        }
+
+        public TResult[] GetOrAdd<TId, TResult>(
+            CacheInfo<TId>[] cacheInfos,
+            DataValuesFactoryDelegate<TId, TResult> dataValuesFactory,
+            TimeSpan waitForCalculateTimeout = default)
+        {
+            IEnumerable<MemoryStream> dataStreamsFactory(IEnumerable<CacheInfo<TId>> missingCacheInfos) =>
+                dataValuesFactory(missingCacheInfos).Select(SerializeData);
+
+            var dataResults = _cache.GetOrAdd(cacheInfos, dataStreamsFactory);
+            return dataResults.Select(DeserializeData<TResult>).ToArray();
         }
 
         public async Task<T> GetOrAddAsync<T>(string cacheKey, string[] tags, TimeSpan expiration, Func<Task<T>> getValue, TimeSpan waitForCalculateTimeout = default)
@@ -161,12 +119,12 @@ namespace QA.DotNetCore.Caching.Distributed
                 byte[] data = await _cache.GetOrAddAsync(cacheKey, tags, expiration, getData);
                 return DeserializeData<T>(data);
             }
-            catch (CacheDataSerializationException ex)
+            catch (CacheDataSerializationException<T> ex)
             {
                 _logger.LogError(ex, "Unable to cache value with the key {CacheKey}", cacheKey);
                 Debug.Fail("Unable to cache value with the key " + cacheKey);
 
-                return (T)ex.Value;
+                return ex.Value;
             }
         }
 
@@ -178,6 +136,60 @@ namespace QA.DotNetCore.Caching.Distributed
             foreach (var tag in tags)
             {
                 _cache.InvalidateTag(tag);
+            }
+        }
+
+        #region Disposable
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    _cache.Dispose();
+                }
+
+                _disposedValue = true;
+            }
+        }
+
+        #endregion
+
+        private static MemoryStream SerializeData<T>(T data)
+        {
+            try
+            {
+                var stream = new MemoryStream();
+
+                using (var writer = new StreamWriter(stream, Encoding.UTF8, bufferSize: -1, leaveOpen: true))
+                using (var jsonWriter = new JsonTextWriter(writer))
+                {
+                    s_serializer.Serialize(jsonWriter, data);
+                    jsonWriter.Flush();
+
+                    return stream;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new CacheDataSerializationException<T>("Unable to serialize value to cache.", data, ex);
+            }
+        }
+
+        private static T DeserializeData<T>(byte[] data)
+        {
+            using (var stream = new MemoryStream(data, false))
+            using (var reader = new StreamReader(stream, Encoding.UTF8))
+            using (var jsonReader = new JsonTextReader(reader))
+            {
+                return s_serializer.Deserialize<T>(jsonReader);
             }
         }
     }

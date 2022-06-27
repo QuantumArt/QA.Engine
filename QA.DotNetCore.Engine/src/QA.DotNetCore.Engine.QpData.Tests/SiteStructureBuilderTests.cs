@@ -213,6 +213,13 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 buildSettings.IsStage,
                 null)).Returns(startPageExtDictionary);
 
+            aiRepositoryMoq
+                .Setup(x => x.GetManyToManyDataByContent(
+                    It.IsAny<int[]>(),
+                    buildSettings.IsStage,
+                    null))
+                .Returns(new[] { new Dictionary<int, M2mRelations>(0) });
+
             //фабрика элементов структуры сайта
             var aiFactoryMoq = new Mock<IAbstractItemFactory>();
             aiFactoryMoq.Setup(x => x.Create(It.IsAny<string>())).Returns((string d) =>
@@ -329,6 +336,13 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 buildSettings.IsStage,
                 null)).Returns(widgetExtDictionary);
 
+            aiRepositoryMoq
+                .Setup(x => x.GetManyToManyDataByContent(
+                    It.IsAny<int[]>(),
+                    buildSettings.IsStage,
+                    null))
+                .Returns(new[] { new Dictionary<int, M2mRelations>(0) });
+
             //фабрика элементов структуры сайта
             var aiFactoryMoq = new Mock<IAbstractItemFactory>();
             aiFactoryMoq.Setup(x => x.Create(It.IsAny<string>())).Returns((string d) =>
@@ -362,8 +376,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             var serviceScopeFactory = new Mock<IServiceScopeFactory>();
             serviceScopeFactory.Setup(x => x.CreateScope())
                 .Returns(serviceScope.Object);
-
-            var qpContentCacheTagNamingProvider = Mock.Of<IQpContentCacheTagNamingProvider>();
 
             var builder = CreateQpAbstractItemStorageBuilder(
                 aiFactoryMoq.Object,
@@ -449,12 +461,9 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             };
             aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteId, isStage, null)).Returns(aiArray);
 
-            aiRepositoryMoq.Setup(x => x.GetAbstractItemExtensionIds(
-                    It.IsAny<Dictionary<int, IEnumerable<int>>>(), isStage, null))
-                .Returns(new[]
-                {
-                    widgetExtId
-                });
+            aiRepositoryMoq
+                .Setup(x => x.GetAbstractItemExtensionIds(It.IsAny<IReadOnlyCollection<int>>(), null))
+                .Returns(new[] { widgetExtId });
 
             //extension-поля виджета:
             //поле SomeRelations - это поле m2m(значением будет является некий relationid),
@@ -468,12 +477,15 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             {
                 { widgetId, widgetExt}
             };
-            aiRepositoryMoq.Setup(x => x.GetAbstractItemExtensionData(extensionId,
-                It.Is<IEnumerable<int>>(ids => ids.Count() == 1 && ids.Contains(3)),
-                It.IsAny<ContentPersistentData>(),
-                buildSettings.LoadAbstractItemFieldsToDetailsCollection,
-                buildSettings.IsStage,
-                null)).Returns(widgetExtDictionary);
+            aiRepositoryMoq
+                .Setup(x => x.GetAbstractItemExtensionData(
+                    extensionId,
+                    It.Is<IEnumerable<int>>(ids => ids.Count() == 1 && ids.Contains(3)),
+                    It.IsAny<ContentPersistentData>(),
+                    buildSettings.LoadAbstractItemFieldsToDetailsCollection,
+                    buildSettings.IsStage,
+                    null))
+                .Returns(widgetExtDictionary);
 
             //по relationid и id виджета в qp можно получить полный список id, участвующих в связи m2m с этим виджетом
             //замокаем методы получения такой информации для 2х relation: один из контента с extension, один в базовом контенте. нужно проверить оба варианта
@@ -483,10 +495,19 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             {
                 widgetRelation.AddRelation(widgetRelationField.M2mLinkId.Value, relValue);
             }
-            aiRepositoryMoq.Setup(x => x.GetManyToManyData(It.Is<IEnumerable<int>>(ids => ids.Count() == 1 && ids.Contains(widgetExtId)), isStage, null)).Returns(new Dictionary<int, M2mRelations>
-            {
-                { widgetExtId, widgetRelation}
-            });
+            aiRepositoryMoq
+                .Setup(x => x.GetManyToManyDataByContent(
+                    It.Is<int[]>(ids => ids.Single() == extensionId),
+                    isStage,
+                    null))
+                .Returns(
+                    new[]
+                    {
+                        new Dictionary<int, M2mRelations>
+                        {
+                            { widgetExtId, widgetRelation}
+                        }
+                    });
 
             var baseContentRelation = new M2mRelations();
             var baseContentRelationValues = new[] { 576, 7568 };
@@ -494,10 +515,16 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             {
                 baseContentRelation.AddRelation(baseContentRelationField.M2mLinkId.Value, relValue);
             }
-            aiRepositoryMoq.Setup(x => x.GetManyToManyData(It.Is<IEnumerable<int>>(ids => ids.Contains(widgetId)), isStage, null)).Returns(new Dictionary<int, M2mRelations>
-            {
-                { widgetId, baseContentRelation}
-            });
+            aiRepositoryMoq
+                .Setup(x => x.GetManyToManyData(
+                    It.Is<IEnumerable<int>>(ids => ids.Contains(widgetId)),
+                    isStage,
+                    null))
+                .Returns(
+                    new Dictionary<int, M2mRelations>
+                    {
+                        { widgetId, baseContentRelation }
+                    });
 
             //фабрика элементов структуры сайта
             var aiFactoryMoq = new Mock<IAbstractItemFactory>();
@@ -738,12 +765,22 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 { 2, startPageBaseExt},
                 { 3, startPageJobExt}
             };
-            aiRepositoryMoq.Setup(x => x.GetAbstractItemExtensionData(extensionId,
-                It.Is<IEnumerable<int>>(ids => ids.Count() == 2 && ids.Contains(2) && ids.Contains(3)),
-                It.IsAny<ContentPersistentData>(),
-                buildSettings.LoadAbstractItemFieldsToDetailsCollection,
-                buildSettings.IsStage,
-                null)).Returns(startPageExtDictionary);
+            aiRepositoryMoq
+                .Setup(x => x.GetAbstractItemExtensionData(
+                    extensionId,
+                    It.Is<IEnumerable<int>>(ids => ids.Count() == 2 && ids.Contains(2) && ids.Contains(3)),
+                    It.IsAny<ContentPersistentData>(),
+                    buildSettings.LoadAbstractItemFieldsToDetailsCollection,
+                    buildSettings.IsStage,
+                    null))
+                .Returns(startPageExtDictionary);
+
+            aiRepositoryMoq
+                .Setup(x => x.GetManyToManyDataByContent(
+                    It.IsAny<int[]>(),
+                    buildSettings.IsStage,
+                    null))
+                .Returns(new[] { new Dictionary<int, M2mRelations>(0) });
 
             //фабрика элементов структуры сайта
             var aiFactoryMoq = new Mock<IAbstractItemFactory>();
@@ -808,6 +845,11 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             IMetaInfoRepository metaInfoRepository,
             IServiceScopeFactory scopeFactory)
         {
+            var mockQpContentCacheTagNamingProvider = new Mock<IQpContentCacheTagNamingProvider>();
+            _ = mockQpContentCacheTagNamingProvider
+                .Setup(provider => provider.GetByContentIds(It.IsAny<int[]>(), It.IsAny<int>(), It.IsAny<bool>()))
+                .Returns<int[], int, bool>((ids, _, _) => ids.ToDictionary(id => id, id => id.ToString()));
+
             return new QpAbstractItemStorageBuilder(
                 itemFactory,
                 abstractItemRepository,
@@ -815,7 +857,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 buildSettings,
                 Mock.Of<ILogger<QpAbstractItemStorageBuilder>>(),
                 scopeFactory,
-                Mock.Of<IQpContentCacheTagNamingProvider>(),
+                mockQpContentCacheTagNamingProvider.Object,
                 _cacheProvider,
                 cacheSettings);
         }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,6 +6,8 @@ namespace QA.DotNetCore.Engine.QpData.Models
 {
     public class WidgetsAndPagesCacheTags
     {
+        private IDictionary<int, string> _extensionsTags = new Dictionary<int, string>(0);
+
         /// <summary>
         /// Тег для контента AbstractItem
         /// </summary>
@@ -19,7 +21,11 @@ namespace QA.DotNetCore.Engine.QpData.Models
         /// <summary>
         /// Теги для контентов расширений
         /// </summary>
-        public IDictionary<int, string> ExtensionsTags { get; set; }
+        public IDictionary<int, string> ExtensionsTags
+        {
+            get => _extensionsTags;
+            set => _extensionsTags = value ?? new Dictionary<int, string>(0);
+        }
 
         /// <summary>
         /// Получить все имеющиеся кэш теги
@@ -28,9 +34,9 @@ namespace QA.DotNetCore.Engine.QpData.Models
         {
             get
             {
-                return (ExtensionsTags?.Values ?? Array.Empty<string>())
-                    .Union(new[] {AbstractItemTag, ItemDefinitionTag})
-                    .Where(x => !string.IsNullOrEmpty(x))
+                return ExtensionsTags.Values
+                    .Union(new[] { AbstractItemTag, ItemDefinitionTag })
+                    .Where(tag => !string.IsNullOrEmpty(tag))
                     .ToArray();
             }
         }

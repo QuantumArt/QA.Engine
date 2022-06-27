@@ -7,7 +7,7 @@ using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 using System;
 using System.Linq;
 
-namespace Tests
+namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests
 {
     public class ItemDefinitionRepositoryTests
     {

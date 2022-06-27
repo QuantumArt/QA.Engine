@@ -1,26 +1,27 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
-using QA.DotNetCore.Caching.Distributed;
+using QA.DotNetCore.Caching.Interfaces;
 using StackExchange.Redis;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace QA.DotNetCore.Caching.Tests
+namespace QA.DotNetCore.Caching.Distributed.Tests
 {
     public class RedisCacheTests
     {
         private const string ConnectionString = "SPBREDIS01.ARTQ.COM:6407";
-        private const string InstanceName = "MTS.WidgetPlatform.Tests";
+        private static readonly string s_instanceName = "wptests:" + Guid.NewGuid().ToString();
 
         private static RedisCacheSettings CreateDefaultRedisCacheOptions() =>
             new()
             {
                 Configuration = ConnectionString,
-                InstanceName = InstanceName,
+                InstanceName = s_instanceName,
                 TagExpirationOffset = TimeSpan.FromSeconds(1),
                 CompactTagSizeThreshold = 100,
                 CompactTagFrequency = 100,
@@ -63,7 +64,7 @@ namespace QA.DotNetCore.Caching.Tests
             {
                 Configuration = ConnectionString,
                 TagExpirationOffset = TimeSpan.Zero,
-                InstanceName = InstanceName
+                InstanceName = s_instanceName
             });
 
             return new RedisCache(optionsAccessor, GetLogger<RedisCache>());
@@ -274,7 +275,7 @@ namespace QA.DotNetCore.Caching.Tests
         }
 
         [Fact]
-        public async Task GetOrAdd_MissingKey_NullValue()
+        public async Task Get_MissingKey_NullValue()
         {
             // Arrange
             string key = "key1";
@@ -580,12 +581,54 @@ namespace QA.DotNetCore.Caching.Tests
             }
         }
 
-        private static string GetKey(string key) => $"{InstanceName}:key:{key}";
+        [Theory]
+        [MemberData(nameof(GetKeysArrays), 2, 1)]
+        public async Task Exist_MultipleKeys_SomeExist(string[] existingKeys, string[] notExistingKeys)
+        {
+            // Arrange
+            var expiry = TimeSpan.FromSeconds(1);
 
-        private static string GetTag(string tag) => $"{InstanceName}:tag:{tag}";
+            using (var connection = CreateConnection())
+            {
+                var db = connection.GetDatabase();
 
-        private static string GetPack(string tag) => $"{InstanceName}:pack:{tag}";
+                _ = await Task.WhenAll(
+                    notExistingKeys.Select(key => db.KeyDeleteAsync(GetKey(key))).ToList());
 
-        private static string GetLock(string tag) => new CacheKeyFactory(InstanceName).CreateTag(tag).GetLock().ToString();
+                _ = await Task.WhenAll(
+                    existingKeys.Select(key => db.StringSetAsync(GetKey(key), string.Empty, expiry)).ToList());
+            }
+
+            var allKeys = existingKeys.Concat(notExistingKeys);
+            using var redisCache = CreateRedisCache();
+
+            // Act
+            var existResults = redisCache.Exist(allKeys);
+
+            // Assert
+            Assert.Equal(existingKeys.Length + notExistingKeys.Length, existResults.Count());
+            Assert.All(existResults.Take(existingKeys.Length), isExist => Assert.True(isExist));
+            Assert.All(existResults.Skip(existingKeys.Length), isExist => Assert.False(isExist));
+        }
+
+        private static IEnumerable<object[]> GetKeysArrays(int existingCount, int notExistingCount)
+        {
+            static string GetKeyName(int index) => $"key{index}";
+
+            var existingKeys = Enumerable.Range(0, existingCount).Select(GetKeyName).ToArray();
+            var notExistingKeys = Enumerable.Range(existingCount, existingCount + notExistingCount).Select(GetKeyName).ToArray();
+
+            yield return new object[] { existingKeys, notExistingKeys };
+            yield return new object[] { Array.Empty<string>(), notExistingKeys };
+            yield return new object[] { existingKeys, Array.Empty<string>() };
+        }
+
+        private static string GetKey(string key) => $"{s_instanceName}:key:{key}";
+
+        private static string GetTag(string tag) => $"{s_instanceName}:tag:{tag}";
+
+        private static string GetPack(string tag) => $"{s_instanceName}:pack:{tag}";
+
+        private static string GetLock(string tag) => new CacheKeyFactory(s_instanceName).CreateTag(tag).GetLock().ToString();
     }
 }

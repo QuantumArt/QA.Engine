@@ -2,61 +2,59 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using NUnit.Framework;
 using QA.DotNetCore.Caching;
-using QA.DotNetCore.Engine.Persistent.Dapper;
 using QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 
-namespace Tests
+namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests;
+
+public class AbTestRepositoryTests
 {
-    public class AbTestRepositoryTests
+    private AbTestRepository _repository;
+
+    [SetUp]
+    public void Setup()
     {
-        private AbTestRepository _repository;
+        var serviceProvider = Global.CreateMockServiceProviderWithConnection();
+        var settings = TestUtils.CreateDefaultCacheSettings();
+        var cacheProvider = new VersionedCacheCoreProvider(new MemoryCache(Options.Create(new MemoryCacheOptions())));
+        var metaRepository = new MetaInfoRepository(serviceProvider, cacheProvider, settings);
+        var sqlAnalyzer = new NetNameQueryAnalyzer(metaRepository);
+        _repository = new AbTestRepository(serviceProvider, sqlAnalyzer);
+    }
 
-        [SetUp]
-        public void Setup()
+    [Test]
+    public void GetAllTestsTest()
+    {
+        Assert.DoesNotThrow(() =>
         {
-            var serviceProvider = Global.CreateMockServiceProviderWithConnection();
-            var settings = TestUtils.CreateDefaultCacheSettings();
-            var cacheProvider = new VersionedCacheCoreProvider(new MemoryCache(Options.Create(new MemoryCacheOptions())));
-            var metaRepository = new MetaInfoRepository(serviceProvider, cacheProvider, settings);
-            var sqlAnalyzer = new NetNameQueryAnalyzer(metaRepository);
-            _repository = new AbTestRepository(serviceProvider, sqlAnalyzer);
-        }
+            var tests = _repository.GetAllTests(Global.SiteId, false);
+        });
+    }
 
-        [Test]
-        public void GetAllTestsTest()
+    [Test]
+    public void GetActiveTestsTest()
+    {
+        Assert.DoesNotThrow(() =>
         {
-            Assert.DoesNotThrow(() =>
-            {
-                var tests = _repository.GetAllTests(Global.SiteId, false);
-            });
-        }
+            var tests = _repository.GetActiveTests(Global.SiteId, false);
+        });
+    }
 
-        [Test]
-        public void GetActiveTestsTest()
+    [Test]
+    public void GetAllTestsContainersTest()
+    {
+        Assert.DoesNotThrow(() =>
         {
-            Assert.DoesNotThrow(() =>
-            {
-                var tests = _repository.GetActiveTests(Global.SiteId, false);
-            });
-        }
+            var containers = _repository.GetAllTestsContainers(Global.SiteId, false);
+        });
+    }
 
-        [Test]
-        public void GetAllTestsContainersTest()
+    [Test]
+    public void GetActiveTestsContainersTest()
+    {
+        Assert.DoesNotThrow(() =>
         {
-            Assert.DoesNotThrow(() =>
-            {
-                var containers = _repository.GetAllTestsContainers(Global.SiteId, false);
-            });
-        }
-
-        [Test]
-        public void GetActiveTestsContainersTest()
-        {
-            Assert.DoesNotThrow(() =>
-            {
-                var containers = _repository.GetActiveTestsContainers(Global.SiteId, false);
-            });
-        }
+            var containers = _repository.GetActiveTestsContainers(Global.SiteId, false);
+        });
     }
 }

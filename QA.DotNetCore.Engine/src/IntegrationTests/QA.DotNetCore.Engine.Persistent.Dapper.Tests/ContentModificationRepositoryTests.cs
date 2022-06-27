@@ -1,33 +1,31 @@
-using System.Linq;
 using NUnit.Framework;
-using QA.DotNetCore.Engine.Persistent.Dapper;
 using QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure;
+using System.Linq;
 
-namespace Tests
+namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests;
+
+public class ContentModificationRepositoryTests
 {
-    public class ContentModificationRepositoryTests
+    private ContentModificationRepository _repository;
+
+    [SetUp]
+    public void Setup()
     {
-        private ContentModificationRepository _repository;
+        var serviceProvider = Global.CreateMockServiceProviderWithConnection();
+        _repository = new ContentModificationRepository(serviceProvider);
+    }
 
-        [SetUp]
-        public void Setup()
+    [Test]
+    public void GetAllTest()
+    {
+        Assert.DoesNotThrow(() =>
         {
-            var serviceProvider = Global.CreateMockServiceProviderWithConnection();
-            _repository = new ContentModificationRepository(serviceProvider);
-        }
+            var allContentMods = _repository.GetAll();
+            Assert.Positive(allContentMods.Count());
+            Assert.True(allContentMods.All(cm => cm.StageModified >= cm.LiveModified));
 
-        [Test]
-        public void GetAllTest()
-        {
-            Assert.DoesNotThrow(() =>
-            {
-                var allContentMods = _repository.GetAll();
-                Assert.Positive(allContentMods.Count());
-                Assert.True(allContentMods.All(cm => cm.StageModified >= cm.LiveModified));
-
-                var abstractItemChanged = allContentMods.FirstOrDefault(m => m.ContentName == "AbstractItem");
-                Assert.NotNull(abstractItemChanged);
-            });
-        }
+            var abstractItemChanged = allContentMods.FirstOrDefault(m => m.ContentName == "AbstractItem");
+            Assert.NotNull(abstractItemChanged);
+        });
     }
 }

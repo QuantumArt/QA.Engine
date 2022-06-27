@@ -1,8 +1,8 @@
 using QA.DotNetCore.Engine.Abstractions.Targeting;
+using QA.DotNetCore.Engine.Abstractions.Wildcard;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using QA.DotNetCore.Engine.Abstractions.Wildcard;
 
 namespace QA.DotNetCore.Engine.Abstractions
 {
@@ -123,7 +123,6 @@ namespace QA.DotNetCore.Engine.Abstractions
                 startPage as TAbstractItem :
                 null;
         }
-
 
         private string GetBindingPattern(string host, ITargetingFilter filter)
         {

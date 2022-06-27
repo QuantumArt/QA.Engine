@@ -1,5 +1,8 @@
-﻿using QA.DotNetCore.Caching.Interfaces;
+using QA.DotNetCore.Caching.Helpers.Operations;
+using QA.DotNetCore.Caching.Interfaces;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace QA.DotNetCore.Caching.Distributed
@@ -21,8 +24,11 @@ namespace QA.DotNetCore.Caching.Distributed
             _backCacheProvider.Add(tags, key, tags, expiration);
         }
 
-        public object Get(string key) =>
-            _frontCacheProvider.Get(key) ?? _backCacheProvider.Get(key);
+        public IEnumerable<object> Get(IEnumerable<string> keys) =>
+            new OperationsChain<string, object>()
+                .AddOperation(_frontCacheProvider.Get, isFinal: cachedValue => cachedValue != null)
+                .AddOperation(_backCacheProvider.Get)
+                .Execute(keys.ToArray());
 
         public T GetOrAdd<T>(string cacheKey, string[] tags, TimeSpan expiration, Func<T> getValue, TimeSpan waitForCalculateTimeout = default)
         {
@@ -54,9 +60,11 @@ namespace QA.DotNetCore.Caching.Distributed
                 waitForCalculateTimeout);
         }
 
-        public bool IsSet(string key) =>
-            _frontCacheProvider.IsSet(key)
-            || _backCacheProvider.IsSet(key);
+        public IEnumerable<bool> IsSet(IEnumerable<string> keys) =>
+            new OperationsChain<string, bool>()
+                .AddOperation(_frontCacheProvider.IsSet, isFinal: isSet => isSet)
+                .AddOperation(_backCacheProvider.IsSet)
+                .Execute(keys.ToArray());
 
         public bool TryGetValue(string key, out object result) =>
             _frontCacheProvider.TryGetValue(key, out result)
@@ -74,6 +82,20 @@ namespace QA.DotNetCore.Caching.Distributed
         {
             _frontCacheProvider.InvalidateByTags(tags);
             _backCacheProvider.InvalidateByTags(tags);
+        }
+
+        public TResult[] GetOrAdd<TId, TResult>(
+            CacheInfo<TId>[] cacheInfos,
+            DataValuesFactoryDelegate<TId, TResult> dataValuesFactory,
+            TimeSpan waitForCalculateTimeout = default)
+        {
+            return _frontCacheProvider.GetOrAdd(
+                cacheInfos,
+                (infos) => _backCacheProvider.GetOrAdd(
+                    infos.ToArray(),
+                    dataValuesFactory,
+                    waitForCalculateTimeout),
+                waitForCalculateTimeout);
         }
     }
 }

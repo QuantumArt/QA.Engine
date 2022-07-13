@@ -2,76 +2,37 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using QA.DotNetCore.Caching.Interfaces;
+using RedLockNet.SERedis;
+using RedLockNet.SERedis.Configuration;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace QA.DotNetCore.Caching.Distributed.Tests
 {
     public class RedisCacheTests
     {
-        private const string ConnectionString = "SPBREDIS01.ARTQ.COM:6407";
+        private static readonly DnsEndPoint s_redisEndpoint = new("SPBREDIS01.ARTQ.COM", 6407);
+        private static readonly string ConnectionString = $"{s_redisEndpoint.Host}:{s_redisEndpoint.Port}";
         private static readonly string s_instanceName = "wptests:" + Guid.NewGuid().ToString();
+        private static readonly TimeSpan s_deprecatedCacheTtl = new RedisCacheSettings().DeprecatedCacheTimeToLive;
+        private static readonly TimeSpan s_defaultExpiry = TimeSpan.FromSeconds(1);
+        private static readonly TimeSpan s_existingCacheTtl = s_deprecatedCacheTtl + s_defaultExpiry;
+        private static readonly TimeSpan s_lockTimeout = TimeSpan.FromSeconds(1);
 
-        private static RedisCacheSettings CreateDefaultRedisCacheOptions() =>
-            new()
-            {
-                Configuration = ConnectionString,
-                InstanceName = s_instanceName,
-                TagExpirationOffset = TimeSpan.FromSeconds(1),
-                CompactTagSizeThreshold = 100,
-                CompactTagFrequency = 100,
-            };
+        private readonly ITestOutputHelper _output;
 
-        private static ILogger<T> GetLogger<T>()
+        public RedisCacheTests(ITestOutputHelper output)
         {
-            return Mock.Of<ILogger<T>>();
+            _output = output;
         }
-
-        private static RedisCache CreateRedisCache()
-        {
-            var options = CreateDefaultRedisCacheOptions();
-
-            return new RedisCache(Options.Create(options), GetLogger<RedisCache>());
-        }
-
-        private static RedisCache CreateRedisCacheThatAlwaysCompacts()
-        {
-            var options = CreateDefaultRedisCacheOptions();
-
-            options.CompactTagSizeThreshold = 0;
-            options.CompactTagFrequency = 0;
-
-            return new RedisCache(Options.Create(options), GetLogger<RedisCache>());
-        }
-
-        private static RedisCache CreateRedisCacheWithRareCompacts()
-        {
-            var options = CreateDefaultRedisCacheOptions();
-
-            options.CompactTagSizeThreshold = 0;
-
-            return new RedisCache(Options.Create(options), GetLogger<RedisCache>());
-        }
-
-        private static RedisCache CreateRedisCacheWithoutTagOffset()
-        {
-            IOptions<RedisCacheSettings> optionsAccessor = Options.Create(new RedisCacheSettings
-            {
-                Configuration = ConnectionString,
-                TagExpirationOffset = TimeSpan.Zero,
-                InstanceName = s_instanceName
-            });
-
-            return new RedisCache(optionsAccessor, GetLogger<RedisCache>());
-        }
-
-        private static ConnectionMultiplexer CreateConnection() =>
-            ConnectionMultiplexer.Connect(ConnectionString);
 
         [Fact]
         public async Task Set_SetData_CacheIsSet()
@@ -79,7 +40,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             // Arrange
             string key = "key1";
             var tag = "tag1";
-            var expiry = TimeSpan.FromSeconds(1);
+            var expiry = s_defaultExpiry;
 
             using (var connection = CreateConnection())
             {
@@ -111,7 +72,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             var key = "key1";
             var expiredKey = "key2";
             var tag = "tag1";
-            var expiry = TimeSpan.FromSeconds(1);
+            var expiry = s_defaultExpiry;
 
             using (var connection = CreateConnection())
             {
@@ -146,7 +107,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             var key = "key1";
             var expiredKey = "key2";
             var tag = "tag1";
-            var expiry = TimeSpan.FromSeconds(1);
+            var expiry = s_defaultExpiry;
 
             using (var connection = CreateConnection())
             {
@@ -180,7 +141,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             string key = "key1";
             string expiredKey = "expired_key";
             string tag = "tag1";
-            var expiry = TimeSpan.FromSeconds(1);
+            var expiry = s_defaultExpiry;
 
             using (var connection = CreateConnection())
             {
@@ -215,7 +176,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             // Arrange
             var key = "key1";
             var tag = "tag1";
-            var expiry = TimeSpan.Zero;
+            var expiry = TimeSpan.FromSeconds(1);
 
             using (var connection = CreateConnection())
             {
@@ -225,7 +186,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
                     cache.KeyDeleteAsync(GetTag(tag)));
             }
 
-            using (var redisCache = CreateRedisCacheWithoutTagOffset())
+            using (var redisCache = CreateRedisCacheWithoutOffsets())
             {
                 // Act
                 redisCache.Set(key, new[] { tag }, expiry, GetRandomDataStream());
@@ -234,9 +195,75 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             // Assert
             using (var connection = CreateConnection())
             {
+                await Task.Delay(expiry);
+
                 var cache = connection.GetDatabase();
                 Assert.False(await cache.KeyExistsAsync(GetKey(key)));
                 Assert.False(await cache.KeyExistsAsync(GetTag(tag)));
+            }
+        }
+
+        [Fact]
+        public async Task Set_SetExpired_InvalidExpiration()
+        {
+            // Arrange
+            var key = "key1";
+            var tag = "tag1";
+            var expiry = TimeSpan.FromSeconds(-1);
+
+            using (var connection = CreateConnection())
+            {
+                var cache = connection.GetDatabase();
+                _ = await Task.WhenAll(
+                    cache.KeyDeleteAsync(GetKey(key)),
+                    cache.KeyDeleteAsync(GetTag(tag)));
+            }
+
+            using var redisCache = CreateRedisCacheWithoutOffsets();
+
+            // Act
+            _ = Assert.Throws<ArgumentOutOfRangeException>(
+                () => redisCache.Set(key, new[] { tag }, expiry, GetRandomDataStream()));
+        }
+
+        [Fact]
+        public async Task Set_SetDeprecated_KeyDeprecated()
+        {
+            // Arrange
+            var key = "key1";
+            var tag = "tag1";
+            var expiry = TimeSpan.FromSeconds(1);
+
+            using (var connection = CreateConnection())
+            {
+                var cache = connection.GetDatabase();
+                _ = await Task.WhenAll(
+                    cache.KeyDeleteAsync(GetKey(key)),
+                    cache.KeyDeleteAsync(GetTag(tag)));
+            }
+
+            using (var redisCache = CreateRedisCache())
+            {
+                // Act
+                redisCache.Set(key, new[] { tag }, expiry, GetRandomDataStream());
+            }
+
+            // Assert
+            using (var connection = CreateConnection())
+            {
+                await Task.Delay(expiry);
+
+                var cache = connection.GetDatabase();
+
+                var ttlTask = cache.KeyTimeToLiveAsync(GetKey(key));
+
+                Assert.All(
+                    await Task.WhenAll(
+                        cache.KeyExistsAsync(GetKey(key)),
+                        cache.KeyExistsAsync(GetTag(tag))),
+                    Assert.True);
+
+                Assert.True(s_deprecatedCacheTtl > await ttlTask);
             }
         }
 
@@ -246,7 +273,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             // Arrange
             string key = "key1";
             byte[] cachedData = GetRandomData();
-            var expiry = TimeSpan.FromSeconds(1);
+            var expiry = s_existingCacheTtl;
 
             using (var connection = CreateConnection())
             {
@@ -262,16 +289,26 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             Assert.Equal(cachedData, result);
         }
 
-        private static MemoryStream GetRandomDataStream() => new(GetRandomData());
-
-        private static byte[] GetRandomData()
+        [Fact]
+        public async Task Get_CachedKey_Deprecated()
         {
-            var random = new Random();
+            // Arrange
+            string key = "key1";
+            byte[] cachedData = GetRandomData();
+            var expiry = s_deprecatedCacheTtl;
 
-            var data = new byte[random.Next(0, 1000)];
-            random.NextBytes(data);
+            using (var connection = CreateConnection())
+            {
+                _ = await connection.GetDatabase().StringSetAsync(GetKey(key), cachedData, expiry);
+            }
 
-            return data;
+            using var redisCache = CreateRedisCache();
+
+            // Act
+            byte[]? result = redisCache.Get(key);
+
+            // Assert
+            Assert.Null(result);
         }
 
         [Fact]
@@ -291,7 +328,30 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             byte[]? result = redisCache.Get(key);
 
             // Assert
-            Assert.Equal(default, result);
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task Get_ExpiredKey_NullValue()
+        {
+            // Arrange
+            string key = "key1";
+
+            using (var connection = CreateConnection())
+            {
+                var db = connection.GetDatabase();
+                _ = await db.KeyDeleteAsync(GetKey(key));
+                _ = await db.StringSetAsync(GetKey(key), string.Empty, TimeSpan.FromMilliseconds(1));
+            }
+
+            using var redisCache = CreateRedisCache();
+            await Task.Delay(1);
+
+            // Act
+            byte[]? result = redisCache.Get(key);
+
+            // Assert
+            Assert.Null(result);
         }
 
         [Fact]
@@ -301,18 +361,18 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             string key = "key1";
             string[] tags = new[] { "tag1", "tag2" };
             byte[] cachedData = GetRandomData();
+            var expiry = s_defaultExpiry;
             MemoryStream dataFactory() => new(cachedData.Append((byte)0).ToArray());
-            var expiry = TimeSpan.FromSeconds(1);
 
             using (var connection = CreateConnection())
             {
-                _ = await connection.GetDatabase().StringSetAsync(GetKey(key), cachedData, expiry);
+                _ = await connection.GetDatabase().StringSetAsync(GetKey(key), cachedData, s_existingCacheTtl);
             }
 
             using var redisCache = CreateRedisCache();
 
             // Act
-            byte[]? result = redisCache.GetOrAdd(key, tags, expiry, dataFactory);
+            byte[]? result = redisCache.GetOrAdd(key, tags, expiry, dataFactory, s_lockTimeout);
 
             // Assert
             Assert.Equal(cachedData, result);
@@ -326,7 +386,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             string[] tags = new[] { "tag1", "tag2" };
             byte[] realData = GetRandomData();
             MemoryStream dataFactory() => new(realData);
-            var expiry = TimeSpan.FromSeconds(1);
+            var expiry = s_defaultExpiry;
 
             using (var connection = CreateConnection())
             {
@@ -336,7 +396,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             using var redisCache = CreateRedisCache();
 
             // Act
-            var result = redisCache.GetOrAdd(key, tags, expiry, dataFactory);
+            var result = redisCache.GetOrAdd(key, tags, expiry, dataFactory, s_lockTimeout);
 
             // Assert
             Assert.Equal(realData, result);
@@ -348,7 +408,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             // Arrange
             string key = "key1";
             static MemoryStream dataFactory() => GetRandomDataStream();
-            var expiry = TimeSpan.FromSeconds(1);
+            var expiry = s_defaultExpiry;
 
             using (var connection = CreateConnection())
             {
@@ -358,7 +418,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             using (var redisCache = CreateRedisCache())
             {
                 // Act
-                _ = redisCache.GetOrAdd(key, Array.Empty<string>(), expiry, dataFactory);
+                _ = redisCache.GetOrAdd(key, Array.Empty<string>(), expiry, dataFactory, s_lockTimeout);
             }
 
             // Assert
@@ -369,12 +429,31 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
         }
 
         [Fact]
-        public async Task GetOrAdd_SetWithExpiration_KeyExpired()
+        public async Task GetOrAdd_SetWithExpiration_InvalidExpiration()
+        {
+            // Arrange
+            var key = "key1";
+            var expiry = TimeSpan.FromSeconds(-1);
+            static MemoryStream dataFactory() => GetRandomDataStream();
+
+            using (var connection = CreateConnection())
+            {
+                _ = await connection.GetDatabase().KeyDeleteAsync(GetKey(key));
+            }
+
+            using var redisCache = CreateRedisCacheWithoutOffsets();
+
+            _ = Assert.Throws<ArgumentOutOfRangeException>(
+                () => redisCache.GetOrAdd(key, Array.Empty<string>(), expiry, dataFactory, s_lockTimeout));
+        }
+
+        [Fact]
+        public async Task GetOrAdd_SetWithExpiration_KeyExpiredAfterTime()
         {
             // Arrange
             var key = "key1";
             var tag = "tag1";
-            var expiry = TimeSpan.Zero;
+            var expiry = TimeSpan.FromSeconds(1);
             static MemoryStream dataFactory() => GetRandomDataStream();
 
             using (var connection = CreateConnection())
@@ -385,11 +464,13 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
                     cache.KeyDeleteAsync(GetTag(tag)));
             }
 
-            using (var redisCache = CreateRedisCacheWithoutTagOffset())
+            using (var redisCache = CreateRedisCacheWithoutOffsets())
             {
                 // Act
-                _ = redisCache.GetOrAdd(key, new[] { tag }, expiry, dataFactory);
+                _ = redisCache.GetOrAdd(key, new[] { tag }, expiry, dataFactory, s_lockTimeout);
             }
+
+            await Task.Delay(expiry);
 
             // Assert
             using (var connection = CreateConnection())
@@ -406,7 +487,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             // Arrange
             string key = "key1";
             string sharedTag = "tag1";
-            var expiry = TimeSpan.FromSeconds(1);
+            var expiry = s_defaultExpiry;
             MemoryStream dataFactory()
             {
                 using var redisCache = CreateRedisCache();
@@ -423,7 +504,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             using (var redisCache = CreateRedisCache())
             {
                 // Act
-                _ = redisCache.GetOrAdd(key, new[] { sharedTag }, expiry, dataFactory);
+                _ = redisCache.GetOrAdd(key, new[] { sharedTag }, expiry, dataFactory, s_lockTimeout);
             }
 
             // Assert
@@ -434,13 +515,123 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
         }
 
         [Fact]
+        public async Task GetOrAdd_ConcurrentAdd_ReturnDeprecatedCache()
+        {
+            // Arrange
+            string sharedKey = Guid.NewGuid().ToString();
+            var deprecatedData = GetRandomData();
+            var tags = Array.Empty<string>();
+            var expiry = s_defaultExpiry;
+            AutoResetEvent dataObtainingStartedEvent = new(false);
+            var eventTimeout = s_lockTimeout + TimeSpan.FromSeconds(2);
+
+            MemoryStream waitingDataFactory()
+            {
+                Assert.True(dataObtainingStartedEvent.Set());
+                _output.WriteLine($"{DateTime.UtcNow.TimeOfDay}: Lock released.");
+                Assert.True(dataObtainingStartedEvent.WaitOne());
+                return GetRandomDataStream();
+            }
+
+            using (var connection = CreateConnection())
+            {
+                var db = connection.GetDatabase();
+                _ = await db.StringSetAsync(GetKey(sharedKey), deprecatedData, s_deprecatedCacheTtl);
+            }
+
+            var lockCacheTask = Task.Factory.StartNew(
+                () =>
+                {
+                    using var otherRedisCache = CreateRedisCache();
+                    _ = otherRedisCache.GetOrAdd(sharedKey, tags, expiry, waitingDataFactory, s_lockTimeout);
+                });
+
+            Assert.True(dataObtainingStartedEvent.WaitOne(eventTimeout));
+
+            using var redisCache = CreateRedisCache();
+
+            // Act
+            var value = redisCache.GetOrAdd(
+                sharedKey,
+                tags,
+                expiry,
+                () =>
+                {
+                    Assert.True(false, "Duplicate call of the data factory when already locked.");
+                    return GetRandomDataStream();
+                },
+                s_lockTimeout);
+
+            Assert.True(dataObtainingStartedEvent.Set());
+
+            // Assert
+            Assert.Equal(deprecatedData, value);
+
+            await lockCacheTask;
+        }
+
+        [Fact]
+        public async Task GetOrAdd_ConcurrentAdd_ThrowsException()
+        {
+            // Arrange
+            string sharedKey = Guid.NewGuid().ToString();
+            var tags = Array.Empty<string>();
+            var expiry = s_defaultExpiry;
+            AutoResetEvent dataObtainingStartedEvent = new(false);
+            var eventTimeout = s_lockTimeout + TimeSpan.FromSeconds(2);
+
+            MemoryStream waitingDataFactory()
+            {
+                Assert.True(dataObtainingStartedEvent.Set());
+                _output.WriteLine($"{DateTime.UtcNow.TimeOfDay}: Event released when key is locked.");
+                Assert.True(dataObtainingStartedEvent.WaitOne());
+                return GetRandomDataStream();
+            }
+
+            using (var connection = CreateConnection())
+            {
+                _ = await connection.GetDatabase().KeyDeleteAsync(GetKey(sharedKey));
+            }
+
+            var lockCacheKeyTask = Task.Factory.StartNew(
+                () =>
+                {
+                    using var otherRedisCache = CreateRedisCacheWithoutOffsets();
+                    _ = otherRedisCache.GetOrAdd(sharedKey, tags, expiry, waitingDataFactory, s_lockTimeout);
+                });
+
+            using var redisCache = CreateRedisCacheWithoutOffsets();
+            Assert.True(dataObtainingStartedEvent.WaitOne(eventTimeout));
+
+            // Assert
+            _ = Assert.Throws<AggregateException>(() =>
+            {
+                // Act
+                _ = redisCache.GetOrAdd(
+                    sharedKey,
+                    tags,
+                    expiry,
+                    () =>
+                    {
+                        Assert.True(false, "Duplicate call of the data factory when already locked.");
+                        return GetRandomDataStream();
+                    }, s_lockTimeout);
+            });
+
+            Assert.True(dataObtainingStartedEvent.Set());
+            _output.WriteLine($"{DateTime.UtcNow.TimeOfDay}: End.");
+            await lockCacheKeyTask;
+            _output.WriteLine($"{DateTime.UtcNow.TimeOfDay}: Release.");
+        }
+
+        [Fact]
         public async Task GetOrAdd_ConcurrentDifferentTagInvalidation_CacheSet()
         {
             // Arrange
             var key = "key1";
             var tag = "tag1";
             var invalidatedTag = "tag2";
-            var expiry = TimeSpan.FromSeconds(1);
+            var expiry = s_defaultExpiry;
             MemoryStream dataFactory()
             {
                 using var redisCache = CreateRedisCache();
@@ -457,7 +648,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             using (var redisCache = CreateRedisCache())
             {
                 // Act
-                _ = redisCache.GetOrAdd(key, new[] { tag }, expiry, dataFactory);
+                _ = redisCache.GetOrAdd(key, new[] { tag }, expiry, dataFactory, s_lockTimeout);
             }
 
             // Assert
@@ -468,22 +659,18 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
         }
 
         [Fact]
-        public async Task InvalidateTag_WithKeys_NoTagAndKeys()
+        public async Task InvalidateTag_WithKeys_TagRemovedAndKeysDeprecated()
         {
             // Arrange
             string tag = "tag1";
             var keys = new[] { "key1", "key2" }.Select(GetKey).ToArray();
-            var expiry = TimeSpan.FromSeconds(1);
 
             using (var connection = CreateConnection())
             {
                 var cache = connection.GetDatabase();
                 _ = await cache.KeyDeleteAsync(GetTag(tag));
                 _ = await cache.SetAddAsync(GetTag(tag), keys.Select(key => new RedisValue(key)).ToArray());
-                foreach (var key in keys)
-                {
-                    _ = await cache.StringSetAsync(key, "value", expiry);
-                }
+                _ = await Task.WhenAll(keys.Select(key => cache.StringSetAsync(key, "value", s_existingCacheTtl)).ToArray());
             }
 
             using (var redisCache = CreateRedisCache())
@@ -497,7 +684,11 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             {
                 var redisKeys = keys.Select(key => new RedisKey(key)).ToArray();
                 var cache = connection.GetDatabase();
-                Assert.Equal(0, await cache.KeyExistsAsync(redisKeys));
+
+                Assert.Equal(2, await cache.KeyExistsAsync(redisKeys));
+                var keyTtls = await Task.WhenAll(redisKeys.Select(key => cache.KeyTimeToLiveAsync(key)).ToArray());
+                Assert.All(keyTtls, ttl => Assert.True(ttl < s_deprecatedCacheTtl));
+
                 Assert.False(await cache.KeyExistsAsync(GetTag(tag)));
             }
         }
@@ -507,7 +698,6 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
         {
             // Arrange
             string tag = "tag1";
-            TimeSpan expiry = TimeSpan.FromSeconds(1);
 
             using (var connection = CreateConnection())
             {
@@ -515,7 +705,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
                 await Task.WhenAll(
                     cache.KeyDeleteAsync(GetTag(tag)),
                     cache.SetAddAsync(GetTag(tag), Array.Empty<RedisValue>()),
-                    cache.StringSetAsync(GetLock(tag), long.MaxValue, expiry));
+                    cache.StringSetAsync(GetLock(tag), long.MaxValue, s_existingCacheTtl));
             }
 
             using (var redisCache = CreateRedisCache())
@@ -533,28 +723,24 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
         }
 
         [Fact]
-        public async Task Invalidate_InvalidateExisting_KeyRemoved()
+        public async Task Invalidate_InvalidateExisting_KeyDeprecated()
         {
             // Arrange
             string key = "key1";
-            var expiry = TimeSpan.FromSeconds(1);
-
-            using (var connection = CreateConnection())
-            {
-                _ = await connection.GetDatabase().StringSetAsync(GetKey(key), "value", expiry);
-            }
+            var expiry = s_defaultExpiry;
 
             using (var redisCache = CreateRedisCache())
             {
+                redisCache.Set(key, Enumerable.Empty<string>(), expiry, GetRandomDataStream());
+
                 // Act
                 redisCache.Invalidate(key);
             }
 
             // Assert
-            using (var connection = CreateConnection())
-            {
-                Assert.False(await connection.GetDatabase().KeyExistsAsync(GetKey(key)));
-            }
+            using var connection = CreateConnection();
+
+            Assert.True(s_deprecatedCacheTtl >= await connection.GetDatabase().KeyTimeToLiveAsync(GetKey(key)));
         }
 
         [Fact]
@@ -582,12 +768,10 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
         }
 
         [Theory]
-        [MemberData(nameof(GetKeysArrays), 2, 1)]
-        public async Task Exist_MultipleKeys_SomeExist(string[] existingKeys, string[] notExistingKeys)
+        [MemberData(nameof(GetKeysArrays), 2, 1, 1)]
+        public async Task Exist_MultipleKeys_SomeExist(string[] existingKeys, string[] deprecatedKeys, string[] notExistingKeys)
         {
             // Arrange
-            var expiry = TimeSpan.FromSeconds(1);
-
             using (var connection = CreateConnection())
             {
                 var db = connection.GetDatabase();
@@ -596,31 +780,39 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
                     notExistingKeys.Select(key => db.KeyDeleteAsync(GetKey(key))).ToList());
 
                 _ = await Task.WhenAll(
-                    existingKeys.Select(key => db.StringSetAsync(GetKey(key), string.Empty, expiry)).ToList());
+                    deprecatedKeys.Select(key => db.StringSetAsync(GetKey(key), string.Empty, s_deprecatedCacheTtl)).ToList());
+
+                _ = await Task.WhenAll(
+                    existingKeys.Select(key => db.StringSetAsync(GetKey(key), string.Empty, s_existingCacheTtl)).ToList());
             }
 
-            var allKeys = existingKeys.Concat(notExistingKeys);
+            var allKeys = existingKeys
+                .Concat(deprecatedKeys)
+                .Concat(notExistingKeys);
+
             using var redisCache = CreateRedisCache();
 
             // Act
             var existResults = redisCache.Exist(allKeys);
 
             // Assert
-            Assert.Equal(existingKeys.Length + notExistingKeys.Length, existResults.Count());
-            Assert.All(existResults.Take(existingKeys.Length), isExist => Assert.True(isExist));
-            Assert.All(existResults.Skip(existingKeys.Length), isExist => Assert.False(isExist));
+            Assert.Equal(existingKeys.Length + deprecatedKeys.Length + notExistingKeys.Length, existResults.Count());
+            Assert.All(existResults.Take(existingKeys.Length), Assert.True);
+            Assert.All(existResults.Skip(existingKeys.Length), Assert.False);
         }
 
-        private static IEnumerable<object[]> GetKeysArrays(int existingCount, int notExistingCount)
+        private static IEnumerable<object[]> GetKeysArrays(int existingCount, int deprecatedCount, int notExistingCount)
         {
             static string GetKeyName(int index) => $"key{index}";
 
             var existingKeys = Enumerable.Range(0, existingCount).Select(GetKeyName).ToArray();
-            var notExistingKeys = Enumerable.Range(existingCount, existingCount + notExistingCount).Select(GetKeyName).ToArray();
+            var deprecatedKeys = Enumerable.Range(existingCount, deprecatedCount).Select(GetKeyName).ToArray();
+            var notExistingKeys = Enumerable.Range(existingCount + deprecatedCount, notExistingCount).Select(GetKeyName).ToArray();
 
-            yield return new object[] { existingKeys, notExistingKeys };
-            yield return new object[] { Array.Empty<string>(), notExistingKeys };
-            yield return new object[] { existingKeys, Array.Empty<string>() };
+            yield return new object[] { existingKeys, deprecatedKeys, notExistingKeys };
+            yield return new object[] { Array.Empty<string>(), deprecatedKeys, notExistingKeys };
+            yield return new object[] { existingKeys, deprecatedKeys, Array.Empty<string>() };
+            yield return new object[] { existingKeys, Array.Empty<string>(), notExistingKeys };
         }
 
         private static string GetKey(string key) => $"{s_instanceName}:key:{key}";
@@ -629,6 +821,131 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
 
         private static string GetPack(string tag) => $"{s_instanceName}:pack:{tag}";
 
-        private static string GetLock(string tag) => new CacheKeyFactory(s_instanceName).CreateTag(tag).GetLock().ToString();
+        private static string GetLock(string tag) => new CacheKey(CacheKeyType.Tag, tag, s_instanceName).GetLock().ToString();
+
+        private static RedisCacheSettings CreateDefaultRedisCacheOptions() =>
+            new()
+            {
+                Configuration = ConnectionString,
+                InstanceName = s_instanceName,
+                TagExpirationOffset = TimeSpan.FromSeconds(1),
+                CompactTagSizeThreshold = 100,
+                CompactTagFrequency = 100
+            };
+
+        private static ILoggerFactory CreateLoggerFactory(ITestOutputHelper output, string name)
+        {
+            var mockLoggerFactory = new Mock<ILoggerFactory>();
+
+            _ = mockLoggerFactory
+                .Setup(factory => factory.CreateLogger(It.IsAny<string>()))
+                .Returns<string>(_ => GetLogger(output, name));
+
+            return mockLoggerFactory.Object;
+        }
+
+        private static ILogger GetLogger(ITestOutputHelper output, string name)
+        {
+            return GetLogger<ILogger>(output, name);
+        }
+
+        private static ILogger<T> GetLogger<T>(ITestOutputHelper output)
+        {
+            return GetLogger<ILogger<T>>(output, typeof(T).Name);
+        }
+
+        private static TLogger GetLogger<TLogger>(ITestOutputHelper output, string name)
+            where TLogger : class, ILogger
+        {
+            var mockLogger = new Mock<TLogger>();
+            _ = mockLogger
+                .Setup(logger => logger.Log(
+                    It.IsAny<LogLevel>(),
+                    It.IsAny<EventId>(),
+                    It.IsAny<It.IsAnyType>(),
+                    It.IsAny<Exception?>(),
+                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
+                .Callback(new InvocationAction((invocation) => output.WriteLine(
+                    $"{Environment.CurrentManagedThreadId}> [{DateTime.UtcNow.TimeOfDay} | {invocation.Arguments[0]} | {name}] " +
+                    $"{invocation.Arguments[2]} {invocation.Arguments[3]}")));
+
+            _ = mockLogger
+                .Setup(logger => logger.IsEnabled(It.IsAny<LogLevel>()))
+                .Returns(true);
+
+            return mockLogger.Object;
+        }
+
+        private RedLockFactory CreateDefaultRedLockFactory() =>
+            RedLockFactory.Create(
+                new[] { new RedLockEndPoint(s_redisEndpoint) },
+                new RedLockRetryConfiguration(retryCount: 1),
+                CreateLoggerFactory(_output, nameof(RedLock)));
+
+        private RedisCache CreateRedisCache()
+        {
+            var options = CreateDefaultRedisCacheOptions();
+
+            return new RedisCache(
+                CreateDefaultRedLockFactory(),
+                Options.Create(options),
+                GetLogger<RedisCache>(_output));
+        }
+
+        private RedisCache CreateRedisCacheThatAlwaysCompacts()
+        {
+            var options = CreateDefaultRedisCacheOptions();
+
+            options.CompactTagSizeThreshold = 0;
+            options.CompactTagFrequency = 0;
+
+            return new RedisCache(
+                CreateDefaultRedLockFactory(),
+                Options.Create(options),
+                GetLogger<RedisCache>(_output));
+        }
+
+        private RedisCache CreateRedisCacheWithRareCompacts()
+        {
+            var options = CreateDefaultRedisCacheOptions();
+
+            options.CompactTagSizeThreshold = 0;
+
+            return new RedisCache(
+                CreateDefaultRedLockFactory(),
+                Options.Create(options),
+                GetLogger<RedisCache>(_output));
+        }
+
+        private RedisCache CreateRedisCacheWithoutOffsets()
+        {
+            IOptions<RedisCacheSettings> optionsAccessor = Options.Create(new RedisCacheSettings
+            {
+                Configuration = ConnectionString,
+                TagExpirationOffset = TimeSpan.Zero,
+                InstanceName = s_instanceName,
+                DeprecatedCacheTimeToLive = TimeSpan.Zero
+            });
+
+            return new RedisCache(
+                CreateDefaultRedLockFactory(),
+                optionsAccessor,
+                GetLogger<RedisCache>(_output));
+        }
+
+        private static ConnectionMultiplexer CreateConnection() =>
+            ConnectionMultiplexer.Connect(ConnectionString);
+
+        private static MemoryStream GetRandomDataStream() => new(GetRandomData());
+
+        private static byte[] GetRandomData()
+        {
+            var random = new Random();
+
+            var data = new byte[random.Next(0, 1000)];
+            random.NextBytes(data);
+
+            return data;
+        }
     }
 }

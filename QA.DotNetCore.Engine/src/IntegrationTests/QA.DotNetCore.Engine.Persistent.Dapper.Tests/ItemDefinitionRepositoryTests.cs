@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Moq;
 using NUnit.Framework;
 using QA.DotNetCore.Caching;
 using QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure;
@@ -18,7 +20,9 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests
         {
             var serviceProvider = Global.CreateMockServiceProviderWithConnection();
             var settings = TestUtils.CreateDefaultCacheSettings();
-            var cacheProvider = new VersionedCacheCoreProvider(new MemoryCache(Options.Create(new MemoryCacheOptions())));
+            var cacheProvider = new VersionedCacheCoreProvider(
+                new MemoryCache(Options.Create(new MemoryCacheOptions())),
+                Mock.Of<ILogger>());
             var metaRepository = new MetaInfoRepository(serviceProvider, cacheProvider, settings);
             var sqlAnalyzer = new NetNameQueryAnalyzer(metaRepository);
             _repository = new ItemDefinitionRepository(serviceProvider, sqlAnalyzer, new StubNamingProvider(), cacheProvider, settings);

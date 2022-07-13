@@ -225,6 +225,7 @@ namespace QA.DotNetCore.Engine.QpData
                         _buildSettings.SiteId)
                     .ToDictionary(c => c.ContentId);
 
+                // TODO: Cache lazy data (with DistributedMemoryCache).
                 _context.LazyExtensionData = extensions.ToDictionary(x => x.Key,
                     x => new Lazy<IDictionary<int, AbstractItemExtensionCollection>>(
                         () => GetAbstractItemExtensionData(
@@ -241,33 +242,41 @@ namespace QA.DotNetCore.Engine.QpData
                     $"{nameof(Init)}.{nameof(GetAbstractItemsManyToManyRelations)}",
                     abstractItemTags,
                     _cacheSettings.SiteStructureCachePeriod,
-                    GetAbstractItemsManyToManyRelations,
+                    () => GetAbstractItemsManyToManyRelations(extensions),
                     _buildSettings.CacheFetchTimeoutAbstractItemStorage);
 
-                // m2m для расширений
-                var extensionCacheInfos = GetExtensionCacheInfos(extensions, tags, expiration: _cacheSettings.SiteStructureCachePeriod)
-                    .ToArray();
-
-                _context.ExtensionsM2MData = _cacheProvider
-                    .GetOrAdd(
-                        extensionCacheInfos,
-                        (missingCacheInfos) =>
-                        {
-                            var missingExtensionIds = missingCacheInfos.Select(info => info.Id).ToArray();
-                            return _abstractItemRepository.GetManyToManyDataByContent(missingExtensionIds, _buildSettings.IsStage);
-                        },
-                        _buildSettings.CacheFetchTimeoutAbstractItemStorage)
-                    .SelectMany(extensionGroup => extensionGroup)
-                    .ToDictionary(pair => pair.Key, pair => pair.Value);
-
-                // m2m для базового AbstractItem
-                IDictionary<int, M2mRelations> GetAbstractItemsManyToManyRelations() =>
-                    _abstractItemRepository.GetManyToManyData(
-                        extensions.Values
-                            .SelectMany(x => x)
-                            .Select(item => item.Id),
-                        _buildSettings.IsStage);
+                _context.ExtensionsM2MData = GetExtensionsManyToManyRelations(extensions, tags);
             }
+        }
+
+        private Dictionary<int, M2mRelations> GetExtensionsManyToManyRelations(
+            IDictionary<int, AbstractItemPersistentData[]> extensions,
+            WidgetsAndPagesCacheTags tags)
+        {
+            var extensionCacheInfos = GetExtensionCacheInfos(extensions, tags, expiration: _cacheSettings.SiteStructureCachePeriod)
+                .ToArray();
+
+            return _cacheProvider
+                .GetOrAdd(
+                    extensionCacheInfos,
+                    (missingCacheInfos) =>
+                    {
+                        var missingExtensionIds = missingCacheInfos.Select(info => info.Id).ToArray();
+                        return _abstractItemRepository.GetManyToManyDataByContent(missingExtensionIds, _buildSettings.IsStage);
+                    },
+                    _buildSettings.CacheFetchTimeoutAbstractItemStorage)
+                .SelectMany(extensionGroup => extensionGroup)
+                .ToDictionary(pair => pair.Key, pair => pair.Value);
+        }
+
+        private IDictionary<int, M2mRelations> GetAbstractItemsManyToManyRelations(
+            IDictionary<int, AbstractItemPersistentData[]> extensions)
+        {
+            return _abstractItemRepository.GetManyToManyData(
+                extensions.Values
+                    .SelectMany(x => x)
+                    .Select(item => item.Id),
+                _buildSettings.IsStage);
         }
 
         private IEnumerable<CacheInfo<int>> GetExtensionCacheInfos(

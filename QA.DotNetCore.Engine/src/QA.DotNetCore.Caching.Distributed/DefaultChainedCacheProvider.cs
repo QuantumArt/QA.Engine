@@ -1,4 +1,5 @@
-﻿using QA.DotNetCore.Caching.Interfaces;
+using Microsoft.Extensions.Logging;
+using QA.DotNetCore.Caching.Interfaces;
 
 namespace QA.DotNetCore.Caching.Distributed
 {
@@ -6,8 +7,9 @@ namespace QA.DotNetCore.Caching.Distributed
     {
         public DefaultChainedCacheProvider(
             IDistributedMemoryCacheProvider frontCacheProvider,
-            IDistributedCacheProvider baseCacheProvider)
-            : base(frontCacheProvider, baseCacheProvider)
+            IDistributedCacheProvider baseCacheProvider,
+            ILogger<ChainedCacheProvider> logger)
+            : base(frontCacheProvider, baseCacheProvider, logger)
         {
         }
     }

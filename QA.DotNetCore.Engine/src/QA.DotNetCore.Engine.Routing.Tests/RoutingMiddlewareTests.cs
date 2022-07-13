@@ -197,7 +197,9 @@ namespace QA.DotNetCore.Engine.Routing.Tests
             serviceScopeFactory.Setup(x => x.CreateScope())
                 .Returns(serviceScope.Object);
 
-            var cacheProvider = new VersionedCacheCoreProvider(new MemoryCache(new MemoryCacheOptions()));
+            var cacheProvider = new VersionedCacheCoreProvider(
+                new MemoryCache(new MemoryCacheOptions()),
+                Mock.Of<ILogger>());
             var cacheSettings = new QpSiteStructureCacheSettings
             {
                 ItemDefinitionCachePeriod = TimeSpan.FromSeconds(30),

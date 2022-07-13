@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Caching.Helpers.Operations;
 using QA.DotNetCore.Caching.Interfaces;
 using System;
@@ -11,11 +12,16 @@ namespace QA.DotNetCore.Caching.Distributed
     {
         private readonly ICacheProvider _frontCacheProvider;
         private readonly ICacheProvider _backCacheProvider;
+        private readonly ILogger<ChainedCacheProvider> _logger;
 
-        public ChainedCacheProvider(ICacheProvider frontCacheProvider, ICacheProvider baseCacheProvider)
+        public ChainedCacheProvider(
+            ICacheProvider frontCacheProvider,
+            ICacheProvider baseCacheProvider,
+            ILogger<ChainedCacheProvider> logger)
         {
             _frontCacheProvider = frontCacheProvider ?? throw new ArgumentNullException(nameof(frontCacheProvider));
             _backCacheProvider = baseCacheProvider ?? throw new ArgumentNullException(nameof(baseCacheProvider));
+            _logger = logger;
         }
 
         public void Add(object data, string key, string[] tags, TimeSpan expiration)
@@ -25,7 +31,7 @@ namespace QA.DotNetCore.Caching.Distributed
         }
 
         public IEnumerable<object> Get(IEnumerable<string> keys) =>
-            new OperationsChain<string, object>()
+            new OperationsChain<string, object>(_logger)
                 .AddOperation(_frontCacheProvider.Get, isFinal: cachedValue => cachedValue != null)
                 .AddOperation(_backCacheProvider.Get)
                 .Execute(keys.ToArray());
@@ -61,7 +67,7 @@ namespace QA.DotNetCore.Caching.Distributed
         }
 
         public IEnumerable<bool> IsSet(IEnumerable<string> keys) =>
-            new OperationsChain<string, bool>()
+            new OperationsChain<string, bool>(_logger)
                 .AddOperation(_frontCacheProvider.IsSet, isFinal: isSet => isSet)
                 .AddOperation(_backCacheProvider.IsSet)
                 .Execute(keys.ToArray());

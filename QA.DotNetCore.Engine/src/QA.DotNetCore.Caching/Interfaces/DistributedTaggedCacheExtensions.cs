@@ -62,6 +62,7 @@ namespace QA.DotNetCore.Caching.Interfaces
             string[] tags,
             TimeSpan expiry,
             Func<MemoryStream> dataStreamFactory,
+            TimeSpan lockEnterWaitTimeout,
             CancellationToken token = default)
         {
             if (cache is null)
@@ -72,7 +73,7 @@ namespace QA.DotNetCore.Caching.Interfaces
             var cacheInfos = new[] { new CacheInfo<bool>(default, key, expiry, tags) };
 
             return cache
-                .GetOrAdd(cacheInfos, SingleOrDefaultDataFactory, token)
+                .GetOrAdd(cacheInfos, SingleOrDefaultDataFactory, lockEnterWaitTimeout, token)
                 .Single();
 
             IEnumerable<MemoryStream> SingleOrDefaultDataFactory(IEnumerable<CacheInfo<bool>> missingCacheInfos)
@@ -96,6 +97,7 @@ namespace QA.DotNetCore.Caching.Interfaces
             string[] tags,
             TimeSpan expiry,
             Func<Task<MemoryStream>> dataStreamFactory,
+            TimeSpan lockEnterTimeout,
             CancellationToken token = default)
         {
             if (cache is null)
@@ -106,7 +108,7 @@ namespace QA.DotNetCore.Caching.Interfaces
             var cacheInfos = new[] { new CacheInfo<bool>(default, key, expiry, tags) };
 
             var results = await cache
-                .GetOrAddAsync(cacheInfos, SingleOrDefaultDataFactoryAsync, token);
+                .GetOrAddAsync(cacheInfos, SingleOrDefaultDataFactoryAsync, lockEnterTimeout, token);
 
             return results.Single();
 

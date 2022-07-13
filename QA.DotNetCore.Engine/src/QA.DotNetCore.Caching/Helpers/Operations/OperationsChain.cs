@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,9 +9,11 @@ public class OperationsChain<TInput, TResult>
     public delegate IEnumerable<OperationResult<TResult>> OperationDelegate(TInput[] inputs, OperationContext<TResult> context);
 
     private readonly List<OperationDelegate> _operations;
+    private readonly ILogger _logger;
 
-    public OperationsChain()
+    public OperationsChain(ILogger logger)
     {
+        _logger = logger;
         _operations = new List<OperationDelegate>();
     }
 
@@ -20,14 +23,20 @@ public class OperationsChain<TInput, TResult>
         return this;
     }
 
-    public IEnumerable<TResult> Execute(TInput[] keys)
+    public IEnumerable<TResult> Execute(TInput[] inputs)
     {
-        var allResults = new OperationResult<TResult>[keys.Length];
+        var allResults = new OperationResult<TResult>[inputs.Length];
         var context = new OperationContext<TResult>(allResults);
 
         foreach (var operation in _operations)
         {
-            IEnumerable<OperationResult<TResult>> operationResult = operation(keys, context).ToArray();
+            _logger.LogTrace(
+                "Start pipeline step {Operation} for {Inputs} (count: {InputsCount})",
+                operation,
+                inputs,
+                inputs.Length);
+
+            IEnumerable<OperationResult<TResult>> operationResult = operation(inputs, context).ToArray();
             allResults.Apply(operationResult);
 
             var incompleteResults = allResults.GetIncomplete().ToArray();
@@ -37,7 +46,7 @@ public class OperationsChain<TInput, TResult>
             }
 
             context = new OperationContext<TResult>(incompleteResults);
-            keys = operationResult.GetIncomplete(keys).ToArray();
+            inputs = operationResult.GetIncomplete(inputs).ToArray();
         }
 
         return allResults.Select(result => result.Result);

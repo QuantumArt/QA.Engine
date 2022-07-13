@@ -52,11 +52,7 @@ public static class OperationsChainExtensions
             throw new ArgumentNullException(nameof(chain));
         }
 
-        return chain.AddOperation((inputs) =>
-        {
-            var asyncResults = operationHandler(inputs);
-            return GetResultsAsync(asyncResults, isFinal);
-        });
+        return chain.AddOperation((inputs) => GetResultsAsync(operationHandler(inputs), isFinal));
     }
 
     private static IEnumerable<OperationResult<TResult>> GetResults<TResult>(

@@ -17,6 +17,7 @@ namespace QA.DotNetCore.Caching.Distributed
     public class RedisCacheProvider : ICacheProvider, ICacheInvalidator, IDistributedCacheProvider, IDisposable
     {
         private static readonly JsonSerializer s_serializer = JsonSerializer.CreateDefault();
+        private static readonly TimeSpan s_defaultLockEnterTimeout = TimeSpan.FromSeconds(5);
 
         private bool _disposedValue;
         private readonly IDistributedTaggedCache _cache;
@@ -80,13 +81,15 @@ namespace QA.DotNetCore.Caching.Distributed
             }
         }
 
-        public T GetOrAdd<T>(string cacheKey, string[] tags, TimeSpan expiration, Func<T> getValue, TimeSpan waitForCalculateTimeout = default)
+        public T GetOrAdd<T>(string cacheKey, string[] tags, TimeSpan expiration, Func<T> getValue, TimeSpan lockEnterTimeout = default)
         {
             MemoryStream getData() => SerializeData(getValue());
 
             try
             {
-                byte[] data = _cache.GetOrAdd(cacheKey, tags, expiration, getData);
+                FixupZeroLockEnterTimeout(ref lockEnterTimeout);
+
+                byte[] data = _cache.GetOrAdd(cacheKey, tags, expiration, getData, lockEnterTimeout);
                 return DeserializeData<T>(data);
             }
             catch (CacheDataSerializationException<T> ex)
@@ -101,22 +104,26 @@ namespace QA.DotNetCore.Caching.Distributed
         public TResult[] GetOrAdd<TId, TResult>(
             CacheInfo<TId>[] cacheInfos,
             DataValuesFactoryDelegate<TId, TResult> dataValuesFactory,
-            TimeSpan waitForCalculateTimeout = default)
+            TimeSpan lockEnterTimeout = default)
         {
             IEnumerable<MemoryStream> dataStreamsFactory(IEnumerable<CacheInfo<TId>> missingCacheInfos) =>
                 dataValuesFactory(missingCacheInfos).Select(SerializeData);
 
-            var dataResults = _cache.GetOrAdd(cacheInfos, dataStreamsFactory);
+            FixupZeroLockEnterTimeout(ref lockEnterTimeout);
+
+            var dataResults = _cache.GetOrAdd(cacheInfos, dataStreamsFactory, lockEnterTimeout);
             return dataResults.Select(DeserializeData<TResult>).ToArray();
         }
 
-        public async Task<T> GetOrAddAsync<T>(string cacheKey, string[] tags, TimeSpan expiration, Func<Task<T>> getValue, TimeSpan waitForCalculateTimeout = default)
+        public async Task<T> GetOrAddAsync<T>(string cacheKey, string[] tags, TimeSpan expiration, Func<Task<T>> getValue, TimeSpan lockEnterTimeout = default)
         {
             async Task<MemoryStream> getData() => SerializeData(await getValue());
 
             try
             {
-                byte[] data = await _cache.GetOrAddAsync(cacheKey, tags, expiration, getData);
+                FixupZeroLockEnterTimeout(ref lockEnterTimeout);
+
+                byte[] data = await _cache.GetOrAddAsync(cacheKey, tags, expiration, getData, lockEnterTimeout);
                 return DeserializeData<T>(data);
             }
             catch (CacheDataSerializationException<T> ex)
@@ -161,6 +168,14 @@ namespace QA.DotNetCore.Caching.Distributed
         }
 
         #endregion
+
+        private void FixupZeroLockEnterTimeout(ref TimeSpan lockEnterTimeout)
+        {
+            if (lockEnterTimeout == default)
+            {
+                lockEnterTimeout = s_defaultLockEnterTimeout;
+            }
+        }
 
         private static MemoryStream SerializeData<T>(T data)
         {

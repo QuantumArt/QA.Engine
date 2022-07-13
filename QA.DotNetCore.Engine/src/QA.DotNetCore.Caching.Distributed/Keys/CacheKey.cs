@@ -43,5 +43,8 @@ namespace QA.DotNetCore.Caching.Distributed
         public override bool Equals(object obj) => obj is CacheKey other && Equals(other);
 
         public override int GetHashCode() => ToString().GetHashCode();
+
+        public static CacheKey operator +(CacheKey key, string postfix) =>
+            new(key.Type, key.Key + postfix, key.Instance);
     }
 }

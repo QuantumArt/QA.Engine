@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace QA.DotNetCore.Caching.Distributed
 {
     [Serializable]
-    public class CacheDataSerializationException<TValue> : ApplicationException
+    internal class CacheDataSerializationException<TValue> : ApplicationException
     {
         public TValue Value { get; }
 

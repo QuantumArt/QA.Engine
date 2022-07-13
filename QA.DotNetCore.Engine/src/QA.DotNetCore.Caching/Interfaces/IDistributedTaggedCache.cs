@@ -21,6 +21,7 @@ namespace QA.DotNetCore.Caching.Interfaces
         IReadOnlyList<byte[]> GetOrAdd<TId>(
             CacheInfo<TId>[] dataInfos,
             DataValuesFactoryDelegate<TId, MemoryStream> dataStreamsFactory,
+            TimeSpan lockEnterWaitTimeout,
             CancellationToken token = default);
 
         /// <summary>
@@ -61,6 +62,7 @@ namespace QA.DotNetCore.Caching.Interfaces
         Task<IReadOnlyList<byte[]>> GetOrAddAsync<TId>(
             CacheInfo<TId>[] cacheInfos,
             AsyncDataValuesFactoryDelegate<TId, MemoryStream> dataStreamsFactory,
+            TimeSpan lockEnterWaitTimeout,
             CancellationToken token = default);
 
         /// <summary>

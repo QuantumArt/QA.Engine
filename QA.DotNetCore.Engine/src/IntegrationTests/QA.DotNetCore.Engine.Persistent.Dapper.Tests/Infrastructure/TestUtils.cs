@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Moq;
 using QA.DotNetCore.Caching;
 using QA.DotNetCore.Engine.QpData.Settings;
 using System;
@@ -23,7 +25,7 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure
         public static VersionedCacheCoreProvider CreateDefaultMemoryCacheProvider()
         {
             var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
-            return new VersionedCacheCoreProvider(memoryCache);
+            return new VersionedCacheCoreProvider(memoryCache, Mock.Of<ILogger>());
         }
     }
 }

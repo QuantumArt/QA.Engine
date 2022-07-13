@@ -51,7 +51,8 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             UploadUrl = "/upload"
         };
         private readonly VersionedCacheCoreProvider _cacheProvider = new VersionedCacheCoreProvider(
-            new MemoryCache(new MemoryCacheOptions()));
+            new MemoryCache(new MemoryCacheOptions()),
+            Mock.Of<ILogger>());
 
         [Fact]
         public void GeneralBuildIsCorrect()

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using QA.DotNetCore.Caching.Exceptions;
 using QA.DotNetCore.Caching.Helpers.Operations;
@@ -7,7 +8,6 @@ using System;
 using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,12 +21,19 @@ namespace QA.DotNetCore.Caching
     {
         private readonly IMemoryCache _cache;
         private readonly TimeSpan _defaultWaitForCalculateTimeout = TimeSpan.FromSeconds(5);
+        private readonly ILogger _logger;
         private static readonly ConcurrentDictionary<string, object> _lockers = new ConcurrentDictionary<string, object>();
         private static readonly ConcurrentDictionary<string, SemaphoreSlim> _semaphores = new ConcurrentDictionary<string, SemaphoreSlim>();
 
-        public VersionedCacheCoreProvider(IMemoryCache cache)
+        public VersionedCacheCoreProvider(IMemoryCache cache, ILogger logger)
         {
             _cache = cache;
+            _logger = logger;
+        }
+
+        public VersionedCacheCoreProvider(IMemoryCache cache, ILogger<VersionedCacheCoreProvider> genericLogger)
+            : this(cache, logger: genericLogger)
+        {
         }
 
         /// <summary>
@@ -141,9 +148,9 @@ namespace QA.DotNetCore.Caching
 
             try
             {
-                return new OperationsChain<CacheInfo<TId>, TResult>()
+                return new OperationsChain<CacheInfo<TId>, TResult>(_logger)
                     .AddOperation(GetExistingCache)
-                    .AddOperation((infos) => LockOrSetDeprecatedCache<TId, TResult>(infos, waitForCalculateTimeout, out locker))
+                    .AddOperation((infos) => LockOrGetDeprecatedCache<TId, TResult>(infos, waitForCalculateTimeout, out locker))
                     .AddOperation(GetExistingCache)
                     .AddOperation((infos) => GetAndCacheRealData(infos, dataValuesFactory))
                     .Execute(cacheInfos)
@@ -172,7 +179,7 @@ namespace QA.DotNetCore.Caching
             }
         }
 
-        private IEnumerable<OperationResult<TResult>> LockOrSetDeprecatedCache<TId, TResult>(
+        private IEnumerable<OperationResult<TResult>> LockOrGetDeprecatedCache<TId, TResult>(
             CacheInfo<TId>[] infos,
             TimeSpan lockEnterWaitTimeout,
             out IDisposable locker)

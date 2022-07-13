@@ -13,8 +13,8 @@ namespace QA.DotNetCore.Caching.Distributed
         private static readonly TimeSpan s_minLockExpiration = TimeSpan.FromMilliseconds(100);
         private static readonly TimeSpan s_defaultTagExpirationOffset = TimeSpan.FromSeconds(5);
         private static readonly TimeSpan s_defaultDeprecatedCacheTimeToLive = TimeSpan.FromSeconds(20);
-        private static readonly TimeSpan s_defaultLockExpiration = TimeSpan.FromSeconds(2);
-        private static readonly TimeSpan s_defaultRetryEnterLockInverval = TimeSpan.FromMilliseconds(10);
+        private static readonly TimeSpan s_defaultLockExpiration = TimeSpan.FromSeconds(12);
+        private static readonly TimeSpan s_defaultRetryEnterLockInverval = TimeSpan.FromMilliseconds(100);
 
         /// <summary>
         /// The configuration used to connect to Redis.

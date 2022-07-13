@@ -560,7 +560,6 @@ namespace QA.DotNetCore.Caching.Distributed
             RedisValue[] compactAttempts = _cache.StringGet(packKeys);
 
             /// TODO: Support compacting of batch of tags per one request (probably via lua script).
-            /// Alternative: Use Parallel.For.
             for (int i = 0; i < tags.Count; i++)
             {
                 CacheKey tag = tags[i];

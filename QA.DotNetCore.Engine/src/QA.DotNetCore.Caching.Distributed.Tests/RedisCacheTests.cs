@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
+using QA.DotNetCore.Caching.Exceptions;
 using QA.DotNetCore.Caching.Interfaces;
 using RedLockNet.SERedis;
 using RedLockNet.SERedis.Configuration;
@@ -604,7 +605,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             Assert.True(dataObtainingStartedEvent.WaitOne(eventTimeout));
 
             // Assert
-            _ = Assert.Throws<AggregateException>(() =>
+            _ = Assert.Throws<DeprecateCacheIsExpiredOrMissingException>(() =>
             {
                 // Act
                 _ = redisCache.GetOrAdd(

@@ -12,7 +12,7 @@ namespace QA.DotNetCore.Caching.Distributed
 {
     public partial class RedisCache
     {
-        private class KeyLockersCollection : IDisposable
+        private class KeyLockersCollection : IDisposable, IAsyncDisposable
         {
             private readonly IRedLock[] _lockers;
             private readonly IReadOnlyList<string> _keys;
@@ -70,7 +70,7 @@ namespace QA.DotNetCore.Caching.Distributed
                 {
                     var results = new OperationResult<CachedValue>[_keys.Count];
 
-                    _ = Parallel.For(0, _keys.Count, (i) =>
+                    for (int i = 0; i < _keys.Count; i++)
                     {
                         string cacheKey = _keys[i];
                         CachedValue previousValue = context.GetPreviousResult(i);
@@ -101,7 +101,7 @@ namespace QA.DotNetCore.Caching.Distributed
 
                             results[i] = new OperationResult<CachedValue>(previousValue, false);
                         }
-                    });
+                    }
 
                     LogLockingStatus();
 
@@ -132,17 +132,16 @@ namespace QA.DotNetCore.Caching.Distributed
 
                 try
                 {
-                    var lockerTasks = new Task<OperationResult<CachedValue>>[_keys.Count];
+                    var lockers = new OperationResult<CachedValue>[_keys.Count];
 
                     for (int i = 0; i < _keys.Count; i++)
                     {
-                        lockerTasks[i] = LockKeyAsync(i, lockEnterWaitTimeout, context);
+                        lockers[i] = await LockKeyAsync(i, lockEnterWaitTimeout, context);
                     }
 
-                    var results = await Task.WhenAll(lockerTasks);
                     LogLockingStatus();
 
-                    return results;
+                    return lockers;
                 }
                 catch
                 {
@@ -219,7 +218,7 @@ namespace QA.DotNetCore.Caching.Distributed
 
                 if (!IsAcquired(locker))
                 {
-                    throw new DeprecateCacheIsExpiredOrMissingException($"Lock enter is timed out for key '{cacheKey}'");
+                    throw new DeprecateCacheIsExpiredOrMissingException($"Unable to acquire lock for key '{cacheKey}'");
                 }
 
                 _logger.LogTrace(
@@ -237,11 +236,44 @@ namespace QA.DotNetCore.Caching.Distributed
             {
                 for (int i = _keys.Count - 1; i >= 0; i--)
                 {
-                    if (IsAcquired(_lockers[i]))
+                    _logger.LogTrace("Unlocking the key {CacheKey}", _keys[i]);
+                    _lockers[i]?.Dispose();
+                }
+            }
+
+            private async ValueTask UnlockAsync()
+            {
+                for (int i = _keys.Count - 1; i >= 0; i--)
+                {
+                    _logger.LogTrace("Unlocking the key {CacheKey}", _keys[i]);
+                    if (_lockers[i] is not null)
                     {
-                        _logger.LogTrace("The key {CacheKey} is unlocked", _keys[i]);
-                        _lockers[i].Dispose();
+                        await _lockers[i].DisposeAsync();
                     }
+                }
+            }
+
+            public async ValueTask DisposeAsync()
+            {
+                await InnerDisposeAsync();
+                Dispose(disposing: false);
+                GC.SuppressFinalize(this);
+            }
+
+            public void Dispose()
+            {
+                // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+                Dispose(disposing: true);
+                GC.SuppressFinalize(this);
+            }
+
+            protected virtual async ValueTask InnerDisposeAsync()
+            {
+                if (!_disposedValue)
+                {
+                    await UnlockAsync();
+
+                    _disposedValue = true;
                 }
             }
 
@@ -256,13 +288,6 @@ namespace QA.DotNetCore.Caching.Distributed
 
                     _disposedValue = true;
                 }
-            }
-
-            public void Dispose()
-            {
-                // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-                Dispose(disposing: true);
-                GC.SuppressFinalize(this);
             }
         }
     }

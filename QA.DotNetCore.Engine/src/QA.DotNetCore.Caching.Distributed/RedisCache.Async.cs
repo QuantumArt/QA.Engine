@@ -96,8 +96,8 @@ namespace QA.DotNetCore.Caching.Distributed
 
             await ConnectAsync(token);
 
-            IDisposable locker = null;
-            void SetLocker(IDisposable initializedLocker) => locker = initializedLocker;
+            IAsyncDisposable locker = null;
+            void SetLocker(IAsyncDisposable initializedLocker) => locker = initializedLocker;
 
             try
             {
@@ -114,7 +114,10 @@ namespace QA.DotNetCore.Caching.Distributed
             }
             finally
             {
-                locker?.Dispose();
+                if (locker is not null)
+                {
+                    await locker.DisposeAsync();
+                }
             }
         }
 
@@ -122,7 +125,7 @@ namespace QA.DotNetCore.Caching.Distributed
             CacheInfo<TId>[] infos,
             OperationContext<CachedValue> context,
             TimeSpan lockEnterWaitTimeout,
-            Action<IDisposable> handleLocker)
+            Action<IAsyncDisposable> handleLocker)
         {
             var cacheKeys = infos.Select(info => info.Key).ToList();
 

@@ -26,7 +26,7 @@ namespace QA.DotNetCore.Caching
         public void TrackChanges(IServiceProvider provider)
         {
             var checkId = Guid.NewGuid();
-            _logger.LogTrace($"Invalidation {checkId} started");
+            _logger.LogTrace("Invalidation {InvalidationId} started", checkId);
 
             var trackers = _trackersAccessor.Get(provider);
             if (trackers != null && trackers.Any())
@@ -62,12 +62,15 @@ namespace QA.DotNetCore.Caching
                         }
                     }
 
-                    _logger.LogTrace($"Invalidation {checkId} check result: ({String.Join(";", cacheTagsToUpdate)})");
+                    _logger.LogTrace(
+                        "Invalidation {InvalidationId} check result: ({InvalidTags})",
+                        checkId,
+                        cacheTagsToUpdate);
 
                     //инвалидируем кеш по обновившимся тегам
                     if (cacheTagsToUpdate.Any())
                     {
-                        _logger.LogInformation("Invalidate tags: {0}", String.Join(";", cacheTagsToUpdate));
+                        _logger.LogInformation("Invalidate tags: {InvalidTags}", cacheTagsToUpdate);
                         _cacheInvalidator.InvalidateByTags(cacheTagsToUpdate.ToArray());
                     }
                 }
@@ -76,8 +79,6 @@ namespace QA.DotNetCore.Caching
                 {
                     _modifications = newValues;
                 }
-
-                newValues = null;
             }
         }
     }

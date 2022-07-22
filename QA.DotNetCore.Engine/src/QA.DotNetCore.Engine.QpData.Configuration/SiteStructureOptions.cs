@@ -59,6 +59,11 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
         /// <param name="qpSettings"></param>
         public void UseQpSettings(QpSettings qpSettings)
         {
+            if (qpSettings is null)
+            {
+                throw new ArgumentNullException(nameof(qpSettings));
+            }
+
             SiteId = qpSettings.SiteId;
             IsStage = qpSettings.IsStage;
             QpConnectionString = qpSettings.ConnectionString;

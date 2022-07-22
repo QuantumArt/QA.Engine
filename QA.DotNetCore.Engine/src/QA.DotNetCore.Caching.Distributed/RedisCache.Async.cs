@@ -167,7 +167,7 @@ namespace QA.DotNetCore.Caching.Distributed
             _logger.LogInformation(
                 "Start obtaining real data for missing cache keys ({CacheKeys}).",
                 infos.Select(info => info.Key));
-            
+
             var tagKeysGroups = new CacheKey[infos.Length][];
             var allTagKeys = new List<CacheKey>(infos.Length);
 

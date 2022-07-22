@@ -15,14 +15,18 @@ namespace QA.DotNetCore.Caching
             get
             {
                 if (_instance != null)
+                {
                     return _instance;
+                }
 
                 var guid = Guid.NewGuid().ToString();
 
                 lock (_syncRoot)
                 {
                     if (_instance is null)
+                    {
                         _instance = new StandaloneNodeIdentifier(guid);
+                    }
 
                     return _instance;
                 }

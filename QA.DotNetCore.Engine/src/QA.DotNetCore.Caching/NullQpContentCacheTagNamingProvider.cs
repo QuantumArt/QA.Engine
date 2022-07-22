@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using QA.DotNetCore.Caching.Interfaces;
+using System.Collections.Generic;
 
 namespace QA.DotNetCore.Caching
 {

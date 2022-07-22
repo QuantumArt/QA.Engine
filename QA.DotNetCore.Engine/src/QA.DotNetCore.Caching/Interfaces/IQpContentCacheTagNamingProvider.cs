@@ -17,6 +17,6 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// <param name="siteId"></param>
         /// <param name="isStage"></param>
         /// <returns></returns>
-        Dictionary<int,string> GetByContentIds(int[] contentIds, int siteId, bool isStage);
+        Dictionary<int, string> GetByContentIds(int[] contentIds, int siteId, bool isStage);
     }
 }

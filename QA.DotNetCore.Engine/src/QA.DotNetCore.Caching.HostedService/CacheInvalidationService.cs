@@ -39,23 +39,22 @@ namespace QA.DotNetCore.Engine.CacheTags
 
         private void OnTick(object state)
         {
-            using (var scope = _factory.CreateScope())
-            {
-                _logger.LogDebug("Cache invalidation started");
-                _cacheTagWatcher.TrackChanges(scope.ServiceProvider);
-                _logger.LogDebug("Cache invalidation completed");
-            }
+            using var scope = _factory.CreateScope();
+
+            _logger.LogDebug("Cache invalidation started");
+            _cacheTagWatcher.TrackChanges(scope.ServiceProvider);
+            _logger.LogDebug("Cache invalidation completed");
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _timer.Change(_interval, _interval);
+            _ = _timer.Change(_interval, _interval);
             return Task.CompletedTask;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+            _ = _timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
             return Task.CompletedTask;
         }
 

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,15 +27,20 @@ public class AsyncOperationsChain<TInput, TResult>
 
     public async Task<IEnumerable<TResult>> ExecuteAsync(TInput[] inputs)
     {
+        var pipelineId = Guid.NewGuid();
         var allResults = new OperationResult<TResult>[inputs.Length];
         var context = new OperationContext<TResult>(allResults);
 
+        using var pipelineScope = _logger.BeginScope(new Dictionary<string, object> { ["PipelineId"] = pipelineId });
+
+        int stepIndex = 0;
         foreach (var operation in _operations)
         {
             _logger.LogTrace(
-                "Start pipeline step {Operation} for {Inputs} (count: {InputsCount})",
-                operation,
-                inputs,
+                "Start pipeline step {PipelineStep}/{PiplineStepsCount} (inputs count: {InputsCount})",
+                ++stepIndex,
+                _operations.Count,
+                pipelineId,
                 inputs.Length);
 
             IEnumerable<OperationResult<TResult>> operationResult = await operation(inputs, context).ToArrayAsync();

@@ -30,6 +30,8 @@ namespace QA.DotNetCore.Caching.Distributed
                 .Select(key => _keyFactory.CreateKey(key).GetRedisKey())
                 .ToArray();
 
+            Stopwatch watch = Stopwatch.StartNew();
+
             await ConnectAsync(token);
 
             var keyTtlTasks = dataKeys
@@ -38,7 +40,11 @@ namespace QA.DotNetCore.Caching.Distributed
 
             TimeSpan?[] keyTtls = await Task.WhenAll(keyTtlTasks);
 
-            _logger.LogTrace("Keys {Keys} have ttls: {KeyTtls}", keys, keyTtls);
+            _logger.LogTrace(
+                "Keys {Keys} have ttls: {KeyTtls} (Elapsed: {Elapsed})",
+                keys,
+                keyTtls,
+                watch.ElapsedMilliseconds);
 
             bool[] existFlags = keyTtls
                 .Select(ttl => ttl > _options.DeprecatedCacheTimeToLive)
@@ -65,12 +71,19 @@ namespace QA.DotNetCore.Caching.Distributed
                 .Select(_keyFactory.CreateKey)
                 .ToArray();
 
+            Stopwatch watch = Stopwatch.StartNew();
+
             await ConnectAsync(token);
 
             var cachedValuesWithStates = await GetWithStatesAsync(dataKeys);
 
-            return cachedValuesWithStates
-                .Select(result => result.State == KeyState.Exist ? result.Value : null);
+            var cachedData = cachedValuesWithStates
+                .Select(result => result.State == KeyState.Exist ? result.Value : null)
+                .ToList();
+
+            _logger.LogTrace("Obtained cached data (Elapsed: {Elapsed})", watch.ElapsedMilliseconds);
+
+            return cachedData;
         }
 
         public async Task<IReadOnlyList<byte[]>> GetOrAddAsync<TId>(
@@ -293,6 +306,8 @@ namespace QA.DotNetCore.Caching.Distributed
             RedisValue data,
             IEnumerable<Condition> conditions = null)
         {
+            Stopwatch watch = Stopwatch.StartNew();
+
             try
             {
                 ITransaction transaction = CreateSetCacheTransaction(key, tags, expiry, data, conditions, out var transactionOperations);
@@ -309,10 +324,11 @@ namespace QA.DotNetCore.Caching.Distributed
 
                 _logger.LogInformation(
                     "Set cache operation is finished " +
-                    "(isSet: {SetTransactionStatus}, expiry: {Expiration}, key: {CacheKey}).",
+                    "(isSet: {SetTransactionStatus}, expiry: {Expiration}, key: {CacheKey}, elapsed: {Elapsed})).",
                     isExecuted,
                     expiry,
-                    key);
+                    key,
+                    watch.ElapsedMilliseconds);
 
                 if (isExecuted)
                 {
@@ -324,7 +340,12 @@ namespace QA.DotNetCore.Caching.Distributed
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unable to set cache with the key {CacheKey}", key);
+                _logger.LogError(
+                    ex,
+                    "Unable to set cache with the key {CacheKey} (Elapsed: {Elapsed})",
+                    key,
+                    watch.ElapsedMilliseconds);
+
                 return false;
             }
         }
@@ -422,6 +443,8 @@ namespace QA.DotNetCore.Caching.Distributed
 
         private async Task CompactTagsAsync(IReadOnlyList<CacheKey> tags, TimeSpan expiry)
         {
+            Stopwatch watch = Stopwatch.StartNew();
+
             RedisKey[] packKeys = tags.Select(tag => _keyFactory.CreatePack(tag.Key).GetRedisKey()).ToArray();
             RedisValue[] compactAttempts = await _cache.StringGetAsync(packKeys);
 
@@ -436,6 +459,8 @@ namespace QA.DotNetCore.Caching.Distributed
             }
 
             await Task.WhenAll(transactionExecutions);
+
+            _logger.LogTrace("Tags compacting is finished (Elapsed: {Elapsed})", watch.ElapsedMilliseconds);
         }
 
         private async Task CompactTagAsync(TimeSpan expiry, CacheKey tag, RedisKey packKey, RedisValue compactAttempt)

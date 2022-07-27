@@ -143,6 +143,8 @@ namespace QA.DotNetCore.Caching.Distributed
 
         public string GetClientId(CancellationToken token = default)
         {
+            Stopwatch watch = Stopwatch.StartNew();
+
             Connect(token);
 
             const int maxAttempts = 20;
@@ -151,7 +153,10 @@ namespace QA.DotNetCore.Caching.Distributed
                 string guid = Guid.NewGuid().ToString();
                 if (_cache.StringSet(guid, string.Empty, when: When.NotExists))
                 {
-                    _logger.LogInformation("Selected new client id {ClientId}.", guid);
+                    _logger.LogInformation(
+                        "Selected new client id {ClientId} (Elapsed: {Elapsed}.",
+                        guid,
+                        watch.ElapsedMilliseconds);
                     return guid;
                 }
             }
@@ -175,6 +180,8 @@ namespace QA.DotNetCore.Caching.Distributed
                 .Select(key => _keyFactory.CreateKey(key).GetRedisKey())
                 .ToArray();
 
+            Stopwatch watch = Stopwatch.StartNew();
+
             Connect(token);
 
             var keyTtlTasks = dataKeys
@@ -183,7 +190,11 @@ namespace QA.DotNetCore.Caching.Distributed
 
             TimeSpan?[] keyTtls = _cache.Wait(Task.WhenAll(keyTtlTasks));
 
-            _logger.LogTrace("Keys {Keys} have ttls: {KeyTtls}", keys, keyTtls);
+            _logger.LogTrace(
+                "Keys {Keys} have ttls: {KeyTtls} (Elapsed: {Elapsed})",
+                keys,
+                keyTtls,
+                watch.ElapsedMilliseconds);
 
             bool[] existFlags = keyTtls
                 .Select(ttl => ttl > _options.DeprecatedCacheTimeToLive)
@@ -210,10 +221,17 @@ namespace QA.DotNetCore.Caching.Distributed
                 .Select(_keyFactory.CreateKey)
                 .ToArray();
 
+            Stopwatch watch = Stopwatch.StartNew();
+
             Connect(token);
 
-            return GetWithStates(dataKeys)
-                .Select(result => result.State == KeyState.Exist ? result.Value : null);
+            var cachedData = GetWithStates(dataKeys)
+                .Select(result => result.State == KeyState.Exist ? result.Value : null)
+                .ToList();
+
+            _logger.LogTrace("Obtained cached data (Elapsed: {Elapsed})", watch.ElapsedMilliseconds);
+
+            return cachedData;
         }
 
         public void Invalidate(string key, CancellationToken token = default)
@@ -414,6 +432,8 @@ namespace QA.DotNetCore.Caching.Distributed
             RedisValue data,
             IEnumerable<Condition> conditions = null)
         {
+            Stopwatch watch = Stopwatch.StartNew();
+
             try
             {
                 ITransaction transaction = CreateSetCacheTransaction(key, tags, expiry, data, conditions, out var transactionOperations);
@@ -430,10 +450,11 @@ namespace QA.DotNetCore.Caching.Distributed
 
                 _logger.LogInformation(
                     "Set cache operation is finished " +
-                    "(isSet: {SetTransactionStatus}, expiry: {Expiration}, key: {CacheKey}).",
+                    "(isSet: {SetTransactionStatus}, expiry: {Expiration}, key: {CacheKey}, elapsed: {Elapsed}).",
                     isExecuted,
                     expiry,
-                    key);
+                    key,
+                    watch.ElapsedMilliseconds);
 
                 if (isExecuted)
                 {
@@ -445,7 +466,12 @@ namespace QA.DotNetCore.Caching.Distributed
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unable to set cache with the key {CacheKey}", key);
+                _logger.LogError(
+                    ex,
+                    "Unable to set cache with the key {CacheKey} (Elapsed: {Elapsed})",
+                    key,
+                    watch.ElapsedMilliseconds);
+
                 return false;
             }
         }
@@ -556,6 +582,8 @@ namespace QA.DotNetCore.Caching.Distributed
 
         private void CompactTags(IReadOnlyList<CacheKey> tags, TimeSpan expiry)
         {
+            Stopwatch watch = Stopwatch.StartNew();
+
             RedisKey[] packKeys = tags.Select(tag => _keyFactory.CreatePack(tag.Key).GetRedisKey()).ToArray();
             RedisValue[] compactAttempts = _cache.StringGet(packKeys);
 
@@ -571,6 +599,8 @@ namespace QA.DotNetCore.Caching.Distributed
 
                 CheckCompactResult(tag, isCompacted, transactionOperations);
             }
+
+            _logger.LogTrace("Tags compacting is finished (Elapsed: {Elapsed})", watch.ElapsedMilliseconds);
         }
 
         private void CheckCompactResult(CacheKey tag, bool isCompacted, IEnumerable<Task> transactionOperations)

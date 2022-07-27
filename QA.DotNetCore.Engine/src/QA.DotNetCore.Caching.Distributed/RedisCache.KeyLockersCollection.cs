@@ -66,6 +66,7 @@ namespace QA.DotNetCore.Caching.Distributed
             {
                 ValidateLockEnterTimeout(lockEnterWaitTimeout);
 
+                var totalWatch = Stopwatch.StartNew();
                 try
                 {
                     var results = new OperationResult<CachedValue>[_keys.Count];
@@ -103,12 +104,13 @@ namespace QA.DotNetCore.Caching.Distributed
                         }
                     }
 
-                    LogLockingStatus();
+                    LogLockingStatus(totalWatch);
 
                     return results;
                 }
                 catch
                 {
+                    LogLockingFailure(totalWatch);
                     Unlock();
                     throw;
                 }
@@ -130,6 +132,7 @@ namespace QA.DotNetCore.Caching.Distributed
             {
                 ValidateLockEnterTimeout(lockEnterWaitTimeout);
 
+                var totalWatch = Stopwatch.StartNew();
                 try
                 {
                     var lockers = new OperationResult<CachedValue>[_keys.Count];
@@ -139,12 +142,13 @@ namespace QA.DotNetCore.Caching.Distributed
                         lockers[i] = await LockKeyAsync(i, lockEnterWaitTimeout, context);
                     }
 
-                    LogLockingStatus();
+                    LogLockingStatus(totalWatch);
 
                     return lockers;
                 }
                 catch
                 {
+                    LogLockingFailure(totalWatch);
                     Unlock();
                     throw;
                 }
@@ -196,7 +200,10 @@ namespace QA.DotNetCore.Caching.Distributed
                 }
             }
 
-            private void LogLockingStatus()
+            private void LogLockingFailure(Stopwatch totalWatch) =>
+                _logger.LogTrace("Unable to lock keys (Elapsed: {Elapsed})", totalWatch.ElapsedMilliseconds);
+
+            private void LogLockingStatus(Stopwatch watch)
             {
                 if (_logger.IsEnabled(LogLevel.Trace))
                 {
@@ -207,7 +214,10 @@ namespace QA.DotNetCore.Caching.Distributed
 
                     if (lockedKeys.Any())
                     {
-                        _logger.LogInformation("Keys ({CacheKeys}) are locked", lockedKeys);
+                        _logger.LogInformation(
+                            "Keys ({CacheKeys}) are locked (Elapsed: {Elapsed})",
+                            lockedKeys,
+                            watch.ElapsedMilliseconds);
                     }
                 }
             }

@@ -39,7 +39,7 @@ namespace QA.DotNetCore.Engine.Abstractions
         }
 
         /// <summary>
-        /// Созданение элементов в словаре
+        /// Создание элементов в словаре
         /// </summary>
         /// <param name="abstractItems"></param>
         private void AddItems(IEnumerable<IAbstractItem> abstractItems)

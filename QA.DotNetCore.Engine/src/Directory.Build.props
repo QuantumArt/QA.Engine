@@ -1,9 +1,9 @@
 <Project>
   <PropertyGroup>
     <LangVersion>10.0</LangVersion>
-    <Version>2.1.5</Version>
-    <AssemblyVersion>2.1.5.0</AssemblyVersion>
-    <FileVersion>2.1.5.0</FileVersion>
+    <Version>2.1.6-beta1</Version>
+    <AssemblyVersion>2.1.6.0</AssemblyVersion>
+    <FileVersion>2.1.6.0</FileVersion>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>

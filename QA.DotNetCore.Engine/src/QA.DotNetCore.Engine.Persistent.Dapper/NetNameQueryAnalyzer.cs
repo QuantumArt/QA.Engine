@@ -20,19 +20,19 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             _metaInfoRepository = metaInfoRepository;
         }
 
-        public IEnumerable<string> GetContentTableNames(string netNameQuery, int siteId, bool isStage, bool useUnited = false)
+        public IEnumerable<string> GetContentNetNames(string netNameQuery, int siteId, bool isStage, bool useUnited = false)
         {
             if (netNameQuery is null)
+            {
                 throw new ArgumentNullException(nameof(netNameQuery));
+            }
 
             var contentNetNames = GetTableColumnPairs(netNameQuery)
                 .Select(pair => pair.Table)
                 .Distinct()
                 .ToArray();
-            ContentPersistentData[] contentsMetadata = GetContentsMetadata(contentNetNames, siteId);
 
-            foreach (var metadata in contentsMetadata)
-                yield return GetContentTableName(metadata, isStage, useUnited);
+            return contentNetNames;
         }
 
         public string PrepareQuery(string netNameQuery, int siteId, bool isStage, bool useUnited = false)

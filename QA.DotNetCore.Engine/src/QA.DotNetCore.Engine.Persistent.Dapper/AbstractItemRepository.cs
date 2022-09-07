@@ -64,8 +64,8 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
             var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAbstractItem, siteId, isStage);
 
             var cacheKey = $"{nameof(AbstractItemRepository)}.{nameof(GetPlainAllAbstractItems)}({siteId},{isStage})";
-            var cacheTags = _netNameQueryAnalyzer.GetContentTableNames(CmdGetAbstractItem, siteId, isStage)
-                .Select(name => _qpContentCacheTagNamingProvider.Get(name, siteId, isStage))
+            var cacheTags = _netNameQueryAnalyzer.GetContentNetNames(CmdGetAbstractItem, siteId, isStage)
+                .Select(name => _qpContentCacheTagNamingProvider.GetByNetName(name, siteId, isStage))
                 .ToArray();
             var expiry = _cacheSettings.SiteStructureCachePeriod;
 

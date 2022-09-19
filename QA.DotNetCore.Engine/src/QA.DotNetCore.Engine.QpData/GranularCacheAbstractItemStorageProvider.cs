@@ -96,7 +96,7 @@ namespace QA.DotNetCore.Engine.QpData
                 var cacheKey = $"{nameof(GranularCacheAbstractItemStorageProvider)}.{nameof(GetCachedAbstractItems)}({extensionContentId})";
 
                 var tags = cacheTags.ExtensionsTags.TryGetValue(extensionContentId, out var extCacheTag)
-                    ? new[] { cacheTags.ItemDefinitionTag, extCacheTag }
+                    ? new[] { cacheTags.ItemDefinitionTag, cacheTags.AbstractItemTag, extCacheTag }
                     : new[] { cacheTags.ItemDefinitionTag, cacheTags.AbstractItemTag };
 
                 AbstractItem[] abstractItems = _cacheProvider.GetOrAdd(

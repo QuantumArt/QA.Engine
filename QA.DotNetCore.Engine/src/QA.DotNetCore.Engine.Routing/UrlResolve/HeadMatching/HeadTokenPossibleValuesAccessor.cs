@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using QA.DotNetCore.Engine.Abstractions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -32,7 +33,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching
                 fullDictionary = (Dictionary<string, IEnumerable<string>>)httpContext.Items[HttpContextItemKey];
             }
             if (fullDictionary == null)
-            { 
+            {
                 fullDictionary = GetFullDictionary();
                 httpContext.Items[HttpContextItemKey] = fullDictionary;
             }
@@ -40,7 +41,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching
             if (fullDictionary.ContainsKey(key))
                 return fullDictionary[key].ToArray();
 
-            return new string[0];
+            return Array.Empty<string>();
         }
 
         private const string HttpContextItemKey = "HeadTokenPossibleValues";

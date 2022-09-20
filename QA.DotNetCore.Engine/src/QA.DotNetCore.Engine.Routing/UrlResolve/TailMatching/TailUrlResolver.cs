@@ -20,7 +20,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching
 
         public IDictionary<string, object> ResolveRouteValues(string tail, string controllerName)
         {
-            var controllerKey = UrlTokenConfig.TailPatternsByControllers?.Keys?.FirstOrDefault(k => k.Equals(controllerName, StringComparison.InvariantCultureIgnoreCase));
+            var controllerKey = UrlTokenConfig.TailPatternsByControllers?.Keys?.FirstOrDefault(k => k.Equals(controllerName, StringComparison.OrdinalIgnoreCase));
             var patterns = controllerKey == null ?
                 new List<TailUrlMatchingPattern>() :
                 UrlTokenConfig.TailPatternsByControllers[controllerKey];

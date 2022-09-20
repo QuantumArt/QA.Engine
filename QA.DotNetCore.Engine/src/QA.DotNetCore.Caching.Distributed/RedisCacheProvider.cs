@@ -1,3 +1,4 @@
+using ICSharpCode.SharpZipLib.GZip;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using QA.DotNetCore.Caching.Interfaces;
@@ -16,7 +17,12 @@ namespace QA.DotNetCore.Caching.Distributed
     /// </summary>
     public class RedisCacheProvider : ICacheProvider, ICacheInvalidator, IDistributedCacheProvider, IDisposable
     {
-        private static readonly JsonSerializer s_serializer = JsonSerializer.CreateDefault();
+        private static readonly JsonSerializer s_serializer = JsonSerializer.CreateDefault(
+            new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                DefaultValueHandling = DefaultValueHandling.Ignore,
+            });
         private static readonly TimeSpan s_defaultLockEnterTimeout = TimeSpan.FromSeconds(5);
 
         private bool _disposedValue;
@@ -182,15 +188,15 @@ namespace QA.DotNetCore.Caching.Distributed
             try
             {
                 var stream = new MemoryStream();
+                var compressedStream = new GZipOutputStream(stream);
+                using var writer = new StreamWriter(compressedStream, Encoding.UTF8, bufferSize: -1, leaveOpen: true);
+                using var jsonWriter = new JsonTextWriter(writer);
 
-                using (var writer = new StreamWriter(stream, Encoding.UTF8, bufferSize: -1, leaveOpen: true))
-                using (var jsonWriter = new JsonTextWriter(writer))
-                {
-                    s_serializer.Serialize(jsonWriter, data);
-                    jsonWriter.Flush();
+                s_serializer.Serialize(jsonWriter, data);
+                jsonWriter.Flush();
+                compressedStream.Finish();
 
-                    return stream;
-                }
+                return stream;
             }
             catch (Exception ex)
             {
@@ -200,12 +206,12 @@ namespace QA.DotNetCore.Caching.Distributed
 
         private static T DeserializeData<T>(byte[] data)
         {
-            using (var stream = new MemoryStream(data, false))
-            using (var reader = new StreamReader(stream, Encoding.UTF8))
-            using (var jsonReader = new JsonTextReader(reader))
-            {
-                return s_serializer.Deserialize<T>(jsonReader);
-            }
+            using var stream = new MemoryStream(data, false);
+            using var decompressedStream = new GZipInputStream(stream);
+            using var reader = new StreamReader(decompressedStream, Encoding.UTF8);
+            using var jsonReader = new JsonTextReader(reader);
+
+            return s_serializer.Deserialize<T>(jsonReader);
         }
     }
 }

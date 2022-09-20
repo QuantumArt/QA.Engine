@@ -35,7 +35,7 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests
             {
                 var defs = _repository.GetAllItemDefinitions(Global.SiteId, false);
 
-                var startPageDef = defs.FirstOrDefault(d => d.Discriminator.Equals("start_page", StringComparison.InvariantCultureIgnoreCase));
+                var startPageDef = defs.FirstOrDefault(d => d.Discriminator.Equals("start_page", StringComparison.OrdinalIgnoreCase));
 
                 Assert.IsNotNull(startPageDef);
                 Assert.AreEqual(startPageDef.TypeName, "StartPage");

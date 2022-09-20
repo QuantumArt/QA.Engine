@@ -14,10 +14,10 @@ namespace QA.DotNetCore.Engine.Persistent.Interfaces.Data
         {
             get
             {
-                var percentage = new int[0];
+                var percentage = Array.Empty<int>();
                 if (PercentageStr != null)
                 {
-                    percentage = PercentageStr.Split(new char[] { ',', ';'}, StringSplitOptions.RemoveEmptyEntries)
+                    percentage = PercentageStr.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
                         .Select(_ => Int32.TryParse(_.Trim(), out int tmp) ? tmp : 0)
                         .Select(_ => _ < 0 ? 0 : _)
                         .ToArray();

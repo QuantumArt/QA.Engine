@@ -1,4 +1,4 @@
-using QA.DotNetCore.Engine.Abstractions.Targeting;
+using System;
 
 namespace QA.DotNetCore.Engine.Abstractions.Targeting
 {
@@ -6,7 +6,7 @@ namespace QA.DotNetCore.Engine.Abstractions.Targeting
     {
         public string[] GetTargetingKeys()
         {
-            return new string[0];
+            return Array.Empty<string>();
         }
 
         public object GetTargetingValue(string key)

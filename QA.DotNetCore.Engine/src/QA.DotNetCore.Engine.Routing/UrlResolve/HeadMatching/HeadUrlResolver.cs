@@ -221,7 +221,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching
                 {
                     //если токен может быть заменен на ограниченное множество возможных значений
                     //надо проверить, что значение из урла принадлежит этому множеству
-                    result = possibleValues.FirstOrDefault(v => v.Equals(segments[tokenPosition], StringComparison.InvariantCultureIgnoreCase));
+                    result = possibleValues.FirstOrDefault(v => v.Equals(segments[tokenPosition], StringComparison.OrdinalIgnoreCase));
                     return result != null;
                 }
 

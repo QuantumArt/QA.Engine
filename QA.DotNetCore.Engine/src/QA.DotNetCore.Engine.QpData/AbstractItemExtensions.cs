@@ -5,7 +5,7 @@ namespace QA.DotNetCore.Engine.QpData
 {
     public static class AbstractItemExtensions
     {
-        static readonly char[] ArrayDelimiters = new char[] { '\n', '\r', ';', ' ', ',' };
+        private static readonly char[] ArrayDelimiters = new char[] { '\n', '\r', ';', ' ', ',' };
 
         public static string[] GetBindings(this AbstractItem item)
         {
@@ -17,7 +17,7 @@ namespace QA.DotNetCore.Engine.QpData
                     .Select(_ => _.Trim())
                     .ToArray();
             }
-            return new string[0];
+            return Array.Empty<string>();
         }
 
         public static string[] GetAllowedUrlPatterns(this AbstractItem item)
@@ -30,7 +30,7 @@ namespace QA.DotNetCore.Engine.QpData
                     .Select(_ => _.Trim())
                     .ToArray();
             }
-            return new string[0];
+            return Array.Empty<string>();
         }
 
         public static string[] GetDeniedUrlPatterns(this AbstractItem item)
@@ -43,7 +43,7 @@ namespace QA.DotNetCore.Engine.QpData
                     .Select(_ => _.Trim())
                     .ToArray();
             }
-            return new string[0];
+            return Array.Empty<string>();
         }
     }
 }

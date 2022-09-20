@@ -1,3 +1,5 @@
+using System;
+
 namespace QA.DotNetCore.Engine.Persistent.Interfaces.Data
 {
     public abstract class AbTestContainerBasePersistentData
@@ -14,9 +16,11 @@ namespace QA.DotNetCore.Engine.Persistent.Interfaces.Data
 
         public string DeniedUrlPatternsStr { get; set; }
 
-        public string[] AllowedUrlPatterns { get { return AllowedUrlPatternsStr != null ? AllowedUrlPatternsStr.Split('\n') : new string[0]; } }
+        public string[] AllowedUrlPatterns =>
+            AllowedUrlPatternsStr != null ? AllowedUrlPatternsStr.Split('\n') : Array.Empty<string>();
 
-        public string[] DeniedUrlPatterns { get { return DeniedUrlPatternsStr != null ? DeniedUrlPatternsStr.Split('\n') : new string[0]; } }
+        public string[] DeniedUrlPatterns =>
+            DeniedUrlPatternsStr != null ? DeniedUrlPatternsStr.Split('\n') : Array.Empty<string>();
 
         public string Domain { get; set; }
 

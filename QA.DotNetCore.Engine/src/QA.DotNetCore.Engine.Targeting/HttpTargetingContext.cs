@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
+using System;
 
 namespace QA.DotNetCore.Engine.Targeting
 {
@@ -9,8 +10,8 @@ namespace QA.DotNetCore.Engine.Targeting
     public class HttpTargetingContext : ITargetingContext
     {
         public const string TargetingKeysContextKey = "HttpTargetingContext.Keys";
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        readonly IHttpContextAccessor _httpContextAccessor;
         public HttpTargetingContext(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
@@ -18,7 +19,9 @@ namespace QA.DotNetCore.Engine.Targeting
 
         public string[] GetTargetingKeys()
         {
-            return (_httpContextAccessor.HttpContext.Items[TargetingKeysContextKey] as string[]) ?? new string[0];
+            return _httpContextAccessor.HttpContext.Items[TargetingKeysContextKey] is string[] targetingKeys
+                ? targetingKeys
+                : Array.Empty<string>();
         }
 
         public object GetTargetingValue(string key)

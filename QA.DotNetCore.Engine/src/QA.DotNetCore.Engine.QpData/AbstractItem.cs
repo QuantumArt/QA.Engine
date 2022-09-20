@@ -124,7 +124,7 @@ namespace QA.DotNetCore.Engine.QpData
         public virtual IEnumerable<int> GetRelationIds(string name)
         {
             if (M2mRelations == null)
-                return new int[0];
+                return Enumerable.Empty<int>();
             var relationId = GetDetail(name, 0);
             return M2mRelations.GetRelationValue(relationId);
         }

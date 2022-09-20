@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
-using System.Web;
 
 namespace QA.DotNetCore.Engine.Routing.UrlResolve
 {
@@ -13,22 +12,20 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
     public class Url
     {
         #region Fields
-        const string Amp = "&";
-
-        static readonly string[] querySplitter = new[] { "&amp;", Amp };
-        static readonly char[] slashes = new char[] { '/' };
-        static readonly char[] dotsAndSlashes = new char[] { '.', '/' };
-        static string defaultExtension = "";
-        static string authorityPrefix = "//";
-        static string schemePostfix = ":";
-        static Dictionary<string, string> replacements = new Dictionary<string, string>();
-
-        string _scheme;
-        string _authority;
-        string _path;
-        string _query;
-        string _fragment;
-        bool? _forcedAddTrailingSlashes = null;
+        private const string Amp = "&";
+        private static readonly string[] querySplitter = new[] { "&amp;", Amp };
+        private static readonly char[] slashes = new char[] { '/' };
+        private static readonly char[] dotsAndSlashes = new char[] { '.', '/' };
+        private static string defaultExtension = "";
+        private static readonly string authorityPrefix = "//";
+        private static readonly string schemePostfix = ":";
+        private static readonly Dictionary<string, string> replacements = new Dictionary<string, string>();
+        private string _scheme;
+        private string _authority;
+        private string _path;
+        private string _query;
+        private string _fragment;
+        private readonly bool? _forcedAddTrailingSlashes = null;
         #endregion
 
         public Url(Url other)
@@ -98,7 +95,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
         public static bool AddTrailingSlashes { get; set; }
         public static bool LowercasePath { get; set; }
 
-        void ClearUrl()
+        private void ClearUrl()
         {
             _scheme = null;
             _authority = null;
@@ -107,7 +104,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
             _fragment = null;
         }
 
-        void LoadSiteRelativeUrl(string url, int queryIndex, int hashIndex)
+        private void LoadSiteRelativeUrl(string url, int queryIndex, int hashIndex)
         {
             _scheme = null;
             _authority = null;
@@ -123,7 +120,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
             _path = CheckPath(_path);
         }
 
-        void LoadBasedUrl(string url, int queryIndex, int hashIndex, int authorityIndex)
+        private void LoadBasedUrl(string url, int queryIndex, int hashIndex, int authorityIndex)
         {
             if (authorityIndex > 0)
                 _scheme = url.Substring(0, authorityIndex - schemePostfix.Length);
@@ -148,7 +145,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
             }
         }
 
-        void LoadQuery(string url, int queryIndex, int hashIndex)
+        private void LoadQuery(string url, int queryIndex, int hashIndex)
         {
             if (hashIndex >= 0 && queryIndex >= 0)
                 _query = EmptyToNull(url.Substring(queryIndex + 1, hashIndex - queryIndex - 1));
@@ -158,7 +155,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
                 _query = null;
         }
 
-        void LoadFragment(string url, int hashIndex)
+        private void LoadFragment(string url, int hashIndex)
         {
             if (hashIndex >= 0)
                 _fragment = EmptyToNull(url.Substring(hashIndex + 1));
@@ -224,7 +221,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
                 string appPath = ApplicationPath;
                 if (appPath.Equals("/"))
                     return "~" + Path;
-                if (Path.StartsWith(appPath, StringComparison.InvariantCultureIgnoreCase))
+                if (Path.StartsWith(appPath, StringComparison.OrdinalIgnoreCase))
                     return Path.Substring(appPath.Length);
                 return Path;
             }
@@ -255,18 +252,15 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
             get { return RemoveAnyExtension(_path); }
         }
 
-
         public string PathAndQuery
         {
             get { return string.IsNullOrEmpty(Query) ? Path : Path + "?" + Query; }
         }
 
-
         public string Fragment
         {
             get { return _fragment; }
         }
-
 
         public bool IsAbsolute
         {
@@ -288,7 +282,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
                 }
             }
             else
-            { 
+            {
                 url = _path;
             }
 
@@ -318,7 +312,6 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
         {
             if (path == null || path.Length == 0 /*|| (path.Length == 1 && path == "/")*/)
                 return path;
-
 
             if ((_forcedAddTrailingSlashes.HasValue
                 ? _forcedAddTrailingSlashes.Value
@@ -350,7 +343,6 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
             return Parse(url);
         }
 
-
         public static string PathPart(string url)
         {
             url = RemoveHash(url);
@@ -362,7 +354,6 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
             return url;
         }
 
-
         public static string QueryPart(string url)
         {
             url = RemoveHash(url);
@@ -373,11 +364,10 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
             return string.Empty;
         }
 
-        static int QueryIndex(string url)
+        private static int QueryIndex(string url)
         {
             return url.IndexOf('?');
         }
-
 
         public static string DefaultExtension
         {
@@ -387,7 +377,8 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
 
         public static string RemoveHash(string url)
         {
-            if (url == null) return null;
+            if (url == null)
+                return null;
 
             int hashIndex = url.IndexOf('#');
             if (hashIndex >= 0)
@@ -395,17 +386,16 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
             return url;
         }
 
-
         public static Url Parse(string url, bool? addTrailingSlash = null)
         {
-            if (url == null) return null;
+            if (url == null)
+                return null;
 
             if (url.StartsWith("~"))
                 url = ToAbsolute(url);
 
             return new Url(url, addTrailingSlash);
         }
-
 
         public static Url ParseTokenized(string url)
         {
@@ -498,7 +488,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
             string[] queries = _query.Split(querySplitter, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < queries.Length; i++)
             {
-                if (queries[i].StartsWith(key + "=", StringComparison.InvariantCultureIgnoreCase))
+                if (queries[i].StartsWith(key + "=", StringComparison.OrdinalIgnoreCase))
                 {
                     if (value != null)
                     {
@@ -653,7 +643,6 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
             return PrependSegment(segment, Extension);
         }
 
-
         public Url UpdateQuery(NameValueCollection queryString)
         {
             Url u = new Url(this);
@@ -687,7 +676,6 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
             return u;
         }
 
-
         public Url RemoveExtension()
         {
             return new Url(_scheme, _authority, PathWithoutExtension, _query, _fragment, _forcedAddTrailingSlashes);
@@ -695,7 +683,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
 
         public Url RemoveExtension(params string[] validExtensions)
         {
-            var pathExtension = Array.Find(validExtensions, x => _path.EndsWith(x, StringComparison.InvariantCultureIgnoreCase));
+            var pathExtension = Array.Find(validExtensions, x => _path.EndsWith(x, StringComparison.OrdinalIgnoreCase));
             if (pathExtension == null)
             {
                 return this;
@@ -754,7 +742,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
             return path;
         }
 
-        static string applicationPath;
+        private static string applicationPath;
 
         /// <summary>
         /// Адрес веб-приложения
@@ -952,7 +940,8 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
 
         public static void SetToken(string token, string value)
         {
-            if (token == null) throw new ArgumentNullException("key");
+            if (token == null)
+                throw new ArgumentNullException("key");
 
             if (value != null)
             {
@@ -986,7 +975,9 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
         public string[] GetReversedDomains()
         {
             if (Authority == null)
-                return new string[0];
+            {
+                return Array.Empty<string>();
+            }
 
             return Authority
                 .Split('.')

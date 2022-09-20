@@ -482,7 +482,7 @@ namespace QA.DotNetCore.Engine.QpData
             //проведём замены в некоторых значениях доп полей
             foreach (var key in details.Keys)
             {
-                if (m2mFieldNames.Any() && key == "CONTENT_ITEM_ID")
+                if (m2mFieldNames.Any() && key.Equals("CONTENT_ITEM_ID", StringComparison.OrdinalIgnoreCase))
                 {
                     extensionContentItemId = Convert.ToInt32(details[key]);
                 }
@@ -496,7 +496,7 @@ namespace QA.DotNetCore.Engine.QpData
 
                     //2) проверим, является ли это поле ссылкой на файл, тогда нужно преобразовать его в полный урл
                     var fileField = fileFields.FirstOrDefault(f =>
-                        f.ColumnName.Equals(key, StringComparison.InvariantCultureIgnoreCase));
+                        f.ColumnName.Equals(key, StringComparison.OrdinalIgnoreCase));
                     if (fileField != null)
                     {
                         var baseUrl = qpUrlResolver.UrlForImage(buildSettings.SiteId, fileField);

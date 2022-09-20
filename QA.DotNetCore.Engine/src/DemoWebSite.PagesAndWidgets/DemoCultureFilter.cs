@@ -1,13 +1,12 @@
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
-using QA.DotNetCore.Engine.Targeting.Filters;
 using System;
 
 namespace DemoWebSite.PagesAndWidgets
 {
     public class DemoCultureFilter : BaseTargetingFilter
     {
-        ITargetingContext _ctx;
+        private readonly ITargetingContext _ctx;
 
         public DemoCultureFilter(ITargetingContext ctx)
         {
@@ -26,7 +25,7 @@ namespace DemoWebSite.PagesAndWidgets
 
             var ctxStrVal = ctxVal as string;
             var stringVal = val as string;
-            return String.IsNullOrWhiteSpace(stringVal) ? true : stringVal.Equals(ctxStrVal, StringComparison.InvariantCultureIgnoreCase);
+            return String.IsNullOrWhiteSpace(stringVal) ? true : stringVal.Equals(ctxStrVal, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

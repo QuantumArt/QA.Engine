@@ -2,7 +2,6 @@ using QA.DotNetCore.Engine.Routing.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching
@@ -89,7 +88,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching
                     if (patternSegment.ConstValue != null)
                     {
                         //если в шаблоне на этой позиции задана фиксированная строка, то в хвосте она тоже должна быть
-                        if (!patternSegment.ConstValue.Equals(tailSegments[index], StringComparison.InvariantCultureIgnoreCase))
+                        if (!patternSegment.ConstValue.Equals(tailSegments[index], StringComparison.OrdinalIgnoreCase))
                         {
                             return new TailUrlMatchResult { IsMatch = false };
                         }
@@ -145,7 +144,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching
         private static bool CompareSegmentAndVariativeValue(string tailSegment, MatchingPatternSegment patternSegment)
         {
             for (int variativeIndex = 0; variativeIndex < patternSegment.VariativeValues.Length; variativeIndex++)
-                if (string.Equals(tailSegment, patternSegment.VariativeValues[variativeIndex], StringComparison.InvariantCultureIgnoreCase))
+                if (string.Equals(tailSegment, patternSegment.VariativeValues[variativeIndex], StringComparison.OrdinalIgnoreCase))
                     return true;
 
             return false;

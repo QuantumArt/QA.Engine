@@ -26,12 +26,22 @@ namespace QA.DotNetCore.Engine.QpData
             get
             {
                 if (LazyDetails?.Value is null)
+                {
                     return new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+                }
 
-                return LazyDetails.Value.Keys.ToDictionary(
-                    fieldName => fieldName,
-                    fieldName => GetUntypedDetail(fieldName),
-                    StringComparer.OrdinalIgnoreCase);
+                Dictionary<string, object> details = new(LazyDetails.Value.Count);
+
+                foreach (var fieldName in LazyDetails.Value.Keys)
+                {
+                    var fieldValue = GetUntypedDetail(fieldName);
+                    if (fieldValue is not null)
+                    {
+                        details.Add(fieldName, fieldValue);
+                    }
+                }
+
+                return details;
             }
         }
 
@@ -39,7 +49,7 @@ namespace QA.DotNetCore.Engine.QpData
 
         private object GetUntypedDetail(string fieldName)
         {
-            if (M2mFieldNames.Any(fn => fn.Equals(fieldName, StringComparison.InvariantCultureIgnoreCase)))
+            if (M2mFieldNames.Any(fn => fn.Equals(fieldName, StringComparison.OrdinalIgnoreCase)))
                 return GetRelationIds(fieldName);
 
             return LazyDetails?.Value?.Get(fieldName, typeof(object));

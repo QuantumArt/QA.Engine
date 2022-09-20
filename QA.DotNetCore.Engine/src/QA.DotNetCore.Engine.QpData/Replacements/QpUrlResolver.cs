@@ -111,7 +111,7 @@ namespace QA.DotNetCore.Engine.QpData.Replacements
 
         private static string ConvertUrlToSchemaInvariant(string prefix)
         {
-            if (prefix.StartsWith("http://", StringComparison.InvariantCultureIgnoreCase))
+            if (prefix.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
             {
                 prefix = "//" + prefix.Substring(7);
             }

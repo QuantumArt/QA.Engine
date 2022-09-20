@@ -50,7 +50,7 @@ namespace QA.DotNetCore.Engine.Abstractions.Targeting
 
     public class DelegateFilter : BaseTargetingFilter
     {
-        readonly Func<IAbstractItem, bool> _isPositiveMatch;
+        private readonly Func<IAbstractItem, bool> _isPositiveMatch;
 
         public DelegateFilter(Func<IAbstractItem, bool> isPositiveMatch)
         {
@@ -65,11 +65,11 @@ namespace QA.DotNetCore.Engine.Abstractions.Targeting
 
     public class UnitedFilter : BaseTargetingFilter
     {
-        private ITargetingFilter[] filters;
+        private readonly ITargetingFilter[] filters;
 
         public UnitedFilter(params ITargetingFilter[] filters)
         {
-            this.filters = filters ?? new ITargetingFilter[0];
+            this.filters = filters ?? Array.Empty<ITargetingFilter>();
         }
 
         public UnitedFilter(IEnumerable<ITargetingFilter> filters)
@@ -90,12 +90,16 @@ namespace QA.DotNetCore.Engine.Abstractions.Targeting
             IEnumerable<T> filtered = items;
             foreach (var filter in filters)
             {
-                filtered = filter
+                var filteredArray = filter
                     .Pipe(filtered)
-                    .ToList();
+                    .ToArray();
 
-                if (!filtered.Any())
+                if (filteredArray.Length == 0)
+                {
                     break;
+                }
+
+                filtered = filteredArray;
             }
 
             return filtered;

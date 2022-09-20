@@ -94,12 +94,12 @@ namespace QA.DotNetCore.Engine.Abstractions.Targeting
                     .Pipe(filtered)
                     .ToArray();
 
+                filtered = filteredArray;
+
                 if (filteredArray.Length == 0)
                 {
                     break;
                 }
-
-                filtered = filteredArray;
             }
 
             return filtered;

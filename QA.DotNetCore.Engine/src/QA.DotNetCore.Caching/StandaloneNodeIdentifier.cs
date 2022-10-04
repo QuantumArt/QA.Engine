@@ -1,5 +1,6 @@
 using QA.DotNetCore.Caching.Interfaces;
 using System;
+using System.Threading;
 
 namespace QA.DotNetCore.Caching
 {
@@ -38,6 +39,6 @@ namespace QA.DotNetCore.Caching
             _guid = guid ?? throw new ArgumentNullException(nameof(guid));
         }
 
-        public string GetUniqueId() => _guid;
+        public string GetUniqueId(CancellationToken token = default) => _guid;
     }
 }

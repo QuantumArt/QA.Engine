@@ -26,14 +26,14 @@ namespace QA.DotNetCore.Caching.Distributed
 
         public void Add(object data, string key, string[] tags, TimeSpan expiration)
         {
-            _frontCacheProvider.Add(tags, key, tags, expiration);
-            _backCacheProvider.Add(tags, key, tags, expiration);
+            _frontCacheProvider.Add(data, key, tags, expiration);
+            _backCacheProvider.Add(data, key, tags, expiration);
         }
 
-        public IEnumerable<object> Get(IEnumerable<string> keys) =>
-            new OperationsChain<string, object>(_logger)
-                .AddOperation(_frontCacheProvider.Get, isFinal: cachedValue => cachedValue != null)
-                .AddOperation(_backCacheProvider.Get)
+        public IEnumerable<TResult> Get<TResult>(IEnumerable<string> keys) =>
+            new OperationsChain<string, TResult>(_logger)
+                .AddOperation(_frontCacheProvider.Get<TResult>, isFinal: cachedValue => cachedValue != null)
+                .AddOperation(_backCacheProvider.Get<TResult>)
                 .Execute(keys.ToArray());
 
         public T GetOrAdd<T>(string cacheKey, string[] tags, TimeSpan expiration, Func<T> getValue, TimeSpan waitForCalculateTimeout = default)
@@ -72,7 +72,7 @@ namespace QA.DotNetCore.Caching.Distributed
                 .AddOperation(_backCacheProvider.IsSet)
                 .Execute(keys.ToArray());
 
-        public bool TryGetValue(string key, out object result) =>
+        public bool TryGetValue<TResult>(string key, out TResult result) =>
             _frontCacheProvider.TryGetValue(key, out result)
             || _backCacheProvider.TryGetValue(key, out result);
 

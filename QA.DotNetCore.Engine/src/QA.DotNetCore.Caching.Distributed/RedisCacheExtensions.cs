@@ -52,6 +52,7 @@ namespace QA.DotNetCore.Caching.Distributed
             _ = services.AddSingleton<ICacheProvider, DefaultChainedCacheProvider>();
 
             _ = services.AddSingleton<ICacheInvalidator, RedisCacheProvider>();
+            _ = services.AddSingleton<IModificationStateStorage, DistributedModificationStateStorage>();
             _ = services.AddSingleton<INodeIdentifier, RedisNodeIdentifier>();
 
             _ = services.AddSingleton<IDistributedLockFactory>(provider =>

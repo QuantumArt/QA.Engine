@@ -17,13 +17,13 @@ namespace QA.DotNetCore.Caching.Distributed
     /// </summary>
     public class RedisCacheProvider : ICacheProvider, ICacheInvalidator, IDistributedCacheProvider, IDisposable
     {
-        private static readonly JsonSerializer s_serializer = JsonSerializer.CreateDefault(
+        private static readonly JsonSerializer _serializer = JsonSerializer.CreateDefault(
             new JsonSerializerSettings
             {
                 NullValueHandling = NullValueHandling.Ignore,
                 DefaultValueHandling = DefaultValueHandling.Ignore,
             });
-        private static readonly TimeSpan s_defaultLockEnterTimeout = TimeSpan.FromSeconds(5);
+        private static readonly TimeSpan _defaultLockEnterTimeout = TimeSpan.FromSeconds(5);
 
         private bool _disposedValue;
         private readonly IDistributedTaggedCache _cache;
@@ -35,31 +35,28 @@ namespace QA.DotNetCore.Caching.Distributed
             _logger = logger;
         }
 
-        public IEnumerable<object> Get(IEnumerable<string> keys) =>
-            _cache.Get(keys);
+        public IEnumerable<TResult> Get<TResult>(IEnumerable<string> keys)
+        {
+            var dataValues = _cache.Get(keys);
+
+            foreach ((string key, byte[] data) in keys.Zip(dataValues))
+            {
+                yield return TryDeserializeData(key, data, out TResult value)
+                    ? value
+                    : default;
+            }
+        }
 
         public IEnumerable<bool> IsSet(IEnumerable<string> keys) =>
             _cache.Exist(keys);
 
-        public bool TryGetValue(string key, out object result)
+        public bool TryGetValue<TResult>(string key, out TResult result)
         {
             try
             {
                 byte[] cachedData = _cache.Get(key);
 
-                if (cachedData != null)
-                {
-                    result = DeserializeData<object>(cachedData);
-                    return result != null;
-                }
-            }
-            catch (IOException ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "Unable to deserialize cached data associated with the key {CacheKey}. " +
-                    "Try to erase inconsistent data from cache.",
-                    key);
+                return TryDeserializeData(key, cachedData, out result);
             }
             catch (Exception ex)
             {
@@ -67,10 +64,10 @@ namespace QA.DotNetCore.Caching.Distributed
                     ex,
                     "Unable to get cached data associated with the key {CacheKey}.",
                     key);
-            }
 
-            result = null;
-            return false;
+                result = default;
+                return false;
+            }
         }
 
         public void Add(object value, string key, string[] tags, TimeSpan expiration)
@@ -179,8 +176,32 @@ namespace QA.DotNetCore.Caching.Distributed
         {
             if (lockEnterTimeout == default)
             {
-                lockEnterTimeout = s_defaultLockEnterTimeout;
+                lockEnterTimeout = _defaultLockEnterTimeout;
             }
+        }
+
+        private bool TryDeserializeData<TResult>(string key, byte[] data, out TResult result)
+        {
+            try
+            {
+                if (data != null)
+                {
+                    result = DeserializeData<TResult>(data);
+                    return result != null;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Unable to deserialize cached data associated with the key {CacheKey} to type {Type}. " +
+                    "Try to erase inconsistent data from cache.",
+                    key,
+                    typeof(TResult));
+            }
+
+            result = default;
+            return false;
         }
 
         private static MemoryStream SerializeData<T>(T data)
@@ -192,7 +213,7 @@ namespace QA.DotNetCore.Caching.Distributed
                 using var writer = new StreamWriter(compressedStream, Encoding.UTF8, bufferSize: -1, leaveOpen: true);
                 using var jsonWriter = new JsonTextWriter(writer);
 
-                s_serializer.Serialize(jsonWriter, data);
+                _serializer.Serialize(jsonWriter, data);
                 jsonWriter.Flush();
                 compressedStream.Finish();
 
@@ -211,7 +232,7 @@ namespace QA.DotNetCore.Caching.Distributed
             using var reader = new StreamReader(decompressedStream, Encoding.UTF8);
             using var jsonReader = new JsonTextReader(reader);
 
-            return s_serializer.Deserialize<T>(jsonReader);
+            return _serializer.Deserialize<T>(jsonReader);
         }
     }
 }

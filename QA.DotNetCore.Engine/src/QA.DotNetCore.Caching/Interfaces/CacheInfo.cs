@@ -7,7 +7,7 @@ namespace QA.DotNetCore.Caching.Interfaces
     public class CacheInfo<TId> : IEquatable<CacheInfo<TId>>
     {
         public static readonly TimeSpan MinimalExpiry = TimeSpan.FromSeconds(1);
-        private static readonly StringComparer s_keyComparer = StringComparer.OrdinalIgnoreCase;
+        private static readonly StringComparer _keyComparer = StringComparer.OrdinalIgnoreCase;
 
         public TId Id { get; }
         public string Key { get; }
@@ -34,11 +34,11 @@ namespace QA.DotNetCore.Caching.Interfaces
             Expiration = expiration;
         }
 
-        public bool Equals(CacheInfo<TId> other) => s_keyComparer.Equals(Key, other?.Key);
+        public bool Equals(CacheInfo<TId> other) => _keyComparer.Equals(Key, other?.Key);
 
         public override bool Equals(object obj) => obj is CacheInfo<TId> cacheInfo && Equals(cacheInfo);
 
-        public override int GetHashCode() => s_keyComparer.GetHashCode(Key);
+        public override int GetHashCode() => _keyComparer.GetHashCode(Key);
 
         public static void FixupAndValidateExpiration(ref TimeSpan expiration)
         {

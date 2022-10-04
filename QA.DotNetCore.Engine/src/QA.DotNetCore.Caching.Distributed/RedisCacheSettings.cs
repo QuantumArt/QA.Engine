@@ -9,12 +9,12 @@ namespace QA.DotNetCore.Caching.Distributed
     /// </summary>
     public class RedisCacheSettings : IValidatableObject
     {
-        private static readonly TimeSpan s_minTagExpirationOffset = TimeSpan.FromSeconds(1);
-        private static readonly TimeSpan s_minLockExpiration = TimeSpan.FromMilliseconds(100);
-        private static readonly TimeSpan s_defaultTagExpirationOffset = TimeSpan.FromSeconds(5);
-        private static readonly TimeSpan s_defaultDeprecatedCacheTimeToLive = TimeSpan.FromSeconds(20);
-        private static readonly TimeSpan s_defaultLockExpiration = TimeSpan.FromSeconds(12);
-        private static readonly TimeSpan s_defaultRetryEnterLockInverval = TimeSpan.FromMilliseconds(100);
+        private static readonly TimeSpan _minTagExpirationOffset = TimeSpan.FromSeconds(1);
+        private static readonly TimeSpan _minLockExpiration = TimeSpan.FromMilliseconds(100);
+        private static readonly TimeSpan _defaultTagExpirationOffset = TimeSpan.FromSeconds(5);
+        private static readonly TimeSpan _defaultDeprecatedCacheTimeToLive = TimeSpan.FromSeconds(20);
+        private static readonly TimeSpan _defaultLockExpiration = TimeSpan.FromSeconds(12);
+        private static readonly TimeSpan _defaultRetryEnterLockInverval = TimeSpan.FromMilliseconds(100);
 
         /// <summary>
         /// The configuration used to connect to Redis.
@@ -31,7 +31,7 @@ namespace QA.DotNetCore.Caching.Distributed
         /// Specifies how much longer will live a tag over its associated key.
         /// </summary>
         [Required]
-        public TimeSpan TagExpirationOffset { get; set; } = s_defaultTagExpirationOffset;
+        public TimeSpan TagExpirationOffset { get; set; } = _defaultTagExpirationOffset;
 
         /// <summary>
         /// Minimum size of keys collection in tag to execute compact operation.
@@ -46,24 +46,24 @@ namespace QA.DotNetCore.Caching.Distributed
         public int CompactTagFrequency { get; set; } = 100;
 
         [Required]
-        public TimeSpan DeprecatedCacheTimeToLive { get; set; } = s_defaultDeprecatedCacheTimeToLive;
+        public TimeSpan DeprecatedCacheTimeToLive { get; set; } = _defaultDeprecatedCacheTimeToLive;
 
         /// <summary>
         /// Time that lock lives if client doesn't extend it (e.g. due to critical failure).
         /// </summary>
-        public TimeSpan LockExpiration { get; set; } = s_defaultLockExpiration;
+        public TimeSpan LockExpiration { get; set; } = _defaultLockExpiration;
 
         /// <summary>
         /// Interval to try to acquire distributed lock.
         /// </summary>
-        public TimeSpan RetryEnterLockInverval { get; set; } = s_defaultRetryEnterLockInverval;
+        public TimeSpan RetryEnterLockInverval { get; set; } = _defaultRetryEnterLockInverval;
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (TagExpirationOffset < s_minTagExpirationOffset)
+            if (TagExpirationOffset < _minTagExpirationOffset)
             {
                 yield return new ValidationResult(
-                    $"Tag expiration mustn't be less than {s_minTagExpirationOffset}.",
+                    $"Tag expiration mustn't be less than {_minTagExpirationOffset}.",
                     new[] { nameof(TagExpirationOffset) });
             }
 
@@ -74,10 +74,10 @@ namespace QA.DotNetCore.Caching.Distributed
                     new[] { nameof(DeprecatedCacheTimeToLive) });
             }
 
-            if (LockExpiration < s_minLockExpiration)
+            if (LockExpiration < _minLockExpiration)
             {
                 yield return new ValidationResult(
-                    $"Lock expiration mustn't be less than {s_minLockExpiration}.",
+                    $"Lock expiration mustn't be less than {_minLockExpiration}.",
                     new[] { nameof(LockExpiration) });
             }
 

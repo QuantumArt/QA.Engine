@@ -16,10 +16,10 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure
         private const string CiSqlLoginParam = CiDbNameParamPrefix + "sql_login";
         private const string CiSqlPasswordParam = CiDbNameParamPrefix + "sql_password";
 
-        private static readonly string CiLocalDbName = $"{CiDbNameParamPrefix}{Environment.MachineName}";
+        private static readonly string _ciLocalDbName = $"{CiDbNameParamPrefix}{Environment.MachineName}";
 
         internal static string DbNameToRunTests =>
-            _runSettings.Get(CiDbNameParam, CiLocalDbName).ToLowerInvariant();
+            _runSettings.Get(CiDbNameParam, _ciLocalDbName).ToLowerInvariant();
 
         internal static string DbServerToRunTests =>
             _runSettings.Get(CiDbServerParam) ?? throw new InvalidOperationException();

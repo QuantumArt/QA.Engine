@@ -11,7 +11,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
     public class NetNameQueryAnalyzer : INetNameQueryAnalyzer
     {
-        private static readonly Regex s_tokenRegex = new Regex(@"\|[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)?\|", RegexOptions.Compiled);
+        private static readonly Regex _tokenRegex = new Regex(@"\|[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)?\|", RegexOptions.Compiled);
 
         private readonly IMetaInfoRepository _metaInfoRepository;
 
@@ -95,7 +95,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             if (netNameQuery is null)
                 throw new ArgumentNullException(nameof(netNameQuery));
 
-            var tokens = s_tokenRegex.Matches(netNameQuery)
+            var tokens = _tokenRegex.Matches(netNameQuery)
                    .Cast<Match>()
                    .Select(match => match.Value.Trim('|'))
                    .Distinct(StringComparer.OrdinalIgnoreCase);
@@ -114,6 +114,6 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             useUnited ? tableMetadata.GetUnitedTableName() : tableMetadata.GetTableName(isStage);
 
         private string ReplaceTokens(string query, Dictionary<string, string> replacements) =>
-            s_tokenRegex.Replace(query, match => replacements[match.Value]);
+            _tokenRegex.Replace(query, match => replacements[match.Value]);
     }
 }

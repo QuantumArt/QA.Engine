@@ -15,7 +15,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
     public class AbstractItemRepository : IAbstractItemRepository
     {
-        private static readonly IReadOnlyDictionary<int, M2mRelations> s_emptyResult = new Dictionary<int, M2mRelations>();
+        private static readonly IReadOnlyDictionary<int, M2mRelations> _emptyResult = new Dictionary<int, M2mRelations>();
 
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         private readonly ICacheProvider _cacheProvider;
@@ -288,7 +288,7 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
             // Return in the same order as input collection.
             foreach (int extensionId in contentIds)
             {
-                yield return groupedRelations.TryGetValue(extensionId, out var itemInfos) ? itemInfos : s_emptyResult;
+                yield return groupedRelations.TryGetValue(extensionId, out var itemInfos) ? itemInfos : _emptyResult;
             }
         }
     }

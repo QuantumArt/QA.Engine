@@ -26,14 +26,16 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// </summary>
         /// <param name="key">Ключ</param>
         /// <returns></returns>
-        public static object Get(this ICacheProvider cacheProvider, string key)
+        public static TResult Get<TResult>(this ICacheProvider cacheProvider, string key)
         {
             if (cacheProvider is null)
             {
                 throw new ArgumentNullException(nameof(cacheProvider));
             }
 
-            return cacheProvider.Get(new[] { key }).Single();
+            return cacheProvider
+                .Get<TResult>(new[] { key })
+                .Single();
         }
 
         /// <summary>

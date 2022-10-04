@@ -2,9 +2,15 @@ using System;
 
 namespace QA.DotNetCore.Caching
 {
-    public class CacheTagModification
+    public record CacheTagModification
     {
-        public string Name { get; set; }
-        public DateTime Modified { get; set; }
+        public string Name { get; private set; }
+        public DateTime Modified { get; private set; }
+
+        public CacheTagModification(string name, DateTime modified)
+        {
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Modified = modified;
+        }
     }
 }

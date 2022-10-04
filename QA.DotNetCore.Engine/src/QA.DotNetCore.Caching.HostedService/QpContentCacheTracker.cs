@@ -26,8 +26,8 @@ namespace QA.DotNetCore.Engine.CacheTags
             var result = new List<CacheTagModification>();
             foreach (var modification in _contentModificationRepository.GetAll())
             {
-                result.Add(new CacheTagModification { Name = CacheTagName(modification, isStage: true), Modified = modification.StageModified });
-                result.Add(new CacheTagModification { Name = CacheTagName(modification, isStage: false), Modified = modification.LiveModified });
+                result.Add(new CacheTagModification(CacheTagName(modification, isStage: true), modification.StageModified));
+                result.Add(new CacheTagModification(CacheTagName(modification, isStage: false), modification.LiveModified));
             }
             return result;
         }

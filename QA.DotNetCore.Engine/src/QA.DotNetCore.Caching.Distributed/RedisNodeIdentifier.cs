@@ -1,12 +1,14 @@
 using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Caching.Interfaces;
+using StackExchange.Redis;
+using System.Threading;
 
 namespace QA.DotNetCore.Caching.Distributed
 {
     public class RedisNodeIdentifier : INodeIdentifier
     {
         private readonly ILogger<RedisNodeIdentifier> _logger;
-        private readonly object _syncId = new object();
+        private readonly object _syncId = new();
         private readonly IDistributedTaggedCache _distributedTaggedCache;
         private string _id;
 
@@ -18,24 +20,41 @@ namespace QA.DotNetCore.Caching.Distributed
             _logger = logger;
         }
 
-        public string GetUniqueId()
+        public string GetUniqueId(CancellationToken token)
         {
             if (_id != null)
             {
                 return _id;
             }
 
-            lock (_syncId)
-            {
-                string newId = _distributedTaggedCache.GetClientId();
+            const int RetryDelayMs = 500;
 
-                if (_id is null)
+            while (true)
+            {
+                lock (_syncId)
                 {
-                    _logger.LogInformation("Set unique id {NodeId} for current instance.", newId);
-                    _id = newId;
+                    try
+                    {
+                        string newId = _distributedTaggedCache.GetClientId(default);
+
+                        if (_id is null)
+                        {
+                            _logger.LogInformation("Set unique id {NodeId} for current instance.", newId);
+                            _id = newId;
+                        }
+
+                        return _id;
+                    }
+                    catch (RedisConnectionException ex) when (!token.IsCancellationRequested)
+                    {
+                        _logger.LogError(
+                            ex,
+                            "Redis connection error. Retrying again after {RetryDelay} ms",
+                            RetryDelayMs);
+                    }
                 }
 
-                return _id;
+                Thread.Sleep(RetryDelayMs);
             }
         }
     }

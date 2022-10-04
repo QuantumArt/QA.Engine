@@ -41,7 +41,7 @@ namespace QA.DotNetCore.Caching
         /// </summary>
         /// <param name="keys">Ключи</param>
         /// <returns>Данные в том же порядке что и ключи.</returns>
-        public virtual IEnumerable<object> Get(IEnumerable<string> keys)
+        public virtual IEnumerable<TResult> Get<TResult>(IEnumerable<string> keys)
         {
             if (keys is null)
             {
@@ -50,7 +50,7 @@ namespace QA.DotNetCore.Caching
 
             foreach (var key in keys)
             {
-                yield return string.IsNullOrEmpty(key) ? null : _cache.Get(key);
+                yield return string.IsNullOrEmpty(key) ? default : _cache.Get<TResult>(GetKey(key));
             }
         }
 
@@ -63,7 +63,7 @@ namespace QA.DotNetCore.Caching
         {
             foreach (var key in keys)
             {
-                yield return !string.IsNullOrEmpty(key) && _cache.TryGetValue(key, out _);
+                yield return !string.IsNullOrEmpty(key) && _cache.TryGetValue(GetKey(key), out _);
             }
         }
 
@@ -73,9 +73,9 @@ namespace QA.DotNetCore.Caching
         /// <param name="key">Ключ</param>
         /// <param name="result">Результат</param>
         /// <returns></returns>
-        public virtual bool TryGetValue(string key, out object result)
+        public virtual bool TryGetValue<TResult>(string key, out TResult result)
         {
-            return _cache.TryGetValue(key, out result);
+            return _cache.TryGetValue(GetKey(key), out result);
         }
 
         /// <summary>
@@ -89,6 +89,9 @@ namespace QA.DotNetCore.Caching
             {
                 return;
             }
+
+            key = GetKey(key);
+
             _cache.Remove(key);
             _cache.Remove(GetDeprecatedCacheKey(key));
         }
@@ -102,6 +105,8 @@ namespace QA.DotNetCore.Caching
         /// <param name="expiration">Время кеширования (sliding expiration)</param>
         public virtual void Add(object data, string key, string[] tags, TimeSpan expiration)
         {
+            key = GetKey(key);
+
             var policy = new MemoryCacheEntryOptions
             {
                 AbsoluteExpiration = DateTime.Now + expiration,
@@ -169,13 +174,13 @@ namespace QA.DotNetCore.Caching
         {
             var keys = infos.Select(info => info.Key);
 
-            var results = Get(keys);
+            var results = Get<TResult>(keys);
 
             foreach (var result in results)
             {
                 bool isFinalResult = result != null;
 
-                yield return new OperationResult<TResult>(Cast<TResult>(result), isFinalResult);
+                yield return new OperationResult<TResult>(result, isFinalResult);
             }
         }
 
@@ -186,13 +191,16 @@ namespace QA.DotNetCore.Caching
         {
             var cacheKeys = infos.Select(info => info.Key).ToList();
 
-            var lockersCollection = new KeyLockersCollection(_lockers, cacheKeys, Get);
+            var lockersCollection = new KeyLockersCollection<TResult>(
+                _lockers,
+                cacheKeys,
+                Get<TResult>);
 
             var results = new OperationResult<TResult>[infos.Length];
 
             lockersCollection.Lock(
                 lockEnterWaitTimeout,
-                (cacheKey, index, deprecatedResult) => results[index] = new OperationResult<TResult>(Cast<TResult>(deprecatedResult), true));
+                (cacheKey, index, deprecatedResult) => results[index] = new OperationResult<TResult>(deprecatedResult, true));
 
             locker = lockersCollection;
 
@@ -271,14 +279,14 @@ namespace QA.DotNetCore.Caching
             TimeSpan waitForCalculateTimeout = default(TimeSpan))
         {
             var deprecatedCacheKey = GetDeprecatedCacheKey(cacheKey);
-            var result = Cast<T>(this.Get(cacheKey));
+            var result = this.Get<T>(cacheKey);
             if (result == null)
             {
                 bool lockTaken = false;
                 var locker = _lockers.GetOrAdd(cacheKey, new object());
                 try
                 {
-                    var deprecatedResult = Cast<T>(this.Get(deprecatedCacheKey));
+                    var deprecatedResult = this.Get<T>(deprecatedCacheKey);
 
                     if (deprecatedResult != null)
                     {
@@ -302,7 +310,7 @@ namespace QA.DotNetCore.Caching
 
                     if (lockTaken)
                     {
-                        result = Cast<T>(this.Get(cacheKey));
+                        result = this.Get<T>(cacheKey);
                         if (result == null)
                         {
                             result = getData();
@@ -359,7 +367,7 @@ namespace QA.DotNetCore.Caching
         {
             var deprecatedCacheKey = GetDeprecatedCacheKey(cacheKey);
 
-            var result = Cast<T>(this.Get(cacheKey));
+            var result = this.Get<T>(cacheKey);
             if (result == null)
             {
                 SemaphoreSlim locker = _semaphores.GetOrAdd(cacheKey, _ => new SemaphoreSlim(1));
@@ -367,10 +375,9 @@ namespace QA.DotNetCore.Caching
 
                 try
                 {
-                    var deprecatedObjectResult = this.Get(deprecatedCacheKey);
-                    var deprecatedResult = Cast<T>(deprecatedObjectResult);
+                    var deprecatedResult = this.Get<T>(deprecatedCacheKey);
 
-                    if (deprecatedObjectResult != null)
+                    if (deprecatedResult != null)
                     {
                         //проверим, взял ли блокировку по этому кэшу какой-то поток (т.е. вычисляется ли уже новое значение).
                         //т.к. найдено deprecated значение, то не будем ждать освобождения блокировки, если она будет
@@ -383,7 +390,7 @@ namespace QA.DotNetCore.Caching
                         //проверим, взял ли блокировку по этому кэшу какой-то поток (т.е. вычисляется ли уже новое значение).
                         //если взял, то т.к. deprecated значения нет, то надо ждать освобождения блокировки, чтобы нам было что вернуть
                         //но ждать будем не дольше, чем waitForCalculateTimeout
-                        if (waitForCalculateTimeout == default(TimeSpan))
+                        if (waitForCalculateTimeout == default)
                         {
                             waitForCalculateTimeout = _defaultWaitForCalculateTimeout;
                         }
@@ -395,7 +402,7 @@ namespace QA.DotNetCore.Caching
 
                     if (lockTaken)
                     {
-                        result = Cast<T>(this.Get(cacheKey));
+                        result = this.Get<T>(cacheKey);
                         if (result == null)
                         {
                             result = await getData().ConfigureAwait(false);
@@ -439,12 +446,17 @@ namespace QA.DotNetCore.Caching
             var strkey = key as string;
             if (strkey != null)
             {
-                ((VersionedCacheCoreProvider)state).AddTag(DateTime.Now.AddDays(1), strkey);
+                ((VersionedCacheCoreProvider)state).AddTag(DateTime.Now.AddDays(1), strkey, true);
             }
         }
 
-        private CancellationTokenSource AddTag(DateTime tagExpiration, string item)
+        private CancellationTokenSource AddTag(DateTime tagExpiration, string item, bool isEscaped = false)
         {
+            if (!isEscaped)
+        {
+                item = GetTag(item);
+            }
+
             var result = _cache.Get(item) as CancellationTokenSource;
             if (result == null)
             {
@@ -466,9 +478,7 @@ namespace QA.DotNetCore.Caching
             return originalKey + "__Deprecated";
         }
 
-        private static T Cast<T>(object result)
-        {
-            return result == null ? default : (T)result;
-        }
+        private static string GetKey(string key) => "key:" + key;
+        private static string GetTag(string tag) => "tag:" + tag;
     }
 }

@@ -1,3 +1,5 @@
+using System.Threading;
+
 namespace QA.DotNetCore.Caching.Interfaces
 {
     /// <summary>
@@ -9,6 +11,6 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// Obtain unique identifier of application instance.
         /// </summary>
         /// <returns>Unique identifier.</returns>
-        string GetUniqueId();
+        string GetUniqueId(CancellationToken token = default);
     }
 }

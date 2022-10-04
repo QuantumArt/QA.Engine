@@ -190,6 +190,7 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             }
 
             Services.TryAddSingleton<ICacheInvalidator, VersionedCacheCoreProvider>();
+            Services.TryAddSingleton<IModificationStateStorage, DefaultModificationStateStorage>();
             Services.TryAddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
             Services.TryAddSingleton<IMemoryCacheProvider, VersionedCacheCoreProvider>();
             Services.TryAddSingleton<IDistributedMemoryCacheProvider, VersionedCacheCoreProvider>();

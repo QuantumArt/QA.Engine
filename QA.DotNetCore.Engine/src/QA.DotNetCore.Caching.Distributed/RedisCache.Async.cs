@@ -104,7 +104,7 @@ namespace QA.DotNetCore.Caching.Distributed
 
             if (cacheInfos.Length <= 0)
             {
-                return s_emptyResult;
+                return _emptyResult;
             }
 
             await ConnectAsync(token);

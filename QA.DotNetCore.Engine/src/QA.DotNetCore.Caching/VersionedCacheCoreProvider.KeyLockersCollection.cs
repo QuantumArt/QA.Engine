@@ -10,12 +10,12 @@ namespace QA.DotNetCore.Caching
 {
     public partial class VersionedCacheCoreProvider
     {
-        private class KeyLockersCollection : IDisposable
+        private class KeyLockersCollection<TResult> : IDisposable
         {
             private readonly bool[] _lockTaken;
             private readonly object[] _lockers;
             private readonly IReadOnlyList<string> _keys;
-            private readonly Func<IEnumerable<string>, IEnumerable<object>> _getCache;
+            private readonly Func<IEnumerable<string>, IEnumerable<TResult>> _getCache;
             private readonly ConcurrentDictionary<string, object> _lockersRepository;
 
             private bool _disposedValue;
@@ -23,7 +23,7 @@ namespace QA.DotNetCore.Caching
             public KeyLockersCollection(
                 in ConcurrentDictionary<string, object> lockersRepository,
                 in List<string> keys,
-                Func<IEnumerable<string>, IEnumerable<object>> getCache)
+                Func<IEnumerable<string>, IEnumerable<TResult>> getCache)
             {
                 if (keys is null)
                 {
@@ -41,8 +41,8 @@ namespace QA.DotNetCore.Caching
                 _keys = keys;
                 _lockTaken = new bool[keys.Count];
                 _lockers = new object[keys.Count];
-                _getCache = getCache ?? throw new ArgumentNullException(nameof(getCache));
-                _lockersRepository = lockersRepository ?? throw new ArgumentNullException(nameof(lockersRepository));
+                _getCache = getCache;
+                _lockersRepository = lockersRepository;
             }
 
             /// <summary>
@@ -72,16 +72,16 @@ namespace QA.DotNetCore.Caching
             /// </exception>
             public void Lock(
                 in TimeSpan lockEnterWaitTimeout,
-                Action<string, int, object> deprecatedResultHandler)
+                Action<string, int, TResult> deprecatedResultHandler)
             {
                 try
                 {
-                    object[] deprecatedValues = _getCache(_keys.Select(GetDeprecatedCacheKey)).ToArray();
+                    TResult[] deprecatedValues = _getCache(_keys.Select(GetDeprecatedCacheKey)).ToArray();
 
                     for (int i = 0; i < _keys.Count; i++)
                     {
                         string cacheKey = _keys[i];
-                        object deprecatedValue = deprecatedValues[i];
+                        TResult deprecatedValue = deprecatedValues[i];
 
                         _lockers[i] = _lockersRepository.GetOrAdd(cacheKey, new object());
 

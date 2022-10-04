@@ -5,7 +5,7 @@ namespace QA.DotNetCore.Engine.QpData
 {
     public static class AbstractItemExtensions
     {
-        private static readonly char[] ArrayDelimiters = new char[] { '\n', '\r', ';', ' ', ',' };
+        private static readonly char[] _arrayDelimiters = new char[] { '\n', '\r', ';', ' ', ',' };
 
         public static string[] GetBindings(this AbstractItem item)
         {
@@ -13,7 +13,7 @@ namespace QA.DotNetCore.Engine.QpData
             if (dnsBindings != null)
             {
                 return dnsBindings
-                    .Split(ArrayDelimiters, StringSplitOptions.RemoveEmptyEntries)
+                    .Split(_arrayDelimiters, StringSplitOptions.RemoveEmptyEntries)
                     .Select(_ => _.Trim())
                     .ToArray();
             }
@@ -26,7 +26,7 @@ namespace QA.DotNetCore.Engine.QpData
             if (patterns != null)
             {
                 return patterns
-                    .Split(ArrayDelimiters, StringSplitOptions.RemoveEmptyEntries)
+                    .Split(_arrayDelimiters, StringSplitOptions.RemoveEmptyEntries)
                     .Select(_ => _.Trim())
                     .ToArray();
             }
@@ -39,7 +39,7 @@ namespace QA.DotNetCore.Engine.QpData
             if (patterns != null)
             {
                 return patterns
-                    .Split(ArrayDelimiters, StringSplitOptions.RemoveEmptyEntries)
+                    .Split(_arrayDelimiters, StringSplitOptions.RemoveEmptyEntries)
                     .Select(_ => _.Trim())
                     .ToArray();
             }

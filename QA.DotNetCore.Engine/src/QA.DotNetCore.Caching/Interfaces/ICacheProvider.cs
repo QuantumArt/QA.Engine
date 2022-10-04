@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace QA.DotNetCore.Caching.Interfaces
@@ -12,7 +13,7 @@ namespace QA.DotNetCore.Caching.Interfaces
     /// </summary>
     public interface ICacheProvider
     {
-        IEnumerable<object> Get(IEnumerable<string> keys);
+        IEnumerable<TResult> Get<TResult>(IEnumerable<string> keys);
 
         /// <summary>
         /// Проверяет наличие данных в кэше
@@ -27,7 +28,8 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// <param name="key">Ключ</param>
         /// <param name="result">Результат</param>
         /// <returns></returns>
-        bool TryGetValue(string key, out object result);
+        // TODO: Ensure non null consistency between Add and Get methods (throughout implementations).
+        bool TryGetValue<TResult>(string key, [NotNullWhen(true)] out TResult result);
 
         /// <summary>
         /// Записывает данные в кэш, маркирует эту запись тегами

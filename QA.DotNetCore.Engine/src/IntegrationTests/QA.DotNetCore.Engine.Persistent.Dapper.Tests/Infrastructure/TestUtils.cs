@@ -10,15 +10,15 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure
 {
     internal static class TestUtils
     {
-        private static readonly TimeSpan s_generalExpiry = TimeSpan.Parse("23:59:59");
+        private static readonly TimeSpan _generalExpiry = TimeSpan.Parse("23:59:59");
 
         public static QpSiteStructureCacheSettings CreateDefaultCacheSettings()
         {
             return new QpSiteStructureCacheSettings
             {
-                QpSchemeCachePeriod = s_generalExpiry,
-                ItemDefinitionCachePeriod = s_generalExpiry,
-                SiteStructureCachePeriod = s_generalExpiry
+                QpSchemeCachePeriod = _generalExpiry,
+                ItemDefinitionCachePeriod = _generalExpiry,
+                SiteStructureCachePeriod = _generalExpiry
             };
         }
 

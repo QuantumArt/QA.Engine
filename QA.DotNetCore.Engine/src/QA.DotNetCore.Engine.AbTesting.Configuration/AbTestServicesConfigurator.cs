@@ -56,6 +56,7 @@ namespace QA.DotNetCore.Engine.AbTesting.Configuration
             services.TryAddScoped<IAbTestService, AbTestService>();
 
             services.TryAddSingleton<ICacheInvalidator, VersionedCacheCoreProvider>();
+            services.TryAddSingleton<IModificationStateStorage, DefaultModificationStateStorage>();
             services.TryAddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
             services.TryAddSingleton<IMemoryCacheProvider, VersionedCacheCoreProvider>();
             services.TryAddSingleton<IDistributedMemoryCacheProvider, VersionedCacheCoreProvider>();

@@ -13,13 +13,13 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
     {
         #region Fields
         private const string Amp = "&";
-        private static readonly string[] querySplitter = new[] { "&amp;", Amp };
-        private static readonly char[] slashes = new char[] { '/' };
-        private static readonly char[] dotsAndSlashes = new char[] { '.', '/' };
-        private static string defaultExtension = "";
-        private static readonly string authorityPrefix = "//";
-        private static readonly string schemePostfix = ":";
-        private static readonly Dictionary<string, string> replacements = new Dictionary<string, string>();
+        private static readonly string[] _querySplitter = new[] { "&amp;", Amp };
+        private static readonly char[] _slashes = new char[] { '/' };
+        private static readonly char[] _dotsAndSlashes = new char[] { '.', '/' };
+        private static string _defaultExtension = "";
+        private static readonly string _authorityPrefix = "//";
+        private static readonly string _schemePostfix = ":";
+        private static readonly Dictionary<string, string> _replacements = new Dictionary<string, string>();
         private string _scheme;
         private string _authority;
         private string _path;
@@ -71,7 +71,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
             {
                 int queryIndex = QueryIndex(url);
                 int hashIndex = url.IndexOf('#', queryIndex > 0 ? queryIndex : 0);
-                int authorityIndex = url.IndexOf(authorityPrefix);
+                int authorityIndex = url.IndexOf(_authorityPrefix);
 
                 if (queryIndex >= 0 && authorityIndex > queryIndex)
                 {
@@ -123,12 +123,12 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
         private void LoadBasedUrl(string url, int queryIndex, int hashIndex, int authorityIndex)
         {
             if (authorityIndex > 0)
-                _scheme = url.Substring(0, authorityIndex - schemePostfix.Length);
+                _scheme = url.Substring(0, authorityIndex - _schemePostfix.Length);
 
-            int slashIndex = url.IndexOf('/', authorityIndex + authorityPrefix.Length);
+            int slashIndex = url.IndexOf('/', authorityIndex + _authorityPrefix.Length);
             if (slashIndex > 0)
             {
-                _authority = url.Substring(authorityIndex + authorityPrefix.Length, slashIndex - authorityIndex - authorityPrefix.Length);
+                _authority = url.Substring(authorityIndex + _authorityPrefix.Length, slashIndex - authorityIndex - _authorityPrefix.Length);
                 if (queryIndex >= slashIndex)
                     _path = url.Substring(slashIndex, queryIndex - slashIndex);
                 else if (hashIndex >= 0)
@@ -140,7 +140,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
             }
             else
             {
-                _authority = url.Substring(authorityIndex + authorityPrefix.Length);
+                _authority = url.Substring(authorityIndex + _authorityPrefix.Length);
                 _path = CheckPath("/");
             }
         }
@@ -236,7 +236,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
         {
             get
             {
-                int index = _path.LastIndexOfAny(dotsAndSlashes);
+                int index = _path.LastIndexOfAny(_dotsAndSlashes);
 
                 if (index < 0)
                     return null;
@@ -274,11 +274,11 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
             {
                 if (!String.IsNullOrWhiteSpace(_scheme))
                 {
-                    url = _scheme + schemePostfix + authorityPrefix + _authority + CheckPath(_path);
+                    url = _scheme + _schemePostfix + _authorityPrefix + _authority + CheckPath(_path);
                 }
                 else
                 {
-                    url = authorityPrefix + _authority + CheckPath(_path);
+                    url = _authorityPrefix + _authority + CheckPath(_path);
                 }
             }
             else
@@ -371,8 +371,8 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
 
         public static string DefaultExtension
         {
-            get { return defaultExtension; }
-            set { defaultExtension = value; }
+            get { return _defaultExtension; }
+            set { _defaultExtension = value; }
         }
 
         public static string RemoveHash(string url)
@@ -485,7 +485,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
                 return AppendQuery(key, value);
 
             var clone = new Url(this);
-            string[] queries = _query.Split(querySplitter, StringSplitOptions.RemoveEmptyEntries);
+            string[] queries = _query.Split(_querySplitter, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < queries.Length; i++)
             {
                 if (queries[i].StartsWith(key + "=", StringComparison.OrdinalIgnoreCase))
@@ -775,7 +775,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
         /// <returns></returns>
         public static string RemoveAnyExtension(string path)
         {
-            int index = path.LastIndexOfAny(dotsAndSlashes);
+            int index = path.LastIndexOfAny(_dotsAndSlashes);
 
             if (index < 0)
                 return path;
@@ -799,7 +799,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
 
             int lastSlashIndex = _path.LastIndexOf('/');
             if (lastSlashIndex == _path.Length - 1)
-                lastSlashIndex = _path.TrimEnd(slashes).LastIndexOf('/');
+                lastSlashIndex = _path.TrimEnd(_slashes).LastIndexOf('/');
             if (lastSlashIndex > 0)
                 newPath = _path.Substring(0, lastSlashIndex) + (maintainExtension ? Extension : "");
 
@@ -833,7 +833,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
                 return new Url(_scheme, _authority, _path.Substring(slashIndex), _query, _fragment, _forcedAddTrailingSlashes);
             }
 
-            string[] segments = PathWithoutExtension.Split(slashes, StringSplitOptions.RemoveEmptyEntries);
+            string[] segments = PathWithoutExtension.Split(_slashes, StringSplitOptions.RemoveEmptyEntries);
             if (index >= segments.Length)
                 return this;
 
@@ -850,7 +850,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
         /// <returns></returns>
         public string[] GetSegments()
         {
-            return PathWithoutExtension.Split(slashes, StringSplitOptions.RemoveEmptyEntries);
+            return PathWithoutExtension.Split(_slashes, StringSplitOptions.RemoveEmptyEntries);
         }
 
         public static string RemoveLastSegment(string path)
@@ -912,7 +912,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
             if (query == null)
                 return dictionary;
 
-            string[] queries = query.Split(querySplitter, StringSplitOptions.RemoveEmptyEntries);
+            string[] queries = query.Split(_querySplitter, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < queries.Length; i++)
             {
                 string q = queries[i];
@@ -934,7 +934,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
         public static string GetToken(string token)
         {
             string value = null;
-            replacements.TryGetValue(token, out value);
+            _replacements.TryGetValue(token, out value);
             return value;
         }
 
@@ -945,11 +945,11 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
 
             if (value != null)
             {
-                replacements[token] = value;
+                _replacements[token] = value;
             }
-            else if (replacements.ContainsKey(token))
+            else if (_replacements.ContainsKey(token))
             {
-                replacements.Remove(token);
+                _replacements.Remove(token);
             }
         }
 
@@ -960,7 +960,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve
                 return urlFormat;
             }
 
-            foreach (var kvp in replacements)
+            foreach (var kvp in _replacements)
             {
                 urlFormat = urlFormat.Replace(kvp.Key, kvp.Value);
             }

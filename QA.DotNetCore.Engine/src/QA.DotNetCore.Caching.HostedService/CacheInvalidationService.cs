@@ -48,7 +48,7 @@ namespace QA.DotNetCore.Engine.CacheTags
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _ = _timer.Change(_interval, _interval);
+            _ = _timer.Change(TimeSpan.Zero, _interval);
             return Task.CompletedTask;
         }
 

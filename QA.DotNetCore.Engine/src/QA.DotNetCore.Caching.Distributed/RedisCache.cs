@@ -104,8 +104,8 @@ namespace QA.DotNetCore.Caching.Distributed
             end
             ";
 
-        private static readonly Version LeastSupportedServerVersion = new(4, 0, 0);
-        private static readonly IReadOnlyList<byte[]> s_emptyResult = new List<byte[]>(0);
+        private static readonly Version _leastSupportedServerVersion = new(4, 0, 0);
+        private static readonly IReadOnlyList<byte[]> _emptyResult = new List<byte[]>(0);
 
         private static void FixupAndValidateExpiration(ref TimeSpan expiration) =>
             CacheInfo<object>.FixupAndValidateExpiration(ref expiration);
@@ -154,14 +154,14 @@ namespace QA.DotNetCore.Caching.Distributed
                 if (_cache.StringSet(guid, string.Empty, when: When.NotExists))
                 {
                     _logger.LogInformation(
-                        "Selected new client id {ClientId} (Elapsed: {Elapsed}.",
+                        "Selected new client id {ClientId} (Elapsed: {Elapsed})",
                         guid,
                         watch.ElapsedMilliseconds);
                     return guid;
                 }
             }
 
-            throw new InvalidOperationException($"Unable to generate unique client id.");
+            throw new InvalidOperationException("Unable to generate unique client id");
         }
 
         public IEnumerable<bool> Exist(IEnumerable<string> keys, CancellationToken token = default)
@@ -276,7 +276,7 @@ namespace QA.DotNetCore.Caching.Distributed
 
             if (cacheInfos.Length <= 0)
             {
-                return s_emptyResult;
+                return _emptyResult;
             }
 
             Connect(token);
@@ -713,11 +713,11 @@ namespace QA.DotNetCore.Caching.Distributed
 
             foreach (var endPoint in _connection.GetEndPoints())
             {
-                if (_connection.GetServer(endPoint).Version < LeastSupportedServerVersion)
+                if (_connection.GetServer(endPoint).Version < _leastSupportedServerVersion)
                 {
                     throw new InvalidOperationException(
                         $"Redis version of endpoint {endPoint} ({_connection.GetServer(endPoint).Version}) " +
-                        $"is not supported. Should be >={LeastSupportedServerVersion}.");
+                        $"is not supported. Should be >={_leastSupportedServerVersion}.");
                 }
             }
         }

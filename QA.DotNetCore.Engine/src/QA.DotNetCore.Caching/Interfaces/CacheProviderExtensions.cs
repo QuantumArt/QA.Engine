@@ -59,7 +59,7 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// </summary>
         /// <param name="key">Ключ</param>
         /// <param name="data">Данные</param>
-        /// <param name="cacheTimeInSeconds">Время кеширования в секундах</param>
+        /// <param name="cacheTimeInSeconds">Время кеширования.</param>
         public static void Set(this ICacheProvider cacheProvider, string key, object data, TimeSpan expiration)
         {
             if (cacheProvider is null)

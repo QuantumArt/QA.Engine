@@ -54,7 +54,7 @@ namespace QA.DotNetCore.Caching
             /// There can be 3 results:
             /// <list type="bullet">
             /// <item>
-            ///     <term>Cache lock aqured successfully</term>
+            ///     <term>Cache lock acquired successfully</term>
             ///     <description>Sets associated <see cref="Locked"/> flag to true</description>
             /// </item>
             /// <item>
@@ -87,7 +87,7 @@ namespace QA.DotNetCore.Caching
 
                         if (deprecatedValue != null)
                         {
-                            //проверим, взял ли блокировку по этому кэшу какой-то поток (т.е. вычисляется ли уже новое значение).
+                            //проверим, взял ли блокировку по этому кeшу какой-то поток (т.е. вычисляется ли уже новое значение).
                             //т.к. найдено deprecated значение, то не будем ждать освобождения блокировки, если она будет
                             //потому что нам и так есть что вернуть
                             Monitor.TryEnter(_lockers[i], ref _lockTaken[i]);
@@ -99,7 +99,7 @@ namespace QA.DotNetCore.Caching
                         }
                         else
                         {
-                            //проверим, взял ли блокировку по этому кэшу какой-то поток (т.е. вычисляется ли уже новое значение).
+                            //проверим, взял ли блокировку по этому кeшу какой-то поток (т.е. вычисляется ли уже новое значение).
                             //если взял, то т.к. deprecated значения нет, то надо ждать освобождения блокировки, чтобы нам было что вернуть
                             //но ждать будем не дольше, чем lockEnterWaitTimeout
                             Monitor.TryEnter(_lockers[i], (int)lockEnterWaitTimeout.TotalMilliseconds, ref _lockTaken[i]);

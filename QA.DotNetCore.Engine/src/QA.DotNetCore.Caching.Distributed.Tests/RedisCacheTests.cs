@@ -1,6 +1,4 @@
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Moq;
 using QA.DotNetCore.Caching.Exceptions;
 using QA.DotNetCore.Caching.Interfaces;
 using RedLockNet.SERedis;
@@ -13,13 +11,18 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Tests.CommonUtils.Helpers;
+using Tests.CommonUtils.Xunit.Traits;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace QA.DotNetCore.Caching.Distributed.Tests
 {
+    [Category(CategoryType.Integration)]
     public class RedisCacheTests
     {
+        private const int DefaultExpiryMs = 1500;
+
         private static readonly DnsEndPoint _redisEndpoint = new("SPBREDIS01.ARTQ.COM", 6407);
         private static readonly string _connectionString = $"{_redisEndpoint.Host}:{_redisEndpoint.Port}";
         private static readonly string _instanceName = "wptests:" + Guid.NewGuid().ToString();
@@ -35,7 +38,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             _output = output;
         }
 
-        [Fact]
+        [Fact(Timeout = DefaultExpiryMs)]
         public async Task Set_SetData_CacheIsSet()
         {
             // Arrange
@@ -66,7 +69,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             }
         }
 
-        [Fact]
+        [Fact(Timeout = DefaultExpiryMs)]
         public async Task Set_WithCompacting_TagCompacted()
         {
             // Arrange
@@ -101,7 +104,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             }
         }
 
-        [Fact]
+        [Fact(Timeout = DefaultExpiryMs)]
         public async Task Set_SmallTagSize_SkipCompacting()
         {
             // Arrange
@@ -135,7 +138,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             }
         }
 
-        [Fact]
+        [Fact(Timeout = DefaultExpiryMs)]
         public async Task Set_TagCompactedRecently_SkipCompacting()
         {
             // Arrange
@@ -177,7 +180,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             // Arrange
             var key = "key1";
             var tag = "tag1";
-            var expiry = TimeSpan.FromSeconds(1);
+            var expiry = TimeSpan.FromSeconds(0.5);
 
             using (var connection = CreateConnection())
             {
@@ -233,7 +236,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             // Arrange
             var key = "key1";
             var tag = "tag1";
-            var expiry = TimeSpan.FromSeconds(1);
+            var expiry = TimeSpan.FromSeconds(0.5);
 
             using (var connection = CreateConnection())
             {
@@ -268,7 +271,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             }
         }
 
-        [Fact]
+        [Fact(Timeout = DefaultExpiryMs)]
         public async Task Get_CachedKey_CachedValue()
         {
             // Arrange
@@ -355,7 +358,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             Assert.Null(result);
         }
 
-        [Fact]
+        [Fact(Timeout = DefaultExpiryMs)]
         public async Task GetOrAdd_GetByKey_CachedValue()
         {
             // Arrange
@@ -379,7 +382,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             Assert.Equal(cachedData, result);
         }
 
-        [Fact]
+        [Fact(Timeout = DefaultExpiryMs)]
         public async Task GetOrAdd_GetByKey_RealData()
         {
             // Arrange
@@ -403,7 +406,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             Assert.Equal(realData, result);
         }
 
-        [Fact]
+        [Fact(Timeout = DefaultExpiryMs)]
         public async Task GetOrAdd_AddRealData_CacheIsSet()
         {
             // Arrange
@@ -454,7 +457,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             // Arrange
             var key = "key1";
             var tag = "tag1";
-            var expiry = TimeSpan.FromSeconds(1);
+            var expiry = TimeSpan.FromSeconds(0.5);
             static MemoryStream dataFactory() => GetRandomDataStream();
 
             using (var connection = CreateConnection())
@@ -482,7 +485,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             }
         }
 
-        [Fact]
+        [Fact(Timeout = DefaultExpiryMs)]
         public async Task GetOrAdd_ConcurrentInvalidation_CacheNotSet()
         {
             // Arrange
@@ -515,7 +518,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             }
         }
 
-        [Fact]
+        [Fact(Timeout = DefaultExpiryMs)]
         public async Task GetOrAdd_ConcurrentAdd_ReturnDeprecatedCache()
         {
             // Arrange
@@ -571,7 +574,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             await lockCacheTask;
         }
 
-        [Fact]
+        [Fact(Timeout = DefaultExpiryMs)]
         public async Task GetOrAdd_ConcurrentAdd_ThrowsException()
         {
             // Arrange
@@ -616,7 +619,8 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
                     {
                         Assert.True(false, "Duplicate call of the data factory when already locked.");
                         return GetRandomDataStream();
-                    }, _lockTimeout);
+                    },
+                    _lockTimeout);
             });
 
             Assert.True(dataObtainingStartedEvent.Set());
@@ -625,7 +629,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             _output.WriteLine($"{DateTime.UtcNow.TimeOfDay}: Release.");
         }
 
-        [Fact]
+        [Fact(Timeout = DefaultExpiryMs)]
         public async Task GetOrAdd_ConcurrentDifferentTagInvalidation_CacheSet()
         {
             // Arrange
@@ -659,7 +663,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             }
         }
 
-        [Fact]
+        [Fact(Timeout = DefaultExpiryMs)]
         public async Task InvalidateTag_WithKeys_TagRemovedAndKeysDeprecated()
         {
             // Arrange
@@ -694,7 +698,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             }
         }
 
-        [Fact]
+        [Fact(Timeout = DefaultExpiryMs)]
         public async Task InvalidateTag_WithMaxLockCount_CounterReset()
         {
             // Arrange
@@ -723,7 +727,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             }
         }
 
-        [Fact]
+        [Fact(Timeout = DefaultExpiryMs)]
         public async Task Invalidate_InvalidateExisting_KeyDeprecated()
         {
             // Arrange
@@ -768,11 +772,18 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             }
         }
 
-        [Theory]
+        [Theory(Timeout = DefaultExpiryMs)]
         [MemberData(nameof(GetKeysArrays), 2, 1, 1)]
         public async Task Exist_MultipleKeys_SomeExist(string[] existingKeys, string[] deprecatedKeys, string[] notExistingKeys)
         {
             // Arrange
+            var allKeys = existingKeys
+                .Concat(deprecatedKeys)
+                .Concat(notExistingKeys)
+                .ToArray();
+
+            using var redisCache = CreateRedisCache();
+
             using (var connection = CreateConnection())
             {
                 var db = connection.GetDatabase();
@@ -787,12 +798,6 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
                     existingKeys.Select(key => db.StringSetAsync(GetKey(key), string.Empty, _existingCacheTtl)).ToList());
             }
 
-            var allKeys = existingKeys
-                .Concat(deprecatedKeys)
-                .Concat(notExistingKeys);
-
-            using var redisCache = CreateRedisCache();
-
             // Act
             var existResults = redisCache.Exist(allKeys);
 
@@ -802,7 +807,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             Assert.All(existResults.Skip(existingKeys.Length), Assert.False);
         }
 
-        private static IEnumerable<object[]> GetKeysArrays(int existingCount, int deprecatedCount, int notExistingCount)
+        public static IEnumerable<object[]> GetKeysArrays(int existingCount, int deprecatedCount, int notExistingCount)
         {
             static string GetKeyName(int index) => $"key{index}";
 
@@ -834,54 +839,11 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
                 CompactTagFrequency = 100
             };
 
-        private static ILoggerFactory CreateLoggerFactory(ITestOutputHelper output, string name)
-        {
-            var mockLoggerFactory = new Mock<ILoggerFactory>();
-
-            _ = mockLoggerFactory
-                .Setup(factory => factory.CreateLogger(It.IsAny<string>()))
-                .Returns<string>(_ => GetLogger(output, name));
-
-            return mockLoggerFactory.Object;
-        }
-
-        private static ILogger GetLogger(ITestOutputHelper output, string name)
-        {
-            return GetLogger<ILogger>(output, name);
-        }
-
-        private static ILogger<T> GetLogger<T>(ITestOutputHelper output)
-        {
-            return GetLogger<ILogger<T>>(output, typeof(T).Name);
-        }
-
-        private static TLogger GetLogger<TLogger>(ITestOutputHelper output, string name)
-            where TLogger : class, ILogger
-        {
-            var mockLogger = new Mock<TLogger>();
-            _ = mockLogger
-                .Setup(logger => logger.Log(
-                    It.IsAny<LogLevel>(),
-                    It.IsAny<EventId>(),
-                    It.IsAny<It.IsAnyType>(),
-                    It.IsAny<Exception?>(),
-                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
-                .Callback(new InvocationAction((invocation) => output.WriteLine(
-                    $"{Environment.CurrentManagedThreadId}> [{DateTime.UtcNow.TimeOfDay} | {invocation.Arguments[0]} | {name}] " +
-                    $"{invocation.Arguments[2]} {invocation.Arguments[3]}")));
-
-            _ = mockLogger
-                .Setup(logger => logger.IsEnabled(It.IsAny<LogLevel>()))
-                .Returns(true);
-
-            return mockLogger.Object;
-        }
-
         private RedLockFactory CreateDefaultRedLockFactory() =>
             RedLockFactory.Create(
                 new[] { new RedLockEndPoint(_redisEndpoint) },
                 new RedLockRetryConfiguration(retryCount: 1),
-                CreateLoggerFactory(_output, nameof(RedLock)));
+                LoggerUtils.CreateLoggerFactory(_output, nameof(RedLock)));
 
         private RedisCache CreateRedisCache()
         {
@@ -890,7 +852,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             return new RedisCache(
                 CreateDefaultRedLockFactory(),
                 Options.Create(options),
-                GetLogger<RedisCache>(_output));
+                LoggerUtils.GetLogger<RedisCache>(_output));
         }
 
         private RedisCache CreateRedisCacheThatAlwaysCompacts()
@@ -903,7 +865,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             return new RedisCache(
                 CreateDefaultRedLockFactory(),
                 Options.Create(options),
-                GetLogger<RedisCache>(_output));
+                LoggerUtils.GetLogger<RedisCache>(_output));
         }
 
         private RedisCache CreateRedisCacheWithRareCompacts()
@@ -915,7 +877,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             return new RedisCache(
                 CreateDefaultRedLockFactory(),
                 Options.Create(options),
-                GetLogger<RedisCache>(_output));
+                LoggerUtils.GetLogger<RedisCache>(_output));
         }
 
         private RedisCache CreateRedisCacheWithoutOffsets()
@@ -931,7 +893,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             return new RedisCache(
                 CreateDefaultRedLockFactory(),
                 optionsAccessor,
-                GetLogger<RedisCache>(_output));
+                LoggerUtils.GetLogger<RedisCache>(_output));
         }
 
         private static ConnectionMultiplexer CreateConnection() =>

@@ -25,16 +25,17 @@ namespace QA.DotNetCore.Engine.CacheTags
             ICacheTagWatcher cacheTagWatcher,
             ILogger<CacheInvalidationService> logger,
             CacheTagsRegistrationConfigurator cfg,
-            IServiceScopeFactory factory
-            )
+            IServiceScopeFactory factory)
         {
             _cacheTagWatcher = cacheTagWatcher;
             _logger = logger;
             _factory = factory;
             _interval = cfg.TimerInterval;
             _timer = new Timer(
-                OnTick, null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan
-            );
+                OnTick,
+                null,
+                Timeout.InfiniteTimeSpan,
+                Timeout.InfiniteTimeSpan);
         }
 
         private void OnTick(object state)

@@ -5,7 +5,6 @@ using QA.DotNetCore.Caching.Exceptions;
 using QA.DotNetCore.Caching.Helpers.Operations;
 using QA.DotNetCore.Caching.Interfaces;
 using System;
-using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -96,13 +95,7 @@ namespace QA.DotNetCore.Caching
             _cache.Remove(GetDeprecatedCacheKey(key));
         }
 
-        /// <summary>
-        /// Записывает данные в кеш, маркирует эту запись тегами
-        /// </summary>
-        /// <param name="key">Ключ</param>
-        /// <param name="data">Данные</param>
-        /// <param name="tags">Теги</param>
-        /// <param name="expiration">Время кеширования (sliding expiration)</param>
+        /// <inheritdoc/>
         public virtual void Add(object data, string key, string[] tags, TimeSpan expiration)
         {
             key = GetKey(key);
@@ -232,7 +225,7 @@ namespace QA.DotNetCore.Caching
                     string missingKey = cacheInfo.Key;
                     string deprecatedCacheKey = GetDeprecatedCacheKey(missingKey);
 
-                    //добавим новое значение в кэш и сразу обновим deprecated значение, которое хранится в 2 раза дольше, чем основное
+                    //добавим новое значение в кеш и сразу обновим deprecated значение, которое хранится в 2 раза дольше, чем основное
                     Add(currentResult, missingKey, tags.ToArray(), expiration);
                     Add(currentResult, deprecatedCacheKey, Array.Empty<string>(), expiration + expiration);
                 }
@@ -241,7 +234,7 @@ namespace QA.DotNetCore.Caching
             if (recievedIndex != infos.Length)
             {
                 throw new InvalidOperationException(
-                    $"Factory {nameof(dataValuesFactory)} should return the same number of elements it recieved " +
+                    $"Factory {nameof(dataValuesFactory)} should return the same number of elements it received " +
                     $"(expected: {infos.Length}, returned: {recievedIndex})");
             }
         }
@@ -254,21 +247,21 @@ namespace QA.DotNetCore.Caching
         }
 
         /// <summary>
-        /// Потокобезопасно берет объект из кэша, если его там нет, то вызывает функцию для получения данных
-        /// и кладет результат в кэш, маркируя его тегами. При устаревании кэша старый результат еще хранится какое-то время.
-        /// Когда кэш устаревает, первый поток, который обратился за ним начинает вычислять новый результат, а в это время
+        /// Потокобезопасно берет объект из кеша, если его там нет, то вызывает функцию для получения данных
+        /// и кладет результат в кеш, маркируя его тегами. При устаревании кеша старый результат еще хранится какое-то время.
+        /// Когда кеш устаревает, первый поток, который обратился за ним начинает вычислять новый результат, а в это время
         /// другие параллельно обратившиеся потоки будут получать устаревшее значение, если оно есть.
         /// Если устаревшего значения нет, то другие параллельные потоки будут ждать пока основной поток вычислит новый
         /// результат (они могут не дождаться этого, если истечёт waitForCalculateTimeout, то будет возвращен null).
         /// </summary>
-        /// <typeparam name="T">тип объектов в кэше</typeparam>
+        /// <typeparam name="T">тип объектов в кеше</typeparam>
         /// <param name="cacheKey">Ключ</param>
         /// <param name="tags">Теги</param>
-        /// <param name="expiration">время жизни в кэше</param>
-        /// <param name="getData">функция для получения данных, если объектов кэше нет. нужно использовать анонимный делегат</param>
+        /// <param name="expiration">время жизни в кеше</param>
+        /// <param name="getData">функция для получения данных, если объектов кеше нет. нужно использовать анонимный делегат</param>
         /// <param name="waitForCalculateTimeout">таймаут ожидания параллельными потоками события окончания
         /// вычисления <paramref name="getData"/> по истечении  которого им будет возвращён null.
-        /// Актуален только когда в кэше нет устаревшего значения. По умолчанию используется 5 секунд.</param>
+        /// Актуален только когда в кеше нет устаревшего значения. По умолчанию используется 5 секунд.</param>
         /// <exception cref="DeprecateCacheIsExpiredOrMissingException">Выбрасывается в том случае, если другой поток уже выполняет запрос
         /// на обновления данных в кеше, а старых данные ещё (или уже) нет</exception>
         public virtual T GetOrAdd<T>(
@@ -290,14 +283,14 @@ namespace QA.DotNetCore.Caching
 
                     if (deprecatedResult != null)
                     {
-                        //проверим, взял ли блокировку по этому кэшу какой-то поток (т.е. вычисляется ли уже новое значение).
+                        //проверим, взял ли блокировку по этому кешу какой-то поток (т.е. вычисляется ли уже новое значение).
                         //т.к. найдено deprecated значение, то не будем ждать освобождения блокировки, если она будет
                         //потому что нам и так есть что вернуть
                         Monitor.TryEnter(locker, ref lockTaken);
                     }
                     else
                     {
-                        //проверим, взял ли блокировку по этому кэшу какой-то поток (т.е. вычисляется ли уже новое значение).
+                        //проверим, взял ли блокировку по этому кешу какой-то поток (т.е. вычисляется ли уже новое значение).
                         //если взял, то т.к. deprecated значения нет, то надо ждать освобождения блокировки, чтобы нам было что вернуть
                         //но ждать будем не дольше, чем waitForCalculateTimeout
                         if (waitForCalculateTimeout == default(TimeSpan))
@@ -316,7 +309,7 @@ namespace QA.DotNetCore.Caching
                             result = getData();
                             if (result != null)
                             {
-                                //добавим новое значение в кэш и сразу обновим deprecated значение, которое хранится в 2 раза дольше, чем основное
+                                //добавим новое значение в кеш и сразу обновим deprecated значение, которое хранится в 2 раза дольше, чем основное
                                 Add(result, cacheKey, tags, expiration);
                                 Add(result, deprecatedCacheKey, Array.Empty<string>(), TimeSpan.FromTicks(expiration.Ticks * 2));
                             }
@@ -344,26 +337,30 @@ namespace QA.DotNetCore.Caching
         }
 
         /// <summary>
-        /// Потокобезопасно берет объект из кэша, если его там нет, то вызывает функцию для получения данных
-        /// и кладет результат в кэш, маркируя его тегами. При устаревании кэша старый результат еще хранится какое-то время.
-        /// Когда кэш устаревает, первый поток, который обратился за ним начинает вычислять новый результат, а в это время
+        /// Потокобезопасно берет объект из кеша, если его там нет, то вызывает функцию для получения данных
+        /// и кладет результат в кеш, маркируя его тегами. При устаревании кеша старый результат еще хранится какое-то время.
+        /// Когда кеш устаревает, первый поток, который обратился за ним начинает вычислять новый результат, а в это время
         /// другие параллельно обратившиеся потоки будут получать устаревшее значение, если оно есть.
         /// Если устаревшего значения нет, то другие параллельные потоки будут ждать пока основной поток вычислит новый
         /// результат (они могут не дождаться этого, если истечёт waitForCalculateTimeout, то будет возвращен null).
         /// ВАЖНО: не поддерживается рекурсивный вызов с одинаковыми ключами (ограничение SemaphoreSlim).
         /// </summary>
-        /// <typeparam name="T">тип объектов в кэше</typeparam>
+        /// <typeparam name="T">тип объектов в кеше</typeparam>
         /// <param name="cacheKey">Ключ</param>
         /// <param name="tags">Теги</param>
-        /// <param name="expiration">время жизни в кэше</param>
-        /// <param name="getData">функция для получения данных, если объектов кэше нет. нужно использовать анонимный делегат</param>
+        /// <param name="expiration">время жизни в кеше</param>
+        /// <param name="getData">функция для получения данных, если объектов кеше нет. нужно использовать анонимный делегат</param>
         /// <param name="waitForCalculateTimeout">таймаут ожидания параллельными потоками события окончания
         /// вычисления <paramref name="getData"/> по истечении  которого им будет возвращён null.
-        /// Актуален только когда в кэше нет устаревшего значения. По умолчанию используется 5 секунд.</param>
+        /// Актуален только когда в кеше нет устаревшего значения. По умолчанию используется 5 секунд.</param>
         /// <exception cref="DeprecateCacheIsExpiredOrMissingException">Выбрасывается в том случае, если другой поток уже выполняет запрос
         /// на обновления данных в кеше, а старых данные ещё (или уже) нет</exception>
-        public virtual async Task<T> GetOrAddAsync<T>(string cacheKey, string[] tags, TimeSpan expiration,
-            Func<Task<T>> getData, TimeSpan waitForCalculateTimeout = default(TimeSpan))
+        public virtual async Task<T> GetOrAddAsync<T>(
+            string cacheKey,
+            string[] tags,
+            TimeSpan expiration,
+            Func<Task<T>> getData,
+            TimeSpan waitForCalculateTimeout = default)
         {
             var deprecatedCacheKey = GetDeprecatedCacheKey(cacheKey);
 
@@ -379,7 +376,7 @@ namespace QA.DotNetCore.Caching
 
                     if (deprecatedResult != null)
                     {
-                        //проверим, взял ли блокировку по этому кэшу какой-то поток (т.е. вычисляется ли уже новое значение).
+                        //проверим, взял ли блокировку по этому кешу какой-то поток (т.е. вычисляется ли уже новое значение).
                         //т.к. найдено deprecated значение, то не будем ждать освобождения блокировки, если она будет
                         //потому что нам и так есть что вернуть
                         lockTaken = await locker.WaitAsync(0)
@@ -387,7 +384,7 @@ namespace QA.DotNetCore.Caching
                     }
                     else
                     {
-                        //проверим, взял ли блокировку по этому кэшу какой-то поток (т.е. вычисляется ли уже новое значение).
+                        //проверим, взял ли блокировку по этому кешу какой-то поток (т.е. вычисляется ли уже новое значение).
                         //если взял, то т.к. deprecated значения нет, то надо ждать освобождения блокировки, чтобы нам было что вернуть
                         //но ждать будем не дольше, чем waitForCalculateTimeout
                         if (waitForCalculateTimeout == default)
@@ -408,7 +405,7 @@ namespace QA.DotNetCore.Caching
                             result = await getData().ConfigureAwait(false);
                             if (result != null)
                             {
-                                //добавим новое значение в кэш и сразу обновим deprecated значение, которое хранится в 2 раза дольше, чем основное
+                                //добавим новое значение в кеш и сразу обновим deprecated значение, которое хранится в 2 раза дольше, чем основное
                                 Add(result, cacheKey, tags, expiration);
                                 Add(result, deprecatedCacheKey, null, TimeSpan.FromTicks(expiration.Ticks * 2));
                             }
@@ -443,8 +440,7 @@ namespace QA.DotNetCore.Caching
         {
             (value as CancellationTokenSource)?.Cancel();
 
-            var strkey = key as string;
-            if (strkey != null)
+            if (key is string strkey)
             {
                 ((VersionedCacheCoreProvider)state).AddTag(DateTime.Now.AddDays(1), strkey, true);
             }
@@ -453,7 +449,7 @@ namespace QA.DotNetCore.Caching
         private CancellationTokenSource AddTag(DateTime tagExpiration, string item, bool isEscaped = false)
         {
             if (!isEscaped)
-        {
+            {
                 item = GetTag(item);
             }
 

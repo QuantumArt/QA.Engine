@@ -32,12 +32,12 @@ namespace QA.DotNetCore.Caching.Interfaces
         bool TryGetValue<TResult>(string key, [NotNullWhen(true)] out TResult result);
 
         /// <summary>
-        /// Записывает данные в кэш, маркирует эту запись тегами
+        /// Записывает данные в кеш, маркирует эту запись тегами
         /// </summary>
         /// <param name="key">Ключ</param>
         /// <param name="data">Данные</param>
         /// <param name="tags">Теги</param>
-        /// <param name="expiration">Время кэширования (sliding expiration)</param>
+        /// <param name="expiration">Время кеширования (absolute expiration).</param>
         void Add(object data, string key, string[] tags, TimeSpan expiration);
 
         // TODO: Move to extensions (to minimize interface).

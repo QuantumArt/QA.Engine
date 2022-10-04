@@ -70,6 +70,7 @@ namespace QA.DotNetCore.Caching.Distributed
             }
         }
 
+        /// <inheritdoc/>
         public void Add(object value, string key, string[] tags, TimeSpan expiration)
         {
             try

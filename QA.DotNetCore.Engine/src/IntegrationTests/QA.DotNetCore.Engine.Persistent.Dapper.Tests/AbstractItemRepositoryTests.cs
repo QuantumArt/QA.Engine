@@ -6,10 +6,12 @@ using QA.DotNetCore.Caching;
 using QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
+using Tests.CommonUtils.Xunit.Traits;
 using Xunit;
 
 namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests;
 
+[Category(CategoryType.Integration)]
 public class AbstractItemRepositoryTests
 {
     private const int BaseContentId = 537;

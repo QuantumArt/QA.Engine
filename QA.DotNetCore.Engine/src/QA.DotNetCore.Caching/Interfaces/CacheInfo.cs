@@ -6,7 +6,7 @@ namespace QA.DotNetCore.Caching.Interfaces
 
     public class CacheInfo<TId> : IEquatable<CacheInfo<TId>>
     {
-        public static readonly TimeSpan MinimalExpiry = TimeSpan.FromSeconds(1);
+        public static readonly TimeSpan MinimalExpiry = TimeSpan.FromSeconds(0.5);
         private static readonly StringComparer _keyComparer = StringComparer.OrdinalIgnoreCase;
 
         public TId Id { get; }

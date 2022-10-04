@@ -18,6 +18,8 @@ namespace QA.DotNetCore.Caching
         private readonly ILogger<DistributedMemoryCacheProvider> _logger;
         private readonly string _globalKeyPrefix;
 
+        private ICacheInvalidator Invalidator => this;
+
         public DistributedMemoryCacheProvider(
             IMemoryCache cache,
             IDistributedCacheProvider distributedCacheProvider,

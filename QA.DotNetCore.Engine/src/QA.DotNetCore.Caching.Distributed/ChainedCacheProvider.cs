@@ -16,11 +16,11 @@ namespace QA.DotNetCore.Caching.Distributed
 
         public ChainedCacheProvider(
             ICacheProvider frontCacheProvider,
-            ICacheProvider baseCacheProvider,
+            ICacheProvider backCacheProvider,
             ILogger<ChainedCacheProvider> logger)
         {
             _frontCacheProvider = frontCacheProvider ?? throw new ArgumentNullException(nameof(frontCacheProvider));
-            _backCacheProvider = baseCacheProvider ?? throw new ArgumentNullException(nameof(baseCacheProvider));
+            _backCacheProvider = backCacheProvider ?? throw new ArgumentNullException(nameof(backCacheProvider));
             _logger = logger;
         }
 

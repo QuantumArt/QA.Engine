@@ -14,7 +14,10 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
         /// <param name="app"></param>
         /// <param name="configureTrackers"></param>
         /// <returns></returns>
-        [Obsolete("Prefer configuring trackers using " + nameof(MvcServiceCollectionExtensions.AddCacheTagServices) + " method instead.")]
+        [Obsolete(
+            "Use " + nameof(UseCacheTagsInvalidation) + " overload without arguments "
+            + "and configure trackers using " + nameof(MvcServiceCollectionExtensions.AddCacheTagServices)
+            + " method instead.")]
         public static IApplicationBuilder UseCacheTagsInvalidation(this IApplicationBuilder app, Action<ServiceSetConfigurator<ICacheTagTracker>> configureTrackers)
         {
             var cfgTrackers = app.ApplicationServices.GetRequiredService<ServiceSetConfigurator<ICacheTagTracker>>();

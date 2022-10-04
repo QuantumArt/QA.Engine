@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Description>Provides distributed implementation of cache provider.</Description>
   </PropertyGroup>
 
@@ -11,7 +11,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="RedLock.net" Version="2.3.2" />
     <PackageReference Include="SharpZipLib" Version="1.4.0" />
-    <PackageReference Include="StackExchange.Redis" Version="2.5.61" />
+    <PackageReference Include="StackExchange.Redis" Version="2.6.66" />
   </ItemGroup>
 
   <ItemGroup>

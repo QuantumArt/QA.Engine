@@ -27,7 +27,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
         private static readonly string _connectionString = $"{_redisEndpoint.Host}:{_redisEndpoint.Port}";
         private static readonly string _instanceName = "wptests:" + Guid.NewGuid().ToString();
         private static readonly TimeSpan _deprecatedCacheTtl = new RedisCacheSettings().DeprecatedCacheTimeToLive;
-        private static readonly TimeSpan _defaultExpiry = TimeSpan.FromSeconds(1);
+        private static readonly TimeSpan _defaultExpiry = TimeSpan.FromSeconds(DefaultExpiryMs);
         private static readonly TimeSpan _existingCacheTtl = _deprecatedCacheTtl + _defaultExpiry;
         private static readonly TimeSpan _lockTimeout = TimeSpan.FromSeconds(1);
 

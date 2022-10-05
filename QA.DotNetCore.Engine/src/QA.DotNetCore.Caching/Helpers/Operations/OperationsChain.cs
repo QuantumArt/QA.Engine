@@ -39,7 +39,6 @@ public class OperationsChain<TInput, TResult>
                 "Start pipeline step {PipelineStep}/{PiplineStepsCount} (inputs count: {InputsCount})",
                 ++stepIndex,
                 _operations.Count,
-                pipelineId,
                 inputs.Length);
 
             IEnumerable<OperationResult<TResult>> operationResult = operation(inputs, context).ToArray();

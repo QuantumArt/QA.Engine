@@ -40,7 +40,6 @@ public class AsyncOperationsChain<TInput, TResult>
                 "Start pipeline step {PipelineStep}/{PiplineStepsCount} (inputs count: {InputsCount})",
                 ++stepIndex,
                 _operations.Count,
-                pipelineId,
                 inputs.Length);
 
             IEnumerable<OperationResult<TResult>> operationResult = await operation(inputs, context).ToArrayAsync();

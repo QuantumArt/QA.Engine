@@ -1,3 +1,4 @@
+using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -60,14 +61,45 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
             return new CacheTagConfigurationBuilder(services);
         }
 
+        public static ICacheTagConfigurationBuilder WithInvalidationByEvent<TEvent, TConsumer, TFaultConsumer>(
+            this ICacheTagConfigurationBuilder builder)
+            where TEvent : class
+            where TConsumer : class, IConsumer<TEvent>
+            where TFaultConsumer : class, IConsumer<Fault<TEvent>>
+        {
+            _ = builder.Services.AddMassTransit(registrationConfig =>
+            {
+                _ = registrationConfig.AddConsumer<TConsumer>();
+                _ = registrationConfig.AddConsumer<TFaultConsumer>();
+
+                registrationConfig.UsingRabbitMq((context, factoryConfig) =>
+                {
+                    var rabbitMqSettings = context.GetRequiredService<IOptions<RabbitMqSettings>>().Value;
+
+                    factoryConfig.UseRetry(retry => retry.Interval(
+                        rabbitMqSettings.RetryLimit,
+                        rabbitMqSettings.RetryDelay));
+
+                    factoryConfig.Host(
+                        rabbitMqSettings.Host,
+                        rabbitMqSettings.VirtualPath,
+                        hostConfig =>
+                        {
+                            hostConfig.Username(rabbitMqSettings.Username);
+                            hostConfig.Password(rabbitMqSettings.Password);
+                            hostConfig.Heartbeat(rabbitMqSettings.Heartbeat);
+                        });
+
+                    factoryConfig.ConfigureEndpoints(context);
+                });
+            });
+
+            return builder;
+        }
+
         public static ICacheTagConfigurationBuilder WithInvalidationByTimer(
             this ICacheTagConfigurationBuilder builder)
         {
-            if (builder is null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
             _ = builder.Services.Configure<CacheTagsRegistrationConfigurator>(options => options.InvalidateByTimer());
             _ = builder.Services.AddSingleton<IHostedService, CacheInvalidationService>();
 

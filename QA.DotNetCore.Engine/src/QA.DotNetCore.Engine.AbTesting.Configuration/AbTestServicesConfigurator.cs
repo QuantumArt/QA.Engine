@@ -8,6 +8,8 @@ using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
+using QA.DotNetCore.Engine.Persistent.Configuration;
+using QA.DotNetCore.Engine.CacheTags.Configuration;
 
 namespace QA.DotNetCore.Engine.AbTesting.Configuration
 {
@@ -47,23 +49,14 @@ namespace QA.DotNetCore.Engine.AbTesting.Configuration
                     return new UnitOfWork(options.QpConnectionString, options.QpDatabaseType);
                 });
             }
-            services.TryAddScoped<IMetaInfoRepository, MetaInfoRepository>();
-            services.TryAddScoped<INetNameQueryAnalyzer, NetNameQueryAnalyzer>();
+
+            services.TryAddSiteStructureRepositories();
+            _ = services.AddCacheTagServices();
 
             //сервисы
             services.TryAddScoped<AbTestChoiceResolver>();
             services.TryAddScoped<IAbTestRepository, AbTestRepository>();
             services.TryAddScoped<IAbTestService, AbTestService>();
-
-            services.TryAddSingleton<ICacheInvalidator, VersionedCacheCoreProvider>();
-            services.TryAddSingleton<IModificationStateStorage, DefaultModificationStateStorage>();
-            services.TryAddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
-            services.TryAddSingleton<IMemoryCacheProvider, VersionedCacheCoreProvider>();
-            services.TryAddSingleton<IDistributedMemoryCacheProvider, VersionedCacheCoreProvider>();
-
-            services.TryAddSingleton<INodeIdentifier>(StandaloneNodeIdentifier.Instance);
-            services.TryAddSingleton<IQpContentCacheTagNamingProvider, NullQpContentCacheTagNamingProvider>();
-            services.TryAddSingleton<ITargetingContext, NullTargetingContext>();
         }
     }
 }

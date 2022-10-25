@@ -1,5 +1,3 @@
-using System;
-
 namespace QA.DotNetCore.Engine.CacheTags.Configuration
 {
     public class CacheTagsRegistrationConfigurator
@@ -7,7 +5,7 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
         public bool UseTimer { get; private set; }
         public TimeSpan TimerInterval { get; private set; } = TimeSpan.FromSeconds(30);
         public bool UseMiddleware { get; private set; }
-        public string ExcludeRequestPathRegex { get; private set; }
+        public string? ExcludeRequestPathRegex { get; private set; }
 
         public void InvalidateByTimer(TimeSpan interval = default)
         {
@@ -18,7 +16,7 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
             }
         }
 
-        public void InvalidateByMiddleware(string excludeRequestPathRegex)
+        public void InvalidateByMiddleware(string? excludeRequestPathRegex)
         {
             UseMiddleware = true;
             ExcludeRequestPathRegex = excludeRequestPathRegex;

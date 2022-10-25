@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using QA.DotNetCore.Caching;
-using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.Finder;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
-using QA.DotNetCore.Engine.CacheTags;
+using QA.DotNetCore.Engine.CacheTags.Configuration;
+using QA.DotNetCore.Engine.Persistent.Configuration;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
@@ -145,14 +144,38 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
                 CacheFetchTimeoutAbstractItemStorage = options.CacheFetchTimeoutAbstractItemStorage
             });
 
-            Services.AddSingleton(new QpSiteStructureCacheSettings
+            //DAL
+            TryAddUnitOfWork(options);
+
+            _ = Services.Configure<QpSiteStructureCacheSettings>(settings =>
             {
-                SiteStructureCachePeriod = options.SiteStructureCachePeriod,
-                QpSchemeCachePeriod = options.QpSchemeCachePeriod,
-                ItemDefinitionCachePeriod = options.ItemDefinitionCachePeriod
+                settings.SiteStructureCachePeriod = options.SiteStructureCachePeriod;
+                settings.QpSchemeCachePeriod = options.QpSchemeCachePeriod;
+                settings.ItemDefinitionCachePeriod = options.ItemDefinitionCachePeriod;
             });
 
-            //DAL
+            _ = Services.AddCacheTagServices();
+            Services.TryAddSiteStructureRepositories();
+
+            Services.TryAddScoped<IQpUrlResolver, QpUrlResolver>();
+            Services.TryAddTransient<IAbstractItemStorageBuilder, QpAbstractItemStorageBuilder>();
+            Services.TryAddTransient<IAbstractItemContextStorageBuilder, QpAbstractItemStorageBuilder>();
+
+            if (options.SiteStructureCachePeriod <= TimeSpan.Zero)
+            {
+                Services.TryAddScoped<IAbstractItemStorageProvider, AbstractItemStorageProvider>();
+            }
+            else
+            {
+                Services.TryAddScoped<IAbstractItemStorageProvider, GranularCacheAbstractItemStorageProvider>();
+            }
+
+            Services.TryAddSingleton<ITargetingFilterAccessor, NullTargetingFilterAccessor>();
+            Services.TryAddSingleton<IItemFinder, ItemFinder>();
+        }
+
+        private void TryAddUnitOfWork(SiteStructureOptions options)
+        {
             if (!Services.Any(x => x.ServiceType == typeof(IUnitOfWork)))
             {
                 if (String.IsNullOrWhiteSpace(options.QpConnectionString))
@@ -170,35 +193,6 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
                     return new UnitOfWork(options.QpConnectionString, options.QpDatabaseType);
                 });
             }
-
-            Services.TryAddScoped<IMetaInfoRepository, MetaInfoRepository>();
-            Services.TryAddScoped<INetNameQueryAnalyzer, NetNameQueryAnalyzer>();
-            Services.TryAddScoped<IAbstractItemRepository, AbstractItemRepository>();
-            Services.TryAddScoped<IItemDefinitionRepository, ItemDefinitionRepository>();
-
-            Services.TryAddScoped<IQpUrlResolver, QpUrlResolver>();
-            Services.TryAddTransient<IAbstractItemStorageBuilder, QpAbstractItemStorageBuilder>();
-            Services.TryAddTransient<IAbstractItemContextStorageBuilder, QpAbstractItemStorageBuilder>();
-
-            if (options.SiteStructureCachePeriod <= TimeSpan.Zero)
-            {
-                Services.TryAddScoped<IAbstractItemStorageProvider, AbstractItemStorageProvider>();
-            }
-            else
-            {
-                Services.TryAddScoped<IAbstractItemStorageProvider, GranularCacheAbstractItemStorageProvider>();
-            }
-
-            Services.TryAddSingleton<ICacheInvalidator, VersionedCacheCoreProvider>();
-            Services.TryAddSingleton<IModificationStateStorage, DefaultModificationStateStorage>();
-            Services.TryAddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
-            Services.TryAddSingleton<IMemoryCacheProvider, VersionedCacheCoreProvider>();
-            Services.TryAddSingleton<IDistributedMemoryCacheProvider, VersionedCacheCoreProvider>();
-
-            Services.TryAddSingleton<INodeIdentifier>(StandaloneNodeIdentifier.Instance);
-            Services.TryAddScoped<IQpContentCacheTagNamingProvider, DefaultQpContentCacheTagNamingProvider>();
-            Services.TryAddSingleton<ITargetingFilterAccessor, NullTargetingFilterAccessor>();
-            Services.TryAddSingleton<IItemFinder, ItemFinder>();
         }
     }
 }

@@ -38,7 +38,7 @@ namespace QA.DotNetCore.Engine.CacheTags
                 Timeout.InfiniteTimeSpan);
         }
 
-        private void OnTick(object state)
+        private void OnTick(object? state)
         {
             using var scope = _factory.CreateScope();
 

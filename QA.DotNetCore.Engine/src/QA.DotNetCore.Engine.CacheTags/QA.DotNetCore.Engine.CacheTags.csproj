@@ -5,11 +5,7 @@
     <Description>Provides cache-tags features and configuration way for it.</Description>
   </PropertyGroup>
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\QA.DotNetCore.Caching\QA.DotNetCore.Caching.csproj" />
-    <ProjectReference Include="..\QA.DotNetCore.Caching.HostedService\QA.DotNetCore.Caching.HostedService.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Abstractions\QA.DotNetCore.Engine.Abstractions.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Persistent.Dapper\QA.DotNetCore.Engine.Persistent.Dapper.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Persistent.Interfaces\QA.DotNetCore.Engine.Persistent.Interfaces.csproj" />

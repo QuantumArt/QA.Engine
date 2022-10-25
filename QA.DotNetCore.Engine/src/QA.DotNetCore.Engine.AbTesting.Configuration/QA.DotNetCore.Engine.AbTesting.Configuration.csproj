@@ -6,7 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\QA.DotNetCore.Engine.AbTesting\QA.DotNetCore.Engine.AbTesting.csproj" />
-    <ProjectReference Include="..\QA.DotNetCore.Engine.Persistent.Dapper\QA.DotNetCore.Engine.Persistent.Dapper.csproj" />
-    <ProjectReference Include="..\QA.DotNetCore.Engine.Persistent.Interfaces\QA.DotNetCore.Engine.Persistent.Interfaces.csproj" />
+    <ProjectReference Include="..\QA.DotNetCore.Engine.CacheTags.Configuration\QA.DotNetCore.Engine.CacheTags.Configuration.csproj" />
+    <ProjectReference Include="..\QA.DotNetCore.Engine.Persistent.Configuration\QA.DotNetCore.Engine.Persistent.Configuration.csproj" />
   </ItemGroup>
 </Project>

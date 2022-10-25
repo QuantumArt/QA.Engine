@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.1.3
+
+### Fix MassTransit error on startup
+
+- Fix error on startup by consolidating versions of MassTransit dependencies
+
 ## 3.1.2
 
 ### Add changelog

@@ -64,17 +64,18 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{328BDC61-7594-4288-A7D9-C78B61B17196}"
 	ProjectSection(SolutionItems) = preProject
 		..\..\.editorconfig = ..\..\.editorconfig
+		..\docs\CHANGELOG.md = ..\docs\CHANGELOG.md
 		Directory.Build.props = Directory.Build.props
 		nuget.config = nuget.config
-		README.md = README.md
+		..\docs\README.md = ..\docs\README.md
 		set-package-version.ps1 = set-package-version.ps1
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.CommonUtils", "Tests.CommonUtils\Tests.CommonUtils.csproj", "{D68C9FC5-4F72-4868-BFE3-948C2AA7D803}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QA.DotNetCore.Engine.Persistent.Configuration", "QA.DotNetCore.Engine.Persistent.Configuration\QA.DotNetCore.Engine.Persistent.Configuration.csproj", "{6BCC719A-D176-448D-BA28-5AF5EBAD4EED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.Persistent.Configuration", "QA.DotNetCore.Engine.Persistent.Configuration\QA.DotNetCore.Engine.Persistent.Configuration.csproj", "{6BCC719A-D176-448D-BA28-5AF5EBAD4EED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QA.DotNetCore.Engine.CacheTags.Configuration", "QA.DotNetCore.Engine.CacheTags.Configuration\QA.DotNetCore.Engine.CacheTags.Configuration.csproj", "{31983814-6143-4755-8E28-4B2EA67BFE92}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DotNetCore.Engine.CacheTags.Configuration", "QA.DotNetCore.Engine.CacheTags.Configuration\QA.DotNetCore.Engine.CacheTags.Configuration.csproj", "{31983814-6143-4755-8E28-4B2EA67BFE92}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -174,6 +175,10 @@ Global
 		{D955E0B5-3CF6-43EC-B3C6-A137714AE799}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D955E0B5-3CF6-43EC-B3C6-A137714AE799}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D955E0B5-3CF6-43EC-B3C6-A137714AE799}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0757E94-E2EB-416B-A1AB-B1116B9865F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0757E94-E2EB-416B-A1AB-B1116B9865F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0757E94-E2EB-416B-A1AB-B1116B9865F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0757E94-E2EB-416B-A1AB-B1116B9865F6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B47C3078-4611-452A-B06F-922686733A1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B47C3078-4611-452A-B06F-922686733A1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B47C3078-4611-452A-B06F-922686733A1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -194,10 +199,6 @@ Global
 		{31983814-6143-4755-8E28-4B2EA67BFE92}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{31983814-6143-4755-8E28-4B2EA67BFE92}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{31983814-6143-4755-8E28-4B2EA67BFE92}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E0757E94-E2EB-416B-A1AB-B1116B9865F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E0757E94-E2EB-416B-A1AB-B1116B9865F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E0757E94-E2EB-416B-A1AB-B1116B9865F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E0757E94-E2EB-416B-A1AB-B1116B9865F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -210,9 +211,9 @@ Global
 		{120036F5-E1E7-4CCA-A21E-741C68DDA491} = {643A033A-63A5-4D4C-9E66-28CFD52A21F4}
 		{EF0796A3-0662-4113-8B77-886C1A944E42} = {643A033A-63A5-4D4C-9E66-28CFD52A21F4}
 		{D955E0B5-3CF6-43EC-B3C6-A137714AE799} = {71743891-E4AA-4F47-8499-57980637F53A}
+		{E0757E94-E2EB-416B-A1AB-B1116B9865F6} = {A66C4C11-6253-46DD-8A7B-459C039EF942}
 		{B47C3078-4611-452A-B06F-922686733A1E} = {71743891-E4AA-4F47-8499-57980637F53A}
 		{D68C9FC5-4F72-4868-BFE3-948C2AA7D803} = {643A033A-63A5-4D4C-9E66-28CFD52A21F4}
-		{E0757E94-E2EB-416B-A1AB-B1116B9865F6} = {A66C4C11-6253-46DD-8A7B-459C039EF942}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05B47769-EDD2-4180-A8DF-018E5283C45D}

@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.4
+
+Обновление nuget-зависимостей
+
 ## 3.1.3
 
 ### Fix MassTransit error on startup

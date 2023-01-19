@@ -13,6 +13,7 @@ namespace QA.DotNetCore.Caching.Configuration
             services.TryAddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
             services.TryAddSingleton<IMemoryCacheProvider, VersionedCacheCoreProvider>();
             services.TryAddSingleton<INodeIdentifier>(StandaloneNodeIdentifier.Instance);
+            services.TryAddSingleton<IModificationStateStorage, DefaultModificationStateStorage>();
             services.TryAddSingleton<IDistributedMemoryCacheProvider, VersionedCacheCoreProvider>();
         }
     }

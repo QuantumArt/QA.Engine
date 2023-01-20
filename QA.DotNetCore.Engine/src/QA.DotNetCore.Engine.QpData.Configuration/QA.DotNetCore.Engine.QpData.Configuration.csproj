@@ -5,12 +5,9 @@
     <Description>Provides easy configuration way for .Net Core site structure implementation via QP.</Description>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\QA.DotNetCore.Engine.Abstractions\QA.DotNetCore.Engine.Abstractions.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.CacheTags.Configuration\QA.DotNetCore.Engine.CacheTags.Configuration.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Persistent.Configuration\QA.DotNetCore.Engine.Persistent.Configuration.csproj" />
-    <ProjectReference Include="..\QA.DotNetCore.Engine.QpData\QA.DotNetCore.Engine.QpData.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Reflection\QA.DotNetCore.Engine.Reflection.csproj" />
-    <ProjectReference Include="..\QA.DotNetCore.Engine.Routing\QA.DotNetCore.Engine.Routing.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Widgets\QA.DotNetCore.Engine.Widgets.csproj" />
   </ItemGroup>
 </Project>

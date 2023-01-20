@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\QA.DotNetCore.Engine.CacheTags\QA.DotNetCore.Engine.CacheTags.csproj" />
-    <ProjectReference Include="..\QA.DotNetCore.Engine.Persistent.Dapper\QA.DotNetCore.Engine.Persistent.Dapper.csproj" />
   </ItemGroup>
 
 </Project>

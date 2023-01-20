@@ -8,7 +8,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <Company>Quantum Art</Company>
-    <Copyright>Copyright © 2022 Quantum Art</Copyright>
+    <Copyright>Copyright © 2023 Quantum Art</Copyright>
     <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">

@@ -130,7 +130,7 @@ namespace QA.DotNetCore.Caching
         {
             foreach (var tag in tags)
             {
-                _cache.Remove(tag);
+                _cache.Remove(GetTag(tag));
             }
         }
 

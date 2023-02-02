@@ -7,12 +7,12 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
         public bool UseMiddleware { get; private set; }
         public string? ExcludeRequestPathRegex { get; private set; }
 
-        public void InvalidateByTimer(TimeSpan interval = default)
+        public void InvalidateByTimer(TimeSpan? interval = null)
         {
             UseTimer = true;
-            if (interval != default)
+            if (interval != null)
             {
-                TimerInterval = interval;
+                TimerInterval = interval.Value;
             }
         }
 

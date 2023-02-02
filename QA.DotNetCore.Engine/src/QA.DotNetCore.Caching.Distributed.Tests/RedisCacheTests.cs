@@ -21,7 +21,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
     [Category(CategoryType.Integration)]
     public class RedisCacheTests
     {
-        private const int DefaultExpiryMs = 1500;
+        private const int DefaultExpiryMs = 3000;
 
         private static readonly DnsEndPoint _redisEndpoint = new("SPBREDIS01.ARTQ.COM", 6407);
         private static readonly string _connectionString = $"{_redisEndpoint.Host}:{_redisEndpoint.Port}";

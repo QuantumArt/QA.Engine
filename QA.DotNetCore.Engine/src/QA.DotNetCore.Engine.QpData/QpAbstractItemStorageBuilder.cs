@@ -101,7 +101,7 @@ namespace QA.DotNetCore.Engine.QpData
                 {
                     abstractItem.LazyDetails = new Lazy<AbstractItemExtensionCollection>(() =>
                         BuildDetails(abstractItem,
-                            _context.LazyExtensionData[extensionContentId],
+                            _context.GetExtensionData(extensionContentId),
                             _context.ExtensionContents,
                             _context.BaseContent,
                             _context.ExtensionsM2MData,
@@ -193,7 +193,7 @@ namespace QA.DotNetCore.Engine.QpData
                     x => x.Key,
                     x => x.ToArray());
 
-            Init(extensionsWithAbsItems);
+            Init(extensionsWithAbsItems, false);
 
             var abstractItems = extensionsWithAbsItems
                 .SelectMany(x => BuildAbstractItems(x.Key, x.Value))
@@ -206,7 +206,7 @@ namespace QA.DotNetCore.Engine.QpData
         /// Формирование контекста
         /// </summary>
         /// <param name="extensions">Content items from AbstractItems content grouped by extension type.</param>
-        public void Init(IDictionary<int, AbstractItemPersistentData[]> extensions)
+        public void Init(IDictionary<int, AbstractItemPersistentData[]> extensions, bool loadExtensionsLazy)
         {
             _context = new AbstractItemStorageBuilderContext
             {
@@ -226,14 +226,28 @@ namespace QA.DotNetCore.Engine.QpData
                         _buildSettings.SiteId)
                     .ToDictionary(c => c.ContentId);
 
-                // TODO: Cache lazy data (with DistributedMemoryCache).
-                _context.LazyExtensionData = extensions.ToDictionary(x => x.Key,
-                    x => new Lazy<IDictionary<int, AbstractItemExtensionCollection>>(
-                        () => GetAbstractItemExtensionData(
-                            x.Key,
+                if (loadExtensionsLazy)
+                {
+                    _context.LazyExtensionData = extensions.ToDictionary(x => x.Key,
+                        x => new Lazy<IDictionary<int, AbstractItemExtensionCollection>>(
+                            () => GetAbstractItemExtensionData(
+                                x.Key,
+                                x.Value.Select(i => i.Id),
+                                _context.BaseContent,
+                                _context.LogId))); 
+                }
+                else
+                {
+                    _context.ExtensionData = extensions.ToDictionary(x => x.Key,
+                        x => GetAbstractItemExtensionData(
+                            x.Key, 
                             x.Value.Select(i => i.Id),
                             _context.BaseContent,
-                            _context.LogId)));
+                            _context.LogId
+                        )
+                    );
+                }
+
 
                 WidgetsAndPagesCacheTags tags = GetTags(extensions.Keys);
 
@@ -405,7 +419,7 @@ namespace QA.DotNetCore.Engine.QpData
         /// <param name="logId"></param>
         /// <returns></returns>
         private AbstractItemExtensionCollection BuildDetails(AbstractItem item,
-            Lazy<IDictionary<int, AbstractItemExtensionCollection>> extensionDataLazy,
+            IDictionary<int, AbstractItemExtensionCollection> extensionData,
             IDictionary<int, ContentPersistentData> extensionContents,
             ContentPersistentData baseContent,
             IDictionary<int, M2mRelations> extensionsM2MData,
@@ -418,7 +432,7 @@ namespace QA.DotNetCore.Engine.QpData
             var logger = scope.ServiceProvider.GetRequiredService<ILogger<QpAbstractItemStorageBuilder>>();
 
             return BuildDetails(qpUrlResolver, buildSettings, logger,
-                item, extensionDataLazy, extensionContents, baseContent, extensionsM2MData, logId);
+                item, extensionData, extensionContents, baseContent, extensionsM2MData, logId);
         }
 
         /// <summary>
@@ -427,7 +441,7 @@ namespace QA.DotNetCore.Engine.QpData
         /// <param name="buildSettings"></param>
         /// <param name="logger"></param>
         /// <param name="item">AbstractItem</param>
-        /// <param name="extensionDataLazy">Словарь, где ключ - это CID расширения, в значение - это данные расширения</param>
+        /// <param name="extensionData">Словарь, где ключ - это CID расширения, в значение - это данные расширения</param>
         /// <param name="extensionContents"></param>
         /// <param name="baseContent"></param>
         /// <param name="extensionsM2MData">Данные о связях m2m у расширения</param>
@@ -439,7 +453,7 @@ namespace QA.DotNetCore.Engine.QpData
             QpSiteStructureBuildSettings buildSettings,
             ILogger logger,
             AbstractItem item,
-            Lazy<IDictionary<int, AbstractItemExtensionCollection>> extensionDataLazy,
+            IDictionary<int, AbstractItemExtensionCollection> extensionData,
             IDictionary<int, ContentPersistentData> extensionContents,
             ContentPersistentData baseContent,
             IDictionary<int, M2mRelations> extensionsM2MData,
@@ -447,7 +461,6 @@ namespace QA.DotNetCore.Engine.QpData
         {
             var extensionContentId = item.ExtensionId.GetValueOrDefault(0);
 
-            var extensionData = extensionDataLazy.Value;
             if (!extensionData.TryGetValue(item.Id, out var details))
             {
                 logger.LogDebug(

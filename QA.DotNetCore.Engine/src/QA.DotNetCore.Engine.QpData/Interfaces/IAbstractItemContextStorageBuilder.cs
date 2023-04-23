@@ -14,7 +14,7 @@ namespace QA.DotNetCore.Engine.QpData.Interfaces
         /// </summary>
         /// <param name="extensions"></param>
         /// <returns></returns>
-        void Init(IDictionary<int, AbstractItemPersistentData[]> extensions);
+        void Init(IDictionary<int, AbstractItemPersistentData[]> extensions, bool loadExtensionsLazy);
 
         /// <summary>
         /// Формирование AbstractItem

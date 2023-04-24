@@ -28,6 +28,7 @@ namespace QA.DotNetCore.Engine.QpData
         private readonly QpSiteStructureBuildSettings _buildSettings;
         private readonly ILogger<QpAbstractItemStorageBuilder> _logger;
         private readonly IServiceScopeFactory _scopeFactory;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         private readonly ICacheProvider _cacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
@@ -39,6 +40,7 @@ namespace QA.DotNetCore.Engine.QpData
             QpSiteStructureBuildSettings buildSettings,
             ILogger<QpAbstractItemStorageBuilder> logger,
             IServiceScopeFactory scopeFactory,
+            IServiceProvider serviceProvider,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
             ICacheProvider cacheProvider,
             QpSiteStructureCacheSettings cacheSettings)
@@ -49,6 +51,7 @@ namespace QA.DotNetCore.Engine.QpData
             _buildSettings = buildSettings;
             _logger = logger;
             _scopeFactory = scopeFactory;
+            _serviceProvider = serviceProvider;
             _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
             _cacheProvider = cacheProvider;
             _cacheSettings = cacheSettings;
@@ -69,7 +72,7 @@ namespace QA.DotNetCore.Engine.QpData
         /// <param name="extensionContentId">Идентификатор контента расширения</param>
         /// <param name="abstractItemPersistentDatas">Идентификаторы связанный AbstractItem</param>
         /// <returns></returns>
-        public AbstractItem[] BuildAbstractItems(int extensionContentId, AbstractItemPersistentData[] abstractItemPersistentDatas)
+        public AbstractItem[] BuildAbstractItems(int extensionContentId, AbstractItemPersistentData[] abstractItemPersistentDatas, bool lazyLoad)
         {
             if (_context == null)
             {
@@ -99,13 +102,31 @@ namespace QA.DotNetCore.Engine.QpData
             {
                 foreach (var abstractItem in activatedAbstractItems.Values)
                 {
-                    abstractItem.LazyDetails = new Lazy<AbstractItemExtensionCollection>(() =>
-                        BuildDetails(abstractItem,
-                            _context.GetExtensionData(extensionContentId),
-                            _context.ExtensionContents,
-                            _context.BaseContent,
-                            _context.ExtensionsM2MData,
-                            _context.LogId));
+                    if (lazyLoad)
+                    {
+                        abstractItem.LazyDetails = new Lazy<AbstractItemExtensionCollection>(() =>
+                            BuildDetails(abstractItem,
+                                _context.GetExtensionData(extensionContentId),
+                                _context.ExtensionContents,
+                                _context.BaseContent,
+                                _context.ExtensionsM2MData,
+                                _context.LogId,
+                                true
+                            )
+                        );
+                        
+                    }
+                    else
+                    {
+                        abstractItem.Details = BuildDetails(abstractItem,
+                                _context.GetExtensionData(extensionContentId),
+                                _context.ExtensionContents,
+                                _context.BaseContent,
+                                _context.ExtensionsM2MData,
+                                _context.LogId,
+                                false
+                        );
+                    }
                 }
             }
             else
@@ -196,7 +217,7 @@ namespace QA.DotNetCore.Engine.QpData
             Init(extensionsWithAbsItems, false);
 
             var abstractItems = extensionsWithAbsItems
-                .SelectMany(x => BuildAbstractItems(x.Key, x.Value))
+                .SelectMany(x => BuildAbstractItems(x.Key, x.Value, false))
                 .ToArray();
             SetRelationsBetweenAbstractItems(abstractItems);
             return BuildStorage(abstractItems);
@@ -206,7 +227,7 @@ namespace QA.DotNetCore.Engine.QpData
         /// Формирование контекста
         /// </summary>
         /// <param name="extensions">Content items from AbstractItems content grouped by extension type.</param>
-        public void Init(IDictionary<int, AbstractItemPersistentData[]> extensions, bool loadExtensionsLazy)
+        public void Init(IDictionary<int, AbstractItemPersistentData[]> extensions, bool lazyLoad)
         {
             _context = new AbstractItemStorageBuilderContext
             {
@@ -226,7 +247,7 @@ namespace QA.DotNetCore.Engine.QpData
                         _buildSettings.SiteId)
                     .ToDictionary(c => c.ContentId);
 
-                if (loadExtensionsLazy)
+                if (lazyLoad)
                 {
                     _context.LazyExtensionData = extensions.ToDictionary(x => x.Key,
                         x => new Lazy<IDictionary<int, AbstractItemExtensionCollection>>(
@@ -234,7 +255,9 @@ namespace QA.DotNetCore.Engine.QpData
                                 x.Key,
                                 x.Value.Select(i => i.Id),
                                 _context.BaseContent,
-                                _context.LogId))); 
+                                _context.LogId,
+                                true
+                                ))); 
                 }
                 else
                 {
@@ -243,7 +266,8 @@ namespace QA.DotNetCore.Engine.QpData
                             x.Key, 
                             x.Value.Select(i => i.Id),
                             _context.BaseContent,
-                            _context.LogId
+                            _context.LogId,
+                            false
                         )
                     );
                 }
@@ -362,13 +386,14 @@ namespace QA.DotNetCore.Engine.QpData
         }
 
         private IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionId,
-            IEnumerable<int> abstractItemIds, ContentPersistentData baseContent, string logId)
+            IEnumerable<int> abstractItemIds, ContentPersistentData baseContent, string logId, bool createScope)
         {
-            using var scope = _scopeFactory.CreateScope();
+            using var scope = createScope ? _scopeFactory.CreateScope() : null;
+            var provider = scope != null ? scope.ServiceProvider : _serviceProvider;
 
-            var abstractItemRepository = scope.ServiceProvider.GetRequiredService<IAbstractItemRepository>();
-            var buildSettings = scope.ServiceProvider.GetRequiredService<QpSiteStructureBuildSettings>();
-            var logger = scope.ServiceProvider.GetRequiredService<ILogger<QpAbstractItemStorageBuilder>>();
+            var abstractItemRepository = provider.GetRequiredService<IAbstractItemRepository>();
+            var buildSettings = provider.GetRequiredService<QpSiteStructureBuildSettings>();
+            var logger = provider.GetRequiredService<ILogger<QpAbstractItemStorageBuilder>>();
 
             return GetAbstractItemExtensionData(
                 abstractItemRepository,
@@ -417,19 +442,23 @@ namespace QA.DotNetCore.Engine.QpData
         /// <param name="baseContent"></param>
         /// <param name="extensionsM2MData">Данные о связях m2m у расширения</param>
         /// <param name="logId"></param>
+        /// <param name="createScope"></param>
         /// <returns></returns>
         private AbstractItemExtensionCollection BuildDetails(AbstractItem item,
             IDictionary<int, AbstractItemExtensionCollection> extensionData,
             IDictionary<int, ContentPersistentData> extensionContents,
             ContentPersistentData baseContent,
             IDictionary<int, M2mRelations> extensionsM2MData,
-            string logId)
+            string logId,
+            bool createScope
+            )
         {
-            using var scope = _scopeFactory.CreateScope();
+            using var scope = createScope ? _scopeFactory.CreateScope() : null;
+            var provider = scope != null ? scope.ServiceProvider : _serviceProvider;
 
-            var qpUrlResolver = scope.ServiceProvider.GetRequiredService<IQpUrlResolver>();
-            var buildSettings = scope.ServiceProvider.GetRequiredService<QpSiteStructureBuildSettings>();
-            var logger = scope.ServiceProvider.GetRequiredService<ILogger<QpAbstractItemStorageBuilder>>();
+            var qpUrlResolver = provider.GetRequiredService<IQpUrlResolver>();
+            var buildSettings = provider.GetRequiredService<QpSiteStructureBuildSettings>();
+            var logger = provider.GetRequiredService<ILogger<QpAbstractItemStorageBuilder>>();
 
             return BuildDetails(qpUrlResolver, buildSettings, logger,
                 item, extensionData, extensionContents, baseContent, extensionsM2MData, logId);

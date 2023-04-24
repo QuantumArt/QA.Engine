@@ -117,7 +117,9 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 aiFactoryMoq.Object,
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
-                serviceScopeFactory.Object);
+                serviceScopeFactory.Object,
+                serviceProvider.Object
+                );
 
             var aiStorage = builder.Build();
 
@@ -256,7 +258,9 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 aiFactoryMoq.Object,
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
-                serviceScopeFactory.Object);
+                serviceScopeFactory.Object,
+                serviceProvider.Object
+            );
 
             var aiStorage = builder.Build();
 
@@ -382,7 +386,9 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 aiFactoryMoq.Object,
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
-                serviceScopeFactory.Object);
+                serviceScopeFactory.Object,
+                serviceProvider.Object
+            );
 
             var aiStorage = builder.Build();
 
@@ -563,7 +569,9 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 aiFactoryMoq.Object,
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
-                serviceScopeFactory.Object);
+                serviceScopeFactory.Object,
+                serviceProvider.Object
+            );
 
             var aiStorage = builder.Build();
 
@@ -640,7 +648,9 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 aiFactoryMoq.Object,
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
-                serviceScopeFactory.Object);
+                serviceScopeFactory.Object,
+                serviceProvider.Object
+            );
 
             AbstractItemStorage aiStorage = builder.Build();
 
@@ -726,7 +736,9 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 aiFactoryMoq.Object,
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
-                serviceScopeFactory.Object);
+                serviceScopeFactory.Object,
+                serviceProvider.Object
+            );
 
             var aiStorage = builder.Build();
 
@@ -818,7 +830,9 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 aiFactoryMoq.Object,
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
-                serviceScopeFactory.Object);
+                serviceScopeFactory.Object,
+                serviceProvider.Object
+            );
 
             var aiStorage = builder.Build();
 
@@ -844,7 +858,9 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             IAbstractItemFactory itemFactory,
             IAbstractItemRepository abstractItemRepository,
             IMetaInfoRepository metaInfoRepository,
-            IServiceScopeFactory scopeFactory)
+            IServiceScopeFactory scopeFactory,
+            IServiceProvider serviceProvider
+            )
         {
             var mockQpContentCacheTagNamingProvider = new Mock<IQpContentCacheTagNamingProvider>();
             _ = mockQpContentCacheTagNamingProvider
@@ -858,6 +874,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 buildSettings,
                 Mock.Of<ILogger<QpAbstractItemStorageBuilder>>(),
                 scopeFactory,
+                serviceProvider,
                 mockQpContentCacheTagNamingProvider.Object,
                 _cacheProvider,
                 cacheSettings);

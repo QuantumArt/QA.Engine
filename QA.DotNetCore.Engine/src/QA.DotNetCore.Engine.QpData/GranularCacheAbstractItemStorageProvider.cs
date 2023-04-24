@@ -116,7 +116,7 @@ namespace QA.DotNetCore.Engine.QpData
         /// Формирование AbstractItem
         /// </summary>
         private AbstractItem[] BuildAbstractItems(int extensionContentId, AbstractItemPersistentData[] plainAbstractItems)
-            => _builder.BuildAbstractItems(extensionContentId, plainAbstractItems);
+            => _builder.BuildAbstractItems(extensionContentId, plainAbstractItems, true);
 
         private IDictionary<int, AbstractItemPersistentData[]> GetExtensionContentsWithAbstractItemPersistentData()
         {

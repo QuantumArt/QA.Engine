@@ -214,6 +214,7 @@ namespace QA.DotNetCore.Engine.Routing.Tests
                 buildSettings,
                 logger,
                 serviceScopeFactory.Object,
+                serviceProvider.Object,
                 Mock.Of<IQpContentCacheTagNamingProvider>(),
                 cacheProvider,
                 cacheSettings);

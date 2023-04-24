@@ -11,10 +11,22 @@ namespace QA.DotNetCore.Engine.QpData.Models
             LogId = Guid.NewGuid().ToString();
         }
 
+        public IDictionary<int, AbstractItemExtensionCollection> GetExtensionData(int key)
+        {
+            var result = (ExtensionData != null) ? ExtensionData[key] : LazyExtensionData[key].Value;
+            return result ?? new Dictionary<int, AbstractItemExtensionCollection>();
+        }
+
         /// <summary>
         /// Словарь, где ключ - это Content Id расширения, в значение - это статьи расширения, где поля раскиданы по ключам
         /// </summary>
         public IDictionary<int, Lazy<IDictionary<int, AbstractItemExtensionCollection>>> LazyExtensionData { get; set; }
+        
+        /// <summary>
+        /// Словарь, где ключ - это Content Id расширения, в значение - это статьи расширения, где поля раскиданы по ключам
+        /// </summary>
+        
+        public IDictionary<int, IDictionary<int, AbstractItemExtensionCollection>> ExtensionData { get; set; }
 
         /// <summary>
         /// Информация обо всех контентах-расширениях, которые используются

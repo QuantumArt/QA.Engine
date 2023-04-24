@@ -14,7 +14,7 @@ namespace QA.DotNetCore.Engine.QpData.Interfaces
         /// </summary>
         /// <param name="extensions"></param>
         /// <returns></returns>
-        void Init(IDictionary<int, AbstractItemPersistentData[]> extensions);
+        void Init(IDictionary<int, AbstractItemPersistentData[]> extensions, bool lazyLoad);
 
         /// <summary>
         /// Формирование AbstractItem
@@ -22,7 +22,7 @@ namespace QA.DotNetCore.Engine.QpData.Interfaces
         /// <param name="extensionContentId">Идентификатор контента расширения</param>
         /// <param name="abstractItemPersistentDatas">Идентификаторы связанный AbstractItem</param>
         /// <returns></returns>
-        AbstractItem[] BuildAbstractItems(int extensionContentId, AbstractItemPersistentData[] abstractItemPersistentDatas);
+        AbstractItem[] BuildAbstractItems(int extensionContentId, AbstractItemPersistentData[] abstractItemPersistentDatas, bool lazyLoad);
 
         /// <summary>
         /// Формирование Storage

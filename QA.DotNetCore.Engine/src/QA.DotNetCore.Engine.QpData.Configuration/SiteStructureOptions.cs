@@ -38,15 +38,17 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
         /// <summary>
         /// Длительность кеширования уже построенной структуры сайта
         /// </summary>
-        public TimeSpan SiteStructureCachePeriod { get; set; } = new TimeSpan(0, 20, 0);
+        public TimeSpan SiteStructureCachePeriod { get; set; } = new TimeSpan(1, 0, 0);
+
+        public SiteStructureCachingType SiteStructureCachingType { get; set; } = SiteStructureCachingType.Simple;
         /// <summary>
         /// Длительность кеширования схемы QP (такие вещи как таблица SITE, CONTENT_ATTRIBUTE итп)
         /// </summary>
-        public TimeSpan QpSchemeCachePeriod { get; set; } = new TimeSpan(0, 0, 30);
+        public TimeSpan QpSchemeCachePeriod { get; set; } = new TimeSpan(0, 10, 0);
         /// <summary>
         /// Длительность кеширования ItemDefinition
         /// </summary>
-        public TimeSpan ItemDefinitionCachePeriod { get; set; } = new TimeSpan(0, 20, 0);
+        public TimeSpan ItemDefinitionCachePeriod { get; set; } = new TimeSpan(1, 0, 0);
 
         /// <summary>
         /// Таймаут ожидания потоков, при получении <see cref="AbstractItemStorage"/> из кеша

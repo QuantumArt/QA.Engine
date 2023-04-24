@@ -74,7 +74,7 @@ namespace QA.DotNetCore.Engine.QpData
             IDictionary<int, AbstractItemPersistentData[]> extensionsWithAbsItems,
             WidgetsAndPagesCacheTags cacheTags)
         {
-            _builder.Init(extensionsWithAbsItems);
+            _builder.Init(extensionsWithAbsItems, true);
             var abstractItems = GetCachedAbstractItems(extensionsWithAbsItems, cacheTags);
             _builder.SetRelationsBetweenAbstractItems(abstractItems);
             return _builder.BuildStorage(abstractItems);
@@ -116,7 +116,7 @@ namespace QA.DotNetCore.Engine.QpData
         /// Формирование AbstractItem
         /// </summary>
         private AbstractItem[] BuildAbstractItems(int extensionContentId, AbstractItemPersistentData[] plainAbstractItems)
-            => _builder.BuildAbstractItems(extensionContentId, plainAbstractItems);
+            => _builder.BuildAbstractItems(extensionContentId, plainAbstractItems, true);
 
         private IDictionary<int, AbstractItemPersistentData[]> GetExtensionContentsWithAbstractItemPersistentData()
         {

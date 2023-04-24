@@ -395,42 +395,29 @@ namespace QA.DotNetCore.Engine.QpData
             var buildSettings = provider.GetRequiredService<QpSiteStructureBuildSettings>();
             var logger = provider.GetRequiredService<ILogger<QpAbstractItemStorageBuilder>>();
 
-            return GetAbstractItemExtensionData(
-                abstractItemRepository,
-                buildSettings,
-                logger,
-                extensionId,
-                abstractItemIds,
-                baseContent,
-                logId);
-        }
-
-        private static IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(
-            IAbstractItemRepository abstractItemRepository,
-            QpSiteStructureBuildSettings buildSettings,
-            ILogger logger,
-            int extensionId,
-            IEnumerable<int> abstractItemIds,
-            ContentPersistentData baseContent,
-            string logId)
-        {
             logger.LogDebug("Load data from extension table {ExtensionId}. Build id: {LogId}", extensionId, logId);
 
             // TODO: Batch cache checks (to avoid being chatty with redis).
-
-            var extensionData = extensionId == 0
-                ? abstractItemRepository.GetAbstractItemExtensionlessData(
-                    abstractItemIds,
+            IDictionary<int, AbstractItemExtensionCollection> result;
+            if (extensionId == 0)
+            {
+                result = abstractItemRepository.GetAbstractItemExtensionlessData(
+                    abstractItemIds, 
                     baseContent,
-                    buildSettings.IsStage)
-                : abstractItemRepository.GetAbstractItemExtensionData(
+                    buildSettings.IsStage
+                );
+            }
+            else
+            {
+                result = abstractItemRepository.GetAbstractItemExtensionData(
                     extensionId,
                     abstractItemIds,
                     baseContent,
                     buildSettings.LoadAbstractItemFieldsToDetailsCollection,
-                    buildSettings.IsStage);
-
-            return extensionData;
+                    buildSettings.IsStage
+                );
+            }
+            return result;
         }
 
         /// <summary>

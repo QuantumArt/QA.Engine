@@ -13,7 +13,8 @@ namespace QA.DotNetCore.Engine.QpData.Models
 
         public IDictionary<int, AbstractItemExtensionCollection> GetExtensionData(int key)
         {
-            return (ExtensionData != null) ? ExtensionData[key] : LazyExtensionData[key].Value;
+            var result = (ExtensionData != null) ? ExtensionData[key] : LazyExtensionData[key].Value;
+            return result ?? new Dictionary<int, AbstractItemExtensionCollection>();
         }
 
         /// <summary>

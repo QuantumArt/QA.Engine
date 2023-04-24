@@ -21,5 +21,10 @@ namespace QA.DotNetCore.Engine.QpData.Settings
         /// Длительность кеширования уже построенной структуры сайта
         /// </summary>
         public TimeSpan SiteStructureCachePeriod { get; set; }
+
+        /// <summary>
+        /// Длительность кеширования уже построенной структуры сайта
+        /// </summary>
+        public SiteStructureCachingType SiteStructureCachingType { get; set; }
     }
 }

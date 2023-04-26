@@ -19,9 +19,6 @@ namespace QA.DotNetCore.Engine.QpData
         private readonly QpSiteStructureBuildSettings _buildSettings;
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
 
-        private readonly string[] CommonContentsNetNames =
-            new string[] { KnownNetNames.AbstractItem, KnownNetNames.ItemDefinition };
-
         public SimpleCacheAbstractItemStorageProvider(
             IDistributedMemoryCacheProvider compositeCacheProvider,
             IAbstractItemStorageBuilder builder,
@@ -44,7 +41,7 @@ namespace QA.DotNetCore.Engine.QpData
             }
 
             string cacheKey = $"{nameof(SimpleCacheAbstractItemStorageProvider)}.{nameof(Get)}";
-            var cacheTags = CommonContentsNetNames
+            var cacheTags = new[] { KnownNetNames.AbstractItem, KnownNetNames.ItemDefinition }
                 .Select(c => _qpContentCacheTagNamingProvider.GetByNetName(c, _buildSettings.SiteId, _buildSettings.IsStage))
                 .Where(t => t != null)
                 .ToArray();

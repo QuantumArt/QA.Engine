@@ -9,10 +9,10 @@ namespace QA.DotNetCore.Engine.QpData
         readonly Lazy<string[]> _lazyAllowedUrlPatterns;
         readonly Lazy<string[]> _lazyDeniedUrlPatterns;
 
-        public UniversalWidget(string discriminator, Definition definition) : base(discriminator)
+        public UniversalWidget(string discriminator, ItemDefinitionDetails definition) : base(discriminator)
         {
             IsPage = false;
-            Definition = definition;
+            DefinitionDetails = definition;
             _lazyAllowedUrlPatterns = new Lazy<string[]>(() => this.GetAllowedUrlPatterns());
             _lazyDeniedUrlPatterns = new Lazy<string[]>(() => this.GetDeniedUrlPatterns());
         }

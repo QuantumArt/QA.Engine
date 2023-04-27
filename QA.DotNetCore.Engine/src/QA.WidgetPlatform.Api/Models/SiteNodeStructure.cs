@@ -12,13 +12,13 @@ namespace QA.WidgetPlatform.Api.Models
     public class SiteNode
     {
         public SiteNode(UniversalAbstractItem abstractItem, ITargetingFilter targetingFlt, int? deep = null,
-            IEnumerable<string>? includeFields = null, bool isDefinitionFields = false)
+            IEnumerable<string>? includeFields = null, bool fillDefinitionDetails = false)
         {
             Id = abstractItem.Id;
             Alias = abstractItem.Alias;
             NodeType = abstractItem.Type;
 
-            if (isDefinitionFields)
+            if (fillDefinitionDetails)
             {
                 FrontModuleUrl = abstractItem.Definition?.FrontModuleUrl;
                 FrontModuleName = abstractItem.Definition?.FrontModuleName;
@@ -31,7 +31,7 @@ namespace QA.WidgetPlatform.Api.Models
                 {
                     Children = children
                         .OrderBy(ai => ai.SortOrder)
-                        .Select(ai => new SiteNode(ai, targetingFlt, deep, includeFields, isDefinitionFields: isDefinitionFields))
+                        .Select(ai => new SiteNode(ai, targetingFlt, deep, includeFields, fillDefinitionDetails: fillDefinitionDetails))
                         .ToArray();
                 }
             }

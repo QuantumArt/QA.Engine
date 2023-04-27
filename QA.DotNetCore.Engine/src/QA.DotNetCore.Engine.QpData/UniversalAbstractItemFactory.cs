@@ -43,7 +43,7 @@ namespace QA.DotNetCore.Engine.QpData
                 return null;//элементов без ItemDefinition для структуры сайта не существует
             }
 
-            var definition = new Definition
+            var definition = new ItemDefinitionDetails
             {
                 FrontModuleName = itemDefinition.FrontModuleName,
                 FrontModuleUrl = itemDefinition.FrontModuleUrl

@@ -15,7 +15,7 @@ namespace QA.DotNetCore.Engine.Abstractions
 
         public virtual int Id { get; protected set; }
         public virtual IAbstractItem Parent { get; protected set; }
-        public virtual Definition Definition { get; protected set; }
+        public virtual ItemDefinitionDetails DefinitionDetails { get; protected set; }
         public virtual string Alias { get; protected set; }
         public virtual string Title { get; protected set; }
         public virtual bool IsPage { get; protected set; }

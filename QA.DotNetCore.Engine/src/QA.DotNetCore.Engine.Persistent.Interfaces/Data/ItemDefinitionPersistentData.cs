@@ -21,5 +21,9 @@ namespace QA.DotNetCore.Engine.Persistent.Interfaces.Data
         public string IconClass { get; set; }
 
         public string IconIntent { get; set; }
+
+        public string FrontModuleUrl { get; set; }
+
+        public string FrontModuleName { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
@@ -12,11 +12,17 @@ namespace QA.WidgetPlatform.Api.Models
     public class SiteNode
     {
         public SiteNode(UniversalAbstractItem abstractItem, ITargetingFilter targetingFlt, int? deep = null,
-            IEnumerable<string>? includeFields = null)
+            IEnumerable<string>? includeFields = null, bool isDefinitionFields = false)
         {
             Id = abstractItem.Id;
             Alias = abstractItem.Alias;
             NodeType = abstractItem.Type;
+
+            if (isDefinitionFields)
+            {
+                FrontModuleUrl = abstractItem.Definition?.FrontModuleUrl;
+                FrontModuleName = abstractItem.Definition?.FrontModuleName;
+            }
 
             if (IsDeepAvailable(deep--))
             {
@@ -25,7 +31,7 @@ namespace QA.WidgetPlatform.Api.Models
                 {
                     Children = children
                         .OrderBy(ai => ai.SortOrder)
-                        .Select(ai => new SiteNode(ai, targetingFlt, deep, includeFields))
+                        .Select(ai => new SiteNode(ai, targetingFlt, deep, includeFields, isDefinitionFields: isDefinitionFields))
                         .ToArray();
                 }
             }
@@ -54,6 +60,8 @@ namespace QA.WidgetPlatform.Api.Models
         public int Id { get; }
         public string Alias { get; }
         public string NodeType { get; }
+        public string? FrontModuleUrl { get; }
+        public string? FrontModuleName { get; }
         public SiteNode[]? Children { get; }
         public IDictionary<string, FieldInfo>? Details { get; }
     }

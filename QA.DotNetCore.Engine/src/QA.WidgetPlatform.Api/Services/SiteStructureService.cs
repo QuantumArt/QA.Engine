@@ -32,6 +32,7 @@ namespace QA.WidgetPlatform.Api.Services
         /// <param name="targeting">Словарь значений таргетирования</param>
         /// <param name="fields">Поля деталей к выдаче. Если пусто, то детали выдаваться не будут</param>
         /// <param name="deep">Глубина страуктуры, где 0 - это корневой элемент</param>
+        /// <param name="isDefinitionFields">Заполнять дополнительные поля из дефинишена</param>
         /// <returns></returns>
         [HttpGet("structure")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -39,7 +40,7 @@ namespace QA.WidgetPlatform.Api.Services
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public SiteNode Structure(string dnsName,
             IDictionary<string, string> targeting, string[] fields,
-            int? deep)
+            int? deep, bool isDefinitionFields = false)
         {
             var storage = _abstractItemStorageProvider.Get();
 
@@ -50,7 +51,7 @@ namespace QA.WidgetPlatform.Api.Services
                 throw new StatusCodeException(System.Net.HttpStatusCode.NotFound);
 
             var pagesFilters = new OnlyPagesFilter().AddFilter(startPageFilter);
-            return new SiteNode(startPage, pagesFilters, deep, fields);
+            return new SiteNode(startPage, pagesFilters, deep, fields, isDefinitionFields);
         }
     }
 }

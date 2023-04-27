@@ -10,6 +10,7 @@ namespace QA.DotNetCore.Engine.Abstractions
     {
         int Id { get; }
         IAbstractItem Parent { get; }
+        Definition Definition { get; }
         string Alias { get; }
         string Title { get; }
         bool IsPage { get; }

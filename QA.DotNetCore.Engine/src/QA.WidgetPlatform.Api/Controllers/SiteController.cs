@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -26,6 +26,7 @@ namespace QA.WidgetPlatform.Api.Controllers
         /// <param name="targeting">Словарь значений таргетирования</param>
         /// <param name="fields">Поля деталей к выдаче. Если пусто, то детали выдаваться не будут</param>
         /// <param name="deep">Глубина страуктуры, где 0 - это корневой элемент</param>
+        /// /// <param name="isDefinitionFields">Заполнять дополнительные поля из дефинишена</param>
         /// <returns></returns>
         [HttpGet("structure")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -33,7 +34,7 @@ namespace QA.WidgetPlatform.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public SiteNode Structure([Required] [FromQuery] string dnsName,
             [Bind(Prefix = "t")] [FromQuery] CaseInSensitiveDictionary<string> targeting, [FromQuery] string[] fields,
-            int? deep)
-            => _siteStructureService.Structure(dnsName, targeting, fields, deep);
+            int? deep, bool isDefinitionFields = false)
+            => _siteStructureService.Structure(dnsName, targeting, fields, deep, isDefinitionFields);
     }
 }

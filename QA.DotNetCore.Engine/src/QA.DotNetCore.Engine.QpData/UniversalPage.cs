@@ -1,13 +1,15 @@
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using QA.DotNetCore.Engine.QpData.Interfaces;
 
 namespace QA.DotNetCore.Engine.QpData
 {
     public class UniversalPage : UniversalAbstractItem, IAbstractPage, IStartPage
     {
-        public UniversalPage(string discriminator) : base(discriminator)
+        public UniversalPage(string discriminator, Definition definition) : base(discriminator)
         {
             IsPage = true;
+            Definition = definition;
         }
 
         public bool IsVisible { get; set; }

@@ -54,7 +54,7 @@ namespace QA.DotNetCore.Engine.QpData
             if (M2mFieldNames.Any(fn => fn.Equals(fieldName, StringComparison.OrdinalIgnoreCase)))
                 return GetRelationIds(fieldName);
 
-            return GetDetail(fieldName, typeof(object));
+            return GetDetail<object>(fieldName, null);
         }
     }
 }

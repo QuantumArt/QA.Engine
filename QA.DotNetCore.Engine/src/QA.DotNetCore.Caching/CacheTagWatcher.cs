@@ -48,11 +48,14 @@ namespace QA.DotNetCore.Caching
         {
             var changedModifications = previousModifications.Count > 0
                 ? currentModifications.Except(previousModifications).ToArray()
-                : currentModifications;
+                : Array.Empty<CacheTagModification>();
 
-            _logger.LogTrace("Changed modifications: ({InvalidTags})", changedModifications);
+            var changedModificationsString = String.Join(", ", changedModifications.Select(
+                n => n.Name + " - " + n.Modified.ToLongTimeString()
+            ));
+            _logger.LogDebug($"Changed modifications: ({changedModificationsString})");
 
-            if (changedModifications.Count <= 0)
+            if (changedModifications.Length <= 0)
             {
                 return Array.Empty<string>();
             }
@@ -60,12 +63,12 @@ namespace QA.DotNetCore.Caching
             Dictionary<string, CacheTagModification> previousModificationMappings = previousModifications
                 .ToDictionary(modification => modification.Name);
 
-            var cacheTagsToInvalidate = new List<string>(changedModifications.Count);
+            var cacheTagsToInvalidate = new List<string>(changedModifications.Length);
 
             foreach (var changedModification in changedModifications)
             {
-                if (!previousModificationMappings.TryGetValue(changedModification.Name, out var previousModification)
-                    || changedModification.Modified > previousModification.Modified)
+                if (previousModificationMappings.TryGetValue(changedModification.Name, out var previousModification)
+                    && changedModification.Modified > previousModification.Modified)
                 {
                     cacheTagsToInvalidate.Add(changedModification.Name);
                 }
@@ -78,7 +81,10 @@ namespace QA.DotNetCore.Caching
         {
             if (cacheTagsToInvalidate.Length > 0)
             {
-                _logger.LogInformation("Invalidate tags: {InvalidTags}", cacheTagsToInvalidate);
+                _logger.LogInformation(
+                    "Invalidate tags: {InvalidTags}", 
+                    String.Join(", ", cacheTagsToInvalidate)
+                 );
                 _cacheInvalidator.InvalidateByTags(cacheTagsToInvalidate.ToArray());
             }
             else

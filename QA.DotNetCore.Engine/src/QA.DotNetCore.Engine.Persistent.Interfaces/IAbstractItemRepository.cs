@@ -10,7 +10,6 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces
 
         IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(
             int extensionContentId,
-            IEnumerable<int> ids,
             ContentPersistentData baseContent,
             bool loadAbstractItemFields,
             bool isStage,

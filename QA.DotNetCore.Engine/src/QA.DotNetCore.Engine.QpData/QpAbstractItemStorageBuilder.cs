@@ -389,13 +389,14 @@ namespace QA.DotNetCore.Engine.QpData
             IEnumerable<int> abstractItemIds, ContentPersistentData baseContent, string logId, bool createScope)
         {
             using var scope = createScope ? _scopeFactory.CreateScope() : null;
+            var scopeString = scope != null ? "new" : "existing";
             var provider = scope != null ? scope.ServiceProvider : _serviceProvider;
 
             var abstractItemRepository = provider.GetRequiredService<IAbstractItemRepository>();
             var buildSettings = provider.GetRequiredService<QpSiteStructureBuildSettings>();
             var logger = provider.GetRequiredService<ILogger<QpAbstractItemStorageBuilder>>();
 
-            logger.LogDebug("Load data from extension table {ExtensionId}. Build id: {LogId}", extensionId, logId);
+            logger.LogInformation("Load data from extension table {ExtensionId} in {scopeString} scope. Build id: {LogId}", extensionId, logId);
 
             // TODO: Batch cache checks (to avoid being chatty with redis).
             IDictionary<int, AbstractItemExtensionCollection> result;
@@ -411,7 +412,6 @@ namespace QA.DotNetCore.Engine.QpData
             {
                 result = abstractItemRepository.GetAbstractItemExtensionData(
                     extensionId,
-                    abstractItemIds,
                     baseContent,
                     buildSettings.LoadAbstractItemFieldsToDetailsCollection,
                     buildSettings.IsStage

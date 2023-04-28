@@ -20,8 +20,8 @@ namespace QA.WidgetPlatform.Api.Models
 
             if (fillDefinitionDetails)
             {
-                FrontModuleUrl = abstractItem.Definition?.FrontModuleUrl;
-                FrontModuleName = abstractItem.Definition?.FrontModuleName;
+                FrontModuleUrl = abstractItem.DefinitionDetails?.FrontModuleUrl;
+                FrontModuleName = abstractItem.DefinitionDetails?.FrontModuleName;
             }
 
             if (IsDeepAvailable(deep--))

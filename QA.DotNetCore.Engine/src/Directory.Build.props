@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <LangVersion>10.0</LangVersion>
-    <Version>3.1.11-beta3</Version>
+    <Version>3.1.11</Version>
     <AssemblyVersion>3.1.11.0</AssemblyVersion>
     <FileVersion>3.1.11.0</FileVersion>
     <IncludeSymbols>true</IncludeSymbols>

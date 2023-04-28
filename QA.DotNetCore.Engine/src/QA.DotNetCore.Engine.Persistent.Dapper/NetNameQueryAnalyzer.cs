@@ -35,7 +35,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             return contentNetNames;
         }
 
-        public string PrepareQuery(string netNameQuery, int siteId, bool isStage, bool useUnited = false)
+        public string PrepareQuery(string netNameQuery, int siteId, bool isStage, bool useUnited = false, string[] potentiallyMissingColumns = null)
         {
             var tableToColumnPairs = GetTableColumnPairs(netNameQuery).ToArray();
 
@@ -69,13 +69,13 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
                     ContentAttributePersistentData contentAttribute = tableMetadata.ContentAttributes
                         .FirstOrDefault(attribute => attribute.NetName == columnNetName);
 
-                    if (contentAttribute is null)
+                    if (contentAttribute is null && (potentiallyMissingColumns is null || !potentiallyMissingColumns.Contains($"{tableNetName}.{columnNetName}")))
                     {
                         throw new Exception($"Content attribute with netname '{columnNetName}' " +
                             $"haven't been found for table '{tableNetName}' and site {siteId}");
                     }
 
-                    replacements.Add($"|{tableNetName}.{columnNetName}|", contentAttribute.ColumnName);
+                    replacements.Add($"|{tableNetName}.{columnNetName}|", contentAttribute?.ColumnName ?? "null");
                 }
             }
 

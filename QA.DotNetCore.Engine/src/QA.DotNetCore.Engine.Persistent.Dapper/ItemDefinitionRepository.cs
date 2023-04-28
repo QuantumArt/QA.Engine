@@ -18,6 +18,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
         private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly IServiceProvider _serviceProvider;
         private readonly INetNameQueryAnalyzer _netNameQueryAnalyzer;
+        private readonly string[] _potentiallyMissingColumns = new[] { "QPDiscriminator.FrontModuleUrl", "QPDiscriminator.ModuleName" };
 
         public ItemDefinitionRepository(
             IServiceProvider serviceProvider,
@@ -46,14 +47,16 @@ SELECT
     |QPDiscriminator.IconUrl| as IconUrl,
     |QPDiscriminator.IconClass| as IconClass,
     |QPDiscriminator.IconIntent| as IconIntent,
-    |QPDiscriminator.PreferredContentId| as PreferredContentId
+    |QPDiscriminator.PreferredContentId| as PreferredContentId,
+	|QPDiscriminator.FrontModuleUrl| as FrontModuleUrl,
+	|QPDiscriminator.ModuleName| as FrontModuleName
 FROM |QPDiscriminator|
 ";
 
         public IEnumerable<ItemDefinitionPersistentData> GetAllItemDefinitions(int siteId, bool isStage, IDbTransaction transaction = null)
         {
             var connection = UnitOfWork.Connection;
-            var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAll, siteId, isStage);
+            var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAll, siteId, isStage, potentiallyMissingColumns: _potentiallyMissingColumns);
 
             var cacheKey = query;
             var cacheTags = _netNameQueryAnalyzer.GetContentNetNames(CmdGetAll, siteId, isStage)

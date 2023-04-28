@@ -1,4 +1,5 @@
 using QA.DotNetCore.Caching.Interfaces;
+using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using QA.DotNetCore.Engine.QpData.Interfaces;
@@ -42,14 +43,20 @@ namespace QA.DotNetCore.Engine.QpData
                 return null;//элементов без ItemDefinition для структуры сайта не существует
             }
 
+            var definition = new ItemDefinitionDetails
+            {
+                FrontModuleName = itemDefinition.FrontModuleName,
+                FrontModuleUrl = itemDefinition.FrontModuleUrl
+            };
+
             AbstractItem newItem;
             if (itemDefinition.IsPage)
             {
-                newItem = new UniversalPage(discriminator);
+                newItem = new UniversalPage(discriminator, definition);
             }
             else
             {
-                newItem = new UniversalWidget(discriminator);
+                newItem = new UniversalWidget(discriminator, definition);
             }
 
             return newItem;

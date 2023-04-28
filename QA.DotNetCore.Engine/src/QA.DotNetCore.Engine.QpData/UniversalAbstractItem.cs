@@ -25,14 +25,16 @@ namespace QA.DotNetCore.Engine.QpData
         {
             get
             {
-                if (LazyDetails?.Value is null)
+                var detailsSource = Details ?? LazyDetails?.Value;
+
+                if (detailsSource == null)
                 {
                     return new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
                 }
 
-                Dictionary<string, object> details = new(LazyDetails.Value.Count);
+                Dictionary<string, object> details = new(detailsSource.Count);
 
-                foreach (var fieldName in LazyDetails.Value.Keys)
+                foreach (var fieldName in detailsSource.Keys)
                 {
                     var fieldValue = GetUntypedDetail(fieldName);
                     if (fieldValue is not null)
@@ -52,7 +54,7 @@ namespace QA.DotNetCore.Engine.QpData
             if (M2mFieldNames.Any(fn => fn.Equals(fieldName, StringComparison.OrdinalIgnoreCase)))
                 return GetRelationIds(fieldName);
 
-            return LazyDetails?.Value?.Get(fieldName, typeof(object));
+            return GetDetail<object>(fieldName, null);
         }
     }
 }

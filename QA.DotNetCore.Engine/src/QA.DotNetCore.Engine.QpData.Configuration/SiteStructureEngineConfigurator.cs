@@ -152,6 +152,7 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
                 settings.SiteStructureCachePeriod = options.SiteStructureCachePeriod;
                 settings.QpSchemeCachePeriod = options.QpSchemeCachePeriod;
                 settings.ItemDefinitionCachePeriod = options.ItemDefinitionCachePeriod;
+                settings.SiteStructureCachingType = options.SiteStructureCachingType;
             });
 
             _ = Services.AddCacheTagServices();
@@ -161,13 +162,17 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             Services.TryAddTransient<IAbstractItemStorageBuilder, QpAbstractItemStorageBuilder>();
             Services.TryAddTransient<IAbstractItemContextStorageBuilder, QpAbstractItemStorageBuilder>();
 
-            if (options.SiteStructureCachePeriod <= TimeSpan.Zero)
+            if (options.SiteStructureCachePeriod <= TimeSpan.Zero || options.SiteStructureCachingType == SiteStructureCachingType.None)
             {
                 Services.TryAddScoped<IAbstractItemStorageProvider, AbstractItemStorageProvider>();
             }
-            else
+            else if (options.SiteStructureCachingType == SiteStructureCachingType.Granular)
             {
                 Services.TryAddScoped<IAbstractItemStorageProvider, GranularCacheAbstractItemStorageProvider>();
+            }
+            else
+            {
+                Services.TryAddScoped<IAbstractItemStorageProvider, SimpleCacheAbstractItemStorageProvider>();
             }
 
             Services.TryAddSingleton<ITargetingFilterAccessor, NullTargetingFilterAccessor>();

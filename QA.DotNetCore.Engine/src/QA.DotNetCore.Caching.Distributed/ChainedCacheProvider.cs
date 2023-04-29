@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Logging;
-using QA.DotNetCore.Caching.Helpers.Operations;
 using QA.DotNetCore.Caching.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using QA.DotNetCore.Caching.Helpers.Pipes;
 
 namespace QA.DotNetCore.Caching.Distributed
 {
@@ -31,9 +31,9 @@ namespace QA.DotNetCore.Caching.Distributed
         }
 
         public IEnumerable<TResult> Get<TResult>(IEnumerable<string> keys) =>
-            new OperationsChain<string, TResult>(_logger)
-                .AddOperation(_frontCacheProvider.Get<TResult>, isFinal: cachedValue => cachedValue != null)
-                .AddOperation(_backCacheProvider.Get<TResult>)
+            new Pipeline<string, TResult>(_logger)
+                .AddPipe(_frontCacheProvider.Get<TResult>, isFinal: cachedValue => cachedValue != null)
+                .AddPipe(_backCacheProvider.Get<TResult>)
                 .Execute(keys.ToArray());
 
         public T GetOrAdd<T>(string cacheKey, string[] tags, TimeSpan expiration, Func<T> getValue, TimeSpan waitForCalculateTimeout = default)
@@ -67,9 +67,9 @@ namespace QA.DotNetCore.Caching.Distributed
         }
 
         public IEnumerable<bool> IsSet(IEnumerable<string> keys) =>
-            new OperationsChain<string, bool>(_logger)
-                .AddOperation(_frontCacheProvider.IsSet, isFinal: isSet => isSet)
-                .AddOperation(_backCacheProvider.IsSet)
+            new Pipeline<string, bool>(_logger)
+                .AddPipe(_frontCacheProvider.IsSet, isFinal: isSet => isSet)
+                .AddPipe(_backCacheProvider.IsSet)
                 .Execute(keys.ToArray());
 
         public bool TryGetValue<TResult>(string key, out TResult result) =>

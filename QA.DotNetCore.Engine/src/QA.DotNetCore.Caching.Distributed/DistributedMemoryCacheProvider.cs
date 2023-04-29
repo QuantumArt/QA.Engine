@@ -1,11 +1,11 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-using QA.DotNetCore.Caching.Helpers.Operations;
 using QA.DotNetCore.Caching.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using QA.DotNetCore.Caching.Helpers.Pipes;
 
 namespace QA.DotNetCore.Caching
 {
@@ -38,15 +38,15 @@ namespace QA.DotNetCore.Caching
 
         public override IEnumerable<bool> IsSet(IEnumerable<string> keys)
         {
-            return new OperationsChain<string, bool>(_logger)
-                .AddOperation(base.IsSet, isFinal: isSet => !isSet)
-                .AddOperation(_distributedCacheProvider.IsSet)
+            return new Pipeline<string, bool>(_logger)
+                .AddPipe(base.IsSet, isFinal: isSet => !isSet)
+                .AddPipe(_distributedCacheProvider.IsSet)
                 .Execute(keys.ToArray());
         }
 
         public override IEnumerable<TResult> Get<TResult>(IEnumerable<string> keys)
         {
-            IEnumerable<OperationResult<TResult>> VerifyCacheIsGloballySet(string[] cachedKeys, OperationContext<TResult> context)
+            IEnumerable<PipeOutput<TResult>> VerifyCacheIsGloballySet(string[] cachedKeys, PipeContext<TResult> context)
             {
                 var globalSetResults = _distributedCacheProvider.IsSet(cachedKeys.Select(GetGlobalKey));
                 using var globallySetEnumerator = globalSetResults.GetEnumerator();
@@ -56,13 +56,13 @@ namespace QA.DotNetCore.Caching
                     bool isSetGlobally = globallySetEnumerator.Current;
                     TResult result = isSetGlobally ? context.GetPreviousResult(i) : default;
 
-                    yield return new OperationResult<TResult>(result, isSetGlobally);
+                    yield return new PipeOutput<TResult>(result, isSetGlobally);
                 }
             }
 
-            return new OperationsChain<string, TResult>(_logger)
-                .AddOperation(base.Get<TResult>, isFinal: cachedValue => cachedValue is null)
-                .AddOperation(VerifyCacheIsGloballySet)
+            return new Pipeline<string, TResult>(_logger)
+                .AddPipe(base.Get<TResult>, isFinal: cachedValue => cachedValue is null)
+                .AddPipe(VerifyCacheIsGloballySet)
                 .Execute(keys.ToArray());
         }
 

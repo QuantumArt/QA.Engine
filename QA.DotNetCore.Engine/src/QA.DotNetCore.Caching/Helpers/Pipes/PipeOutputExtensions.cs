@@ -1,21 +1,21 @@
 using System;
 using System.Collections.Generic;
 
-namespace QA.DotNetCore.Caching.Helpers.Operations;
+namespace QA.DotNetCore.Caching.Helpers.Pipes;
 
-public static class OperationResultExtensions
+public static class PipeOutputExtensions
 {
-    public static IEnumerable<OperationResult<TResult>> GetIncomplete<TResult>(this IEnumerable<OperationResult<TResult>> results) =>
+    public static IEnumerable<PipeOutput<TResult>> GetIncomplete<TResult>(this IEnumerable<PipeOutput<TResult>> results) =>
         results.GetIncomplete(results);
 
-    public static IEnumerable<T> GetIncomplete<TResult, T>(this IEnumerable<OperationResult<TResult>> results, IEnumerable<T> collection)
+    public static IEnumerable<T> GetIncomplete<TResult, T>(this IEnumerable<PipeOutput<TResult>> results, IEnumerable<T> collection)
     {
         using var resultEnumerator = results.GetEnumerator();
         using var collectionEnumerator = collection.GetEnumerator();
 
         while (collectionEnumerator.MoveNext() && resultEnumerator.MoveNext())
         {
-            OperationResult<TResult> result = resultEnumerator.Current;
+            PipeOutput<TResult> result = resultEnumerator.Current;
 
             if (!result.IsFinal)
             {
@@ -25,8 +25,8 @@ public static class OperationResultExtensions
     }
 
     public static void Apply<TResult>(
-        this OperationResult<TResult>[] allResults,
-        IEnumerable<OperationResult<TResult>> currentResults)
+        this PipeOutput<TResult>[] allResults,
+        IEnumerable<PipeOutput<TResult>> currentResults)
     {
         using var currentResultsEnumerator = currentResults.GetEnumerator();
 
@@ -41,7 +41,7 @@ public static class OperationResultExtensions
             if (!currentResultsEnumerator.MoveNext())
             {
                 throw new InvalidOperationException(
-                    $"Invlaid current results count ({currentResultsCount}).");
+                    $"Invalid current results count ({currentResultsCount}).");
             }
             currentResultsCount++;
 

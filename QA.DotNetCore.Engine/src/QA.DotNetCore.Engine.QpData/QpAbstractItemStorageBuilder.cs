@@ -409,7 +409,6 @@ namespace QA.DotNetCore.Engine.QpData
             {
                 result = abstractItemRepository.GetAbstractItemExtensionData(
                     extensionId,
-                    abstractItemIds,
                     baseContent,
                     buildSettings.LoadAbstractItemFieldsToDetailsCollection,
                     buildSettings.IsStage

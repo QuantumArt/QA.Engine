@@ -119,20 +119,24 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
 
         public IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(
             int extensionContentId,
+            IEnumerable<int> ids,
             ContentPersistentData baseContent,
             bool loadAbstractItemFields,
             bool isStage,
             IDbTransaction transaction = null)
         {
             var extTableName = QpTableNameHelper.GetTableName(extensionContentId, isStage);
+            var idListTable = SqlQuerySyntaxHelper.IdList(UnitOfWork.DatabaseType, "@ids", "ids");
             var withNoLock = SqlQuerySyntaxHelper.WithNoLock(UnitOfWork.DatabaseType);
 
             var extFieldsQuery = $@"
                 SELECT * FROM {extTableName} ext {withNoLock}
-                {(loadAbstractItemFields ? $"JOIN {baseContent.GetTableName(isStage)} ai {withNoLock} on ai.content_item_id = ext.itemid" : "")}";
+                JOIN {idListTable} on Id = ext.itemid
+                {(loadAbstractItemFields ? $"JOIN {baseContent.GetTableName(isStage)} ai on ai.Content_item_id = ext.itemid" : "")}";
 
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = extFieldsQuery;
+            command.Parameters.Add(SqlQuerySyntaxHelper.GetIdsDatatableParam("@Ids", ids, UnitOfWork.DatabaseType));
             command.Transaction = transaction;
 
             return LoadAbstractItemExtension(command);

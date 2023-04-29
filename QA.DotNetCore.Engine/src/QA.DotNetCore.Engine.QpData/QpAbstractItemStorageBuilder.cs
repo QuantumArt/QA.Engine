@@ -393,7 +393,7 @@ namespace QA.DotNetCore.Engine.QpData
             var buildSettings = provider.GetRequiredService<QpSiteStructureBuildSettings>();
             var logger = provider.GetRequiredService<ILogger<QpAbstractItemStorageBuilder>>();
 
-            logger.LogInformation("Load data from extension table {ExtensionId} in {scopeString} scope. Build id: {LogId}", extensionId, scopeString, logId);
+            logger.LogInformation("Load data from extension table {ExtensionId} in {scopeString} scope. Build id: {LogId}", extensionId, logId);
 
             // TODO: Batch cache checks (to avoid being chatty with redis).
             IDictionary<int, AbstractItemExtensionCollection> result;
@@ -409,6 +409,7 @@ namespace QA.DotNetCore.Engine.QpData
             {
                 result = abstractItemRepository.GetAbstractItemExtensionData(
                     extensionId,
+                    abstractItemIds,
                     baseContent,
                     buildSettings.LoadAbstractItemFieldsToDetailsCollection,
                     buildSettings.IsStage

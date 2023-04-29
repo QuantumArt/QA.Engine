@@ -210,6 +210,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 { 3, startPageJobExt}
             };
             aiRepositoryMoq.Setup(x => x.GetAbstractItemExtensionData(extensionId,
+                It.Is<IEnumerable<int>>(ids => ids.Count() == 2 && ids.Contains(2) && ids.Contains(3)),
                 It.IsAny<ContentPersistentData>(),
                 buildSettings.LoadAbstractItemFieldsToDetailsCollection,
                 buildSettings.IsStage,
@@ -334,6 +335,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 { 3, widgetExt}
             };
             aiRepositoryMoq.Setup(x => x.GetAbstractItemExtensionData(extensionId,
+                It.Is<IEnumerable<int>>(ids => ids.Count() == 1 && ids.Contains(3)),
                 It.IsAny<ContentPersistentData>(),
                 buildSettings.LoadAbstractItemFieldsToDetailsCollection,
                 buildSettings.IsStage,
@@ -485,6 +487,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             aiRepositoryMoq
                 .Setup(x => x.GetAbstractItemExtensionData(
                     extensionId,
+                    It.Is<IEnumerable<int>>(ids => ids.Count() == 1 && ids.Contains(3)),
                     It.IsAny<ContentPersistentData>(),
                     buildSettings.LoadAbstractItemFieldsToDetailsCollection,
                     buildSettings.IsStage,
@@ -778,6 +781,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             aiRepositoryMoq
                 .Setup(x => x.GetAbstractItemExtensionData(
                     extensionId,
+                    It.Is<IEnumerable<int>>(ids => ids.Count() == 2 && ids.Contains(2) && ids.Contains(3)),
                     It.IsAny<ContentPersistentData>(),
                     buildSettings.LoadAbstractItemFieldsToDetailsCollection,
                     buildSettings.IsStage,

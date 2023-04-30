@@ -6,7 +6,6 @@ using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using QA.DotNetCore.Engine.QpData.Settings;
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -90,9 +89,9 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
             string withNoLock = SqlQuerySyntaxHelper.WithNoLock(UnitOfWork.DatabaseType);
             string idListTableName = SqlQuerySyntaxHelper.IdList(UnitOfWork.DatabaseType, idsTableParameterName, "ids");
             string extensionItemsQuery = @$"
-                SELECT CONTENT_ITEM_ID
-                FROM CONTENT_ITEM ext {withNoLock}
-                JOIN {idListTableName} on Id = ext.CONTENT_ID";
+SELECT CONTENT_ITEM_ID
+FROM CONTENT_ITEM ext {withNoLock}
+JOIN {idListTableName} on Id = ext.CONTENT_ID";
 
             IDataParameter parameter = SqlQuerySyntaxHelper.GetIdsDatatableParam(
                 idsTableParameterName,
@@ -126,13 +125,14 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
         {
             var extTableName = QpTableNameHelper.GetTableName(extensionContentId, isStage);
             var withNoLock = SqlQuerySyntaxHelper.WithNoLock(UnitOfWork.DatabaseType);
-
-            var extFieldsQuery = $@"
-                SELECT cast(ai.content_item_id as numeric) as Id, * FROM {extTableName} ext {withNoLock}
-                {(loadAbstractItemFields ? $"JOIN {baseContent.GetTableName(isStage)} ai {withNoLock} on ai.content_item_id = ext.itemid" : "")}";
+            var extFields = loadAbstractItemFields ? ", ext.*" : "";
+            var query = $@"
+SELECT cast(ai.content_item_id as numeric) as Id, ai.*{extFields} 
+FROM {extTableName} ext {withNoLock}
+JOIN {baseContent.GetTableName(isStage)} ai {withNoLock} on ai.content_item_id = ext.itemid";
 
             using var command = UnitOfWork.Connection.CreateCommand();
-            command.CommandText = extFieldsQuery;
+            command.CommandText = query;
             command.Transaction = transaction;
 
             return LoadAbstractItemExtension(command);
@@ -148,8 +148,8 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
             var withNoLock = SqlQuerySyntaxHelper.WithNoLock(UnitOfWork.DatabaseType);
 
             string extFieldsQuery = $@"
-                SELECT * FROM {baseContent.GetTableName(isStage)} ai {withNoLock}
-                JOIN {idListTable} on Id = ai.Content_item_id";
+SELECT * FROM {baseContent.GetTableName(isStage)} ai {withNoLock}
+JOIN {idListTable} on Id = ai.Content_item_id";
 
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = extFieldsQuery;
@@ -199,9 +199,9 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
             var withNoLock = SqlQuerySyntaxHelper.WithNoLock(UnitOfWork.DatabaseType);
 
             var query = $@"
-                SELECT link_id, item_id, linked_item_id
-                FROM {m2MTableName} link {withNoLock}
-                JOIN {idListTable} on Id = link.item_id";
+SELECT link_id, item_id, linked_item_id
+FROM {m2MTableName} link {withNoLock}
+JOIN {idListTable} on Id = link.item_id";
 
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = query;
@@ -242,12 +242,11 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
                 idsTableParameterName,
                 contentIds.Where(id => id != 0),
                 UnitOfWork.DatabaseType);
-
-            string query = $@"
-                SELECT e.content_id, link_id, item_id, linked_item_id
-                FROM {m2MTableName} link {withNoLock}
-                JOIN CONTENT_ITEM e {withNoLock} ON e.CONTENT_ITEM_ID = link.item_id
-                JOIN {idListTableName} on Id = e.CONTENT_ID";
+            var query = $@"
+SELECT e.content_id, link_id, item_id, linked_item_id
+FROM {m2MTableName} link {withNoLock}
+JOIN CONTENT_ITEM e {withNoLock} ON e.CONTENT_ITEM_ID = link.item_id
+JOIN {idListTableName} on Id = e.CONTENT_ID";
 
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = query;

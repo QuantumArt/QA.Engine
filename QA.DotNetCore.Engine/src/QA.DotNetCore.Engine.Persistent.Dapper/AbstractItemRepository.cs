@@ -128,7 +128,7 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
             var withNoLock = SqlQuerySyntaxHelper.WithNoLock(UnitOfWork.DatabaseType);
 
             var extFieldsQuery = $@"
-                SELECT ai.content_item_id as Id, * FROM {extTableName} ext {withNoLock}
+                SELECT cast(ai.content_item_id as numeric) as Id, * FROM {extTableName} ext {withNoLock}
                 {(loadAbstractItemFields ? $"JOIN {baseContent.GetTableName(isStage)} ai {withNoLock} on ai.content_item_id = ext.itemid" : "")}";
 
             using var command = UnitOfWork.Connection.CreateCommand();

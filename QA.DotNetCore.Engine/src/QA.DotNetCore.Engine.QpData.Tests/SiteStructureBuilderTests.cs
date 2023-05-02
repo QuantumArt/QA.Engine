@@ -210,7 +210,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 { 3, startPageJobExt}
             };
             aiRepositoryMoq.Setup(x => x.GetAbstractItemExtensionData(extensionId,
-                It.Is<IEnumerable<int>>(ids => ids.Count() == 2 && ids.Contains(2) && ids.Contains(3)),
                 It.IsAny<ContentPersistentData>(),
                 buildSettings.LoadAbstractItemFieldsToDetailsCollection,
                 buildSettings.IsStage,
@@ -221,7 +220,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                     It.IsAny<int[]>(),
                     buildSettings.IsStage,
                     null))
-                .Returns(new[] { new Dictionary<int, M2mRelations>(0) });
+                .Returns(new[] { new Dictionary<int, M2MRelations>(0) });
 
             //фабрика элементов структуры сайта
             var aiFactoryMoq = new Mock<IAbstractItemFactory>();
@@ -335,7 +334,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 { 3, widgetExt}
             };
             aiRepositoryMoq.Setup(x => x.GetAbstractItemExtensionData(extensionId,
-                It.Is<IEnumerable<int>>(ids => ids.Count() == 1 && ids.Contains(3)),
                 It.IsAny<ContentPersistentData>(),
                 buildSettings.LoadAbstractItemFieldsToDetailsCollection,
                 buildSettings.IsStage,
@@ -346,7 +344,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                     It.IsAny<int[]>(),
                     buildSettings.IsStage,
                     null))
-                .Returns(new[] { new Dictionary<int, M2mRelations>(0) });
+                .Returns(new[] { new Dictionary<int, M2MRelations>(0) });
 
             //фабрика элементов структуры сайта
             var aiFactoryMoq = new Mock<IAbstractItemFactory>();
@@ -414,7 +412,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             {
                 ContentId = extensionId,
                 ColumnName = "SomeRelations",
-                M2mLinkId = 7645,
+                M2MLinkId = 7645,
                 TypeName = "Relation"
             };
 
@@ -422,7 +420,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             {
                 ContentId = abstractItemContentId,
                 ColumnName = "BaseContentRelations",
-                M2mLinkId = 435,
+                M2MLinkId = 435,
                 TypeName = "Relation"
             };
 
@@ -478,8 +476,8 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             //extension-поле из базового контента: поле BaseContentRelations - тоже m2m
             var widgetExt = new AbstractItemExtensionCollection();
             widgetExt.Add("CONTENT_ITEM_ID", widgetExtId);
-            widgetExt.Add(widgetRelationField.ColumnName, widgetRelationField.M2mLinkId);
-            widgetExt.Add(baseContentRelationField.ColumnName, baseContentRelationField.M2mLinkId);
+            widgetExt.Add(widgetRelationField.ColumnName, widgetRelationField.M2MLinkId);
+            widgetExt.Add(baseContentRelationField.ColumnName, baseContentRelationField.M2MLinkId);
             var widgetExtDictionary = new Dictionary<int, AbstractItemExtensionCollection>
             {
                 { widgetId, widgetExt}
@@ -487,7 +485,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             aiRepositoryMoq
                 .Setup(x => x.GetAbstractItemExtensionData(
                     extensionId,
-                    It.Is<IEnumerable<int>>(ids => ids.Count() == 1 && ids.Contains(3)),
                     It.IsAny<ContentPersistentData>(),
                     buildSettings.LoadAbstractItemFieldsToDetailsCollection,
                     buildSettings.IsStage,
@@ -496,11 +493,11 @@ namespace QA.DotNetCore.Engine.QpData.Tests
 
             //по relationid и id виджета в qp можно получить полный список id, участвующих в связи m2m с этим виджетом
             //замокаем методы получения такой информации для 2х relation: один из контента с extension, один в базовом контенте. нужно проверить оба варианта
-            var widgetRelation = new M2mRelations();
+            var widgetRelation = new M2MRelations();
             var relationValues = new[] { 435, 46, 56 };
             foreach (var relValue in relationValues)
             {
-                widgetRelation.AddRelation(widgetRelationField.M2mLinkId.Value, relValue);
+                widgetRelation.AddRelation(widgetRelationField.M2MLinkId.Value, relValue);
             }
             aiRepositoryMoq
                 .Setup(x => x.GetManyToManyDataByContent(
@@ -510,17 +507,17 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 .Returns(
                     new[]
                     {
-                        new Dictionary<int, M2mRelations>
+                        new Dictionary<int, M2MRelations>
                         {
                             { widgetExtId, widgetRelation}
                         }
                     });
 
-            var baseContentRelation = new M2mRelations();
+            var baseContentRelation = new M2MRelations();
             var baseContentRelationValues = new[] { 576, 7568 };
             foreach (var relValue in baseContentRelationValues)
             {
-                baseContentRelation.AddRelation(baseContentRelationField.M2mLinkId.Value, relValue);
+                baseContentRelation.AddRelation(baseContentRelationField.M2MLinkId.Value, relValue);
             }
             aiRepositoryMoq
                 .Setup(x => x.GetManyToManyData(
@@ -528,7 +525,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                     isStage,
                     null))
                 .Returns(
-                    new Dictionary<int, M2mRelations>
+                    new Dictionary<int, M2MRelations>
                     {
                         { widgetId, baseContentRelation }
                     });
@@ -781,7 +778,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             aiRepositoryMoq
                 .Setup(x => x.GetAbstractItemExtensionData(
                     extensionId,
-                    It.Is<IEnumerable<int>>(ids => ids.Count() == 2 && ids.Contains(2) && ids.Contains(3)),
                     It.IsAny<ContentPersistentData>(),
                     buildSettings.LoadAbstractItemFieldsToDetailsCollection,
                     buildSettings.IsStage,
@@ -793,7 +789,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                     It.IsAny<int[]>(),
                     buildSettings.IsStage,
                     null))
-                .Returns(new[] { new Dictionary<int, M2mRelations>(0) });
+                .Returns(new[] { new Dictionary<int, M2MRelations>(0) });
 
             //фабрика элементов структуры сайта
             var aiFactoryMoq = new Mock<IAbstractItemFactory>();

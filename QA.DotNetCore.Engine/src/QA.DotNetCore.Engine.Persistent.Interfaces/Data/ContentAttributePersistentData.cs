@@ -25,11 +25,11 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces.Data
 
         public string TypeName { get; set; }
 
-        public int? M2mLinkId { get; set; }
+        public int? M2MLinkId { get; set; }
 
         public string InvariantName { get { return $"field_{Id}"; } }
 
-        public bool IsManyToManyField { get { return TypeName == "Relation" && M2mLinkId.HasValue; } }
+        public bool IsManyToManyField { get { return TypeName == "Relation" && M2MLinkId.HasValue; } }
 
         public bool IsFileField { get { return TypeName == "File" || TypeName == "Image" || TypeName == "Dynamic Image"; } }
     }

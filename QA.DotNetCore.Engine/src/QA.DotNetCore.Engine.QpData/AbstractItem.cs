@@ -16,8 +16,8 @@ namespace QA.DotNetCore.Engine.QpData
         public AbstractItem()
         {
             Children = new HashSet<IAbstractItem>();
-            M2mRelations = new M2mRelations();
-            M2mFieldNames = new List<string>();
+            M2MRelations = new M2MRelations();
+            M2MFieldNameMapToLinkIds = new Dictionary<string, int>();
         }
 
         public override int SortOrder { get => RawSortOrder ?? 0; }
@@ -102,8 +102,8 @@ namespace QA.DotNetCore.Engine.QpData
         internal Lazy<AbstractItemExtensionCollection> LazyDetails { get; set; }
         
         internal AbstractItemExtensionCollection Details { get; set; }
-        internal M2mRelations M2mRelations { get; set; }
-        internal List<string> M2mFieldNames { get; set; }
+        internal M2MRelations M2MRelations { get; set; }
+        internal Dictionary<string, int> M2MFieldNameMapToLinkIds { get; set; }
 
         /// <summary>
         /// Получение свойств расширения
@@ -125,10 +125,13 @@ namespace QA.DotNetCore.Engine.QpData
         /// <returns></returns>
         public virtual IEnumerable<int> GetRelationIds(string name)
         {
-            if (M2mRelations == null)
+            if (M2MRelations == null)
+            {
                 return Enumerable.Empty<int>();
-            var relationId = GetDetail(name, 0);
-            return M2mRelations.GetRelationValue(relationId);
+            }
+
+            var linkId = M2MFieldNameMapToLinkIds.TryGetValue(name.ToLowerInvariant(), out int value) ? value : 0 ;
+            return M2MRelations.GetRelationValue(linkId);
         }
 
         /// <summary>

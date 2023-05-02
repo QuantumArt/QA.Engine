@@ -139,7 +139,7 @@ namespace QA.DotNetCore.Engine.QpData
 
             //догрузим связи m2m в основном контенте, если это нужно
 
-            if (_context.NeedLoadM2mInAbstractItem)
+            if (_context.NeedLoadM2MInAbstractItem)
             {
                 _logger.LogTrace(
                     "Load data for many-to-many fields in main content (QPAbstractItem). Build id: {LogId}",
@@ -147,11 +147,13 @@ namespace QA.DotNetCore.Engine.QpData
 
                 if (_context.AbstractItemsM2MData != null)
                 {
+                    var m2MFields = _context.M2MFields[extensionContentId];
                     foreach (var key in _context.AbstractItemsM2MData.Keys)
                     {
                         if (activatedAbstractItems.TryGetValue(key, out var item))
                         {
-                            item.M2mRelations.Merge(_context.AbstractItemsM2MData[key]);
+                            item.M2MRelations.Merge(_context.AbstractItemsM2MData[key]);
+                            item.M2MFieldNameMapToLinkIds = m2MFields;
                         }
                     }
                 }
@@ -235,7 +237,7 @@ namespace QA.DotNetCore.Engine.QpData
                 BaseContent = _metaInfoRepository.GetContent(KnownNetNames.AbstractItem, _buildSettings.SiteId),
             };
 
-            _context.NeedLoadM2mInAbstractItem =
+            _context.NeedLoadM2MInAbstractItem =
                 _buildSettings.LoadAbstractItemFieldsToDetailsCollection
                 && _context.BaseContent.ContentAttributes.Any(ca => ca.IsManyToManyField);
 
@@ -278,10 +280,24 @@ namespace QA.DotNetCore.Engine.QpData
                 var abstractItemTags = ConcatTags(allTags.AbstractItemTag, allTags.ItemDefinitionTag);
                 _context.AbstractItemsM2MData = GetAbstractItemsManyToManyRelations(extensions, abstractItemTags, _context.LogId);
                 _context.ExtensionsM2MData = GetExtensionsManyToManyRelations(extensions, allTags, _context.LogId);
+                var m2MBase = _context.BaseContent.ContentAttributes.Where(ca => ca.IsManyToManyField).ToList();
+                _context.M2MFields = _context.ExtensionContents.Select(n => new
+                {
+                    n.Key, Value = n.Value.ContentAttributes
+                        .Where(ca => ca.IsManyToManyField)
+                        .Union(m2MBase)
+                        .ToDictionary(
+                            k => k.ColumnName.ToLowerInvariant(),
+                            v => v.M2MLinkId ?? 0)
+                }).ToDictionary(k => k.Key, v => v.Value);
+                _context.M2MFields.Add(0, m2MBase.ToDictionary(
+                    k => k.ColumnName.ToLowerInvariant(),
+                    v => v.M2MLinkId ?? 0)
+                );
             }
         }
 
-        private IDictionary<int, M2mRelations> GetAbstractItemsManyToManyRelations(
+        private IDictionary<int, M2MRelations> GetAbstractItemsManyToManyRelations(
             IDictionary<int, AbstractItemPersistentData[]> extensions, 
             string[] abstractItemTags, 
             string logId) =>
@@ -300,7 +316,7 @@ namespace QA.DotNetCore.Engine.QpData
                 },
                 _buildSettings.CacheFetchTimeoutAbstractItemStorage);
 
-        private Dictionary<int, M2mRelations> GetExtensionsManyToManyRelations(
+        private Dictionary<int, M2MRelations> GetExtensionsManyToManyRelations(
             IDictionary<int, AbstractItemPersistentData[]> extensions,
             WidgetsAndPagesCacheTags tags,
             string logId) =>
@@ -320,7 +336,7 @@ namespace QA.DotNetCore.Engine.QpData
                 .SelectMany(extensionGroup => extensionGroup)
                 .ToDictionary(pair => pair.Key, pair => pair.Value);
 
-        private IDictionary<int, M2mRelations> GetRealAbstractItemsManyToManyRelations(
+        private IDictionary<int, M2MRelations> GetRealAbstractItemsManyToManyRelations(
             IDictionary<int, AbstractItemPersistentData[]> extensions) =>
             _abstractItemRepository.GetManyToManyData(
                 extensions.Values
@@ -409,7 +425,6 @@ namespace QA.DotNetCore.Engine.QpData
             {
                 result = abstractItemRepository.GetAbstractItemExtensionData(
                     extensionId,
-                    abstractItemIds,
                     baseContent,
                     buildSettings.LoadAbstractItemFieldsToDetailsCollection,
                     buildSettings.IsStage
@@ -433,7 +448,7 @@ namespace QA.DotNetCore.Engine.QpData
             IDictionary<int, AbstractItemExtensionCollection> extensionData,
             IDictionary<int, ContentPersistentData> extensionContents,
             ContentPersistentData baseContent,
-            IDictionary<int, M2mRelations> extensionsM2MData,
+            IDictionary<int, M2MRelations> extensionsM2MData,
             string logId,
             bool createScope
             )
@@ -470,7 +485,7 @@ namespace QA.DotNetCore.Engine.QpData
             IDictionary<int, AbstractItemExtensionCollection> extensionData,
             IDictionary<int, ContentPersistentData> extensionContents,
             ContentPersistentData baseContent,
-            IDictionary<int, M2mRelations> extensionsM2MData,
+            IDictionary<int, M2MRelations> extensionsM2MData,
             string logId)
         {
             var extensionContentId = item.ExtensionId.GetValueOrDefault(0);
@@ -486,30 +501,28 @@ namespace QA.DotNetCore.Engine.QpData
 
             var extensionContent = extensionContents.TryGetValue(extensionContentId, out var content) ? content : null;
 
-            var m2mFieldNames = new List<string>();
-            var fileFields = new List<ContentAttributePersistentData>();
+            var fields = new List<ContentAttributePersistentData>();
             int? extensionContentItemId = null;
 
             if (extensionContent?.ContentAttributes != null)
             {
-                m2mFieldNames = extensionContent.ContentAttributes.Where(ca => ca.IsManyToManyField)
-                    .Select(ca => ca.ColumnName).ToList();
-                fileFields = extensionContent.ContentAttributes.Where(ca => ca.IsFileField).ToList();
+                fields.AddRange(extensionContent.ContentAttributes);
             }
 
             if (buildSettings.LoadAbstractItemFieldsToDetailsCollection)
             {
-                m2mFieldNames = m2mFieldNames.Union(baseContent.ContentAttributes.Where(ca => ca.IsManyToManyField)
-                    .Select(ca => ca.ColumnName)).ToList();
-                fileFields = fileFields.Union(baseContent.ContentAttributes.Where(ca => ca.IsFileField)).ToList();
+                fields.AddRange(baseContent.ContentAttributes);
             }
 
-            item.M2mFieldNames.AddRange(m2mFieldNames);
+            var fileFields = new Dictionary<string, ContentAttributePersistentData>();
+            fields.Where(ca => ca.IsFileField).ToList().ForEach(
+                ca => fileFields.TryAdd(ca.ColumnName.ToLowerInvariant(), ca)
+            );
 
             //проведём замены в некоторых значениях доп полей
             foreach (var key in details.Keys)
             {
-                if (m2mFieldNames.Any() && key.Equals("CONTENT_ITEM_ID", StringComparison.OrdinalIgnoreCase))
+                if (key.Equals("CONTENT_ITEM_ID", StringComparison.OrdinalIgnoreCase))
                 {
                     extensionContentItemId = Convert.ToInt32(details[key]);
                 }
@@ -522,9 +535,7 @@ namespace QA.DotNetCore.Engine.QpData
                             qpUrlResolver.UploadUrl(buildSettings.SiteId)));
 
                     //2) проверим, является ли это поле ссылкой на файл, тогда нужно преобразовать его в полный урл
-                    var fileField = fileFields.FirstOrDefault(f =>
-                        f.ColumnName.Equals(key, StringComparison.OrdinalIgnoreCase));
-                    if (fileField != null)
+                    if (fileFields.TryGetValue(key.ToLowerInvariant(), out var fileField))
                     {
                         var baseUrl = qpUrlResolver.UrlForImage(buildSettings.SiteId, fileField);
                         if (!string.IsNullOrEmpty(baseUrl))
@@ -540,7 +551,7 @@ namespace QA.DotNetCore.Engine.QpData
                 extensionsM2MData != null &&
                 extensionsM2MData.TryGetValue(extensionContentItemId.Value, out var relations))
             {
-                item.M2mRelations.Merge(relations);
+                item.M2MRelations.Merge(relations);
             }
 
             return details;

@@ -40,7 +40,7 @@ public class AbstractItemRepositoryTests
 
             var baseContent = _metaRepo.GetContent("QPAbstractItem", Global.SiteId);
             //получим данные о extension c типом StartPageExtension с id=startPageId
-            var sqlExtData = _repository.GetAbstractItemExtensionData(547, new[] { StartPageId }, baseContent, true, false);
+            var sqlExtData = _repository.GetAbstractItemExtensionData(547, baseContent, true, false);
             Assert.True(sqlExtData.TryGetValue(StartPageId, out var startPageData));
             var startPageBindings = Assert.IsType<string>(startPageData.Get("Bindings", typeof(string)));
             Assert.NotNull(startPageBindings);
@@ -104,7 +104,6 @@ public class AbstractItemRepositoryTests
 
         var itemsData = _repository.GetAbstractItemExtensionData(
             ExtensionContentId,
-            new[] { AbstractItemId },
             baseContent,
             LoadAbstractItemFields,
             IsStage);
@@ -122,7 +121,7 @@ public class AbstractItemRepositoryTests
 
         var relations = _repository.GetManyToManyData(new[] { ItemIdWithRelations }, IsStage);
 
-        M2mRelations relation = Assert.Contains(ItemIdWithRelations, relations);
+        M2MRelations relation = Assert.Contains(ItemIdWithRelations, relations);
         Assert.NotEmpty(relation.GetRelations());
     }
 

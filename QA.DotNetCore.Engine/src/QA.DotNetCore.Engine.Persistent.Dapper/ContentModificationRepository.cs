@@ -20,12 +20,8 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper
         protected IUnitOfWork UnitOfWork { get { return _serviceProvider.GetRequiredService<IUnitOfWork>(); } }
 
         private const string CmdGetAll = @"
-SELECT
-	c.CONTENT_ID as ContentId,
-	c.CONTENT_NAME as ContentName,
-    c.SITE_ID as SiteId,
-	cm.LIVE_MODIFIED as LiveModified,
-	cm.STAGE_MODIFIED as StageModified
+SELECT c.CONTENT_ID as ContentId, c.CONTENT_NAME as ContentName, c.SITE_ID as SiteId,
+    cm.LIVE_MODIFIED as LiveModified, cm.STAGE_MODIFIED as StageModified
 FROM CONTENT_MODIFICATION cm
 INNER JOIN CONTENT c on c.CONTENT_ID = cm.CONTENT_ID";
 

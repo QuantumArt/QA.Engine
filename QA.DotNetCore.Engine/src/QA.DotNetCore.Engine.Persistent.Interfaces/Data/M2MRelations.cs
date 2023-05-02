@@ -6,15 +6,15 @@ using System.Runtime.Serialization;
 namespace QA.DotNetCore.Engine.Persistent.Interfaces.Data
 {
     [Serializable]
-    public class M2mRelations : ISerializable
+    public class M2MRelations : ISerializable
     {
         private readonly Dictionary<int, HashSet<int>> _relations = new Dictionary<int, HashSet<int>>();
 
-        public M2mRelations()
+        public M2MRelations()
         {
         }
 
-        protected M2mRelations(SerializationInfo info, StreamingContext context)
+        protected M2MRelations(SerializationInfo info, StreamingContext context)
         {
             _relations = info.GetValue<Dictionary<int, HashSet<int>>>(nameof(_relations));
         }
@@ -39,7 +39,7 @@ namespace QA.DotNetCore.Engine.Persistent.Interfaces.Data
             return _relations.Keys;
         }
 
-        public void Merge(M2mRelations other)
+        public void Merge(M2MRelations other)
         {
             foreach (var rel in other.GetRelations())
             {

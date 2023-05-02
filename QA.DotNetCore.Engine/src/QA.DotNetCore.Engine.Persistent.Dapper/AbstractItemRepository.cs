@@ -6,7 +6,6 @@ using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using QA.DotNetCore.Engine.QpData.Settings;
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -15,7 +14,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
     public class AbstractItemRepository : IAbstractItemRepository
     {
-        private static readonly IReadOnlyDictionary<int, M2mRelations> _emptyResult = new Dictionary<int, M2mRelations>();
+        private static readonly IReadOnlyDictionary<int, M2MRelations> _emptyResult = new Dictionary<int, M2MRelations>();
 
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         private readonly ICacheProvider _cacheProvider;
@@ -90,9 +89,9 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
             string withNoLock = SqlQuerySyntaxHelper.WithNoLock(UnitOfWork.DatabaseType);
             string idListTableName = SqlQuerySyntaxHelper.IdList(UnitOfWork.DatabaseType, idsTableParameterName, "ids");
             string extensionItemsQuery = @$"
-                SELECT CONTENT_ITEM_ID
-                FROM CONTENT_ITEM ext {withNoLock}
-                JOIN {idListTableName} on Id = ext.CONTENT_ID";
+SELECT CONTENT_ITEM_ID
+FROM CONTENT_ITEM ext {withNoLock}
+JOIN {idListTableName} on Id = ext.CONTENT_ID";
 
             IDataParameter parameter = SqlQuerySyntaxHelper.GetIdsDatatableParam(
                 idsTableParameterName,
@@ -119,24 +118,21 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
 
         public IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(
             int extensionContentId,
-            IEnumerable<int> ids,
             ContentPersistentData baseContent,
             bool loadAbstractItemFields,
             bool isStage,
             IDbTransaction transaction = null)
         {
             var extTableName = QpTableNameHelper.GetTableName(extensionContentId, isStage);
-            var idListTable = SqlQuerySyntaxHelper.IdList(UnitOfWork.DatabaseType, "@ids", "ids");
             var withNoLock = SqlQuerySyntaxHelper.WithNoLock(UnitOfWork.DatabaseType);
-
-            var extFieldsQuery = $@"
-                SELECT * FROM {extTableName} ext {withNoLock}
-                JOIN {idListTable} on Id = ext.itemid
-                {(loadAbstractItemFields ? $"JOIN {baseContent.GetTableName(isStage)} ai on ai.Content_item_id = ext.itemid" : "")}";
+            var extFields = loadAbstractItemFields ? ", ext.*" : "";
+            var query = $@"
+SELECT cast(ai.content_item_id as numeric) as Id{extFields}, ai.* 
+FROM {extTableName} ext {withNoLock}
+JOIN {baseContent.GetTableName(isStage)} ai {withNoLock} on ai.content_item_id = ext.itemid";
 
             using var command = UnitOfWork.Connection.CreateCommand();
-            command.CommandText = extFieldsQuery;
-            command.Parameters.Add(SqlQuerySyntaxHelper.GetIdsDatatableParam("@Ids", ids, UnitOfWork.DatabaseType));
+            command.CommandText = query;
             command.Transaction = transaction;
 
             return LoadAbstractItemExtension(command);
@@ -152,8 +148,8 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
             var withNoLock = SqlQuerySyntaxHelper.WithNoLock(UnitOfWork.DatabaseType);
 
             string extFieldsQuery = $@"
-                SELECT * FROM {baseContent.GetTableName(isStage)} ai {withNoLock}
-                JOIN {idListTable} on Id = ai.Content_item_id";
+SELECT * FROM {baseContent.GetTableName(isStage)} ai {withNoLock}
+JOIN {idListTable} on Id = ai.Content_item_id";
 
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = extFieldsQuery;
@@ -196,22 +192,22 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
             return result;
         }
 
-        public IDictionary<int, M2mRelations> GetManyToManyData(IEnumerable<int> itemIds, bool isStage, IDbTransaction transaction = null)
+        public IDictionary<int, M2MRelations> GetManyToManyData(IEnumerable<int> itemIds, bool isStage, IDbTransaction transaction = null)
         {
             var m2MTableName = QpTableNameHelper.GetM2MTableName(isStage);
             var idListTable = SqlQuerySyntaxHelper.IdList(UnitOfWork.DatabaseType, "@ids", "ids");
             var withNoLock = SqlQuerySyntaxHelper.WithNoLock(UnitOfWork.DatabaseType);
 
             var query = $@"
-                SELECT link_id, item_id, linked_item_id
-                FROM {m2MTableName} link {withNoLock}
-                JOIN {idListTable} on Id = link.item_id";
+SELECT link_id, item_id, linked_item_id
+FROM {m2MTableName} link {withNoLock}
+JOIN {idListTable} on Id = link.item_id";
 
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = query;
             command.Parameters.Add(SqlQuerySyntaxHelper.GetIdsDatatableParam("@Ids", itemIds, UnitOfWork.DatabaseType));
             command.Transaction = transaction;
-            var result = new Dictionary<int, M2mRelations>();
+            var result = new Dictionary<int, M2MRelations>();
 
             using var reader = command.ExecuteReader();
 
@@ -220,7 +216,7 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
                 var itemId = Convert.ToInt32(reader.GetDecimal(reader.GetOrdinal("item_id")));
                 if (!result.ContainsKey(itemId))
                 {
-                    result[itemId] = new M2mRelations();
+                    result[itemId] = new M2MRelations();
                 }
 
                 result[itemId].AddRelation(
@@ -231,7 +227,7 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
             return result;
         }
 
-        public IEnumerable<IReadOnlyDictionary<int, M2mRelations>> GetManyToManyDataByContent(
+        public IEnumerable<IReadOnlyDictionary<int, M2MRelations>> GetManyToManyDataByContent(
             IReadOnlyCollection<int> contentIds,
             bool isStage,
             IDbTransaction transaction = null)
@@ -246,19 +242,18 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
                 idsTableParameterName,
                 contentIds.Where(id => id != 0),
                 UnitOfWork.DatabaseType);
-
-            string query = $@"
-                SELECT e.content_id, link_id, item_id, linked_item_id
-                FROM {m2MTableName} link {withNoLock}
-                JOIN CONTENT_ITEM e {withNoLock} ON e.CONTENT_ITEM_ID = link.item_id
-                JOIN {idListTableName} on Id = e.CONTENT_ID";
+            var query = $@"
+SELECT e.content_id, link_id, item_id, linked_item_id
+FROM {m2MTableName} link {withNoLock}
+JOIN CONTENT_ITEM e {withNoLock} ON e.CONTENT_ITEM_ID = link.item_id
+JOIN {idListTableName} on Id = e.CONTENT_ID";
 
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = query;
             command.Transaction = transaction;
             _ = command.Parameters.Add(parameter);
 
-            var groupedRelations = new Dictionary<int, Dictionary<int, M2mRelations>>();
+            var groupedRelations = new Dictionary<int, Dictionary<int, M2MRelations>>();
 
             using (var reader = command.ExecuteReader())
             {
@@ -269,13 +264,13 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
 
                     if (!groupedRelations.TryGetValue(extensionId, out var itemInfo))
                     {
-                        itemInfo = new Dictionary<int, M2mRelations>();
+                        itemInfo = new Dictionary<int, M2MRelations>();
                         groupedRelations.Add(extensionId, itemInfo);
                     }
 
                     if (!itemInfo.TryGetValue(itemId, out var relations))
                     {
-                        relations = new M2mRelations();
+                        relations = new M2MRelations();
                         itemInfo.Add(itemId, relations);
                     }
 

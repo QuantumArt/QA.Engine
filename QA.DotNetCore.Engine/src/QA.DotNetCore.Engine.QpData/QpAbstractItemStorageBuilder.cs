@@ -515,7 +515,9 @@ namespace QA.DotNetCore.Engine.QpData
             }
 
             var fileFields = new Dictionary<string, ContentAttributePersistentData>();
-            fields.Where(ca => ca.IsFileField).ToList().ForEach(ca => fileFields.TryAdd(ca.ColumnName, ca));
+            fields.Where(ca => ca.IsFileField).ToList().ForEach(
+                ca => fileFields.TryAdd(ca.ColumnName.ToLowerInvariant(), ca)
+            );
 
             //проведём замены в некоторых значениях доп полей
             foreach (var key in details.Keys)

@@ -147,11 +147,13 @@ namespace QA.DotNetCore.Engine.QpData
 
                 if (_context.AbstractItemsM2MData != null)
                 {
+                    var m2mFields = _context.M2MFields[extensionContentId];
                     foreach (var key in _context.AbstractItemsM2MData.Keys)
                     {
                         if (activatedAbstractItems.TryGetValue(key, out var item))
                         {
                             item.M2mRelations.Merge(_context.AbstractItemsM2MData[key]);
+                            item.M2mFieldNameMapToLinkIds = m2mFields;
                         }
                     }
                 }
@@ -278,6 +280,16 @@ namespace QA.DotNetCore.Engine.QpData
                 var abstractItemTags = ConcatTags(allTags.AbstractItemTag, allTags.ItemDefinitionTag);
                 _context.AbstractItemsM2MData = GetAbstractItemsManyToManyRelations(extensions, abstractItemTags, _context.LogId);
                 _context.ExtensionsM2MData = GetExtensionsManyToManyRelations(extensions, allTags, _context.LogId);
+                var m2MBase = _context.BaseContent.ContentAttributes.Where(ca => ca.IsManyToManyField).ToList();
+                _context.M2MFields = _context.ExtensionContents.Select(n => new
+                {
+                    n.Key, Value = n.Value.ContentAttributes
+                        .Where(ca => ca.IsManyToManyField)
+                        .Union(m2MBase)
+                        .ToDictionary(
+                            k => k.ColumnName.ToLowerInvariant(),
+                            v => v.M2mLinkId ?? 0)
+                }).ToDictionary(k => k.Key, v => v.Value);
             }
         }
 
@@ -498,16 +510,13 @@ namespace QA.DotNetCore.Engine.QpData
                 fields.AddRange(baseContent.ContentAttributes);
             }
 
-            var m2MFields = fields.Where(ca => ca.IsManyToManyField).ToList();
-            m2MFields.ForEach(ca => item.M2mFieldNameMapToLinkIds.Add(ca.ColumnName, ca.M2mLinkId ?? 0));
-
             var fileFields = new Dictionary<string, ContentAttributePersistentData>();
             fields.Where(ca => ca.IsFileField).ToList().ForEach(ca => fileFields.TryAdd(ca.ColumnName, ca));
 
             //проведём замены в некоторых значениях доп полей
             foreach (var key in details.Keys)
             {
-                if (item.M2mFieldNameMapToLinkIds.Any() && key.Equals("CONTENT_ITEM_ID", StringComparison.OrdinalIgnoreCase))
+                if (key.Equals("CONTENT_ITEM_ID", StringComparison.OrdinalIgnoreCase))
                 {
                     extensionContentItemId = Convert.ToInt32(details[key]);
                 }

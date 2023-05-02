@@ -52,6 +52,8 @@ namespace QA.DotNetCore.Engine.QpData.Models
         /// M2M у AbstractItems по content_item_id
         /// </summary>
         public IDictionary<int, M2mRelations> AbstractItemsM2MData { get; set; }
+        
+        public IDictionary<int, Dictionary<string, int>> M2MFields { get; set; }
 
         public string LogId { get; }
     }

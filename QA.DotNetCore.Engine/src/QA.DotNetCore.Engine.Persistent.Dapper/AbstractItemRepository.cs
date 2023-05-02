@@ -127,7 +127,7 @@ JOIN {idListTableName} on Id = ext.CONTENT_ID";
             var withNoLock = SqlQuerySyntaxHelper.WithNoLock(UnitOfWork.DatabaseType);
             var extFields = loadAbstractItemFields ? ", ext.*" : "";
             var query = $@"
-SELECT cast(ai.content_item_id as numeric) as Id, ai.*{extFields} 
+SELECT cast(ai.content_item_id as numeric) as Id{extFields}, ai.* 
 FROM {extTableName} ext {withNoLock}
 JOIN {baseContent.GetTableName(isStage)} ai {withNoLock} on ai.content_item_id = ext.itemid";
 

@@ -501,8 +501,8 @@ namespace QA.DotNetCore.Engine.QpData
             var m2MFields = fields.Where(ca => ca.IsManyToManyField).ToList();
             m2MFields.ForEach(ca => item.M2mFieldNameMapToLinkIds.Add(ca.ColumnName, ca.M2mLinkId ?? 0));
 
-            var fileFields = fields.Where(ca => ca.IsFileField)
-                .ToDictionary(k => k.ColumnName.ToLowerInvariant(), v => v);
+            var fileFields = new Dictionary<string, ContentAttributePersistentData>();
+            fields.Where(ca => ca.IsFileField).ToList().ForEach(ca => fileFields.TryAdd(ca.ColumnName, ca));
 
             //проведём замены в некоторых значениях доп полей
             foreach (var key in details.Keys)

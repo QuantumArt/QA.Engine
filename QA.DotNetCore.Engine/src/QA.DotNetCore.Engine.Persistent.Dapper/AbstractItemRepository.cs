@@ -14,7 +14,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
     public class AbstractItemRepository : IAbstractItemRepository
     {
-        private static readonly IReadOnlyDictionary<int, M2mRelations> _emptyResult = new Dictionary<int, M2mRelations>();
+        private static readonly IReadOnlyDictionary<int, M2MRelations> _emptyResult = new Dictionary<int, M2MRelations>();
 
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         private readonly ICacheProvider _cacheProvider;
@@ -192,7 +192,7 @@ JOIN {idListTable} on Id = ai.Content_item_id";
             return result;
         }
 
-        public IDictionary<int, M2mRelations> GetManyToManyData(IEnumerable<int> itemIds, bool isStage, IDbTransaction transaction = null)
+        public IDictionary<int, M2MRelations> GetManyToManyData(IEnumerable<int> itemIds, bool isStage, IDbTransaction transaction = null)
         {
             var m2MTableName = QpTableNameHelper.GetM2MTableName(isStage);
             var idListTable = SqlQuerySyntaxHelper.IdList(UnitOfWork.DatabaseType, "@ids", "ids");
@@ -207,7 +207,7 @@ JOIN {idListTable} on Id = link.item_id";
             command.CommandText = query;
             command.Parameters.Add(SqlQuerySyntaxHelper.GetIdsDatatableParam("@Ids", itemIds, UnitOfWork.DatabaseType));
             command.Transaction = transaction;
-            var result = new Dictionary<int, M2mRelations>();
+            var result = new Dictionary<int, M2MRelations>();
 
             using var reader = command.ExecuteReader();
 
@@ -216,7 +216,7 @@ JOIN {idListTable} on Id = link.item_id";
                 var itemId = Convert.ToInt32(reader.GetDecimal(reader.GetOrdinal("item_id")));
                 if (!result.ContainsKey(itemId))
                 {
-                    result[itemId] = new M2mRelations();
+                    result[itemId] = new M2MRelations();
                 }
 
                 result[itemId].AddRelation(
@@ -227,7 +227,7 @@ JOIN {idListTable} on Id = link.item_id";
             return result;
         }
 
-        public IEnumerable<IReadOnlyDictionary<int, M2mRelations>> GetManyToManyDataByContent(
+        public IEnumerable<IReadOnlyDictionary<int, M2MRelations>> GetManyToManyDataByContent(
             IReadOnlyCollection<int> contentIds,
             bool isStage,
             IDbTransaction transaction = null)
@@ -253,7 +253,7 @@ JOIN {idListTableName} on Id = e.CONTENT_ID";
             command.Transaction = transaction;
             _ = command.Parameters.Add(parameter);
 
-            var groupedRelations = new Dictionary<int, Dictionary<int, M2mRelations>>();
+            var groupedRelations = new Dictionary<int, Dictionary<int, M2MRelations>>();
 
             using (var reader = command.ExecuteReader())
             {
@@ -264,13 +264,13 @@ JOIN {idListTableName} on Id = e.CONTENT_ID";
 
                     if (!groupedRelations.TryGetValue(extensionId, out var itemInfo))
                     {
-                        itemInfo = new Dictionary<int, M2mRelations>();
+                        itemInfo = new Dictionary<int, M2MRelations>();
                         groupedRelations.Add(extensionId, itemInfo);
                     }
 
                     if (!itemInfo.TryGetValue(itemId, out var relations))
                     {
-                        relations = new M2mRelations();
+                        relations = new M2MRelations();
                         itemInfo.Add(itemId, relations);
                     }
 

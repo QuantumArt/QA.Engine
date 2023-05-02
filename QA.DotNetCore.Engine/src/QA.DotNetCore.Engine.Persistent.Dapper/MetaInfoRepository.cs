@@ -49,7 +49,7 @@ SELECT
     ca.USE_SITE_LIBRARY as UseSiteLibrary,
     ca.SUBFOLDER,
     at.TYPE_NAME as TypeName,
-    ca.LINK_ID as M2mLinkId
+    ca.LINK_ID as M2MLinkId
 FROM CONTENT_ATTRIBUTE ca
 INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID=ca.ATTRIBUTE_TYPE_ID
 WHERE ca.CONTENT_ID={0} AND lower(ca.ATTRIBUTE_NAME)=lower('{1}')
@@ -64,7 +64,7 @@ SELECT
     ca.USE_SITE_LIBRARY as UseSiteLibrary,
     ca.SUBFOLDER,
     at.TYPE_NAME as TypeName,
-    ca.LINK_ID as M2mLinkId
+    ca.LINK_ID as M2MLinkId
 FROM CONTENT_ATTRIBUTE ca
 INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID=ca.ATTRIBUTE_TYPE_ID
 WHERE ca.CONTENT_ID={0} AND lower(ca.NET_ATTRIBUTE_NAME)=lower('{1}')
@@ -82,7 +82,7 @@ SELECT
     ca.USE_SITE_LIBRARY as " + nameof(ContentAttributePersistentData.UseSiteLibrary) + @",
     ca.SUBFOLDER as " + nameof(ContentAttributePersistentData.SubFolder) + @",
     at.TYPE_NAME as " + nameof(ContentAttributePersistentData.TypeName) + @",
-    ca.LINK_ID as " + nameof(ContentAttributePersistentData.M2mLinkId) + @"
+    ca.LINK_ID as " + nameof(ContentAttributePersistentData.M2MLinkId) + @"
 FROM CONTENT c
 INNER JOIN CONTENT_ATTRIBUTE ca on ca.CONTENT_ID = c.CONTENT_ID
 INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID

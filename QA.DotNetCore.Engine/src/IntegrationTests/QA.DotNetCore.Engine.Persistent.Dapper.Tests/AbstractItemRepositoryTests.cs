@@ -121,7 +121,7 @@ public class AbstractItemRepositoryTests
 
         var relations = _repository.GetManyToManyData(new[] { ItemIdWithRelations }, IsStage);
 
-        M2mRelations relation = Assert.Contains(ItemIdWithRelations, relations);
+        M2MRelations relation = Assert.Contains(ItemIdWithRelations, relations);
         Assert.NotEmpty(relation.GetRelations());
     }
 

@@ -41,17 +41,17 @@ namespace QA.DotNetCore.Engine.QpData.Models
         /// <summary>
         /// Флаг, определяющий необходимость подгрузки M2M для AbstractItem
         /// </summary>
-        public bool NeedLoadM2mInAbstractItem { get; set; }
+        public bool NeedLoadM2MInAbstractItem { get; set; }
 
         /// <summary>
         /// M2M контентов расширений по content_item_id
         /// </summary>
-        public IDictionary<int, M2mRelations> ExtensionsM2MData { get; set; }
+        public IDictionary<int, M2MRelations> ExtensionsM2MData { get; set; }
 
         /// <summary>
         /// M2M у AbstractItems по content_item_id
         /// </summary>
-        public IDictionary<int, M2mRelations> AbstractItemsM2MData { get; set; }
+        public IDictionary<int, M2MRelations> AbstractItemsM2MData { get; set; }
         
         public IDictionary<int, Dictionary<string, int>> M2MFields { get; set; }
 

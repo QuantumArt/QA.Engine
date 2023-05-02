@@ -139,7 +139,7 @@ namespace QA.DotNetCore.Engine.QpData
 
             //догрузим связи m2m в основном контенте, если это нужно
 
-            if (_context.NeedLoadM2mInAbstractItem)
+            if (_context.NeedLoadM2MInAbstractItem)
             {
                 _logger.LogTrace(
                     "Load data for many-to-many fields in main content (QPAbstractItem). Build id: {LogId}",
@@ -147,13 +147,13 @@ namespace QA.DotNetCore.Engine.QpData
 
                 if (_context.AbstractItemsM2MData != null)
                 {
-                    var m2mFields = _context.M2MFields[extensionContentId];
+                    var m2MFields = _context.M2MFields[extensionContentId];
                     foreach (var key in _context.AbstractItemsM2MData.Keys)
                     {
                         if (activatedAbstractItems.TryGetValue(key, out var item))
                         {
-                            item.M2mRelations.Merge(_context.AbstractItemsM2MData[key]);
-                            item.M2mFieldNameMapToLinkIds = m2mFields;
+                            item.M2MRelations.Merge(_context.AbstractItemsM2MData[key]);
+                            item.M2MFieldNameMapToLinkIds = m2MFields;
                         }
                     }
                 }
@@ -237,7 +237,7 @@ namespace QA.DotNetCore.Engine.QpData
                 BaseContent = _metaInfoRepository.GetContent(KnownNetNames.AbstractItem, _buildSettings.SiteId),
             };
 
-            _context.NeedLoadM2mInAbstractItem =
+            _context.NeedLoadM2MInAbstractItem =
                 _buildSettings.LoadAbstractItemFieldsToDetailsCollection
                 && _context.BaseContent.ContentAttributes.Any(ca => ca.IsManyToManyField);
 
@@ -288,16 +288,16 @@ namespace QA.DotNetCore.Engine.QpData
                         .Union(m2MBase)
                         .ToDictionary(
                             k => k.ColumnName.ToLowerInvariant(),
-                            v => v.M2mLinkId ?? 0)
+                            v => v.M2MLinkId ?? 0)
                 }).ToDictionary(k => k.Key, v => v.Value);
                 _context.M2MFields.Add(0, m2MBase.ToDictionary(
                     k => k.ColumnName.ToLowerInvariant(),
-                    v => v.M2mLinkId ?? 0)
+                    v => v.M2MLinkId ?? 0)
                 );
             }
         }
 
-        private IDictionary<int, M2mRelations> GetAbstractItemsManyToManyRelations(
+        private IDictionary<int, M2MRelations> GetAbstractItemsManyToManyRelations(
             IDictionary<int, AbstractItemPersistentData[]> extensions, 
             string[] abstractItemTags, 
             string logId) =>
@@ -316,7 +316,7 @@ namespace QA.DotNetCore.Engine.QpData
                 },
                 _buildSettings.CacheFetchTimeoutAbstractItemStorage);
 
-        private Dictionary<int, M2mRelations> GetExtensionsManyToManyRelations(
+        private Dictionary<int, M2MRelations> GetExtensionsManyToManyRelations(
             IDictionary<int, AbstractItemPersistentData[]> extensions,
             WidgetsAndPagesCacheTags tags,
             string logId) =>
@@ -336,7 +336,7 @@ namespace QA.DotNetCore.Engine.QpData
                 .SelectMany(extensionGroup => extensionGroup)
                 .ToDictionary(pair => pair.Key, pair => pair.Value);
 
-        private IDictionary<int, M2mRelations> GetRealAbstractItemsManyToManyRelations(
+        private IDictionary<int, M2MRelations> GetRealAbstractItemsManyToManyRelations(
             IDictionary<int, AbstractItemPersistentData[]> extensions) =>
             _abstractItemRepository.GetManyToManyData(
                 extensions.Values
@@ -448,7 +448,7 @@ namespace QA.DotNetCore.Engine.QpData
             IDictionary<int, AbstractItemExtensionCollection> extensionData,
             IDictionary<int, ContentPersistentData> extensionContents,
             ContentPersistentData baseContent,
-            IDictionary<int, M2mRelations> extensionsM2MData,
+            IDictionary<int, M2MRelations> extensionsM2MData,
             string logId,
             bool createScope
             )
@@ -485,7 +485,7 @@ namespace QA.DotNetCore.Engine.QpData
             IDictionary<int, AbstractItemExtensionCollection> extensionData,
             IDictionary<int, ContentPersistentData> extensionContents,
             ContentPersistentData baseContent,
-            IDictionary<int, M2mRelations> extensionsM2MData,
+            IDictionary<int, M2MRelations> extensionsM2MData,
             string logId)
         {
             var extensionContentId = item.ExtensionId.GetValueOrDefault(0);
@@ -551,7 +551,7 @@ namespace QA.DotNetCore.Engine.QpData
                 extensionsM2MData != null &&
                 extensionsM2MData.TryGetValue(extensionContentItemId.Value, out var relations))
             {
-                item.M2mRelations.Merge(relations);
+                item.M2MRelations.Merge(relations);
             }
 
             return details;

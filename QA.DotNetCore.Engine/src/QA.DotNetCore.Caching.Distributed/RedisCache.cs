@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using QA.DotNetCore.Caching.Helpers.Operations;
 using QA.DotNetCore.Caching.Interfaces;
 using RedLockNet;
 using StackExchange.Redis;
@@ -12,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using QA.DotNetCore.Caching.Helpers.Pipes;
 
 namespace QA.DotNetCore.Caching.Distributed
 {
@@ -284,11 +284,11 @@ namespace QA.DotNetCore.Caching.Distributed
             IDisposable locker = null;
             try
             {
-                return new OperationsChain<CacheInfo<TId>, CachedValue>(_logger)
-                    .AddOperation(GetCachedValues, isFinal: result => result.State == KeyState.Exist)
-                    .AddOperation((infos, context) => LockOrGetDeprecatedCache(infos, context, lockEnterWaitTimeout, out locker))
-                    .AddOperation(GetCachedValues, isFinal: result => result.State == KeyState.Exist)
-                    .AddOperation(infos => ObtainAndCacheRealValues(infos, dataStreamsFactory))
+                return new Pipeline<CacheInfo<TId>, CachedValue>(_logger)
+                    .AddPipe(GetCachedValues, isFinal: result => result.State == KeyState.Exist)
+                    .AddPipe((infos, context) => LockOrGetDeprecatedCache(infos, context, lockEnterWaitTimeout, out locker))
+                    .AddPipe(GetCachedValues, isFinal: result => result.State == KeyState.Exist)
+                    .AddPipe(infos => ObtainAndCacheRealValues(infos, dataStreamsFactory))
                     .Execute(cacheInfos)
                     .Select(result => result.Value)
                     .ToList();
@@ -299,9 +299,9 @@ namespace QA.DotNetCore.Caching.Distributed
             }
         }
 
-        private IEnumerable<OperationResult<CachedValue>> LockOrGetDeprecatedCache<TId>(
+        private IEnumerable<PipeOutput<CachedValue>> LockOrGetDeprecatedCache<TId>(
             CacheInfo<TId>[] infos,
-            OperationContext<CachedValue> context,
+            PipeContext<CachedValue> context,
             TimeSpan lockEnterWaitTimeout,
             out IDisposable locker)
         {
@@ -532,9 +532,9 @@ namespace QA.DotNetCore.Caching.Distributed
 
             try
             {
-                var cachedValues = new OperationsChain<RedisKey, CachedValue>(_logger)
-                    .AddOperation(GetCachedValuesByKeys, isFinal: result => result.State == KeyState.Missing)
-                    .AddOperation(MarkDeprecatedValues)
+                var cachedValues = new Pipeline<RedisKey, CachedValue>(_logger)
+                    .AddPipe(GetCachedValuesByKeys, isFinal: result => result.State == KeyState.Missing)
+                    .AddPipe(MarkDeprecatedValues)
                     .Execute(redisKeys);
 
                 _logger.LogTrace("Keys ({CacheKeys}) have values: {CacheValues}", redisKeys, cachedValues);
@@ -548,7 +548,7 @@ namespace QA.DotNetCore.Caching.Distributed
             }
         }
 
-        private IEnumerable<OperationResult<CachedValue>> MarkDeprecatedValues(RedisKey[] keys, OperationContext<CachedValue> context)
+        private IEnumerable<PipeOutput<CachedValue>> MarkDeprecatedValues(RedisKey[] keys, PipeContext<CachedValue> context)
         {
             var ttlResultTasks = keys
                 .Select(key => _cache.KeyTimeToLiveAsync(key))
@@ -564,7 +564,7 @@ namespace QA.DotNetCore.Caching.Distributed
                     ? previousValue
                     : new CachedValue(KeyState.Deprecated, previousValue.Value);
 
-                yield return new OperationResult<CachedValue>(adjustedValue, true);
+                yield return new PipeOutput<CachedValue>(adjustedValue, true);
             }
         }
 

@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using QA.DotNetCore.Caching.Helpers.Operations;
 using QA.DotNetCore.Caching.Interfaces;
 using StackExchange.Redis;
 using System;
@@ -9,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using QA.DotNetCore.Caching.Helpers.Pipes;
 
 namespace QA.DotNetCore.Caching.Distributed
 {
@@ -114,14 +114,14 @@ namespace QA.DotNetCore.Caching.Distributed
 
             try
             {
-                var results = await new AsyncOperationsChain<CacheInfo<TId>, CachedValue>(_logger)
-                    .AddOperation(GetCachedValuesAsync, isFinal: result => result.State == KeyState.Exist)
-                    .AddOperation((infos, context) => LockOrGetDeprecatedCacheAsync(infos, context, lockEnterWaitTimeout, SetLocker))
-                    .AddOperation(GetCachedValuesAsync, isFinal: result => result.State == KeyState.Exist)
-                    .AddOperation(infos => ObtainAndCacheRealValuesAsync(infos, dataStreamsFactory))
-                    .ExecuteAsync(cacheInfos);
-
-                return results
+                var doubleCheckLockingPipeline = new AsyncPipeline<CacheInfo<TId>, CachedValue>(_logger)
+                    .AddPipe(GetCachedValuesAsync, isFinal: result => result.State == KeyState.Exist)
+                    .AddPipe((infos, context) =>
+                        LockOrGetDeprecatedCacheAsync(infos, context, lockEnterWaitTimeout, SetLocker))
+                    .AddPipe(GetCachedValuesAsync, isFinal: result => result.State == KeyState.Exist)
+                    .AddPipe(infos => ObtainAndCacheRealValuesAsync(infos, dataStreamsFactory));
+                    
+                return (await doubleCheckLockingPipeline.ExecuteAsync(cacheInfos))
                     .Select(result => result.Value)
                     .ToList();
             }
@@ -134,9 +134,9 @@ namespace QA.DotNetCore.Caching.Distributed
             }
         }
 
-        private async IAsyncEnumerable<OperationResult<CachedValue>> LockOrGetDeprecatedCacheAsync<TId>(
+        private async IAsyncEnumerable<PipeOutput<CachedValue>> LockOrGetDeprecatedCacheAsync<TId>(
             CacheInfo<TId>[] infos,
-            OperationContext<CachedValue> context,
+            PipeContext<CachedValue> context,
             TimeSpan lockEnterWaitTimeout,
             Action<IAsyncDisposable> handleLocker)
         {
@@ -388,9 +388,9 @@ namespace QA.DotNetCore.Caching.Distributed
 
             try
             {
-                var cachedValues = await new AsyncOperationsChain<RedisKey, CachedValue>(_logger)
-                    .AddOperation(GetCachedValuesByKeysAsync, isFinal: result => result.State == KeyState.Missing)
-                    .AddOperation(MarkDeprecatedValuesAsync)
+                var cachedValues = await new AsyncPipeline<RedisKey, CachedValue>(_logger)
+                    .AddPipe(GetCachedValuesByKeysAsync, isFinal: result => result.State == KeyState.Missing)
+                    .AddPipe(MarkDeprecatedValuesAsync)
                     .ExecuteAsync(redisKeys);
 
                 _logger.LogTrace("Keys ({CacheKeys}) have values: {CacheValues}", redisKeys, cachedValues);
@@ -404,7 +404,7 @@ namespace QA.DotNetCore.Caching.Distributed
             }
         }
 
-        private async IAsyncEnumerable<OperationResult<CachedValue>> MarkDeprecatedValuesAsync(RedisKey[] keys, OperationContext<CachedValue> context)
+        private async IAsyncEnumerable<PipeOutput<CachedValue>> MarkDeprecatedValuesAsync(RedisKey[] keys, PipeContext<CachedValue> context)
         {
             var ttlResultTasks = keys
                 .Select(key => _cache.KeyTimeToLiveAsync(key))
@@ -420,7 +420,7 @@ namespace QA.DotNetCore.Caching.Distributed
                     ? previousValue
                     : new CachedValue(KeyState.Deprecated, previousValue.Value);
 
-                yield return new OperationResult<CachedValue>(adjustedValue, true);
+                yield return new PipeOutput<CachedValue>(adjustedValue, true);
             }
         }
 

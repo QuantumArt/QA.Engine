@@ -2,7 +2,6 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using QA.DotNetCore.Caching.Exceptions;
-using QA.DotNetCore.Caching.Helpers.Operations;
 using QA.DotNetCore.Caching.Interfaces;
 using System;
 using System.Collections.Concurrent;
@@ -10,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using QA.DotNetCore.Caching.Helpers.Pipes;
 
 namespace QA.DotNetCore.Caching
 {
@@ -20,6 +20,7 @@ namespace QA.DotNetCore.Caching
     {
         private readonly IMemoryCache _cache;
         private readonly TimeSpan _defaultWaitForCalculateTimeout = TimeSpan.FromSeconds(5);
+        private readonly int _defaultDeprecatedCoef = 2;
         private readonly ILogger _logger;
         private static readonly ConcurrentDictionary<string, object> _lockers = new ConcurrentDictionary<string, object>();
         private static readonly ConcurrentDictionary<string, SemaphoreSlim> _semaphores = new ConcurrentDictionary<string, SemaphoreSlim>();
@@ -122,7 +123,7 @@ namespace QA.DotNetCore.Caching
         }
 
         /// <summary>
-        /// Инвалидирует все записи в кеше по тегам
+        /// Инвалидирует записи в кеше по тегам
         /// </summary>
         /// <param name="tags">Теги</param>
         [Obsolete("Use " + nameof(ICacheInvalidator) + " interface instead.")]
@@ -146,24 +147,24 @@ namespace QA.DotNetCore.Caching
 
             try
             {
-                return new OperationsChain<CacheInfo<TId>, TResult>(_logger)
-                    .AddOperation(GetExistingCache)
-                    .AddOperation((infos) => LockOrGetDeprecatedCache<TId, TResult>(infos, waitForCalculateTimeout, out locker))
-                    .AddOperation(GetExistingCache)
-                    .AddOperation((infos) => GetAndCacheRealData(infos, dataValuesFactory))
-                    .Execute(cacheInfos)
-                    .ToArray();
+                var doubleCheckLockingPipeline =
+                    new Pipeline<CacheInfo<TId>, TResult>(_logger)
+                        .AddPipe(GetExistingCache<TId, TResult>)
+                        .AddPipe(infos =>
+                            LockOrGetDeprecatedCache<TId, TResult>(infos, waitForCalculateTimeout, out locker))
+                        .AddPipe(GetExistingCache<TId, TResult>)
+                        .AddPipe(infos => GetAndCacheRealData(infos, dataValuesFactory));
+                    
+                return doubleCheckLockingPipeline.Execute(cacheInfos).ToArray();
             }
             finally
             {
                 locker?.Dispose();
             }
 
-            IEnumerable<OperationResult<TResult>> GetExistingCache(CacheInfo<TId>[] infos) =>
-                GetExistingCache<TId, TResult>(infos);
         }
 
-        private IEnumerable<OperationResult<TResult>> GetExistingCache<TId, TResult>(CacheInfo<TId>[] infos)
+        private IEnumerable<PipeOutput<TResult>> GetExistingCache<TId, TResult>(CacheInfo<TId>[] infos)
         {
             var keys = infos.Select(info => info.Key);
 
@@ -171,13 +172,11 @@ namespace QA.DotNetCore.Caching
 
             foreach (var result in results)
             {
-                bool isFinalResult = result != null;
-
-                yield return new OperationResult<TResult>(result, isFinalResult);
+                yield return new PipeOutput<TResult>(result, result != null);
             }
         }
 
-        private IEnumerable<OperationResult<TResult>> LockOrGetDeprecatedCache<TId, TResult>(
+        private IEnumerable<PipeOutput<TResult>> LockOrGetDeprecatedCache<TId, TResult>(
             CacheInfo<TId>[] infos,
             TimeSpan lockEnterWaitTimeout,
             out IDisposable locker)
@@ -189,11 +188,11 @@ namespace QA.DotNetCore.Caching
                 cacheKeys,
                 Get<TResult>);
 
-            var results = new OperationResult<TResult>[infos.Length];
+            var results = new PipeOutput<TResult>[infos.Length];
 
             lockersCollection.Lock(
                 lockEnterWaitTimeout,
-                (cacheKey, index, deprecatedResult) => results[index] = new OperationResult<TResult>(deprecatedResult, true));
+                (cacheKey, index, deprecatedResult) => results[index] = new PipeOutput<TResult>(deprecatedResult, true));
 
             locker = lockersCollection;
 
@@ -227,7 +226,7 @@ namespace QA.DotNetCore.Caching
 
                     //добавим новое значение в кеш и сразу обновим deprecated значение, которое хранится в 2 раза дольше, чем основное
                     Add(currentResult, missingKey, tags.ToArray(), expiration);
-                    Add(currentResult, deprecatedCacheKey, Array.Empty<string>(), expiration + expiration);
+                    Add(currentResult, deprecatedCacheKey, Array.Empty<string>(), expiration * _defaultDeprecatedCoef);
                 }
             }
 
@@ -311,7 +310,7 @@ namespace QA.DotNetCore.Caching
                             {
                                 //добавим новое значение в кеш и сразу обновим deprecated значение, которое хранится в 2 раза дольше, чем основное
                                 Add(result, cacheKey, tags, expiration);
-                                Add(result, deprecatedCacheKey, Array.Empty<string>(), TimeSpan.FromTicks(expiration.Ticks * 2));
+                                Add(result, deprecatedCacheKey, Array.Empty<string>(), TimeSpan.FromTicks(expiration.Ticks * _defaultDeprecatedCoef));
                             }
                         }
                     }
@@ -407,7 +406,7 @@ namespace QA.DotNetCore.Caching
                             {
                                 //добавим новое значение в кеш и сразу обновим deprecated значение, которое хранится в 2 раза дольше, чем основное
                                 Add(result, cacheKey, tags, expiration);
-                                Add(result, deprecatedCacheKey, null, TimeSpan.FromTicks(expiration.Ticks * 2));
+                                Add(result, deprecatedCacheKey, null, TimeSpan.FromTicks(expiration.Ticks * _defaultDeprecatedCoef));
                             }
                         }
                     }
@@ -469,10 +468,7 @@ namespace QA.DotNetCore.Caching
             return result;
         }
 
-        private static string GetDeprecatedCacheKey(string originalKey)
-        {
-            return originalKey + "__Deprecated";
-        }
+        private static string GetDeprecatedCacheKey(string originalKey) => originalKey + "__Deprecated";
 
         private static string GetKey(string key) => "key:" + key;
         private static string GetTag(string tag) => "tag:" + tag;

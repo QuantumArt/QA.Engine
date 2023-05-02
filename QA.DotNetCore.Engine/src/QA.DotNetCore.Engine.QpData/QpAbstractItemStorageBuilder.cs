@@ -59,7 +59,7 @@ namespace QA.DotNetCore.Engine.QpData
 
         public AbstractItemStorage BuildStorage(AbstractItem[] abstractItems)
         {
-            _logger.LogInformation(
+            _logger.LogDebug(
                 "AbstractItemStorage build via AbstractItems collection started. Build id: {LogId}, SiteId: {SiteId}, IsStage: {IsStage}",
                 _context.LogId, _buildSettings.SiteId, _buildSettings.IsStage);
             var root = abstractItems.First(x => x.Discriminator == _buildSettings.RootPageDiscriminator);
@@ -70,21 +70,22 @@ namespace QA.DotNetCore.Engine.QpData
         /// Формирование AbstractItem
         /// </summary>
         /// <param name="extensionContentId">Идентификатор контента расширения</param>
-        /// <param name="abstractItemPersistentDatas">Идентификаторы связанный AbstractItem</param>
+        /// <param name="abstractItemPersistentData">Идентификаторы связанный AbstractItem</param>
+        /// <param name="lazyLoad"></param>
         /// <returns></returns>
-        public AbstractItem[] BuildAbstractItems(int extensionContentId, AbstractItemPersistentData[] abstractItemPersistentDatas, bool lazyLoad)
+        public AbstractItem[] BuildAbstractItems(int extensionContentId, AbstractItemPersistentData[] abstractItemPersistentData, bool lazyLoad)
         {
             if (_context == null)
             {
                 throw new ArgumentNullException(nameof(_context));
             }
 
-            _logger.LogInformation("AbstractItem build via QP started. Build id: {LogId}, SiteId: {SiteId}, IsStage: {IsStage}",
+            _logger.LogTrace("AbstractItem build via QP started. Build id: {LogId}, SiteId: {SiteId}, IsStage: {IsStage}",
                 _context.LogId, _buildSettings.SiteId, _buildSettings.IsStage);
 
             var activatedAbstractItems = new Dictionary<int, AbstractItem>();
             //первый проход списка - активируем, т.е. создаём AbsractItem-ы с правильным типом и набором заполненных полей, запоминаем root
-            foreach (var persistentItem in abstractItemPersistentDatas)
+            foreach (var persistentItem in abstractItemPersistentData)
             {
                 var activatedItem = _itemFactory.Create(persistentItem.Discriminator);
                 if (activatedItem == null)
@@ -96,7 +97,7 @@ namespace QA.DotNetCore.Engine.QpData
                 activatedAbstractItems.Add(persistentItem.Id, activatedItem);
             }
 
-            _logger.LogInformation("Activated abstract items: {AbstractItemsCount}. Build id: {LogId}", activatedAbstractItems.Count, _context.LogId);
+            _logger.LogTrace("Activated abstract items: {AbstractItemsCount}. Build id: {LogId}", activatedAbstractItems.Count, _context.LogId);
 
             if (extensionContentId > 0 || _buildSettings.LoadAbstractItemFieldsToDetailsCollection)
             {
@@ -131,7 +132,7 @@ namespace QA.DotNetCore.Engine.QpData
             }
             else
             {
-                _logger.LogInformation(
+                _logger.LogTrace(
                     "Skip load data for extension-less elements (LoadAbstractItemFieldsToDetailsCollection = false). Build id: {LogId}",
                     _context.LogId);
             }
@@ -140,7 +141,7 @@ namespace QA.DotNetCore.Engine.QpData
 
             if (_context.NeedLoadM2mInAbstractItem)
             {
-                _logger.LogInformation(
+                _logger.LogTrace(
                     "Load data for many-to-many fields in main content (QPAbstractItem). Build id: {LogId}",
                     _context.LogId);
 
@@ -170,19 +171,18 @@ namespace QA.DotNetCore.Engine.QpData
             var activatedAbstractItems = abstractItems.ToDictionary(x => x.Id, x => x);
             foreach (var item in activatedAbstractItems.Values)
             {
-                if (item.VersionOfId.HasValue && activatedAbstractItems.ContainsKey(item.VersionOfId.Value))
+                if (item.VersionOfId.HasValue && activatedAbstractItems.TryGetValue(item.VersionOfId.Value, out var main))
                 {
-                    var main = activatedAbstractItems[item.VersionOfId.Value];
                     item.MapVersionOf(main);
 
-                    if (main.ParentId.HasValue && activatedAbstractItems.ContainsKey(main.ParentId.Value))
+                    if (main.ParentId.HasValue && activatedAbstractItems.TryGetValue(main.ParentId.Value, out var abstractItem))
                     {
-                        activatedAbstractItems[main.ParentId.Value].AddChild(item);
+                        abstractItem.AddChild(item);
                     }
                 }
-                else if (item.ParentId.HasValue && activatedAbstractItems.ContainsKey(item.ParentId.Value))
+                else if (item.ParentId.HasValue && activatedAbstractItems.TryGetValue(item.ParentId.Value, out var abstractItem))
                 {
-                    activatedAbstractItems[item.ParentId.Value].AddChild(item);
+                    abstractItem.AddChild(item);
                 }
             }
         }
@@ -227,6 +227,7 @@ namespace QA.DotNetCore.Engine.QpData
         /// Формирование контекста
         /// </summary>
         /// <param name="extensions">Content items from AbstractItems content grouped by extension type.</param>
+        /// <param name="lazyLoad"></param>
         public void Init(IDictionary<int, AbstractItemPersistentData[]> extensions, bool lazyLoad)
         {
             _context = new AbstractItemStorageBuilderContext
@@ -273,50 +274,59 @@ namespace QA.DotNetCore.Engine.QpData
                 }
 
 
-                WidgetsAndPagesCacheTags tags = GetTags(extensions.Keys);
-
-                string[] abstractItemTags = ConcatTags(tags.AbstractItemTag, tags.ItemDefinitionTag);
-
-                _context.AbstractItemsM2MData = _cacheProvider.GetOrAdd(
-                    $"{nameof(Init)}.{nameof(GetAbstractItemsManyToManyRelations)}",
-                    abstractItemTags,
-                    _cacheSettings.SiteStructureCachePeriod,
-                    () => GetAbstractItemsManyToManyRelations(extensions),
-                    _buildSettings.CacheFetchTimeoutAbstractItemStorage);
-
-                _context.ExtensionsM2MData = GetExtensionsManyToManyRelations(extensions, tags);
+                var allTags = GetTags(extensions.Keys);
+                var abstractItemTags = ConcatTags(allTags.AbstractItemTag, allTags.ItemDefinitionTag);
+                _context.AbstractItemsM2MData = GetAbstractItemsManyToManyRelations(extensions, abstractItemTags, _context.LogId);
+                _context.ExtensionsM2MData = GetExtensionsManyToManyRelations(extensions, allTags, _context.LogId);
             }
         }
 
+        private IDictionary<int, M2mRelations> GetAbstractItemsManyToManyRelations(
+            IDictionary<int, AbstractItemPersistentData[]> extensions, 
+            string[] abstractItemTags, 
+            string logId) =>
+            _cacheProvider.GetOrAdd(
+                $"{nameof(Init)}.{nameof(GetRealAbstractItemsManyToManyRelations)}",
+                abstractItemTags,
+                _cacheSettings.SiteStructureCachePeriod,
+                () =>
+                {
+                    var extensionKeys = String.Join(", ", extensions.Keys);
+                    _logger.LogInformation(
+                        "Load M2M data for extension tables: {ExtensionId}. Build id: {LogId}", 
+                        extensionKeys, 
+                        logId);
+                    return GetRealAbstractItemsManyToManyRelations(extensions);
+                },
+                _buildSettings.CacheFetchTimeoutAbstractItemStorage);
+
         private Dictionary<int, M2mRelations> GetExtensionsManyToManyRelations(
             IDictionary<int, AbstractItemPersistentData[]> extensions,
-            WidgetsAndPagesCacheTags tags)
-        {
-            var extensionCacheInfos = GetExtensionCacheInfos(extensions, tags, expiration: _cacheSettings.SiteStructureCachePeriod)
-                .ToArray();
-
-            return _cacheProvider
+            WidgetsAndPagesCacheTags tags,
+            string logId) =>
+            _cacheProvider
                 .GetOrAdd(
-                    extensionCacheInfos,
+                    GetExtensionCacheInfos(extensions, tags, expiration: _cacheSettings.SiteStructureCachePeriod).ToArray(),
                     (missingCacheInfos) =>
                     {
                         var missingExtensionIds = missingCacheInfos.Select(info => info.Id).ToArray();
+                        _logger.LogInformation(
+                            "Load M2M data for extension tables: {ExtensionId}. Build id: {LogId}", 
+                            String.Join(", ", missingExtensionIds), 
+                            logId);                        
                         return _abstractItemRepository.GetManyToManyDataByContent(missingExtensionIds, _buildSettings.IsStage);
                     },
                     _buildSettings.CacheFetchTimeoutAbstractItemStorage)
                 .SelectMany(extensionGroup => extensionGroup)
                 .ToDictionary(pair => pair.Key, pair => pair.Value);
-        }
 
-        private IDictionary<int, M2mRelations> GetAbstractItemsManyToManyRelations(
-            IDictionary<int, AbstractItemPersistentData[]> extensions)
-        {
-            return _abstractItemRepository.GetManyToManyData(
+        private IDictionary<int, M2mRelations> GetRealAbstractItemsManyToManyRelations(
+            IDictionary<int, AbstractItemPersistentData[]> extensions) =>
+            _abstractItemRepository.GetManyToManyData(
                 extensions.Values
                     .SelectMany(x => x)
                     .Select(item => item.Id),
                 _buildSettings.IsStage);
-        }
 
         private IEnumerable<CacheInfo<int>> GetExtensionCacheInfos(
             IDictionary<int, AbstractItemPersistentData[]> extensions,
@@ -324,24 +334,18 @@ namespace QA.DotNetCore.Engine.QpData
             TimeSpan expiration,
             [CallerMemberName] string methodName = null)
         {
-            using var extensionsEnumerator = extensions.GetEnumerator();
-
-            for (int i = 0; extensionsEnumerator.MoveNext(); i++)
+            foreach (var extensionId in extensions.Keys)
             {
-                var extensionId = extensionsEnumerator.Current.Key;
                 if (extensionId == 0)
                 {
                     continue;
                 }
 
-                var extensionTags = GetExtensionTags(tags, extensionId);
-                var itemIds = extensionsEnumerator.Current.Value.Select(item => item.Id);
-
                 yield return new CacheInfo<int>(
                     extensionId,
                     $"{methodName}.{nameof(IAbstractItemRepository.GetManyToManyDataByContent)}({extensionId})",
                     expiration,
-                    extensionTags);
+                    GetExtensionTags(tags, extensionId));
             }
         }
 
@@ -375,27 +379,21 @@ namespace QA.DotNetCore.Engine.QpData
             };
         }
 
-        private static string[] ConcatTags(params string[] tags)
-        {
-            if (tags is null)
-            {
-                return Array.Empty<string>();
-            }
-
-            return tags.Where(tag => !string.IsNullOrEmpty(tag)).ToArray();
-        }
+        private static string[] ConcatTags(params string[] tags) => 
+            tags is null ? Array.Empty<string>() : tags.Where(tag => !string.IsNullOrEmpty(tag)).ToArray();
 
         private IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionId,
             IEnumerable<int> abstractItemIds, ContentPersistentData baseContent, string logId, bool createScope)
         {
             using var scope = createScope ? _scopeFactory.CreateScope() : null;
+            var scopeString = scope != null ? "new" : "existing";
             var provider = scope != null ? scope.ServiceProvider : _serviceProvider;
 
             var abstractItemRepository = provider.GetRequiredService<IAbstractItemRepository>();
             var buildSettings = provider.GetRequiredService<QpSiteStructureBuildSettings>();
             var logger = provider.GetRequiredService<ILogger<QpAbstractItemStorageBuilder>>();
 
-            logger.LogDebug("Load data from extension table {ExtensionId}. Build id: {LogId}", extensionId, logId);
+            logger.LogInformation("Load data from extension table {ExtensionId} in {scopeString} scope. Build id: {LogId}", extensionId, scopeString, logId);
 
             // TODO: Batch cache checks (to avoid being chatty with redis).
             IDictionary<int, AbstractItemExtensionCollection> result;
@@ -424,7 +422,7 @@ namespace QA.DotNetCore.Engine.QpData
         /// Возвращает данные контента расширения для AbstractItem <paramref name="item"/>
         /// </summary>
         /// <param name="item">AbstractItem</param>
-        /// <param name="extensionDataLazy">Словарь, где ключ - это CID расширения, в значение - это данные расширения</param>
+        /// <param name="extensionData"></param>
         /// <param name="extensionContents"></param>
         /// <param name="baseContent"></param>
         /// <param name="extensionsM2MData">Данные о связях m2m у расширения</param>
@@ -479,14 +477,14 @@ namespace QA.DotNetCore.Engine.QpData
 
             if (!extensionData.TryGetValue(item.Id, out var details))
             {
-                logger.LogDebug(
+                logger.LogTrace(
                     "Not found data for extension {ExtensionId}. Build id: {LogId}",
                     extensionContentId,
                     logId);
                 return null;
             }
 
-            var extensionContent = extensionContents.ContainsKey(extensionContentId) ? extensionContents[extensionContentId] : null;
+            var extensionContent = extensionContents.TryGetValue(extensionContentId, out var content) ? content : null;
 
             var m2mFieldNames = new List<string>();
             var fileFields = new List<ContentAttributePersistentData>();

@@ -1,12 +1,12 @@
 using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Caching.Exceptions;
-using QA.DotNetCore.Caching.Helpers.Operations;
 using RedLockNet;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using QA.DotNetCore.Caching.Helpers.Pipes;
 
 namespace QA.DotNetCore.Caching.Distributed
 {
@@ -60,16 +60,16 @@ namespace QA.DotNetCore.Caching.Distributed
             /// <exception cref="DeprecateCacheIsExpiredOrMissingException">
             /// Fired when waiting on locked cache without deprecated value longer than <paramref name="lockEnterWaitTimeout"/>
             /// </exception>
-            public IEnumerable<OperationResult<CachedValue>> Lock(
+            public IEnumerable<PipeOutput<CachedValue>> Lock(
                 TimeSpan lockEnterWaitTimeout,
-                OperationContext<CachedValue> context)
+                PipeContext<CachedValue> context)
             {
                 ValidateLockEnterTimeout(lockEnterWaitTimeout);
 
                 var totalWatch = Stopwatch.StartNew();
                 try
                 {
-                    var results = new OperationResult<CachedValue>[_keys.Count];
+                    var results = new PipeOutput<CachedValue>[_keys.Count];
 
                     for (int i = 0; i < _keys.Count; i++)
                     {
@@ -84,7 +84,7 @@ namespace QA.DotNetCore.Caching.Distributed
                                 cacheKey,
                                 _lockExpiration);
 
-                            results[i] = new OperationResult<CachedValue>(previousValue, !IsAcquired(_lockers[i]));
+                            results[i] = new PipeOutput<CachedValue>(previousValue, !IsAcquired(_lockers[i]));
                         }
                         else
                         {
@@ -100,7 +100,7 @@ namespace QA.DotNetCore.Caching.Distributed
 
                             ThrowIfNotLocked(cacheKey, _lockers[i], lockEnterWaitTimeout, stopwatch);
 
-                            results[i] = new OperationResult<CachedValue>(previousValue, false);
+                            results[i] = new PipeOutput<CachedValue>(previousValue, false);
                         }
                     }
 
@@ -126,16 +126,16 @@ namespace QA.DotNetCore.Caching.Distributed
             /// <exception cref="DeprecateCacheIsExpiredOrMissingException">
             /// Fired when waiting on locked cache without deprecated value longer than <paramref name="lockEnterWaitTimeout"/>
             /// </exception>
-            public async Task<IEnumerable<OperationResult<CachedValue>>> LockAsync(
+            public async Task<IEnumerable<PipeOutput<CachedValue>>> LockAsync(
                 TimeSpan lockEnterWaitTimeout,
-                OperationContext<CachedValue> context)
+                PipeContext<CachedValue> context)
             {
                 ValidateLockEnterTimeout(lockEnterWaitTimeout);
 
                 var totalWatch = Stopwatch.StartNew();
                 try
                 {
-                    var lockers = new OperationResult<CachedValue>[_keys.Count];
+                    var lockers = new PipeOutput<CachedValue>[_keys.Count];
 
                     for (int i = 0; i < _keys.Count; i++)
                     {
@@ -154,10 +154,10 @@ namespace QA.DotNetCore.Caching.Distributed
                 }
             }
 
-            private async Task<OperationResult<CachedValue>> LockKeyAsync(
+            private async Task<PipeOutput<CachedValue>> LockKeyAsync(
                 int index,
                 TimeSpan lockEnterWaitTimeout,
-                OperationContext<CachedValue> context)
+                PipeContext<CachedValue> context)
             {
                 string cacheKey = _keys[index];
                 CachedValue previousValue = context.GetPreviousResult(index);
@@ -170,7 +170,7 @@ namespace QA.DotNetCore.Caching.Distributed
                         cacheKey,
                         _lockExpiration);
 
-                    return new OperationResult<CachedValue>(previousValue, !IsAcquired(_lockers[index]));
+                    return new PipeOutput<CachedValue>(previousValue, !IsAcquired(_lockers[index]));
                 }
                 else
                 {
@@ -186,7 +186,7 @@ namespace QA.DotNetCore.Caching.Distributed
 
                     ThrowIfNotLocked(cacheKey, _lockers[index], lockEnterWaitTimeout, stopwatch);
 
-                    return new OperationResult<CachedValue>(previousValue, false);
+                    return new PipeOutput<CachedValue>(previousValue, false);
                 }
             }
 

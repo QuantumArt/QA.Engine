@@ -290,6 +290,10 @@ namespace QA.DotNetCore.Engine.QpData
                             k => k.ColumnName.ToLowerInvariant(),
                             v => v.M2mLinkId ?? 0)
                 }).ToDictionary(k => k.Key, v => v.Value);
+                _context.M2MFields.Add(0, m2MBase.ToDictionary(
+                    k => k.ColumnName.ToLowerInvariant(),
+                    v => v.M2mLinkId ?? 0)
+                );
             }
         }
 

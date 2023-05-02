@@ -51,7 +51,7 @@ namespace QA.DotNetCore.Engine.QpData
 
         private object GetUntypedDetail(string fieldName)
         {
-            if (M2mFieldNames.Any(fn => fn.Equals(fieldName, StringComparison.OrdinalIgnoreCase)))
+            if (M2mFieldNameMapToLinkIds.Any(fn => fn.Key.Equals(fieldName, StringComparison.OrdinalIgnoreCase)))
                 return GetRelationIds(fieldName);
 
             return GetDetail<object>(fieldName, null);

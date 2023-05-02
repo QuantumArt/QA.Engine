@@ -17,7 +17,7 @@ namespace QA.DotNetCore.Engine.QpData
         {
             Children = new HashSet<IAbstractItem>();
             M2mRelations = new M2mRelations();
-            M2mFieldNames = new List<string>();
+            M2mFieldNameMapToLinkIds = new Dictionary<string, int>();
         }
 
         public override int SortOrder { get => RawSortOrder ?? 0; }
@@ -103,7 +103,7 @@ namespace QA.DotNetCore.Engine.QpData
         
         internal AbstractItemExtensionCollection Details { get; set; }
         internal M2mRelations M2mRelations { get; set; }
-        internal List<string> M2mFieldNames { get; set; }
+        internal Dictionary<string, int> M2mFieldNameMapToLinkIds { get; set; }
 
         /// <summary>
         /// Получение свойств расширения
@@ -127,8 +127,8 @@ namespace QA.DotNetCore.Engine.QpData
         {
             if (M2mRelations == null)
                 return Enumerable.Empty<int>();
-            var relationId = GetDetail(name, 0);
-            return M2mRelations.GetRelationValue(relationId);
+            var linkId = M2mFieldNameMapToLinkIds.TryGetValue(name, out int value) ? value : 0 ;
+            return M2mRelations.GetRelationValue(linkId);
         }
 
         /// <summary>

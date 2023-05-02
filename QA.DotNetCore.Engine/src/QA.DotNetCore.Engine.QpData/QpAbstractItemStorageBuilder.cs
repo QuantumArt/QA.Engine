@@ -485,30 +485,29 @@ namespace QA.DotNetCore.Engine.QpData
 
             var extensionContent = extensionContents.TryGetValue(extensionContentId, out var content) ? content : null;
 
-            var m2mFieldNames = new List<string>();
-            var fileFields = new List<ContentAttributePersistentData>();
+            var fields = new List<ContentAttributePersistentData>();
             int? extensionContentItemId = null;
 
             if (extensionContent?.ContentAttributes != null)
             {
-                m2mFieldNames = extensionContent.ContentAttributes.Where(ca => ca.IsManyToManyField)
-                    .Select(ca => ca.ColumnName).ToList();
-                fileFields = extensionContent.ContentAttributes.Where(ca => ca.IsFileField).ToList();
+                fields.AddRange(extensionContent.ContentAttributes);
             }
 
             if (buildSettings.LoadAbstractItemFieldsToDetailsCollection)
             {
-                m2mFieldNames = m2mFieldNames.Union(baseContent.ContentAttributes.Where(ca => ca.IsManyToManyField)
-                    .Select(ca => ca.ColumnName)).ToList();
-                fileFields = fileFields.Union(baseContent.ContentAttributes.Where(ca => ca.IsFileField)).ToList();
+                fields.AddRange(baseContent.ContentAttributes);
             }
 
-            item.M2mFieldNames.AddRange(m2mFieldNames);
+            var m2MFields = fields.Where(ca => ca.IsManyToManyField).ToList();
+            m2MFields.ForEach(ca => item.M2mFieldNameMapToLinkIds.Add(ca.ColumnName, ca.M2mLinkId ?? 0));
+
+            var fileFields = fields.Where(ca => ca.IsFileField)
+                .ToDictionary(k => k.ColumnName.ToLowerInvariant(), v => v);
 
             //проведём замены в некоторых значениях доп полей
             foreach (var key in details.Keys)
             {
-                if (m2mFieldNames.Any() && key.Equals("CONTENT_ITEM_ID", StringComparison.OrdinalIgnoreCase))
+                if (item.M2mFieldNameMapToLinkIds.Any() && key.Equals("CONTENT_ITEM_ID", StringComparison.OrdinalIgnoreCase))
                 {
                     extensionContentItemId = Convert.ToInt32(details[key]);
                 }
@@ -521,9 +520,7 @@ namespace QA.DotNetCore.Engine.QpData
                             qpUrlResolver.UploadUrl(buildSettings.SiteId)));
 
                     //2) проверим, является ли это поле ссылкой на файл, тогда нужно преобразовать его в полный урл
-                    var fileField = fileFields.FirstOrDefault(f =>
-                        f.ColumnName.Equals(key, StringComparison.OrdinalIgnoreCase));
-                    if (fileField != null)
+                    if (fileFields.TryGetValue(key.ToLowerInvariant(), out var fileField))
                     {
                         var baseUrl = qpUrlResolver.UrlForImage(buildSettings.SiteId, fileField);
                         if (!string.IsNullOrEmpty(baseUrl))

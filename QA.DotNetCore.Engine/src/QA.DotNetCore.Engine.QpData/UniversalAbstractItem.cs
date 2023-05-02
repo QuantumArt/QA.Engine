@@ -49,12 +49,9 @@ namespace QA.DotNetCore.Engine.QpData
 
         public ICollection<IAbstractItem> ChildItems { get { return Children; } }
 
-        private object GetUntypedDetail(string fieldName)
-        {
-            if (M2mFieldNameMapToLinkIds.Any(fn => fn.Key.Equals(fieldName, StringComparison.OrdinalIgnoreCase)))
-                return GetRelationIds(fieldName);
-
-            return GetDetail<object>(fieldName, null);
-        }
+        private object GetUntypedDetail(string fieldName) =>
+            M2mFieldNameMapToLinkIds.ContainsKey(fieldName.ToLowerInvariant()) ? 
+                GetRelationIds(fieldName) : 
+                GetDetail<object>(fieldName, null);
     }
 }

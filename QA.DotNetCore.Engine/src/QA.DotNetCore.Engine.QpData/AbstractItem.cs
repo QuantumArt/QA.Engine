@@ -126,8 +126,11 @@ namespace QA.DotNetCore.Engine.QpData
         public virtual IEnumerable<int> GetRelationIds(string name)
         {
             if (M2mRelations == null)
+            {
                 return Enumerable.Empty<int>();
-            var linkId = M2mFieldNameMapToLinkIds.TryGetValue(name, out int value) ? value : 0 ;
+            }
+
+            var linkId = M2mFieldNameMapToLinkIds.TryGetValue(name.ToLowerInvariant(), out int value) ? value : 0 ;
             return M2mRelations.GetRelationValue(linkId);
         }
 

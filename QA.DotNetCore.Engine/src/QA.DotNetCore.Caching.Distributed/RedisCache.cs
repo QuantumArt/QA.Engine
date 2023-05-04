@@ -505,6 +505,7 @@ namespace QA.DotNetCore.Caching.Distributed
                 RedisValue tagExpiryValue = (RedisValue)(long)tagExpiry.TotalMilliseconds;
 
                 operations.Add(transaction.SetAddAsync(tagKey, key.GetRedisValue()));
+                operations.Add(transaction.StringSetAsync(packTagKey, 0, when: When.NotExists));
 
                 operations.Add(transaction.ScriptEvaluateAsync(
                     ExtendKeyExpiryScript,

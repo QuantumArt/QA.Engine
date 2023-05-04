@@ -36,7 +36,8 @@ public class Pipeline<TInput, TResult>
         foreach (var pipe in _pipes)
         {
             _logger.LogTrace(
-                "Start pipeline step {PipelineStep}/{PipelineStepsCount} (inputs count: {InputsCount})",
+                "Start pipeline {Id} step {Step}/{Count} (inputs count: {InputsCount})",
+                pipelineId,
                 ++stepIndex,
                 _pipes.Count,
                 inputs.Length);

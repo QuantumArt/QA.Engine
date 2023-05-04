@@ -625,26 +625,29 @@ namespace QA.DotNetCore.Caching.Distributed
             out IEnumerable<Task> asyncOperations)
         {
             ITransaction transaction = _cache.CreateTransaction();
+            
+            var operations = new List<Task>();
 
             bool isPreviouslyCompacted = compactAttempt.HasValue;
 
-            _ = transaction.AddCondition(
-                Condition.SetLengthGreaterThan(tag.GetRedisKey(), _options.CompactTagSizeThreshold));
-
-            var operations = new List<Task>();
-
-            if (isPreviouslyCompacted && (int)compactAttempt < _options.CompactTagFrequency)
+            if (isPreviouslyCompacted)
             {
-                operations.Add(transaction.StringIncrementAsync(packKey));
-                operations.Add(transaction.KeyExpireAsync(packKey, expiry));
-            }
-            else
-            {
-                operations.Add(transaction.StringSetAsync(packKey, 0, expiry, when: When.NotExists));
-                operations.Add(transaction.ScriptEvaluateAsync(
-                    CompactTagKeysScript,
-                    new[] { tag.GetRedisKey() },
-                    new[] { (RedisValue)(long)_options.DeprecatedCacheTimeToLive.TotalMilliseconds }));
+                _ = transaction.AddCondition(
+                    Condition.SetLengthGreaterThan(tag.GetRedisKey(), _options.CompactTagSizeThreshold));
+
+                if ((int)compactAttempt < _options.CompactTagFrequency)
+                {
+                    operations.Add(transaction.StringIncrementAsync(packKey));
+                    operations.Add(transaction.KeyExpireAsync(packKey, expiry));
+                }
+                else
+                {
+                    operations.Add(transaction.StringSetAsync(packKey, 0, expiry, when: When.NotExists));
+                    operations.Add(transaction.ScriptEvaluateAsync(
+                        CompactTagKeysScript,
+                        new[] { tag.GetRedisKey() },
+                        new[] { (RedisValue)(long)_options.DeprecatedCacheTimeToLive.TotalMilliseconds }));
+                }
             }
 
             asyncOperations = operations;

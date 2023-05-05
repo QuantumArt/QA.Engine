@@ -637,7 +637,7 @@ namespace QA.DotNetCore.Caching.Distributed
                 Condition.SetLengthGreaterThan(tag.GetRedisKey(), _options.CompactTagSizeThreshold)
             );
 
-            operations.Add(transaction.StringSetAsync(packKey, 0, expiry, when: When.NotExists));
+            operations.Add(transaction.StringSetAsync(packKey, 0, expiry));
             operations.Add(transaction.ScriptEvaluateAsync(
                 CompactTagKeysScript,
                 new[] { tag.GetRedisKey() },

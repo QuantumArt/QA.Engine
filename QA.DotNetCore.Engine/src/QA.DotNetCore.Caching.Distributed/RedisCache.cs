@@ -505,8 +505,10 @@ namespace QA.DotNetCore.Caching.Distributed
                 RedisValue tagExpiryValue = (RedisValue)(long)tagExpiry.TotalMilliseconds;
 
                 operations.Add(transaction.SetAddAsync(tagKey, key.GetRedisValue()));
+                
                 operations.Add(transaction.StringSetAsync(packTagKey, 0, when: When.NotExists));
-
+                operations.Add(transaction.StringIncrementAsync(packTagKey));
+                
                 operations.Add(transaction.ScriptEvaluateAsync(
                     ExtendKeyExpiryScript,
                     new[] { tagKey },
@@ -595,10 +597,13 @@ namespace QA.DotNetCore.Caching.Distributed
                 RedisKey packKey = packKeys[i];
                 RedisValue compactAttempt = compactAttempts[i];
 
-                bool isCompacted = CreateTagCompactingTransaction(tag, expiry, packKey, compactAttempt, out var transactionOperations)
-                    .Execute();
+                if ((int)compactAttempt >= _options.CompactTagFrequency)
+                {
+                    bool isCompacted = CreateTagCompactingTransaction(tag, expiry, packKey, out var transactionOperations)
+                        .Execute();
 
-                CheckCompactResult(tag, isCompacted, transactionOperations);
+                    CheckCompactResult(tag, isCompacted, transactionOperations);
+                }
             }
 
             _logger.LogTrace("Tags compacting is finished (Elapsed: {Elapsed})", watch.ElapsedMilliseconds);
@@ -622,37 +627,24 @@ namespace QA.DotNetCore.Caching.Distributed
             CacheKey tag,
             TimeSpan expiry,
             RedisKey packKey,
-            RedisValue compactAttempt,
             out IEnumerable<Task> asyncOperations)
         {
             ITransaction transaction = _cache.CreateTransaction();
             
             var operations = new List<Task>();
 
-            bool isPreviouslyCompacted = compactAttempt.HasValue;
+            transaction.AddCondition(
+                Condition.SetLengthGreaterThan(tag.GetRedisKey(), _options.CompactTagSizeThreshold)
+            );
 
-            if (isPreviouslyCompacted)
-            {
-                _ = transaction.AddCondition(
-                    Condition.SetLengthGreaterThan(tag.GetRedisKey(), _options.CompactTagSizeThreshold));
-
-                if ((int)compactAttempt < _options.CompactTagFrequency)
-                {
-                    operations.Add(transaction.StringIncrementAsync(packKey));
-                    operations.Add(transaction.KeyExpireAsync(packKey, expiry));
-                }
-                else
-                {
-                    operations.Add(transaction.StringSetAsync(packKey, 0, expiry, when: When.NotExists));
-                    operations.Add(transaction.ScriptEvaluateAsync(
-                        CompactTagKeysScript,
-                        new[] { tag.GetRedisKey() },
-                        new[] { (RedisValue)(long)_options.DeprecatedCacheTimeToLive.TotalMilliseconds }));
-                }
-            }
+            operations.Add(transaction.StringSetAsync(packKey, 0, expiry, when: When.NotExists));
+            operations.Add(transaction.ScriptEvaluateAsync(
+                CompactTagKeysScript,
+                new[] { tag.GetRedisKey() },
+                new[] { (RedisValue)(long)_options.DeprecatedCacheTimeToLive.TotalMilliseconds })
+            );
 
             asyncOperations = operations;
-
             return transaction;
         }
 

@@ -73,9 +73,9 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
         public async Task Set_WithCompacting_TagCompacted()
         {
             // Arrange
-            var key = "key1";
-            var expiredKey = "key2";
-            var tag = "tag1";
+            var key = "key111";
+            var expiredKey = "key222";
+            var tag = "tag111";
             var expiry = _defaultExpiry;
 
             using (var connection = CreateConnection())
@@ -99,7 +99,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             {
                 var cache = connection.GetDatabase();
                 Assert.True(await cache.KeyExistsAsync(GetKey(key)));
-                Assert.Equal(0, await cache.StringGetAsync(GetPack(tag)));
+                Assert.Equal(1, await cache.StringGetAsync(GetPack(tag)));
                 Assert.Equal(1, await cache.SetLengthAsync(GetTag(tag)));
             }
         }

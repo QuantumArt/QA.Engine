@@ -465,9 +465,16 @@ namespace QA.DotNetCore.Caching.Distributed
 
         private async Task CompactTagAsync(TimeSpan expiry, CacheKey tag, RedisKey packKey, RedisValue compactAttempt)
         {
-            var isCompacted = await CreateTagCompactingTransaction(tag, expiry, packKey, compactAttempt, out var transactionOperations)
-                .ExecuteAsync();
-            CheckCompactResult(tag, isCompacted, transactionOperations);
+            if ((int) compactAttempt >= _options.CompactTagFrequency)
+            {
+                var isCompacted = await CreateTagCompactingTransaction(tag, expiry, packKey, out var transactionOperations)
+                    .ExecuteAsync();
+                CheckCompactResult(tag, isCompacted, transactionOperations);
+            }
+            else
+            {
+                await Task.CompletedTask;
+            }
         }
     }
 }

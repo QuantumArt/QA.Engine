@@ -6,37 +6,7 @@ namespace QA.DotNetCore.Caching.Interfaces
 {
     public static class CacheProviderExtensions
     {
-        /// <summary>
-        /// Проверяет наличие данных в кэше
-        /// </summary>
-        /// <param name="keys">Ключ</param>
-        /// <returns>Присутствует ли ключ к кэше</returns>
-        public static bool IsSet(this ICacheProvider cacheProvider, string key)
-        {
-            if (cacheProvider is null)
-            {
-                throw new ArgumentNullException(nameof(cacheProvider));
-            }
 
-            return cacheProvider.IsSet(new[] { key }).Single();
-        }
-
-        /// <summary>
-        /// Получает данные из кэша по ключу
-        /// </summary>
-        /// <param name="key">Ключ</param>
-        /// <returns></returns>
-        public static TResult Get<TResult>(this ICacheProvider cacheProvider, string key)
-        {
-            if (cacheProvider is null)
-            {
-                throw new ArgumentNullException(nameof(cacheProvider));
-            }
-
-            return cacheProvider
-                .Get<TResult>(new[] { key })
-                .Single();
-        }
 
         /// <summary>
         /// Записывает данные в кеш
@@ -119,44 +89,6 @@ namespace QA.DotNetCore.Caching.Interfaces
 
             return cacheProvider.GetOrAddAsync(cacheKey, Array.Empty<string>(), expiration, getData, waitForCalculateTimeout);
         }
-
-        /// <summary>
-        /// Инвалидирует все записи в кэше по тегу
-        /// </summary>
-        /// <param name="tag">Тег</param>
-        [Obsolete("Use " + nameof(ICacheInvalidator) + " interface instead.")]
-        public static void InvalidateByTag(this ICacheProvider cacheProvider, string tag)
-        {
-            if (cacheProvider is null)
-            {
-                throw new ArgumentNullException(nameof(cacheProvider));
-            }
-
-            if (string.IsNullOrEmpty(tag))
-            {
-                throw new ArgumentNullException("tag");
-            }
-
-            cacheProvider.InvalidateByTags(new[] { tag });
-        }
-
-        /// <summary>
-        /// Инвалидирует все записи в кэше по тегу
-        /// </summary>
-        /// <param name="tag">Тег</param>
-        public static void InvalidateByTag(this ICacheInvalidator cacheInvalidator, string tag)
-        {
-            if (cacheInvalidator is null)
-            {
-                throw new ArgumentNullException(nameof(cacheInvalidator));
-            }
-
-            if (string.IsNullOrEmpty(tag))
-            {
-                throw new ArgumentNullException("tag");
-            }
-
-            cacheInvalidator.InvalidateByTags(new[] { tag });
-        }
+  
     }
 }

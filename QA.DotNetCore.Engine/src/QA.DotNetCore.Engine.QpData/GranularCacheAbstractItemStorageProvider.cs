@@ -21,7 +21,7 @@ namespace QA.DotNetCore.Engine.QpData
         private readonly IAbstractItemRepository _abstractItemRepository;
         private readonly QpSiteStructureBuildSettings _buildSettings;
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
-        private readonly IDistributedMemoryCacheProvider _cacheProvider;
+        private readonly ICacheProvider _cacheProvider;
 
         public GranularCacheAbstractItemStorageProvider(
             IAbstractItemContextStorageBuilder builder,
@@ -29,14 +29,14 @@ namespace QA.DotNetCore.Engine.QpData
             QpSiteStructureBuildSettings buildSettings,
             QpSiteStructureCacheSettings cacheSettings,
             IAbstractItemRepository abstractItemRepository,
-            IDistributedMemoryCacheProvider compositeCacheProvider)
+            ICacheProvider cacheProvider)
         {
             _builder = builder;
             _abstractItemRepository = abstractItemRepository;
             _buildSettings = buildSettings;
             _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
             _cacheSettings = cacheSettings;
-            _cacheProvider = compositeCacheProvider;
+            _cacheProvider = cacheProvider;
         }
 
         public AbstractItemStorage Get()

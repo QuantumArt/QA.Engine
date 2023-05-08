@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using QA.DotNetCore.Caching.Helpers.Pipes;
 
 namespace QA.DotNetCore.Caching.Distributed

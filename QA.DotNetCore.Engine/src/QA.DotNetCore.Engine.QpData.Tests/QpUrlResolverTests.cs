@@ -99,7 +99,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 SiteStructureCachePeriod = TimeSpan.FromSeconds(30)
             };
             var cache = new MemoryCache(new MemoryCacheOptions());
-            var cacheProvider = new VersionedCacheCoreProvider(cache, Mock.Of<ILogger>());
+            var cacheProvider = new VersionedCacheCoreProvider(cache, new CacheKeyFactoryBase(), Mock.Of<ILogger>());
 
             var urlResolver = new QpUrlResolver(cacheProvider, metaInfoRepository, cacheSettings);
             return urlResolver;

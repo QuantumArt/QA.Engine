@@ -279,7 +279,7 @@ namespace QA.DotNetCore.Engine.QpData
                 var allTags = GetTags(extensions.Keys);
                 var abstractItemTags = ConcatTags(allTags.AbstractItemTag, allTags.ItemDefinitionTag);
                 _context.AbstractItemsM2MData = GetAbstractItemsManyToManyRelations(extensions, abstractItemTags, _context.LogId);
-                _context.ExtensionsM2MData = GetExtensionsManyToManyRelations(extensions, allTags, _context.LogId);
+                _context.ExtensionsM2MData = GetExtensionsManyToManyRelations(extensions, allTags.AllTags, _context.LogId);
                 var m2MBase = _context.BaseContent.ContentAttributes.Where(ca => ca.IsManyToManyField).ToList();
                 _context.M2MFields = _context.ExtensionContents.Select(n => new
                 {
@@ -302,67 +302,43 @@ namespace QA.DotNetCore.Engine.QpData
             string[] abstractItemTags, 
             string logId) =>
             _cacheProvider.GetOrAdd(
-                $"{nameof(Init)}.{nameof(GetRealAbstractItemsManyToManyRelations)}",
+                $"{nameof(Init)}.{nameof(GetAbstractItemsManyToManyRelations)}",
                 abstractItemTags,
                 _cacheSettings.SiteStructureCachePeriod,
                 () =>
                 {
                     var extensionKeys = String.Join(", ", extensions.Keys);
                     _logger.LogInformation(
-                        "Load M2M data for extension tables: {ExtensionId}. Build id: {LogId}", 
-                        extensionKeys, 
+                        "Load M2M data for abstract items. Build id: {LogId}",
                         logId);
-                    return GetRealAbstractItemsManyToManyRelations(extensions);
+                    return _abstractItemRepository.GetManyToManyData(
+                        extensions.Values
+                        .SelectMany(x => x)
+                        .Select(item => item.Id),
+                        _buildSettings.IsStage);
                 },
                 _buildSettings.CacheFetchTimeoutAbstractItemStorage);
 
-        private Dictionary<int, M2MRelations> GetExtensionsManyToManyRelations(
+        private IDictionary<int, M2MRelations> GetExtensionsManyToManyRelations(
             IDictionary<int, AbstractItemPersistentData[]> extensions,
-            WidgetsAndPagesCacheTags tags,
-            string logId) =>
-            _cacheProvider
-                .GetOrAdd(
-                    GetExtensionCacheInfos(extensions, tags, expiration: _cacheSettings.SiteStructureCachePeriod).ToArray(),
-                    (missingCacheInfos) =>
-                    {
-                        var missingExtensionIds = missingCacheInfos.Select(info => info.Id).ToArray();
-                        _logger.LogInformation(
-                            "Load M2M data for extension tables: {ExtensionId}. Build id: {LogId}", 
-                            String.Join(", ", missingExtensionIds), 
-                            logId);                        
-                        return _abstractItemRepository.GetManyToManyDataByContent(missingExtensionIds, _buildSettings.IsStage);
-                    },
-                    _buildSettings.CacheFetchTimeoutAbstractItemStorage)
-                .SelectMany(extensionGroup => extensionGroup)
-                .ToDictionary(pair => pair.Key, pair => pair.Value);
-
-        private IDictionary<int, M2MRelations> GetRealAbstractItemsManyToManyRelations(
-            IDictionary<int, AbstractItemPersistentData[]> extensions) =>
-            _abstractItemRepository.GetManyToManyData(
-                extensions.Values
-                    .SelectMany(x => x)
-                    .Select(item => item.Id),
-                _buildSettings.IsStage);
-
-        private IEnumerable<CacheInfo<int>> GetExtensionCacheInfos(
-            IDictionary<int, AbstractItemPersistentData[]> extensions,
-            WidgetsAndPagesCacheTags tags,
-            TimeSpan expiration,
-            [CallerMemberName] string methodName = null)
+            string[] tags,
+            string logId)
         {
-            foreach (var extensionId in extensions.Keys)
-            {
-                if (extensionId == 0)
+            return _cacheProvider.GetOrAdd(
+                $"{nameof(Init)}.{nameof(GetExtensionsManyToManyRelations)}",
+                tags,
+                _cacheSettings.SiteStructureCachePeriod,
+                () =>
                 {
-                    continue;
-                }
+                    var extensionKeys = extensions.Keys.Where(k => k != 0).ToArray();
+                    _logger.LogInformation(
+                        "Load M2M data for extension tables: {ExtensionId}. Build id: {LogId}", 
+                        String.Join(", ", extensionKeys), 
+                        logId);
+                    return _abstractItemRepository.GetManyToManyDataByContents(extensionKeys, _buildSettings.IsStage);
+                },
+                _buildSettings.CacheFetchTimeoutAbstractItemStorage);
 
-                yield return new CacheInfo<int>(
-                    extensionId,
-                    $"{methodName}.{nameof(IAbstractItemRepository.GetManyToManyDataByContent)}({extensionId})",
-                    expiration,
-                    GetExtensionTags(tags, extensionId));
-            }
         }
 
         private string[] GetExtensionTags(WidgetsAndPagesCacheTags tags, int extensionId)

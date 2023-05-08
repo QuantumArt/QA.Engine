@@ -1,19 +1,20 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace QA.DotNetCore.Caching.Distributed
 {
     public class CacheKey : IEquatable<CacheKey>
     {
-        private readonly string _fullKey;
-
         public CacheKeyType Type { get; }
 
         public string Key { get; }
 
         public string Instance { get; }
+        
+        public string AppName { get; }
 
-        public CacheKey(CacheKeyType type, string key, string instance)
+        public CacheKey(CacheKeyType type, string key, string appName, string instanceName)
         {
             if (string.IsNullOrEmpty(key))
             {
@@ -22,18 +23,28 @@ namespace QA.DotNetCore.Caching.Distributed
 
             Type = type;
             Key = key;
-            Instance = instance?.Trim();
-
-            var keyParts = new List<string> { Type.ToString().ToLower(), Key };
-            if (!string.IsNullOrEmpty(Instance))
-            {
-                keyParts.Insert(0, Instance);
-            }
-
-            _fullKey = string.Join(":", keyParts);
+            Instance = instanceName;
+            AppName = appName;
         }
 
-        public override string ToString() => _fullKey;
+        public override string ToString()
+        {
+            var list = new List<string>
+            {
+                Type.ToString().ToLower()
+            };
+
+            if (!string.IsNullOrEmpty(AppName))
+            {
+                list.Add(AppName);
+            }
+            if (!string.IsNullOrEmpty(Instance))
+            {
+                list.Add(Instance);
+            }
+            list.Add(Type == CacheKeyType.Lock ? GetLockNumber().ToString() : Key);
+            return String.Join(":", list);
+        }
 
         public bool Equals(CacheKey other) =>
             other != null
@@ -43,8 +54,12 @@ namespace QA.DotNetCore.Caching.Distributed
         public override bool Equals(object obj) => obj is CacheKey other && Equals(other);
 
         public override int GetHashCode() => ToString().GetHashCode();
+        
+        private uint GetLockNumber()
+        {
+            const int maxLocksNumber = 65536;
+            return (uint)GetHashCode() % maxLocksNumber;
+        }
 
-        public static CacheKey operator +(CacheKey key, string postfix) =>
-            new(key.Type, key.Key + postfix, key.Instance);
     }
 }

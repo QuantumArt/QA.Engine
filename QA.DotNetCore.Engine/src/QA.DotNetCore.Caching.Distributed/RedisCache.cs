@@ -9,8 +9,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using ICSharpCode.SharpZipLib.GZip;
+using Newtonsoft.Json;
 using QA.DotNetCore.Caching.Helpers.Pipes;
 
 namespace QA.DotNetCore.Caching.Distributed
@@ -19,7 +22,7 @@ namespace QA.DotNetCore.Caching.Distributed
     /// Distributed cache using Redis.
     /// <para>Uses <c>StackExchange.Redis</c> as the Redis client.</para>
     /// </summary>
-    public partial class RedisCache : IDistributedTaggedCache
+    public partial class RedisCache : IExternalCache
     {
         /// <summary>
         /// Sets tag new expiry only if its exceeds current expiry.
@@ -31,7 +34,7 @@ namespace QA.DotNetCore.Caching.Distributed
         /// 
         /// <remarks>
         /// Tags can be linked to multiple keys. That is why
-        /// a key should be allowed only to incread tag expiry
+        /// a key should be allowed only to increase tag expiry
         /// (if it has been specified previously by another key).
         /// Otherwise it can lead to a situation when a tag is expired
         /// before some of its keys.
@@ -47,72 +50,25 @@ namespace QA.DotNetCore.Caching.Distributed
             ";
 
         /// <summary>
-        /// Invalidates tag, metadata and associated keys.
+        /// Invalidates tag and associated keys.
         /// <list type="table">
         ///     <item>KEYS[1] - Tag key to invalidate</item>
-        ///     <item>ARGV[1] - Lock key (for optimistic lock in GetOrAdd)</item>
-        ///     <item>ARGV[2] - Pack key prefix (to track pack count of tags)</item>
-        ///     <item>ARGV[3] - Deprecated key time to live (to deprecated keys related to tag)</item>
         /// </list>
         /// </summary>
-        /// <remarks>
-        /// Also increments tag lock key to invalidate operation to save
-        /// (already) stale cache that are in-progress.
-        /// </remarks>
         private const string InvalidateTagScript = @"
             local tag = KEYS[1]
-            local lock = ARGV[1]
-            local packPrefix = ARGV[2]
-            local deprecatedTtl = tonumber(ARGV[3])
-
-            -- Increments lock without overflow.
-            local function safe_increment(lock)
-              if type(redis.pcall('INCR', lock)) ~= 'number' then
-                -- On overflow error
-                redis.call('SET', lock, '1')
-              end
-            end
-
-            safe_increment(lock)
-            redis.call('EXPIRE', lock, '1200')
 
             local keys = redis.call('SMEMBERS', tag)
-            redis.call('DEL', tag, packPrefix .. tag)
+            redis.call('DEL', tag)
 
             for i=1,#keys do
-              redis.call('PEXPIRE', keys[i], deprecatedTtl)
-            end
-            ";
-
-        /// <summary>
-        /// Compacts tag keys by checking their existance.
-        /// <list type="table">
-        ///     <item>KEYS[1] - Tag key to compact</item>
-        ///     <item>ARGV[1] - Deprecated key time to live (to deprecated keys related to tag)</item>
-        /// </list>
-        /// </summary>
-        private const string CompactTagKeysScript = @"
-            local tag = KEYS[1]
-            local deprecatedTtl = tonumber(ARGV[1])
-            local keys = redis.call('SMEMBERS', tag)
-            
-            for i=1,#keys do
-              local ttl = redis.call('PTTL', keys[i])
-              if ttl ~= -1 and ttl <= deprecatedTtl then
-                redis.call('SREM', tag, keys[i])
-              end
+              redis.call('DEL', keys[i])
             end
             ";
 
         private static readonly Version _leastSupportedServerVersion = new(4, 0, 0);
-        private static readonly IReadOnlyList<byte[]> _emptyResult = new List<byte[]>(0);
-
-        private static void FixupAndValidateExpiration(ref TimeSpan expiration) =>
-            CacheInfo<object>.FixupAndValidateExpiration(ref expiration);
 
         private readonly RedisCacheSettings _options;
-        private readonly CacheKeyFactory _keyFactory;
-        private readonly IDistributedLockFactory _distributedLockFactory;
         private readonly ILogger<RedisCache> _logger;
         private readonly SemaphoreSlim _connectionLock = new(initialCount: 1, maxCount: 1);
 
@@ -120,12 +76,18 @@ namespace QA.DotNetCore.Caching.Distributed
         private IDatabase _cache;
         private bool _disposed;
 
+        private static readonly JsonSerializer _serializer = JsonSerializer.CreateDefault(
+            new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                DefaultValueHandling = DefaultValueHandling.Ignore,
+            });
+
         /// <summary>
         /// Initializes a new instance of <see cref="RedisCache"/>.
         /// </summary>
         /// <param name="optionsAccessor">The configuration options.</param>
         public RedisCache(
-            IDistributedLockFactory distributedLockFactory,
             IOptions<RedisCacheSettings> optionsAccessor,
             ILogger<RedisCache> logger)
         {
@@ -133,36 +95,37 @@ namespace QA.DotNetCore.Caching.Distributed
             {
                 throw new ArgumentNullException(nameof(optionsAccessor));
             }
-
-            _distributedLockFactory = distributedLockFactory;
             _options = optionsAccessor.Value;
             _logger = logger;
-
-            _keyFactory = new CacheKeyFactory(_options.InstanceName);
         }
 
-        public string GetClientId(CancellationToken token = default)
+
+        /// <inheritdoc/>
+        public bool TryAdd(object value, string key, string[] tags, TimeSpan expiration)
         {
-            Stopwatch watch = Stopwatch.StartNew();
-
-            Connect(token);
-
-            const int maxAttempts = 20;
-            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            var result = true;
+            try
             {
-                string guid = Guid.NewGuid().ToString();
-                if (_cache.StringSet(guid, string.Empty, when: When.NotExists))
-                {
-                    _logger.LogInformation(
-                        "Selected new client id {ClientId} (Elapsed: {Elapsed})",
-                        guid,
-                        watch.ElapsedMilliseconds);
-                    return guid;
-                }
+                var dataStream = SerializeData(value);
+                Set(key, tags, expiration, dataStream);
+            }
+            catch (CacheDataSerializationException<object> ex)
+            {
+                _logger.LogInformation(ex, "Unable to cache value with the key {CacheKey}.", key);
+                result = false;
             }
 
-            throw new InvalidOperationException("Unable to generate unique client id");
+            return result;
         }
+        
+        public void InvalidateByTags(params string[] tags)
+        {
+            foreach (var tag in tags)
+            {
+                InvalidateTag(tag);
+            }
+        }
+
 
         public IEnumerable<bool> Exist(IEnumerable<string> keys, CancellationToken token = default)
         {
@@ -177,32 +140,34 @@ namespace QA.DotNetCore.Caching.Distributed
             }
 
             RedisKey[] dataKeys = keys
-                .Select(key => _keyFactory.CreateKey(key).GetRedisKey())
+                .Select(key => new RedisKey(key))
                 .ToArray();
 
             Stopwatch watch = Stopwatch.StartNew();
 
             Connect(token);
-
-            var keyTtlTasks = dataKeys
-                .Select(key => _cache.KeyTimeToLiveAsync(key))
+            var existFlags = dataKeys
+                .Select(key => _cache.KeyExists(key))
                 .ToList();
 
-            TimeSpan?[] keyTtls = _cache.Wait(Task.WhenAll(keyTtlTasks));
-
             _logger.LogTrace(
-                "Keys {Keys} have ttls: {KeyTtls} (Elapsed: {Elapsed})",
+                "Keys {Keys} exist {ExistFlags} (Elapsed: {Elapsed})",
                 keys,
-                keyTtls,
+                existFlags,
                 watch.ElapsedMilliseconds);
 
-            bool[] existFlags = keyTtls
-                .Select(ttl => ttl > _options.DeprecatedCacheTimeToLive)
-                .ToArray();
-
-            _logger.LogInformation("Keys {Keys} exist {ExistFlags}", keys, existFlags);
-
             return existFlags;
+        }
+        public IEnumerable<TResult> Get<TResult>(IEnumerable<string> keys)
+        {
+            var dataValues = Get(keys);
+
+            foreach ((string key, byte[] data) in keys.Zip(dataValues))
+            {
+                yield return TryDeserializeData(key, data, out TResult value)
+                    ? value
+                    : default;
+            }
         }
 
         public IEnumerable<byte[]> Get(IEnumerable<string> keys, CancellationToken token = default)
@@ -217,15 +182,15 @@ namespace QA.DotNetCore.Caching.Distributed
                 return Enumerable.Empty<byte[]>();
             }
 
-            var dataKeys = keys
-                .Select(_keyFactory.CreateKey)
+            var redisKeys = keys
+                .Select(k => new RedisKey(k))
                 .ToArray();
 
             Stopwatch watch = Stopwatch.StartNew();
 
             Connect(token);
 
-            var cachedData = GetWithStates(dataKeys)
+            var cachedData = GetWithStates(redisKeys)
                 .Select(result => result.State == KeyState.Exist ? result.Value : null)
                 .ToList();
 
@@ -236,173 +201,21 @@ namespace QA.DotNetCore.Caching.Distributed
 
         public void Invalidate(string key, CancellationToken token = default)
         {
-            RedisKey dataKey = _keyFactory.CreateKey(key).GetRedisKey();
-
             Connect(token);
-
-            _ = _cache.KeyExpire(dataKey, _options.DeprecatedCacheTimeToLive);
+            var dataKey = new RedisKey(key);
+            _ = _cache.KeyDelete(dataKey);
         }
 
         public void InvalidateTag(string tag, CancellationToken token = default)
         {
-            CacheKey tagKey = _keyFactory.CreateTag(tag);
-            RedisValue lockKey = _keyFactory.CreateLock(tagKey).GetRedisValue();
-            RedisValue packPrefix = new(_keyFactory.GetPackPrefix());
-            RedisValue deprecatedTtl = (RedisValue)(long)_options.DeprecatedCacheTimeToLive.TotalMilliseconds;
-
             Connect(token);
+            var tagKey = new RedisKey(tag);
+            _cache.ScriptEvaluate(InvalidateTagScript, new[] {tagKey});
+       }
 
-            _ = _cache.ScriptEvaluate(
-                InvalidateTagScript,
-                new[] { tagKey.GetRedisKey() },
-                new[] { lockKey, packPrefix, deprecatedTtl });
-        }
 
-        public IReadOnlyList<byte[]> GetOrAdd<TId>(
-            CacheInfo<TId>[] cacheInfos,
-            DataValuesFactoryDelegate<TId, MemoryStream> dataStreamsFactory,
-            TimeSpan lockEnterWaitTimeout,
-            CancellationToken token = default)
-        {
-            if (cacheInfos is null)
-            {
-                throw new ArgumentNullException(nameof(cacheInfos));
-            }
 
-            if (dataStreamsFactory is null)
-            {
-                throw new ArgumentNullException(nameof(dataStreamsFactory));
-            }
-
-            if (cacheInfos.Length <= 0)
-            {
-                return _emptyResult;
-            }
-
-            Connect(token);
-
-            IDisposable locker = null;
-            try
-            {
-                return new Pipeline<CacheInfo<TId>, CachedValue>(_logger)
-                    .AddPipe(GetCachedValues, isFinal: result => result.State == KeyState.Exist)
-                    .AddPipe((infos, context) => LockOrGetDeprecatedCache(infos, context, lockEnterWaitTimeout, out locker))
-                    .AddPipe(GetCachedValues, isFinal: result => result.State == KeyState.Exist)
-                    .AddPipe(infos => ObtainAndCacheRealValues(infos, dataStreamsFactory))
-                    .Execute(cacheInfos)
-                    .Select(result => result.Value)
-                    .ToList();
-            }
-            finally
-            {
-                locker?.Dispose();
-            }
-        }
-
-        private IEnumerable<PipeOutput<CachedValue>> LockOrGetDeprecatedCache<TId>(
-            CacheInfo<TId>[] infos,
-            PipeContext<CachedValue> context,
-            TimeSpan lockEnterWaitTimeout,
-            out IDisposable locker)
-        {
-            var cacheKeys = infos.Select(info => info.Key).ToList();
-
-            _logger.LogInformation("Start locking keys ({CacheKeys})", cacheKeys);
-
-            var lockersCollection = new KeyLockersCollection(
-                _distributedLockFactory,
-                cacheKeys,
-                _options.LockExpiration,
-                _options.RetryEnterLockInverval,
-                _logger);
-
-            locker = lockersCollection;
-
-            return lockersCollection.Lock(lockEnterWaitTimeout, context);
-        }
-
-        private IEnumerable<CachedValue> GetCachedValues<TId>(CacheInfo<TId>[] infos)
-        {
-            var cacheKeys = infos
-                .Select(info => _keyFactory.CreateKey(info.Key))
-                .ToArray();
-
-            return GetWithStates(cacheKeys);
-        }
-
-        private IEnumerable<CachedValue> ObtainAndCacheRealValues<TId>(
-            CacheInfo<TId>[] infos,
-            DataValuesFactoryDelegate<TId, MemoryStream> dataStreamsFactory)
-        {
-            Debug.Assert(infos != null);
-
-            _logger.LogInformation(
-                "Start obtaining real data for missing cache keys ({CacheKeys}).",
-                infos.Select(info => info.Key));
-
-            var tagKeysGroups = new CacheKey[infos.Length][];
-            var allTagKeys = new List<CacheKey>(infos.Length);
-
-            for (int infoIndex = 0; infoIndex < infos.Length; infoIndex++)
-            {
-                tagKeysGroups[infoIndex] = new CacheKey[infos[infoIndex].Tags.Length];
-                for (int tagIndex = 0; tagIndex < infos[infoIndex].Tags.Length; tagIndex++)
-                {
-                    tagKeysGroups[infoIndex][tagIndex] = _keyFactory.CreateTag(infos[infoIndex].Tags[tagIndex]);
-                }
-
-                allTagKeys.AddRange(tagKeysGroups[infoIndex]);
-            }
-
-            _logger.LogTrace("Collect invalidation versions for tags {CacheTags}", allTagKeys);
-
-            Condition[] conditions = WatchTagInvalidations(allTagKeys);
-
-            var conditionGroups = new IEnumerable<Condition>[infos.Length];
-            for (int lastOffset = 0, i = 0; i < infos.Length; i++)
-            {
-                conditionGroups[i] = conditions
-                    .Skip(lastOffset)
-                    .Take(infos[i].Tags.Length);
-
-                lastOffset += infos[i].Tags.Length;
-            }
-
-            // Get real data for missing cache.
-            var dataStreams = dataStreamsFactory(infos);
-
-            int recievedIndex;
-            using IEnumerator<MemoryStream> dataStreamsEnumerator = dataStreams.GetEnumerator();
-            // Set missing cache with real data.
-            for (recievedIndex = 0; dataStreamsEnumerator.MoveNext(); recievedIndex++)
-            {
-                var dataStream = dataStreamsEnumerator.Current;
-                var data = RedisValue.CreateFrom(dataStream);
-
-                yield return (KeyState.Exist, data);
-
-                var info = infos[recievedIndex];
-                var expiry = info.Expiration;
-                var cacheKey = _keyFactory.CreateKey(info.Key);
-                var tagKeys = tagKeysGroups[recievedIndex];
-                var invalidationsState = conditionGroups[recievedIndex];
-
-                _ = TrySet(cacheKey, tagKeys, expiry, data, invalidationsState);
-            }
-
-            CheckResultLength(recievedIndex, infos.Length, nameof(dataStreamsFactory));
-        }
-
-        private void CheckResultLength(int actual, int expected, string parameterName)
-        {
-            if (actual != expected)
-            {
-                throw new InvalidOperationException(
-                    $"Factory {parameterName} should return the same number of elements it recieved " +
-                    $"(expected: {expected}, returned: {actual})");
-            }
-        }
-
+  
         public void Set(
             string key,
             IEnumerable<string> tags,
@@ -415,10 +228,8 @@ namespace QA.DotNetCore.Caching.Distributed
                 throw new ArgumentNullException(nameof(tags));
             }
 
-            FixupAndValidateExpiration(ref expiry);
-
-            CacheKey dataKey = _keyFactory.CreateKey(key);
-            CacheKey[] tagKeys = _keyFactory.CreateTags(tags).ToArray();
+            var dataKey = new RedisKey(key);
+            var tagKeys = tags.Select(k => new RedisKey(k)).ToArray();
 
             Connect(token);
 
@@ -426,8 +237,8 @@ namespace QA.DotNetCore.Caching.Distributed
         }
 
         private bool TrySet(
-            CacheKey key,
-            IReadOnlyList<CacheKey> tags,
+            RedisKey key,
+            IEnumerable<RedisKey> tags,
             TimeSpan expiry,
             RedisValue data,
             IEnumerable<Condition> conditions = null)
@@ -456,12 +267,6 @@ namespace QA.DotNetCore.Caching.Distributed
                     key,
                     watch.ElapsedMilliseconds);
 
-                if (isExecuted)
-                {
-                    var tagExpiry = GetTagExpiry(expiry);
-                    CompactTags(tags, tagExpiry);
-                }
-
                 return isExecuted;
             }
             catch (Exception ex)
@@ -477,8 +282,8 @@ namespace QA.DotNetCore.Caching.Distributed
         }
 
         private ITransaction CreateSetCacheTransaction(
-            CacheKey key,
-            IEnumerable<CacheKey> tags,
+            RedisKey key,
+            IEnumerable<RedisKey> tags,
             TimeSpan expiry,
             RedisValue data,
             IEnumerable<Condition> conditions,
@@ -491,189 +296,47 @@ namespace QA.DotNetCore.Caching.Distributed
                 _ = transaction.AddCondition(condition);
             }
 
-            var operations = new List<Task>();
-            var dataKey = key.GetRedisKey();
-            var tagExpiry = GetTagExpiry(expiry);
-            var keyExpiry = expiry + _options.DeprecatedCacheTimeToLive;
+            var operations = new List<Task> { transaction.StringSetAsync(key, data, expiry) };
 
-            operations.Add(transaction.StringSetAsync(dataKey, data, keyExpiry));
+            RedisValue tagExpiry = (long)GetTagExpiry(expiry).TotalMilliseconds;
+            RedisValue keyValue = new RedisValue(key.ToString());
 
             foreach (var tag in tags)
             {
-                RedisKey tagKey = tag.GetRedisKey();
-                RedisKey packTagKey = _keyFactory.CreatePack(tag).GetRedisKey();
-                RedisValue tagExpiryValue = (RedisValue)(long)tagExpiry.TotalMilliseconds;
-
-                operations.Add(transaction.SetAddAsync(tagKey, key.GetRedisValue()));
-                
-                operations.Add(transaction.StringSetAsync(packTagKey, 0, when: When.NotExists));
-                operations.Add(transaction.StringIncrementAsync(packTagKey));
-                
+                operations.Add(transaction.SetAddAsync(tag, keyValue));
                 operations.Add(transaction.ScriptEvaluateAsync(
                     ExtendKeyExpiryScript,
-                    new[] { tagKey },
-                    new[] { tagExpiryValue }));
-
-                operations.Add(transaction.ScriptEvaluateAsync(
-                    ExtendKeyExpiryScript,
-                    new[] { packTagKey },
-                    new[] { tagExpiryValue }));
+                    new[] { tag },
+                    new[] { tagExpiry }));
             }
 
             transactionOperations = operations;
-
             return transaction;
         }
 
-        private IEnumerable<CachedValue> GetWithStates(IReadOnlyList<CacheKey> keys)
+        private IEnumerable<CachedValue> GetWithStates(RedisKey[] redisKeys)
         {
-            RedisKey[] redisKeys = new RedisKey[keys.Count];
-            for (int i = 0; i < keys.Count; i++)
-            {
-                redisKeys[i] = keys[i].GetRedisKey();
-            }
-
             try
             {
-                var cachedValues = new Pipeline<RedisKey, CachedValue>(_logger)
-                    .AddPipe(GetCachedValuesByKeys, isFinal: result => result.State == KeyState.Missing)
-                    .AddPipe(MarkDeprecatedValues)
-                    .Execute(redisKeys);
-
+                var cachedValues = _cache
+                    .StringGet(redisKeys)
+                    .Select(value => 
+                        value.HasValue ? 
+                        new CachedValue(KeyState.Exist, (byte[]) value) : 
+                        CachedValue.Empty);
+                
                 _logger.LogTrace("Keys ({CacheKeys}) have values: {CacheValues}", redisKeys, cachedValues);
-
                 return cachedValues;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unable to get multiple caches ({CacheKeys}).", redisKeys);
-                return Enumerable.Repeat(CachedValue.Empty, keys.Count);
+                return Enumerable.Repeat(CachedValue.Empty, redisKeys.Length);
             }
-        }
-
-        private IEnumerable<PipeOutput<CachedValue>> MarkDeprecatedValues(RedisKey[] keys, PipeContext<CachedValue> context)
-        {
-            var ttlResultTasks = keys
-                .Select(key => _cache.KeyTimeToLiveAsync(key))
-                .ToList();
-
-            for (int i = 0; i < ttlResultTasks.Count; i++)
-            {
-                TimeSpan? timeToLive = _cache.Wait(ttlResultTasks[i]);
-
-                var previousValue = context.GetPreviousResult(i);
-
-                var adjustedValue = timeToLive > _options.DeprecatedCacheTimeToLive
-                    ? previousValue
-                    : new CachedValue(KeyState.Deprecated, previousValue.Value);
-
-                yield return new PipeOutput<CachedValue>(adjustedValue, true);
-            }
-        }
-
-        private IEnumerable<CachedValue> GetCachedValuesByKeys(IEnumerable<RedisKey> keysEnumerable)
-        {
-            if (keysEnumerable is not RedisKey[] keys)
-            {
-                keys = keysEnumerable.ToArray();
-            }
-
-            return _cache
-                .StringGet(keys)
-                .Select(value => value.HasValue ? new CachedValue(KeyState.Exist, (byte[])value) : CachedValue.Empty);
-        }
-
-        private void CompactTags(IReadOnlyList<CacheKey> tags, TimeSpan expiry)
-        {
-            Stopwatch watch = Stopwatch.StartNew();
-
-            RedisKey[] packKeys = tags.Select(tag => _keyFactory.CreatePack(tag.Key).GetRedisKey()).ToArray();
-            RedisValue[] compactAttempts = _cache.StringGet(packKeys);
-
-            /// TODO: Support compacting of batch of tags per one request (probably via lua script).
-            for (int i = 0; i < tags.Count; i++)
-            {
-                CacheKey tag = tags[i];
-                RedisKey packKey = packKeys[i];
-                RedisValue compactAttempt = compactAttempts[i];
-
-                if ((int)compactAttempt >= _options.CompactTagFrequency)
-                {
-                    bool isCompacted = CreateTagCompactingTransaction(tag, expiry, packKey, out var transactionOperations)
-                        .Execute();
-
-                    CheckCompactResult(tag, isCompacted, transactionOperations);
-                }
-            }
-
-            _logger.LogTrace("Tags compacting is finished (Elapsed: {Elapsed})", watch.ElapsedMilliseconds);
-        }
-
-        private void CheckCompactResult(CacheKey tag, bool isCompacted, IEnumerable<Task> transactionOperations)
-        {
-            var exceptions = transactionOperations
-                .Where(operation => operation.IsFaulted)
-                .Select(operation => operation.Exception);
-
-            if (exceptions.Any())
-            {
-                throw new AggregateException($"Error while compacting tag {tag}", exceptions).Flatten();
-            }
-
-            _logger.LogTrace("Tag compacting is finished (isCompacted: {CompactTransactionStatus}, tag: {CacheTag}).", isCompacted, tag);
-        }
-
-        private ITransaction CreateTagCompactingTransaction(
-            CacheKey tag,
-            TimeSpan expiry,
-            RedisKey packKey,
-            out IEnumerable<Task> asyncOperations)
-        {
-            ITransaction transaction = _cache.CreateTransaction();
-            
-            var operations = new List<Task>();
-
-            transaction.AddCondition(
-                Condition.SetLengthGreaterThan(tag.GetRedisKey(), _options.CompactTagSizeThreshold)
-            );
-
-            operations.Add(transaction.StringSetAsync(packKey, 0, expiry));
-            operations.Add(transaction.ScriptEvaluateAsync(
-                CompactTagKeysScript,
-                new[] { tag.GetRedisKey() },
-                new[] { (RedisValue)(long)_options.DeprecatedCacheTimeToLive.TotalMilliseconds })
-            );
-
-            asyncOperations = operations;
-            return transaction;
         }
 
         private TimeSpan GetTagExpiry(TimeSpan keyExpiry) =>
             keyExpiry + _options.TagExpirationOffset;
-
-        private Condition[] WatchTagInvalidations(IReadOnlyList<CacheKey> tagKeys)
-        {
-            RedisKey[] lockKeys = new RedisKey[tagKeys.Count];
-            for (int i = 0; i < tagKeys.Count; i++)
-            {
-                lockKeys[i] = _keyFactory.CreateLock(tagKeys[i]).GetRedisKey();
-            }
-
-            RedisValue[] lockValues = _cache.StringGet(lockKeys);
-
-            Condition[] conditions = new Condition[lockValues.Length];
-            for (int i = 0; i < lockValues.Length; i++)
-            {
-                var lockKey = lockKeys[i];
-                var lockValue = lockValues[i];
-
-                conditions[i] = lockValue.HasValue
-                    ? Condition.StringEqual(lockKey, lockValue)
-                    : Condition.KeyNotExists(lockKey);
-            }
-
-            return conditions;
-        }
 
         private void Connect(CancellationToken token)
         {
@@ -736,5 +399,68 @@ namespace QA.DotNetCore.Caching.Distributed
                 throw new ObjectDisposedException(GetType().FullName);
             }
         }
+        
+        private static MemoryStream SerializeData<T>(T data)
+        {
+            try
+            {
+                var stream = new MemoryStream();
+                var compressedStream = new GZipOutputStream(stream);
+                using var writer = new StreamWriter(compressedStream, Encoding.UTF8, bufferSize: -1, leaveOpen: true);
+                using var jsonWriter = new JsonTextWriter(writer);
+
+                _serializer.Serialize(jsonWriter, data);
+                jsonWriter.Flush();
+                compressedStream.Finish();
+
+                return stream;
+            }
+            catch (Exception ex)
+            {
+                throw new CacheDataSerializationException<T>("Unable to serialize value to cache.", data, ex);
+            }
+        }
+
+        private static T DeserializeData<T>(byte[] data)
+        {
+            using var stream = new MemoryStream(data, false);
+            using var decompressedStream = new GZipInputStream(stream);
+            using var reader = new StreamReader(decompressedStream, Encoding.UTF8);
+            using var jsonReader = new JsonTextReader(reader);
+
+            return _serializer.Deserialize<T>(jsonReader);
+        }
+        
+        private bool TryDeserializeData<TResult>(string key, byte[] data, out TResult result)
+        {
+            try
+            {
+                if (data != null)
+                {
+                    if (data.GetType() == typeof(TResult))
+                    {
+                        result = (TResult)(object)data;
+                    }
+                    else
+                    {
+                        result = DeserializeData<TResult>(data);                   
+                    }
+                    return result != null;
+                } 
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Unable to deserialize cached data associated with the key {CacheKey} to type {Type}. " +
+                    "Try to erase inconsistent data from cache.",
+                    key,
+                    typeof(TResult));
+            }
+
+            result = default;
+            return false;
+        }
+
     }
 }

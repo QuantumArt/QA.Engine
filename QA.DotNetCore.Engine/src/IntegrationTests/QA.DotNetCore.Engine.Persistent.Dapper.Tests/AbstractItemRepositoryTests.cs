@@ -25,7 +25,7 @@ public class AbstractItemRepositoryTests
         var serviceProvider = Global.CreateMockServiceProviderWithConnection();
         var settings = TestUtils.CreateDefaultCacheSettings();
         var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
-        var memoryCacheProvider = new VersionedCacheCoreProvider(memoryCache, Mock.Of<ILogger>());
+        var memoryCacheProvider = new VersionedCacheCoreProvider(memoryCache, new CacheKeyFactoryBase(), Mock.Of<ILogger>());
         _metaRepo = new MetaInfoRepository(serviceProvider, memoryCacheProvider, settings);
         var sqlAnalyzer = new NetNameQueryAnalyzer(_metaRepo);
         _repository = new AbstractItemRepository(serviceProvider, sqlAnalyzer, new StubNamingProvider(), memoryCacheProvider, settings);
@@ -141,12 +141,11 @@ public class AbstractItemRepositoryTests
         const int ContentId = 538;
         const int ItemIdWithRelations = 741138;
 
-        var itemRelationsByContents = _repository.GetManyToManyDataByContent(
+        var itemRelationsByContents = _repository.GetManyToManyDataByContents(
             new[] { ContentId },
             IsStage);
 
-        var itemRelations = Assert.Single(itemRelationsByContents);
-        var relation = Assert.Contains(ItemIdWithRelations, itemRelations);
+        var relation = Assert.Contains(ItemIdWithRelations, itemRelationsByContents);
         Assert.NotEmpty(relation.GetRelations());
     }
 
@@ -155,11 +154,10 @@ public class AbstractItemRepositoryTests
     {
         const int ContentId = 99999;
 
-        var itemRelationsByContents = _repository.GetManyToManyDataByContent(
+        var itemRelationsByContents = _repository.GetManyToManyDataByContents(
             new[] { ContentId },
             IsStage);
 
-        var itemRelations = Assert.Single(itemRelationsByContents);
-        Assert.Empty(itemRelations);
+        Assert.Empty(itemRelationsByContents);
     }
 }

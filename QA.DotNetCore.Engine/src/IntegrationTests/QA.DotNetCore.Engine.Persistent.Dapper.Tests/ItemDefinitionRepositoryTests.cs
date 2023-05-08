@@ -22,6 +22,7 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests
             var settings = TestUtils.CreateDefaultCacheSettings();
             var cacheProvider = new VersionedCacheCoreProvider(
                 new MemoryCache(Options.Create(new MemoryCacheOptions())),
+                new CacheKeyFactoryBase(),
                 Mock.Of<ILogger>());
             var metaRepository = new MetaInfoRepository(serviceProvider, cacheProvider, settings);
             var sqlAnalyzer = new NetNameQueryAnalyzer(metaRepository);

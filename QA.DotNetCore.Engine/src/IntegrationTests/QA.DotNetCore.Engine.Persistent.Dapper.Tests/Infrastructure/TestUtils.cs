@@ -25,7 +25,7 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure
         public static VersionedCacheCoreProvider CreateDefaultMemoryCacheProvider()
         {
             var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
-            return new VersionedCacheCoreProvider(memoryCache, Mock.Of<ILogger>());
+            return new VersionedCacheCoreProvider(memoryCache, new CacheKeyFactoryBase(), Mock.Of<ILogger>());
         }
     }
 }

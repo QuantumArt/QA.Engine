@@ -11,9 +11,8 @@ namespace QA.DotNetCore.Caching.Distributed
 
         public static RedisValue GetRedisValue(this CacheKey cacheKey) => new RedisValue(cacheKey.ToString());
 
-        public static CacheKey GetLock(this CacheKey key) => new LockCacheKey(key);
 
-        internal static IEnumerable<CacheKey> CreateTags(this CacheKeyFactory keyFactory, IEnumerable<string> tags)
+        internal static IEnumerable<CacheKey> CreateTags(this ExternalCacheKeyFactory keyFactory, IEnumerable<string> tags)
         {
             if (keyFactory is null)
             {

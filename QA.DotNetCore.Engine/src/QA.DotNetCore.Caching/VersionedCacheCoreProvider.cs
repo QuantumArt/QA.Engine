@@ -16,23 +16,29 @@ namespace QA.DotNetCore.Caching
     /// <summary>
     /// Реализует провайдер кеширования данных
     /// </summary>
-    public partial class VersionedCacheCoreProvider : ICacheProvider, ICacheInvalidator, IMemoryCacheProvider, IDistributedMemoryCacheProvider
+    public partial class VersionedCacheCoreProvider : ICacheProvider, ICacheInvalidator, IMemoryCacheProvider
     {
-        private readonly IMemoryCache _cache;
-        private readonly TimeSpan _defaultWaitForCalculateTimeout = TimeSpan.FromSeconds(5);
+        protected readonly IMemoryCache _cache;
+        protected readonly ICacheKeyFactory _keyFactory;
+        protected readonly TimeSpan _defaultWaitForCalculateTimeout = TimeSpan.FromSeconds(5);
         private readonly int _defaultDeprecatedCoef = 2;
         private readonly ILogger _logger;
         private static readonly ConcurrentDictionary<string, object> _lockers = new ConcurrentDictionary<string, object>();
         private static readonly ConcurrentDictionary<string, SemaphoreSlim> _semaphores = new ConcurrentDictionary<string, SemaphoreSlim>();
 
-        public VersionedCacheCoreProvider(IMemoryCache cache, ILogger logger)
+        public VersionedCacheCoreProvider(
+            IMemoryCache cache, 
+            ICacheKeyFactory keyFactory,
+            ILogger logger
+        )
         {
             _cache = cache;
             _logger = logger;
+            _keyFactory = keyFactory;
         }
 
-        public VersionedCacheCoreProvider(IMemoryCache cache, ILogger<VersionedCacheCoreProvider> genericLogger)
-            : this(cache, logger: genericLogger)
+        public VersionedCacheCoreProvider(IMemoryCache cache, ICacheKeyFactory keyFactory, ILogger<VersionedCacheCoreProvider> genericLogger)
+            : this(cache, keyFactory, logger: genericLogger)
         {
         }
 
@@ -82,7 +88,6 @@ namespace QA.DotNetCore.Caching
         /// Очищает кеш по ключу
         /// </summary>
         /// <param name="key">Ключ</param>
-        [Obsolete("Use " + nameof(ICacheInvalidator) + " interface instead.")]
         public virtual void Invalidate(string key)
         {
             if (string.IsNullOrEmpty(key))
@@ -93,7 +98,7 @@ namespace QA.DotNetCore.Caching
             key = GetKey(key);
 
             _cache.Remove(key);
-            _cache.Remove(GetDeprecatedCacheKey(key));
+            _cache.Remove(GetDeprecatedKey(key));
         }
 
         /// <inheritdoc/>
@@ -126,7 +131,6 @@ namespace QA.DotNetCore.Caching
         /// Инвалидирует записи в кеше по тегам
         /// </summary>
         /// <param name="tags">Теги</param>
-        [Obsolete("Use " + nameof(ICacheInvalidator) + " interface instead.")]
         public virtual void InvalidateByTags(params string[] tags)
         {
             foreach (var tag in tags)
@@ -134,117 +138,33 @@ namespace QA.DotNetCore.Caching
                 _cache.Remove(GetTag(tag));
             }
         }
+        
+        /// <summary>
+        /// Проверяет наличие данных в кэше
+        /// </summary>
+        /// <param name="key">Ключ</param>
+        /// <returns>Присутствует ли ключ к кэше</returns>
+        public bool IsSet(string key)
+        {
+            var results = IsSet(new[] {key});
+            return results.Single();
+        }
+
+        /// <summary>
+        /// Получает данные из кэша по ключу
+        /// </summary>
+        /// <param name="key">Ключ</param>
+        /// <returns></returns>
+        public TResult Get<TResult>(string key)
+        {
+            var results = Get<TResult>(new[] {key});
+            return results.Single();
+        }
 
         T IMemoryCacheProvider.GetOrAdd<T>(string cacheKey, TimeSpan expiration, Func<T> getData, TimeSpan waitForCalculateTimeout) =>
             this.GetOrAdd(cacheKey, expiration, getData, waitForCalculateTimeout);
 
-        public TResult[] GetOrAdd<TId, TResult>(
-            CacheInfo<TId>[] cacheInfos,
-            DataValuesFactoryDelegate<TId, TResult> dataValuesFactory,
-            TimeSpan waitForCalculateTimeout = default)
-        {
-            IDisposable locker = null;
-
-            try
-            {
-                var doubleCheckLockingPipeline =
-                    new Pipeline<CacheInfo<TId>, TResult>(_logger)
-                        .AddPipe(GetExistingCache<TId, TResult>)
-                        .AddPipe(infos =>
-                            LockOrGetDeprecatedCache<TId, TResult>(infos, waitForCalculateTimeout, out locker))
-                        .AddPipe(GetExistingCache<TId, TResult>)
-                        .AddPipe(infos => GetAndCacheRealData(infos, dataValuesFactory));
-                    
-                return doubleCheckLockingPipeline.Execute(cacheInfos).ToArray();
-            }
-            finally
-            {
-                locker?.Dispose();
-            }
-
-        }
-
-        private IEnumerable<PipeOutput<TResult>> GetExistingCache<TId, TResult>(CacheInfo<TId>[] infos)
-        {
-            var keys = infos.Select(info => info.Key);
-
-            var results = Get<TResult>(keys);
-
-            foreach (var result in results)
-            {
-                yield return new PipeOutput<TResult>(result, result != null);
-            }
-        }
-
-        private IEnumerable<PipeOutput<TResult>> LockOrGetDeprecatedCache<TId, TResult>(
-            CacheInfo<TId>[] infos,
-            TimeSpan lockEnterWaitTimeout,
-            out IDisposable locker)
-        {
-            var cacheKeys = infos.Select(info => info.Key).ToList();
-
-            var lockersCollection = new KeyLockersCollection<TResult>(
-                _lockers,
-                cacheKeys,
-                Get<TResult>);
-
-            var results = new PipeOutput<TResult>[infos.Length];
-
-            lockersCollection.Lock(
-                lockEnterWaitTimeout,
-                (cacheKey, index, deprecatedResult) => results[index] = new PipeOutput<TResult>(deprecatedResult, true));
-
-            locker = lockersCollection;
-
-            return results;
-        }
-
-        private IEnumerable<TResult> GetAndCacheRealData<TId, TResult>(
-            IEnumerable<CacheInfo<TId>> infosEnumerable,
-            DataValuesFactoryDelegate<TId, TResult> dataValuesFactory)
-        {
-            var infos = infosEnumerable.ToArray();
-            var realData = dataValuesFactory(infos);
-
-            // Fill missing results with real data.
-            using var resultsEnumerator = realData.GetEnumerator();
-
-            int recievedIndex;
-            for (recievedIndex = 0; resultsEnumerator.MoveNext(); recievedIndex++)
-            {
-                TResult currentResult = resultsEnumerator.Current;
-
-                yield return currentResult;
-
-                if (currentResult != null)
-                {
-                    var cacheInfo = infos[recievedIndex];
-                    var tags = cacheInfo.Tags;
-                    var expiration = cacheInfo.Expiration;
-                    string missingKey = cacheInfo.Key;
-                    string deprecatedCacheKey = GetDeprecatedCacheKey(missingKey);
-
-                    //добавим новое значение в кеш и сразу обновим deprecated значение, которое хранится в 2 раза дольше, чем основное
-                    Add(currentResult, missingKey, tags.ToArray(), expiration);
-                    Add(currentResult, deprecatedCacheKey, Array.Empty<string>(), expiration * _defaultDeprecatedCoef);
-                }
-            }
-
-            if (recievedIndex != infos.Length)
-            {
-                throw new InvalidOperationException(
-                    $"Factory {nameof(dataValuesFactory)} should return the same number of elements it received " +
-                    $"(expected: {infos.Length}, returned: {recievedIndex})");
-            }
-        }
-
-        private static bool IsCacheMissing(int index, in bool[] locked)
-        {
-            bool isDeprecatedCacheMissing = locked[index];
-            // Filter out missing key if by it had been obtained deprecated value.
-            return isDeprecatedCacheMissing;
-        }
-
+  
         /// <summary>
         /// Потокобезопасно берет объект из кеша, если его там нет, то вызывает функцию для получения данных
         /// и кладет результат в кеш, маркируя его тегами. При устаревании кеша старый результат еще хранится какое-то время.
@@ -270,7 +190,7 @@ namespace QA.DotNetCore.Caching
             Func<T> getData,
             TimeSpan waitForCalculateTimeout = default(TimeSpan))
         {
-            var deprecatedCacheKey = GetDeprecatedCacheKey(cacheKey);
+            var deprecatedCacheKey = GetDeprecatedKey(cacheKey);
             var result = this.Get<T>(cacheKey);
             if (result == null)
             {
@@ -361,7 +281,7 @@ namespace QA.DotNetCore.Caching
             Func<Task<T>> getData,
             TimeSpan waitForCalculateTimeout = default)
         {
-            var deprecatedCacheKey = GetDeprecatedCacheKey(cacheKey);
+            var deprecatedCacheKey = GetDeprecatedKey(cacheKey);
 
             var result = this.Get<T>(cacheKey);
             if (result == null)
@@ -441,16 +361,14 @@ namespace QA.DotNetCore.Caching
 
             if (key is string strkey)
             {
-                ((VersionedCacheCoreProvider)state).AddTag(DateTime.Now.AddDays(1), strkey, true);
+                ((VersionedCacheCoreProvider)state).AddTag(DateTime.Now.AddDays(1), strkey);
             }
         }
 
-        private CancellationTokenSource AddTag(DateTime tagExpiration, string item, bool isEscaped = false)
+        private CancellationTokenSource AddTag(DateTime tagExpiration, string item)
         {
-            if (!isEscaped)
-            {
-                item = GetTag(item);
-            }
+
+            item = GetTag(item);
 
             var result = _cache.Get(item) as CancellationTokenSource;
             if (result == null)
@@ -468,9 +386,9 @@ namespace QA.DotNetCore.Caching
             return result;
         }
 
-        private static string GetDeprecatedCacheKey(string originalKey) => originalKey + "__Deprecated";
+        protected string GetDeprecatedKey(string key) => _keyFactory.GetDeprecatedKey(key);
 
-        private static string GetKey(string key) => "key:" + key;
-        private static string GetTag(string tag) => "tag:" + tag;
+        protected string GetKey(string key) => _keyFactory.GetDataKey(key);
+        protected string GetTag(string tag) => _keyFactory.GetTagKey(tag);
     }
 }

@@ -8,20 +8,20 @@ public class DistributedModificationStateStorage : IModificationStateStorage
     private const string InvalidationStateKey = nameof(DistributedModificationStateStorage);
     private readonly static TimeSpan _invalidationStateExpiry = TimeSpan.FromDays(10);
 
-    private readonly IDistributedCacheProvider _distributedCacheProvider;
+    private readonly ICacheProvider _cacheProvider;
 
-    public DistributedModificationStateStorage(IDistributedCacheProvider distributedCacheProvider)
+    public DistributedModificationStateStorage(ICacheProvider cacheProvider)
     {
-        _distributedCacheProvider = distributedCacheProvider;
+        _cacheProvider = cacheProvider;
     }
 
     public void Update(TransformModificationsDelegate transformStateHandler)
     {
-        var previousModifications = _distributedCacheProvider.Get<CacheTagModification[]>(InvalidationStateKey)
+        var previousModifications = _cacheProvider.Get<CacheTagModification[]>(InvalidationStateKey)
              ?? Array.Empty<CacheTagModification>();
 
         var currentModifications = transformStateHandler(previousModifications);
 
-        _distributedCacheProvider.Set(InvalidationStateKey, currentModifications, _invalidationStateExpiry);
+        _cacheProvider.Set(InvalidationStateKey, currentModifications, _invalidationStateExpiry);
     }
 }

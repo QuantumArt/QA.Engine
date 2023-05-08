@@ -52,6 +52,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
         };
         private readonly VersionedCacheCoreProvider _cacheProvider = new VersionedCacheCoreProvider(
             new MemoryCache(new MemoryCacheOptions()),
+            new CacheKeyFactoryBase(),
             Mock.Of<ILogger>());
 
         [Fact]
@@ -216,11 +217,11 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 null)).Returns(startPageExtDictionary);
 
             aiRepositoryMoq
-                .Setup(x => x.GetManyToManyDataByContent(
+                .Setup(x => x.GetManyToManyDataByContents(
                     It.IsAny<int[]>(),
                     buildSettings.IsStage,
                     null))
-                .Returns(new[] { new Dictionary<int, M2MRelations>(0) });
+                .Returns(new Dictionary<int, M2MRelations>(0) );
 
             //фабрика элементов структуры сайта
             var aiFactoryMoq = new Mock<IAbstractItemFactory>();
@@ -340,11 +341,11 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 null)).Returns(widgetExtDictionary);
 
             aiRepositoryMoq
-                .Setup(x => x.GetManyToManyDataByContent(
+                .Setup(x => x.GetManyToManyDataByContents(
                     It.IsAny<int[]>(),
                     buildSettings.IsStage,
                     null))
-                .Returns(new[] { new Dictionary<int, M2MRelations>(0) });
+                .Returns(new Dictionary<int, M2MRelations>(0));
 
             //фабрика элементов структуры сайта
             var aiFactoryMoq = new Mock<IAbstractItemFactory>();
@@ -500,18 +501,17 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 widgetRelation.AddRelation(widgetRelationField.M2MLinkId.Value, relValue);
             }
             aiRepositoryMoq
-                .Setup(x => x.GetManyToManyDataByContent(
+                .Setup(x => x.GetManyToManyDataByContents(
                     It.Is<int[]>(ids => ids.Single() == extensionId),
                     isStage,
                     null))
                 .Returns(
-                    new[]
-                    {
+
                         new Dictionary<int, M2MRelations>
                         {
                             { widgetExtId, widgetRelation}
                         }
-                    });
+                    );
 
             var baseContentRelation = new M2MRelations();
             var baseContentRelationValues = new[] { 576, 7568 };
@@ -785,11 +785,11 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 .Returns(startPageExtDictionary);
 
             aiRepositoryMoq
-                .Setup(x => x.GetManyToManyDataByContent(
+                .Setup(x => x.GetManyToManyDataByContents(
                     It.IsAny<int[]>(),
                     buildSettings.IsStage,
                     null))
-                .Returns(new[] { new Dictionary<int, M2MRelations>(0) });
+                .Returns(new Dictionary<int, M2MRelations>(0));
 
             //фабрика элементов структуры сайта
             var aiFactoryMoq = new Mock<IAbstractItemFactory>();

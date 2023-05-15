@@ -8,8 +8,12 @@ namespace QA.DotNetCore.Caching.Configuration
     {
         public static void TryAddMemoryCacheServices(this IServiceCollection services)
         {
-            _ = services.AddMemoryCache();
-            services.TryAddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
+            services.AddMemoryCache();
+            services.TryAddSingleton<VersionedCacheCoreProvider>();
+            services.TryAddSingleton<ICacheProvider>(svc => svc.GetRequiredService<VersionedCacheCoreProvider>());
+            services.TryAddSingleton<IMemoryCacheProvider>(svc => svc.GetRequiredService<VersionedCacheCoreProvider>());
+            services.TryAddSingleton<ICacheInvalidator>(svc => svc.GetRequiredService<VersionedCacheCoreProvider>());
+            
             services.TryAddSingleton<ICacheKeyFactory, CacheKeyFactoryBase>();
             services.TryAddSingleton<ICacheInvalidator>(svc => svc.GetService<ICacheProvider>());
             services.TryAddSingleton<INodeIdentifier>(StandaloneNodeIdentifier.Instance);

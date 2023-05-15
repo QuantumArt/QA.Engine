@@ -14,12 +14,14 @@ namespace QA.DotNetCore.Engine.QpData
     {
         private readonly IItemDefinitionRepository _repository;
         private readonly ICacheProvider _cacheProvider;
+        private readonly IMemoryCacheProvider _memoryCacheProvider;        
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly QpSiteStructureBuildSettings _buildSettings;
 
         public UniversalAbstractItemFactory(
             ICacheProvider cacheProvider,
+            IMemoryCacheProvider memoryCacheProvider,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
             IItemDefinitionRepository repository,
             QpSiteStructureCacheSettings cacheSettings,
@@ -30,6 +32,7 @@ namespace QA.DotNetCore.Engine.QpData
             _cacheSettings = cacheSettings;
             _buildSettings = buildSettings;
             _cacheProvider = cacheProvider;
+            _memoryCacheProvider = memoryCacheProvider;
         }
 
         public AbstractItem Create(string discriminator)
@@ -63,7 +66,7 @@ namespace QA.DotNetCore.Engine.QpData
         {
             var itemDefinitionAcceptedStaleTime = TimeSpan.FromSeconds(5);
 
-            return _cacheProvider.GetOrAdd(
+            return _memoryCacheProvider.GetOrAdd(
                 $"{nameof(UniversalAbstractItemFactory)}.{nameof(GetItemDefinitionByDiscriminator)}({discriminator})",
                 itemDefinitionAcceptedStaleTime,
                 () =>

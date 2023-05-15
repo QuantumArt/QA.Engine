@@ -28,7 +28,6 @@ namespace QA.DotNetCore.Caching.Distributed
 
             _ = services.AddSingleton<DistributedMemoryCacheProvider>();
             _ = services.AddSingleton<ICacheProvider>(svc => svc.GetRequiredService<DistributedMemoryCacheProvider>());
-            _ = services.AddSingleton<IMemoryCacheProvider>(svc => svc.GetRequiredService<DistributedMemoryCacheProvider>());
             _ = services.AddSingleton<ICacheInvalidator>(svc => svc.GetRequiredService<DistributedMemoryCacheProvider>());
             _ = services.AddSingleton(svc =>
                 svc.GetRequiredService<IOptionsMonitor<RedisCacheSettings>>().CurrentValue);

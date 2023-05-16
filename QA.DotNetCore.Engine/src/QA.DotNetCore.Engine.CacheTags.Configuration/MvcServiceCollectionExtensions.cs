@@ -26,7 +26,7 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
             services.TryAddSingleton(provider => provider.GetRequiredService<IOptions<CacheTagsRegistrationConfigurator>>().Value);
 
             services.TryAddMemoryCacheServices();
-            services.TryAddSingleton<ICacheTagWatcher, CacheTagWatcher>();
+            services.TryAddScoped<ICacheTagWatcher, CacheTagWatcher>();
             services.TryAddScoped<IQpContentCacheTagNamingProvider, DefaultQpContentCacheTagNamingProvider>();
             services.TryAddScoped<QpContentCacheTracker>();
             services.TryAddScoped<IContentModificationRepository, ContentModificationRepository>();

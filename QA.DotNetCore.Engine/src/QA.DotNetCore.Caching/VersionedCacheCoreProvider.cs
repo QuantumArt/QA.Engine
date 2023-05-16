@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using QA.DotNetCore.Caching.Helpers.Pipes;
 
 namespace QA.DotNetCore.Caching
 {
@@ -23,8 +22,8 @@ namespace QA.DotNetCore.Caching
         protected readonly TimeSpan _defaultWaitForCalculateTimeout = TimeSpan.FromSeconds(5);
         protected readonly int _defaultDeprecatedCoef = 2;
         private readonly ILogger _logger;
-        private static readonly ConcurrentDictionary<string, object> _lockers = new ConcurrentDictionary<string, object>();
-        private static readonly ConcurrentDictionary<string, SemaphoreSlim> _semaphores = new ConcurrentDictionary<string, SemaphoreSlim>();
+        private static readonly ConcurrentDictionary<string, object> _lockers = new();
+        private static readonly ConcurrentDictionary<string, SemaphoreSlim> _semaphores = new();
 
         public VersionedCacheCoreProvider(
             IMemoryCache cache, 

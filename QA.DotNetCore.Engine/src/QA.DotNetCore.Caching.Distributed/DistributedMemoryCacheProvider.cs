@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using QA.DotNetCore.Caching.Helpers.Pipes;
 
 namespace QA.DotNetCore.Caching
 {
@@ -14,13 +13,12 @@ namespace QA.DotNetCore.Caching
         private static readonly TimeSpan _getUniqueIdTimout = TimeSpan.FromMinutes(1);
 
         private IExternalCache _externalCache;
-        private readonly string _globalKeyPrefix;
         private readonly ILogger<DistributedMemoryCacheProvider> _logger;
+        private readonly HashSet<string> _localKeys = new();
 
         public DistributedMemoryCacheProvider(
             IMemoryCache cache,
             IExternalCache externalCache,
-            INodeIdentifier nodeIdentifier,
             ICacheKeyFactory keyFactory,
             ILogger<DistributedMemoryCacheProvider> logger)
             : base(cache, keyFactory, logger)
@@ -28,15 +26,31 @@ namespace QA.DotNetCore.Caching
             using var timeoutTokenSource = new CancellationTokenSource(_getUniqueIdTimout);
 
             _externalCache = externalCache;
-            _globalKeyPrefix = nodeIdentifier.GetUniqueId(timeoutTokenSource.Token) + ":";
             _logger = logger;
         }
 
         public override IEnumerable<bool> IsSet(IEnumerable<string> keys)
         {
             keys = keys.Select(GetKey).ToArray();
-            
-            return _externalCache.Exist(keys);
+            var localResults = keys.Select(_localKeys.Contains).Zip(keys)
+                .Select(n => new {Exists = n.First, Key = n.Second}).ToArray();
+            var keysToQuery = localResults.Where(n => !n.Exists).Select(n => n.Key).Distinct().ToArray();
+            if (keysToQuery.Length > 0)
+            {
+                var results = new List<bool>();
+                var externalResults = _externalCache.Exist(keysToQuery).Zip(keysToQuery).ToDictionary(k => k.Second, v => v.First);
+                foreach (var localResult in localResults)
+                {
+                    var result = localResult.Exists || externalResults[localResult.Key];
+                    if (result)
+                    {
+                        _localKeys.Add(localResult.Key);
+                    }
+                    results.Add(result);
+                }
+                return results;
+            }
+            return Enumerable.Repeat(true, keys.Count());
         }
 
         public override bool TryGetValue<TResult>(string key, out TResult result)
@@ -52,7 +66,7 @@ namespace QA.DotNetCore.Caching
             keys = keys.Select(GetKey).ToArray();
             
             var localResults = base.IsSet(keys).ToArray();
-            var externalResults = _externalCache.Exist(keys);
+            var externalResults = IsSet(keys);
             var results = localResults.Zip(externalResults).Zip(keys)
                 .Select(n => new { HasLocal = n.First.First, HasExternal = n.First.Second, Key = n.Second}).ToArray();
             var extKeys = results.Where(n => n.HasExternal && !n.HasLocal).Select(n => n.Key).ToArray();

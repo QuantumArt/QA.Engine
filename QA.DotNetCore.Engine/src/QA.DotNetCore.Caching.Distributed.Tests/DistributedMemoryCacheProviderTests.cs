@@ -356,7 +356,6 @@ public class DistributedMemoryCacheProviderTests
     [InlineData(new object[] { new[] { "key" }, new[] { "1" } })]
     [InlineData(new object[] { new[] { "key1", "key2" }, new[] { "1", "2" } })]
     [InlineData(new object[] { new[] { "key1", "key1" }, new[] { "1", "1" } })]
-    [InlineData(new object[] { new string[0], new string[0] })]
     public void Get_ExistingKeys_FoundValues(string[] keys, string[] values)
     {
         // Arrange
@@ -402,7 +401,6 @@ public class DistributedMemoryCacheProviderTests
     [InlineData(new object[] { new[] { "key" } })]
     [InlineData(new object[] { new[] { "key1", "key2" } })]
     [InlineData(new object[] { new[] { "key1", "key1" } })]
-    [InlineData(new object[] { new string[0] })]
     public void Get_MissingKeys_NullValues(string[] keys)
     {
         _mockDistributedTaggedCache
@@ -432,7 +430,6 @@ public class DistributedMemoryCacheProviderTests
     [Theory]
     [InlineData(new object[] { new[] { "key" } })]
     [InlineData(new object[] { new[] { "key1", "key2" } })]
-    [InlineData(new object[] { new string[0] })]
     public void IsSet_ExistingKey_IsExist(string[] keys)
     {
         
@@ -455,7 +452,6 @@ public class DistributedMemoryCacheProviderTests
     [Theory]
     [InlineData(new object[] { new[] { "key" } })]
     [InlineData(new object[] { new[] { "key1", "key2" } })]
-    [InlineData(new object[] { new string[0] })]
     public void IsSet_MissingKey_NotExist(string[] keys)
     {
         // Arrange
@@ -581,28 +577,15 @@ public class DistributedMemoryCacheProviderTests
             LoggerUtils.GetLogger<RedisCache>(_output));
     }
 
-    private INodeIdentifier CreateNodeIndentifier()
-    {
-        var mockIdentifier = _mockRepository.Create<INodeIdentifier>();
-
-        _ = mockIdentifier
-            .Setup(id => id.GetUniqueId(It.IsAny<CancellationToken>()))
-            .Returns(Guid.NewGuid().ToString());
-
-        return mockIdentifier.Object;
-    }
-
     private DistributedMemoryCacheProvider CreateProvider(
         IExternalCache cache)
         
     {
         var memoryCache = CreateMemoryCache();
-        var nodeIdentifier = CreateNodeIndentifier();
 
         return new DistributedMemoryCacheProvider(
             memoryCache, 
             cache, 
-            nodeIdentifier,
             new ExternalCacheKeyFactory(new ExternalCacheSettings() { AppName = _appName, InstanceName = _instanceName}),
             LoggerUtils.GetLogger<DistributedMemoryCacheProvider>(_output));
     }

@@ -83,8 +83,8 @@ namespace QA.DotNetCore.Caching
             if (!_externalCache.TryAdd(data, key, tags, expiration))
             {
                 _externalCache.TryAdd(String.Empty, key, tags, expiration);
-                base.Add(data, key, tags, expiration);
             }
+            base.Add(data, key, tags, expiration);
         }
 
         public override void Invalidate(string key)

@@ -101,13 +101,13 @@ namespace QA.DotNetCore.Caching.Distributed
 
 
         /// <inheritdoc/>
-        public bool TryAdd(object value, string key, string[] tags, TimeSpan expiration)
+        public bool TryAdd(object value, string key, string deprecatedKey, string[] tags, TimeSpan expiration, TimeSpan deprecatedExpiration)
         {
             var result = true;
             try
             {
                 var dataStream = SerializeData(value);
-                Set(key, tags, expiration, dataStream);
+                Set(key, tags, expiration, dataStream, deprecatedKey, deprecatedExpiration);
             }
             catch (CacheDataSerializationException<object> ex)
             {
@@ -221,6 +221,8 @@ namespace QA.DotNetCore.Caching.Distributed
             IEnumerable<string> tags,
             TimeSpan expiry,
             MemoryStream dataStream,
+            string deprecatedKey = null,
+            TimeSpan deprecatedExpiry = default,
             CancellationToken token = default)
         {
             if (tags is null)
@@ -229,17 +231,20 @@ namespace QA.DotNetCore.Caching.Distributed
             }
 
             var dataKey = new RedisKey(key);
+            var deprecatedDataKey = new RedisKey(deprecatedKey);
             var tagKeys = tags.Select(k => new RedisKey(k)).ToArray();
 
             Connect(token);
 
-            _ = TrySet(dataKey, tagKeys, expiry, RedisValue.CreateFrom(dataStream));
+            _ = TrySet(dataKey, deprecatedDataKey, tagKeys, expiry, deprecatedExpiry, RedisValue.CreateFrom(dataStream));
         }
 
         private bool TrySet(
             RedisKey key,
+            RedisKey deprecatedKey,
             IEnumerable<RedisKey> tags,
             TimeSpan expiry,
+            TimeSpan deprecatedExpiry,
             RedisValue data,
             IEnumerable<Condition> conditions = null)
         {
@@ -247,7 +252,7 @@ namespace QA.DotNetCore.Caching.Distributed
 
             try
             {
-                ITransaction transaction = CreateSetCacheTransaction(key, tags, expiry, data, conditions, out var transactionOperations);
+                ITransaction transaction = CreateSetCacheTransaction(key, deprecatedKey, tags, expiry, deprecatedExpiry, data, conditions, out var transactionOperations);
                 bool isExecuted = transaction.Execute();
 
                 var exceptions = transactionOperations
@@ -283,8 +288,10 @@ namespace QA.DotNetCore.Caching.Distributed
 
         private ITransaction CreateSetCacheTransaction(
             RedisKey key,
+            RedisKey deprecatedKey,
             IEnumerable<RedisKey> tags,
             TimeSpan expiry,
+            TimeSpan deprecatedExpiry,
             RedisValue data,
             IEnumerable<Condition> conditions,
             out IEnumerable<Task> transactionOperations)
@@ -296,7 +303,16 @@ namespace QA.DotNetCore.Caching.Distributed
                 _ = transaction.AddCondition(condition);
             }
 
-            var operations = new List<Task> { transaction.StringSetAsync(key, data, expiry) };
+            var operations = new List<Task>
+            {
+                transaction.StringSetAsync(key, data, expiry)
+            };
+
+            if (!string.IsNullOrEmpty(deprecatedKey) && deprecatedExpiry != default)
+            {
+                transaction.KeyCopyAsync(key, deprecatedKey);
+                transaction.KeyExpireAsync(deprecatedKey, deprecatedExpiry);
+            }
 
             RedisValue tagExpiry = (long)GetTagExpiry(expiry).TotalMilliseconds;
             RedisValue keyValue = new RedisValue(key.ToString());

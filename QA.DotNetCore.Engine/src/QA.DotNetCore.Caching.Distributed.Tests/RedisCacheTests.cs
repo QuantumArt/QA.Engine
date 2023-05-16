@@ -140,7 +140,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
         public async Task Get_CachedKey_CachedValue()
         {
             // Arrange
-            string key = "key1";
+            string key = "ckey1";
             byte[] cachedData = GetRandomData();
             var expiry = _existingCacheTtl;
 
@@ -152,10 +152,10 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             using var redisCache = CreateRedisCache();
 
             // Act
-            var result = redisCache.Get(key);
+            var result = redisCache.Get<byte[]>(new[] { key });
 
             // Assert
-            Assert.Equal(cachedData, result);
+            Assert.Equal(cachedData, result.Single());
         }
 
  

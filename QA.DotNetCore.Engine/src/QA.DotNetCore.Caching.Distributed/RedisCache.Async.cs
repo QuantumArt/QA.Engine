@@ -111,26 +111,31 @@ namespace QA.DotNetCore.Caching.Distributed
             await _cache.ScriptEvaluateAsync(InvalidateTagScript, new[] {tagKey});
         }
 
-        public async Task SetAsync(
-            string key,
+        public async Task SetAsync(string key,
             IEnumerable<string> tags,
             TimeSpan expiry,
             MemoryStream dataStream,
-            CancellationToken token = default)
+            string deprecatedKey,
+            TimeSpan deprecatedExpiry,
+            CancellationToken token)
         {
 
             RedisKey dataKey = new RedisKey(key);
+            RedisKey deprecatedDataKey = new RedisKey(key);
+            
             RedisKey[] tagKeys = tags.Select(n => new RedisKey(n)).ToArray();
 
             await ConnectAsync(token);
 
-            _ = await TrySetAsync(dataKey, tagKeys, expiry, RedisValue.CreateFrom(dataStream));
+            _ = await TrySetAsync(dataKey, deprecatedDataKey, tagKeys, expiry, deprecatedExpiry, RedisValue.CreateFrom(dataStream));
         }
 
         private async Task<bool> TrySetAsync(
             RedisKey key,
+            RedisKey deprecatedKey,
             IReadOnlyList<RedisKey> tags,
             TimeSpan expiry,
+            TimeSpan deprecatedExpiry,
             RedisValue data,
             IEnumerable<Condition> conditions = null)
         {
@@ -138,7 +143,7 @@ namespace QA.DotNetCore.Caching.Distributed
 
             try
             {
-                ITransaction transaction = CreateSetCacheTransaction(key, tags, expiry, data, conditions, out var transactionOperations);
+                ITransaction transaction = CreateSetCacheTransaction(key, deprecatedKey, tags, expiry, deprecatedExpiry, data, conditions, out var transactionOperations);
                 bool isExecuted = await transaction.ExecuteAsync();
 
                 var exceptions = transactionOperations

@@ -21,7 +21,7 @@ namespace QA.DotNetCore.Caching
         protected readonly IMemoryCache _cache;
         protected readonly ICacheKeyFactory _keyFactory;
         protected readonly TimeSpan _defaultWaitForCalculateTimeout = TimeSpan.FromSeconds(5);
-        private readonly int _defaultDeprecatedCoef = 2;
+        protected readonly int _defaultDeprecatedCoef = 2;
         private readonly ILogger _logger;
         private static readonly ConcurrentDictionary<string, object> _lockers = new ConcurrentDictionary<string, object>();
         private static readonly ConcurrentDictionary<string, SemaphoreSlim> _semaphores = new ConcurrentDictionary<string, SemaphoreSlim>();
@@ -105,12 +105,13 @@ namespace QA.DotNetCore.Caching
         public virtual void Add(object data, string key, string[] tags, TimeSpan expiration)
         {
             key = GetKey(key);
+            
+            //добавим новое значение в кеш и сразу обновим deprecated значение, которое хранится в 2 раза дольше, чем основное
+            var deprecatedKey = GetDeprecatedKey(key);
+            var deprecatedExpiration = TimeSpan.FromTicks(expiration.Ticks * _defaultDeprecatedCoef);
 
-            var policy = new MemoryCacheEntryOptions
-            {
-                AbsoluteExpiration = DateTime.Now + expiration,
-                Size = 1
-            };
+            var policy = GetPolicy(expiration);
+            var deprecatedPolicy = GetPolicy(deprecatedExpiration);
 
             if (tags != null && tags.Length > 0)
             {
@@ -125,6 +126,17 @@ namespace QA.DotNetCore.Caching
             }
 
             _cache.Set(key, data, policy);
+            _cache.Set(deprecatedKey, data, deprecatedPolicy);
+        }
+
+        private static MemoryCacheEntryOptions GetPolicy(TimeSpan expiration)
+        {
+            var policy = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpiration = DateTime.Now + expiration,
+                Size = 1
+            };
+            return policy;
         }
 
         /// <summary>
@@ -324,9 +336,7 @@ namespace QA.DotNetCore.Caching
                             result = await getData().ConfigureAwait(false);
                             if (result != null)
                             {
-                                //добавим новое значение в кеш и сразу обновим deprecated значение, которое хранится в 2 раза дольше, чем основное
                                 Add(result, cacheKey, tags, expiration);
-                                Add(result, deprecatedCacheKey, null, TimeSpan.FromTicks(expiration.Ticks * _defaultDeprecatedCoef));
                             }
                         }
                     }

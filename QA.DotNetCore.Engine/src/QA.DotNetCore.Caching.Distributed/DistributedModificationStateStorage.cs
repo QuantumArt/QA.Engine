@@ -1,5 +1,6 @@
 using QA.DotNetCore.Caching.Interfaces;
 using System;
+using System.Collections.Generic;
 
 namespace QA.DotNetCore.Caching.Distributed;
 
@@ -17,7 +18,8 @@ public class DistributedModificationStateStorage : IModificationStateStorage
 
     public void Update(TransformModificationsDelegate transformStateHandler)
     {
-        var previousModifications = _cacheProvider.Get<CacheTagModification[]>(InvalidationStateKey)
+        var previousModifications = 
+            _cacheProvider.Get<IReadOnlyCollection<CacheTagModification>>(InvalidationStateKey)
              ?? Array.Empty<CacheTagModification>();
 
         var currentModifications = transformStateHandler(previousModifications);

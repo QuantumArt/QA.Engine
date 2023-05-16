@@ -77,12 +77,12 @@ namespace QA.DotNetCore.Caching
         public override void Add(object data, string key, string[] tags, TimeSpan expiration)
         {
             key = GetKey(key);
+            var deprecatedKey = GetDeprecatedKey(key);
+            var deprecatedExpiration = TimeSpan.FromTicks(expiration.Ticks * _defaultDeprecatedCoef);
             
-            _externalCache.Invalidate(key);
-
-            if (!_externalCache.TryAdd(data, key, tags, expiration))
+            if (!_externalCache.TryAdd(data, key, deprecatedKey, tags, expiration, deprecatedExpiration))
             {
-                _externalCache.TryAdd(String.Empty, key, tags, expiration);
+                _externalCache.TryAdd(String.Empty, key, deprecatedKey, tags, expiration, deprecatedExpiration);
             }
             base.Add(data, key, tags, expiration);
         }

@@ -11,7 +11,7 @@ namespace QA.DotNetCore.Caching.Interfaces
  
         IEnumerable<TResult> Get<TResult>(IEnumerable<string> keys);
 
-        bool TryAdd(object value, string key, string[] tags, TimeSpan expiration);
+        bool TryAdd(object value, string key, string deprecatedKey, string[] tags, TimeSpan expiration, TimeSpan deprecatedExpiration);
         
         /// <summary>
         /// Synchronous alternative of <see cref="InvalidateAsync(string, CancellationToken)"/>.
@@ -29,9 +29,9 @@ namespace QA.DotNetCore.Caching.Interfaces
         IEnumerable<bool> Exist(IEnumerable<string> keys, CancellationToken token = default);
 
         /// <summary>
-        /// Synchronous alternative of <see cref="SetAsync(string, IEnumerable{string}, TimeSpan, MemoryStream, CancellationToken)"/>.
+        /// Synchronous alternative of <see cref="SetAsync"/>.
         /// </summary>
-        void Set(string key, IEnumerable<string> tags, TimeSpan expiry, MemoryStream data, CancellationToken token = default);
+        void Set(string key, IEnumerable<string> tags, TimeSpan expiry, MemoryStream data, string deprecatedKey, TimeSpan deprecatedExpiry, CancellationToken token = default);
 
         /// <summary>
         /// Get cached data by the <paramref name="keys"/>.
@@ -72,8 +72,10 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// <param name="tags">Tags to link to key.</param>
         /// <param name="expiry">Data expiration time in cache.</param>
         /// <param name="dataStream">Data to cache.</param>
+        /// <param name="deprecatedKey"></param>
+        /// <param name="deprecatedExpiry"></param>
         /// <param name="token">Operation cancellation token</param>
         /// <returns>Caching task.</returns>
-        Task SetAsync(string key, IEnumerable<string> tags, TimeSpan expiry, MemoryStream dataStream, CancellationToken token = default);
+        Task SetAsync(string key, IEnumerable<string> tags, TimeSpan expiry, MemoryStream dataStream, string deprecatedKey, TimeSpan deprecatedExpiry, CancellationToken token = default);
     }
 }

@@ -13,10 +13,8 @@ namespace QA.DotNetCore.Caching.Configuration
             services.TryAddScoped<ICacheProvider>(svc => svc.GetRequiredService<VersionedCacheCoreProvider>());
             services.TryAddScoped<IMemoryCacheProvider>(svc => svc.GetRequiredService<VersionedCacheCoreProvider>());
             services.TryAddScoped<ICacheInvalidator>(svc => svc.GetRequiredService<VersionedCacheCoreProvider>());
-            
-            services.TryAddSingleton<ICacheKeyFactory, CacheKeyFactoryBase>();
-            services.TryAddSingleton<INodeIdentifier>(StandaloneNodeIdentifier.Instance);
-            services.TryAddSingleton<IModificationStateStorage, DefaultModificationStateStorage>();
+            services.TryAddScoped<IModificationStateStorage, DefaultModificationStateStorage>();
+            services.TryAddScoped<ICacheKeyFactory, CacheKeyFactoryBase>();
         }
     }
 }

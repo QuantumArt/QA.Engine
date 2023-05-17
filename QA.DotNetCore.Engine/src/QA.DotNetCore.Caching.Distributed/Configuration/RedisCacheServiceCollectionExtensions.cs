@@ -25,16 +25,16 @@ namespace QA.DotNetCore.Caching.Distributed
         private static IServiceCollection AddRedisCacheCore(this IServiceCollection services)
         {
             services.TryAddSingleton<IExternalCache, RedisCache>();
+            _ = services.AddSingleton(svc =>
+                svc.GetRequiredService<IOptionsMonitor<RedisCacheSettings>>().CurrentValue);
+            _ = services.AddScoped<ExternalCacheSettings>(svc => svc.GetRequiredService<RedisCacheSettings>());
 
             _ = services.AddScoped<DistributedMemoryCacheProvider>();
             _ = services.AddScoped<ICacheProvider>(svc => svc.GetRequiredService<DistributedMemoryCacheProvider>());
             _ = services.AddScoped<ICacheInvalidator>(svc => svc.GetRequiredService<DistributedMemoryCacheProvider>());
-            _ = services.AddSingleton(svc =>
-                svc.GetRequiredService<IOptionsMonitor<RedisCacheSettings>>().CurrentValue);
-            _ = services.AddSingleton<ExternalCacheSettings>(svc => svc.GetRequiredService<RedisCacheSettings>());
+            _ = services.AddScoped<ICacheKeyFactory, ExternalCacheKeyFactory>();
+            _ = services.AddScoped<IModificationStateStorage, DistributedModificationStateStorage>();
             
-            _ = services.AddSingleton<ICacheKeyFactory, ExternalCacheKeyFactory>();
-            _ = services.AddSingleton<IModificationStateStorage, DistributedModificationStateStorage>();
 
             _ = services.AddSingleton<IDistributedLockFactory>(provider =>
             {

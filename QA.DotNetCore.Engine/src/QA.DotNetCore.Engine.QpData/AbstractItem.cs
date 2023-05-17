@@ -99,7 +99,8 @@ namespace QA.DotNetCore.Engine.QpData
         internal int? VersionOfId { get; set; }
         internal string Discriminator { get; set; }
         internal bool Published { get; set; }
-        internal Lazy<AbstractItemExtensionCollection> LazyDetails { get; set; }
+        
+        internal Func<AbstractItemExtensionCollection> GetDetails { get; set; }
         
         internal AbstractItemExtensionCollection Details { get; set; }
         internal M2MRelations M2MRelations { get; set; }
@@ -110,12 +111,22 @@ namespace QA.DotNetCore.Engine.QpData
         /// </summary>
         public virtual T GetDetail<T>(string name, T defaultValue)
         {
-            object value = Details != null ? Details.Get(name, typeof(T)) : LazyDetails?.Value?.Get(name, typeof(T));
+            VerifyDetailsLoaded();
+            
+            object value = Details.Get(name, typeof(T));
             if (value == null)
             {
                 return defaultValue;
             }
             return (T)value;
+        }
+
+        protected void VerifyDetailsLoaded()
+        {
+            if (Details == null)
+            {
+                Details = GetDetails();
+            }
         }
 
         /// <summary>

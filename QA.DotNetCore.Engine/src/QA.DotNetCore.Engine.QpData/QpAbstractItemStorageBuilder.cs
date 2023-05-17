@@ -105,7 +105,7 @@ namespace QA.DotNetCore.Engine.QpData
                 {
                     if (lazyLoad)
                     {
-                        abstractItem.LazyDetails = new Lazy<AbstractItemExtensionCollection>(() =>
+                        abstractItem.GetDetails = () =>
                             BuildDetails(abstractItem,
                                 _context.GetExtensionData(extensionContentId),
                                 _context.ExtensionContents,
@@ -113,9 +113,7 @@ namespace QA.DotNetCore.Engine.QpData
                                 _context.ExtensionsM2MData,
                                 _context.LogId,
                                 true
-                            )
-                        );
-                        
+                            );
                     }
                     else
                     {

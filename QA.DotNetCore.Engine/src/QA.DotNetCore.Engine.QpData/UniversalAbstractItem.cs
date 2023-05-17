@@ -25,16 +25,16 @@ namespace QA.DotNetCore.Engine.QpData
         {
             get
             {
-                var detailsSource = Details ?? LazyDetails?.Value;
-
-                if (detailsSource == null)
+                VerifyDetailsLoaded();
+                
+                if (Details == null)
                 {
                     return new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
                 }
 
-                Dictionary<string, object> details = new(detailsSource.Count);
+                Dictionary<string, object> details = new(Details.Count);
 
-                foreach (var fieldName in detailsSource.Keys)
+                foreach (var fieldName in Details.Keys)
                 {
                     var fieldValue = GetUntypedDetail(fieldName);
                     if (fieldValue is not null)

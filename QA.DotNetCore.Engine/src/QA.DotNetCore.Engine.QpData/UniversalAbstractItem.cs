@@ -21,10 +21,8 @@ namespace QA.DotNetCore.Engine.QpData
 
         public string Type { get; private set; }
 
-        public IReadOnlyDictionary<string, object> UntypedFields
+        public IReadOnlyDictionary<string, object> GetUntypedFields()
         {
-            get
-            {
                 VerifyDetailsLoaded();
                 
                 if (Details == null)
@@ -44,7 +42,7 @@ namespace QA.DotNetCore.Engine.QpData
                 }
 
                 return details;
-            }
+
         }
 
         public ICollection<IAbstractItem> ChildItems { get { return Children; } }

@@ -79,8 +79,9 @@ namespace QA.DotNetCore.Caching.Distributed
         private static readonly JsonSerializer _serializer = JsonSerializer.CreateDefault(
             new JsonSerializerSettings
             {
+                ContractResolver = new WritablePropertiesOnlyResolver(),
                 NullValueHandling = NullValueHandling.Ignore,
-                DefaultValueHandling = DefaultValueHandling.Ignore,
+                DefaultValueHandling = DefaultValueHandling.Ignore
             });
 
         /// <summary>

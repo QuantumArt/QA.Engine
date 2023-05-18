@@ -21,7 +21,7 @@ namespace QA.DotNetCore.Caching.Interfaces
                 throw new ArgumentNullException(nameof(cacheProvider));
             }
 
-            cacheProvider.Add(data, key, Array.Empty<string>(), TimeSpan.FromSeconds(cacheTimeInSeconds));
+            cacheProvider.Add(data, key, Array.Empty<string>(), TimeSpan.FromSeconds(cacheTimeInSeconds), false);
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace QA.DotNetCore.Caching.Interfaces
                 throw new ArgumentNullException(nameof(cacheProvider));
             }
 
-            cacheProvider.Add(data, key, Array.Empty<string>(), expiration);
+            cacheProvider.Add(data, key, Array.Empty<string>(), expiration, false);
         }
 
         /// <summary>

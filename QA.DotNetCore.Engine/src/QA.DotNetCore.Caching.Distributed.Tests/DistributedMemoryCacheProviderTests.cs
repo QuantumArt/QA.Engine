@@ -58,7 +58,7 @@ public class DistributedMemoryCacheProviderTests
         TimeSpan expiration = TimeSpan.FromSeconds(5);
 
         // Act
-        provider.Add(value, key, tags, expiration);
+        provider.Add(value, key, tags, expiration, false);
 
         // Assert
         var result = provider.Get<int>(key);
@@ -82,10 +82,10 @@ public class DistributedMemoryCacheProviderTests
         string[] tags = Array.Empty<string>();
         TimeSpan expiration = TimeSpan.FromSeconds(5);
 
-        firstNodeProvider.Add(originalValue, key, tags, expiration);
+        firstNodeProvider.Add(originalValue, key, tags, expiration, false);
 
         // Act
-        secondNodeProvider.Add(changedValue, key, tags, expiration);
+        secondNodeProvider.Add(changedValue, key, tags, expiration, false);
 
         // Assert
         Assert.True(firstNodeProvider.IsSet(key));

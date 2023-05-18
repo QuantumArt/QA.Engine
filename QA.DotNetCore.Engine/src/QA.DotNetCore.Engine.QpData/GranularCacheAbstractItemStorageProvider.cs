@@ -22,7 +22,7 @@ namespace QA.DotNetCore.Engine.QpData
         private readonly QpSiteStructureBuildSettings _buildSettings;
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         private readonly ICacheProvider _cacheProvider;
-
+        
         public GranularCacheAbstractItemStorageProvider(
             IAbstractItemContextStorageBuilder builder,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
@@ -64,7 +64,8 @@ namespace QA.DotNetCore.Engine.QpData
                 tags.AllTags,
                 expiry,
                 () => BuildStorageWithCache(extensionsWithAbsItems, tags),
-                _buildSettings.CacheFetchTimeoutAbstractItemStorage);
+                _buildSettings.CacheFetchTimeoutAbstractItemStorage,
+                true);
         }
 
         /// <summary>

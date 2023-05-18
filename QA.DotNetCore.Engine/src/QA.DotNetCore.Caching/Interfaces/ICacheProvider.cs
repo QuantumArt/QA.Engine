@@ -33,12 +33,13 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// <param name="data">Данные</param>
         /// <param name="tags">Теги</param>
         /// <param name="expiration">Время кеширования (absolute expiration).</param>
-        void Add(object data, string key, string[] tags, TimeSpan expiration);
+        /// <param name="skipSerialization"></param>
+        void Add(object data, string key, string[] tags, TimeSpan expiration, bool skipSerialization);
 
         T GetOrAdd<T>(string cacheKey, string[] tags, TimeSpan expiration, Func<T> getData,
-            TimeSpan waitForCalculateTimeout = default);
+            TimeSpan waitForCalculateTimeout = default, bool skipSerialization = false);
 
         Task<T> GetOrAddAsync<T>(string cacheKey, string[] tags, TimeSpan expiration, Func<Task<T>> getData,
-            TimeSpan waitForCalculateTimeout = default);
+            TimeSpan waitForCalculateTimeout = default, bool skipSerialization = false);
     }
 }

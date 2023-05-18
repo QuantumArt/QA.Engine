@@ -101,7 +101,7 @@ namespace QA.DotNetCore.Caching
         }
 
         /// <inheritdoc/>
-        public virtual void Add(object data, string key, string[] tags, TimeSpan expiration)
+        public virtual void Add(object data, string key, string[] tags, TimeSpan expiration, bool skipSerialization)
         {
             key = GetKey(key);
             
@@ -175,7 +175,7 @@ namespace QA.DotNetCore.Caching
         T IMemoryCacheProvider.GetOrAdd<T>(string cacheKey, TimeSpan expiration, Func<T> getData, TimeSpan waitForCalculateTimeout) =>
             this.GetOrAdd(cacheKey, expiration, getData, waitForCalculateTimeout);
 
-  
+
         /// <summary>
         /// Потокобезопасно берет объект из кеша, если его там нет, то вызывает функцию для получения данных
         /// и кладет результат в кеш, маркируя его тегами. При устаревании кеша старый результат еще хранится какое-то время.
@@ -192,6 +192,7 @@ namespace QA.DotNetCore.Caching
         /// <param name="waitForCalculateTimeout">таймаут ожидания параллельными потоками события окончания
         /// вычисления <paramref name="getData"/> по истечении  которого им будет возвращён null.
         /// Актуален только когда в кеше нет устаревшего значения. По умолчанию используется 5 секунд.</param>
+        /// <param name="skipSerialization"></param>
         /// <exception cref="DeprecateCacheIsExpiredOrMissingException">Выбрасывается в том случае, если другой поток уже выполняет запрос
         /// на обновления данных в кеше, а старых данные ещё (или уже) нет</exception>
         public virtual T GetOrAdd<T>(
@@ -199,7 +200,8 @@ namespace QA.DotNetCore.Caching
             string[] tags,
             TimeSpan expiration,
             Func<T> getData,
-            TimeSpan waitForCalculateTimeout = default(TimeSpan))
+            TimeSpan waitForCalculateTimeout = default,
+            bool skipSerialization = false)
         {
             var deprecatedCacheKey = GetDeprecatedKey(cacheKey);
             var result = this.Get<T>(cacheKey);
@@ -239,7 +241,7 @@ namespace QA.DotNetCore.Caching
                             result = getData();
                             if (result != null)
                             {
-                                Add(result, cacheKey, tags, expiration);
+                                Add(result, cacheKey, tags, expiration, skipSerialization);
                             }
                         }
                     }
@@ -279,8 +281,9 @@ namespace QA.DotNetCore.Caching
         /// <param name="expiration">время жизни в кеше</param>
         /// <param name="getData">функция для получения данных, если объектов кеше нет. нужно использовать анонимный делегат</param>
         /// <param name="waitForCalculateTimeout">таймаут ожидания параллельными потоками события окончания
-        /// вычисления <paramref name="getData"/> по истечении  которого им будет возвращён null.
-        /// Актуален только когда в кеше нет устаревшего значения. По умолчанию используется 5 секунд.</param>
+        ///     вычисления <paramref name="getData"/> по истечении  которого им будет возвращён null.
+        ///     Актуален только когда в кеше нет устаревшего значения. По умолчанию используется 5 секунд.</param>
+        /// <param name="skipSerialization"></param>
         /// <exception cref="DeprecateCacheIsExpiredOrMissingException">Выбрасывается в том случае, если другой поток уже выполняет запрос
         /// на обновления данных в кеше, а старых данные ещё (или уже) нет</exception>
         public virtual async Task<T> GetOrAddAsync<T>(
@@ -288,7 +291,8 @@ namespace QA.DotNetCore.Caching
             string[] tags,
             TimeSpan expiration,
             Func<Task<T>> getData,
-            TimeSpan waitForCalculateTimeout = default)
+            TimeSpan waitForCalculateTimeout = default,
+            bool skipSerialization = false)
         {
             var deprecatedCacheKey = GetDeprecatedKey(cacheKey);
 
@@ -333,7 +337,7 @@ namespace QA.DotNetCore.Caching
                             result = await getData().ConfigureAwait(false);
                             if (result != null)
                             {
-                                Add(result, cacheKey, tags, expiration);
+                                Add(result, cacheKey, tags, expiration, skipSerialization);
                             }
                         }
                     }

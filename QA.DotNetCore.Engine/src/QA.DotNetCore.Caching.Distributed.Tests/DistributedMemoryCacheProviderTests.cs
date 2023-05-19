@@ -233,18 +233,19 @@ public class DistributedMemoryCacheProviderTests
                 var key2 = GetKey(sharedKey + "__Deprecated");
                 var db = connection.GetDatabase();
                 _ = await db.StringSetAsync(key2 , deprecatedData, _existingCacheTtl);
-            } 
+            }
 
+            var lockFactory = new MemoryLockFactory();
             var lockCacheTask = Task.Factory.StartNew(
                 () =>
                 {
-                    var provider = CreateProvider(CreateRedisCache());
+                    var provider = CreateProvider(CreateRedisCache(), lockFactory);
                     _ = provider.GetOrAdd(sharedKey, tags, expiry, waitingDataFactory, _lockTimeout);
                 });
 
             Assert.True(dataObtainingStartedEvent.WaitOne(eventTimeout));
 
-            var provider = CreateProvider(CreateRedisCache());
+            var provider = CreateProvider(CreateRedisCache(), lockFactory);
 
             // Act
             var value = provider.GetOrAdd(
@@ -289,14 +290,16 @@ public class DistributedMemoryCacheProviderTests
                 _ = await connection.GetDatabase().KeyDeleteAsync(GetKey(sharedKey));
             }
 
+            var lockFactory = new MemoryLockFactory();
+
             var lockCacheKeyTask = Task.Factory.StartNew(
                 () =>
                 {
-                    var provider = CreateProvider(CreateRedisCacheWithoutOffsets());
+                    var provider = CreateProvider(CreateRedisCacheWithoutOffsets(), lockFactory);
                     _ = provider.GetOrAdd(sharedKey, tags, expiry, waitingDataFactory, _lockTimeout);
                 });
 
-            var provider = CreateProvider(CreateRedisCacheWithoutOffsets());
+            var provider = CreateProvider(CreateRedisCacheWithoutOffsets(), lockFactory);
             Assert.True(dataObtainingStartedEvent.WaitOne(eventTimeout));
 
             // Assert
@@ -580,7 +583,7 @@ public class DistributedMemoryCacheProviderTests
     }
 
     private DistributedMemoryCacheProvider CreateProvider(
-        IExternalCache cache)
+        IExternalCache cache, ILockFactory? lockFactory = null)
         
     {
         var memoryCache = CreateMemoryCache();
@@ -589,7 +592,7 @@ public class DistributedMemoryCacheProviderTests
             memoryCache, 
             cache, 
             new ExternalCacheKeyFactory(new ExternalCacheSettings() { AppName = _appName, InstanceName = _instanceName}),
-            new MemoryLockFactory(),
+            lockFactory ?? new MemoryLockFactory(),
             LoggerUtils.GetLogger<DistributedMemoryCacheProvider>(_output));
     }
     

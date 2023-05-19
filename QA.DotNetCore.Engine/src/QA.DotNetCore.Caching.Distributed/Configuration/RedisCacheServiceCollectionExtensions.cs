@@ -34,6 +34,7 @@ namespace QA.DotNetCore.Caching.Distributed.Configuration
             _ = services.AddScoped<ICacheProvider>(svc => svc.GetRequiredService<DistributedMemoryCacheProvider>());
             _ = services.AddScoped<ICacheInvalidator>(svc => svc.GetRequiredService<DistributedMemoryCacheProvider>());
             _ = services.AddScoped<ICacheKeyFactory, ExternalCacheKeyFactory>();
+            _ = services.AddScoped<ILockFactory, DistributedLockFactory>();
 
             _ = services.AddSingleton<IDistributedLockFactory>(provider =>
             {

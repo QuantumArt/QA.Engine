@@ -15,6 +15,7 @@ namespace QA.DotNetCore.Caching.Configuration
             services.TryAddScoped<ICacheInvalidator>(svc => svc.GetRequiredService<VersionedCacheCoreProvider>());
             services.TryAddScoped<IModificationStateStorage, DefaultModificationStateStorage>();
             services.TryAddScoped<ICacheKeyFactory, CacheKeyFactoryBase>();
+            services.TryAddSingleton<ILockFactory, MemoryLockFactory>();
         }
     }
 }

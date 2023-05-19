@@ -97,7 +97,6 @@ namespace QA.DotNetCore.Caching
             key = GetKey(key);
 
             _cache.Remove(key);
-            _cache.Remove(GetDeprecatedKey(key));
         }
 
         /// <inheritdoc/>

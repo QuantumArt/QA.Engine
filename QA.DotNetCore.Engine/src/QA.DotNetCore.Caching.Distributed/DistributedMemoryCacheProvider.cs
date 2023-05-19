@@ -70,7 +70,7 @@ namespace QA.DotNetCore.Caching
             var results = localResults.Zip(externalResults).Zip(keys)
                 .Select(n => new { HasLocal = n.First.First, HasExternal = n.First.Second, Key = n.Second}).ToArray();
             var extKeys = results.Where(n => n.HasExternal && !n.HasLocal).Select(n => n.Key).ToArray();
-            var dict = extKeys.Distinct().Zip(_externalCache.Get<TResult>(extKeys)).ToDictionary(n => n.First, m=> m.Second);
+            var externalResultsDict = extKeys.Distinct().Zip(_externalCache.Get<TResult>(extKeys)).ToDictionary(n => n.First, m=> m.Second);
             foreach (var result in results)
             {
                 if (!result.HasExternal)
@@ -83,7 +83,9 @@ namespace QA.DotNetCore.Caching
                 }
                 else
                 {
-                    yield return dict[result.Key];
+                    var externalResult = externalResultsDict[result.Key];  
+                    _cache.Set(result.Key, externalResult);
+                    yield return externalResult;
                 }
             }
         }

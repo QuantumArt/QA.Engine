@@ -53,6 +53,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
         private readonly VersionedCacheCoreProvider _cacheProvider = new VersionedCacheCoreProvider(
             new MemoryCache(new MemoryCacheOptions()),
             new CacheKeyFactoryBase(),
+            new MemoryLockFactory(),
             Mock.Of<ILogger>());
 
         [Fact]

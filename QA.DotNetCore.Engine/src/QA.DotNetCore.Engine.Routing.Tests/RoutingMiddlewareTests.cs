@@ -200,6 +200,7 @@ namespace QA.DotNetCore.Engine.Routing.Tests
             var cacheProvider = new VersionedCacheCoreProvider(
                 new MemoryCache(new MemoryCacheOptions()),
                 new CacheKeyFactoryBase(),
+                new MemoryLockFactory(),                
                 Mock.Of<ILogger>());
             var cacheSettings = new QpSiteStructureCacheSettings
             {

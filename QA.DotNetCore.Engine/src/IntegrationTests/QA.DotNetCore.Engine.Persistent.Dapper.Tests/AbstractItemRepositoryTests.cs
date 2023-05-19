@@ -25,7 +25,12 @@ public class AbstractItemRepositoryTests
         var serviceProvider = Global.CreateMockServiceProviderWithConnection();
         var settings = TestUtils.CreateDefaultCacheSettings();
         var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
-        var memoryCacheProvider = new VersionedCacheCoreProvider(memoryCache, new CacheKeyFactoryBase(), Mock.Of<ILogger>());
+        var memoryCacheProvider = new VersionedCacheCoreProvider(
+            memoryCache, 
+            new CacheKeyFactoryBase(),             
+            new MemoryLockFactory(), 
+            Mock.Of<ILogger>()
+        );
         _metaRepo = new MetaInfoRepository(serviceProvider, memoryCacheProvider, settings);
         var sqlAnalyzer = new NetNameQueryAnalyzer(_metaRepo);
         _repository = new AbstractItemRepository(serviceProvider, sqlAnalyzer, new StubNamingProvider(), memoryCacheProvider, settings);

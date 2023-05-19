@@ -21,6 +21,7 @@ public class MetaInfoRepositoryTests
         var cacheProvider = new VersionedCacheCoreProvider(
             new MemoryCache(Options.Create(new MemoryCacheOptions())),
             new CacheKeyFactoryBase(),
+            new MemoryLockFactory(),
             Mock.Of<ILogger>());
 
         _repository = new MetaInfoRepository(serviceProvider, cacheProvider, settings);

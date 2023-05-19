@@ -589,6 +589,7 @@ public class DistributedMemoryCacheProviderTests
             memoryCache, 
             cache, 
             new ExternalCacheKeyFactory(new ExternalCacheSettings() { AppName = _appName, InstanceName = _instanceName}),
+            new MemoryLockFactory(),
             LoggerUtils.GetLogger<DistributedMemoryCacheProvider>(_output));
     }
     

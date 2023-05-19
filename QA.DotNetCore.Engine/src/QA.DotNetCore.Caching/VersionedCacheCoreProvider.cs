@@ -19,25 +19,26 @@ namespace QA.DotNetCore.Caching
     {
         protected readonly IMemoryCache _cache;
         protected readonly ICacheKeyFactory _keyFactory;
+        protected readonly ILockFactory _lockFactory;
         protected readonly TimeSpan _defaultWaitForCalculateTimeout = TimeSpan.FromSeconds(5);
         protected readonly int _defaultDeprecatedCoef = 2;
         private readonly ILogger _logger;
-        private static readonly ConcurrentDictionary<string, object> _lockers = new();
-        private static readonly ConcurrentDictionary<string, SemaphoreSlim> _semaphores = new();
 
         public VersionedCacheCoreProvider(
             IMemoryCache cache, 
             ICacheKeyFactory keyFactory,
+            ILockFactory lockFactory,
             ILogger logger
         )
         {
             _cache = cache;
             _logger = logger;
+            _lockFactory = lockFactory;
             _keyFactory = keyFactory;
         }
 
-        public VersionedCacheCoreProvider(IMemoryCache cache, ICacheKeyFactory keyFactory, ILogger<VersionedCacheCoreProvider> genericLogger)
-            : this(cache, keyFactory, logger: genericLogger)
+        public VersionedCacheCoreProvider(IMemoryCache cache, ICacheKeyFactory keyFactory, ILockFactory lockFactory, ILogger<VersionedCacheCoreProvider> genericLogger)
+            : this(cache, keyFactory, lockFactory, logger: genericLogger)
         {
         }
 
@@ -209,7 +210,7 @@ namespace QA.DotNetCore.Caching
             if (result == null)
             {
                 bool lockTaken = false;
-                var locker = _lockers.GetOrAdd(cacheKey, new object());
+                var locker = _lockFactory.CreateLock(cacheKey);
                 try
                 {
                     var deprecatedResult = this.Get<T>(deprecatedCacheKey);
@@ -219,7 +220,7 @@ namespace QA.DotNetCore.Caching
                         //проверим, взял ли блокировку по этому кешу какой-то поток (т.е. вычисляется ли уже новое значение).
                         //т.к. найдено deprecated значение, то не будем ждать освобождения блокировки, если она будет
                         //потому что нам и так есть что вернуть
-                        Monitor.TryEnter(locker, ref lockTaken);
+                        lockTaken = locker.Acquire();
                     }
                     else
                     {
@@ -231,7 +232,7 @@ namespace QA.DotNetCore.Caching
                             waitForCalculateTimeout = _defaultWaitForCalculateTimeout;
                         }
 
-                        Monitor.TryEnter(locker, (int)waitForCalculateTimeout.TotalMilliseconds, ref lockTaken);
+                        lockTaken = locker.Acquire(waitForCalculateTimeout);
                     }
 
                     if (lockTaken)
@@ -260,7 +261,7 @@ namespace QA.DotNetCore.Caching
                 {
                     if (lockTaken)
                     {
-                        Monitor.Exit(locker);
+                        locker.Release();
                     }
                 }
             }
@@ -300,7 +301,7 @@ namespace QA.DotNetCore.Caching
             var result = this.Get<T>(cacheKey);
             if (result == null)
             {
-                SemaphoreSlim locker = _semaphores.GetOrAdd(cacheKey, _ => new SemaphoreSlim(1));
+                var locker = _lockFactory.CreateAsyncLock(cacheKey);
                 bool lockTaken = false;
 
                 try
@@ -312,8 +313,7 @@ namespace QA.DotNetCore.Caching
                         //проверим, взял ли блокировку по этому кешу какой-то поток (т.е. вычисляется ли уже новое значение).
                         //т.к. найдено deprecated значение, то не будем ждать освобождения блокировки, если она будет
                         //потому что нам и так есть что вернуть
-                        lockTaken = await locker.WaitAsync(0)
-                            .ConfigureAwait(false);
+                        lockTaken = await locker.AcquireAsync().ConfigureAwait(false);
                     }
                     else
                     {
@@ -325,9 +325,7 @@ namespace QA.DotNetCore.Caching
                             waitForCalculateTimeout = _defaultWaitForCalculateTimeout;
                         }
 
-                        lockTaken = await locker
-                            .WaitAsync(waitForCalculateTimeout)
-                            .ConfigureAwait(false);
+                        lockTaken = await locker.AcquireAsync(waitForCalculateTimeout).ConfigureAwait(false);
                     }
 
                     if (lockTaken)
@@ -356,7 +354,7 @@ namespace QA.DotNetCore.Caching
                 {
                     if (lockTaken)
                     {
-                        locker.Release();
+                        await locker.ReleaseAsync();
                     }
                 }
             }

@@ -21,8 +21,9 @@ namespace QA.DotNetCore.Caching
             IMemoryCache cache,
             IExternalCache externalCache,
             ICacheKeyFactory keyFactory,
+            ILockFactory lockFactory,
             ILogger<DistributedMemoryCacheProvider> logger)
-            : base(cache, keyFactory, logger)
+            : base(cache, keyFactory, lockFactory, logger)
         {
             using var timeoutTokenSource = new CancellationTokenSource(_getUniqueIdTimout);
 

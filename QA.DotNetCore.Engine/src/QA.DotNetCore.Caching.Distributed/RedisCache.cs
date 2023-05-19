@@ -1,10 +1,8 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QA.DotNetCore.Caching.Interfaces;
-using RedLockNet;
 using StackExchange.Redis;
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -14,7 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.GZip;
 using Newtonsoft.Json;
-using QA.DotNetCore.Caching.Helpers.Pipes;
+using QA.DotNetCore.Caching.Distributed.Internals;
 
 namespace QA.DotNetCore.Caching.Distributed
 {

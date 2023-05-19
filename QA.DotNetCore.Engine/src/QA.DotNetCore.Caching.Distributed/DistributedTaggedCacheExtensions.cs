@@ -1,11 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
+using QA.DotNetCore.Caching.Interfaces;
 
-namespace QA.DotNetCore.Caching.Interfaces
+namespace QA.DotNetCore.Caching.Distributed
 {
     public static class DistributedTaggedCacheExtensions
     {

@@ -4,7 +4,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace QA.DotNetCore.Caching.Interfaces
+namespace QA.DotNetCore.Caching.Distributed
 {
     public interface IExternalCache : IDisposable
     {

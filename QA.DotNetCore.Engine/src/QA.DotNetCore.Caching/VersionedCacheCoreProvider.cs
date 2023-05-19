@@ -174,6 +174,8 @@ namespace QA.DotNetCore.Caching
         T IMemoryCacheProvider.GetOrAdd<T>(string cacheKey, TimeSpan expiration, Func<T> getData, TimeSpan waitForCalculateTimeout) =>
             this.GetOrAdd(cacheKey, expiration, getData, waitForCalculateTimeout);
 
+        public T GetOrAdd<T>(string cacheKey, TimeSpan expiration, Func<T> getData, TimeSpan waitForCalculateTimeout = default) =>
+            GetOrAdd(cacheKey, Array.Empty<string>(), expiration, getData, waitForCalculateTimeout);
 
         /// <summary>
         /// Потокобезопасно берет объект из кеша, если его там нет, то вызывает функцию для получения данных

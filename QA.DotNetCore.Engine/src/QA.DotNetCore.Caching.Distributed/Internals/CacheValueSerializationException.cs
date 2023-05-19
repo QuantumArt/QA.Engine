@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace QA.DotNetCore.Caching.Distributed
+namespace QA.DotNetCore.Caching.Distributed.Internals
 {
     [Serializable]
     internal class CacheDataSerializationException<TValue> : ApplicationException

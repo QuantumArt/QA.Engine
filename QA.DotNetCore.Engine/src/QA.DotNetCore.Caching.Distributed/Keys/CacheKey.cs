@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace QA.DotNetCore.Caching.Distributed
+namespace QA.DotNetCore.Caching.Distributed.Keys
 {
     public class CacheKey : IEquatable<CacheKey>
     {

@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using QA.DotNetCore.Caching.Interfaces;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
@@ -8,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using QA.DotNetCore.Caching.Helpers.Pipes;
+using QA.DotNetCore.Caching.Distributed.Internals;
 
 namespace QA.DotNetCore.Caching.Distributed
 {

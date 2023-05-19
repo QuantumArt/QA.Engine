@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using QA.DotNetCore.Caching.Distributed;
 
 namespace QA.DotNetCore.Caching
 {

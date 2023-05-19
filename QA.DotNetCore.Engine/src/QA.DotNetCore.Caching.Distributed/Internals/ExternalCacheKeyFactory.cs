@@ -1,6 +1,6 @@
-using QA.DotNetCore.Caching.Interfaces;
+using QA.DotNetCore.Caching.Distributed.Keys;
 
-namespace QA.DotNetCore.Caching.Distributed
+namespace QA.DotNetCore.Caching.Distributed.Internals
 {
     public class ExternalCacheKeyFactory : CacheKeyFactoryBase
     {

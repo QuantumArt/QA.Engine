@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 
-namespace QA.DotNetCore.Caching.Interfaces
+namespace QA.DotNetCore.Caching
 {
 
     public class CacheInfo<TId> : IEquatable<CacheInfo<TId>>

@@ -14,6 +14,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.GZip;
 using Newtonsoft.Json;
+using QA.DotNetCore.Caching.Distributed.Internals;
+using QA.DotNetCore.Caching.Distributed.Keys;
 using QA.DotNetCore.Caching.Exceptions;
 using StackExchange.Redis;
 using Tests.CommonUtils.Helpers;

@@ -1,18 +1,19 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System;
+using System.Linq;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QA.DotNetCore.Caching.Configuration;
+using QA.DotNetCore.Caching.Distributed.Internals;
 using QA.DotNetCore.Caching.Interfaces;
 using RedLockNet;
 using RedLockNet.SERedis;
 using RedLockNet.SERedis.Configuration;
 using StackExchange.Redis;
-using System;
-using System.Linq;
 
-namespace QA.DotNetCore.Caching.Distributed
+namespace QA.DotNetCore.Caching.Distributed.Configuration
 {
     public static class RedisCacheServiceCollectionExtensions
     {
@@ -33,8 +34,6 @@ namespace QA.DotNetCore.Caching.Distributed
             _ = services.AddScoped<ICacheProvider>(svc => svc.GetRequiredService<DistributedMemoryCacheProvider>());
             _ = services.AddScoped<ICacheInvalidator>(svc => svc.GetRequiredService<DistributedMemoryCacheProvider>());
             _ = services.AddScoped<ICacheKeyFactory, ExternalCacheKeyFactory>();
-            _ = services.AddScoped<IModificationStateStorage, DistributedModificationStateStorage>();
-            
 
             _ = services.AddSingleton<IDistributedLockFactory>(provider =>
             {

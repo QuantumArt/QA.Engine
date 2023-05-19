@@ -4,7 +4,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace QA.DotNetCore.Caching.Distributed;
+namespace QA.DotNetCore.Caching.Distributed.Internals;
 
 public class WritablePropertiesOnlyResolver : DefaultContractResolver
 {

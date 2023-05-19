@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using QA.DotNetCore.Caching.Distributed.Keys;
 using Tests.CommonUtils.Helpers;
 using Tests.CommonUtils.Xunit.Traits;
 using Xunit;

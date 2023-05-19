@@ -6,15 +6,15 @@ using RedLockNet.SERedis;
 
 namespace QA.DotNetCore.Caching.Distributed;
 
-public class DistributedLock : ILock, IAsyncLock
+public class ExternalLock : ILock, IAsyncLock
 {
-    private readonly RedLockFactory _factory;
+    private readonly IDistributedLockFactory _factory;
     private readonly string _key;
     private readonly TimeSpan _expire = TimeSpan.FromMinutes(2);
     private readonly TimeSpan _retry = TimeSpan.FromSeconds(1);
     private IRedLock _lock;
     
-    public DistributedLock(string key, RedLockFactory factory)
+    public ExternalLock(string key, IDistributedLockFactory factory)
     {
         _key = key;
         _factory = factory;

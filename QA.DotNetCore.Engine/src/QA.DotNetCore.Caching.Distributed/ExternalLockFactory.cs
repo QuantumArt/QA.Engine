@@ -7,13 +7,15 @@ namespace QA.DotNetCore.Caching.Distributed;
 public class ExternalLockFactory : ILockFactory
 {
     private readonly IDistributedLockFactory _lockFactory;
+    private readonly ExternalCacheSettings _settings;
     
-    public ExternalLockFactory(IDistributedLockFactory lockFactory)
+    public ExternalLockFactory(IDistributedLockFactory lockFactory, ExternalCacheSettings settings)
     {
         _lockFactory = lockFactory;
+        _settings = settings;
     }
 
-    public ILock CreateLock(string key) => new ExternalLock(key, _lockFactory);
+    public ILock CreateLock(string key) => new ExternalLock(key, _lockFactory, _settings);
 
-    public IAsyncLock CreateAsyncLock(string key) => new ExternalLock(key, _lockFactory);
+    public IAsyncLock CreateAsyncLock(string key) => new ExternalLock(key, _lockFactory, _settings);
 }

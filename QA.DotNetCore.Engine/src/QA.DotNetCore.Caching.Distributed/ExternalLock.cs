@@ -10,14 +10,16 @@ public class ExternalLock : ILock, IAsyncLock
 {
     private readonly IDistributedLockFactory _factory;
     private readonly string _key;
-    private readonly TimeSpan _expire = TimeSpan.FromMinutes(2);
-    private readonly TimeSpan _retry = TimeSpan.FromSeconds(1);
+    private readonly TimeSpan _expire;
+    private readonly TimeSpan _retry;
     private IRedLock _lock;
     
-    public ExternalLock(string key, IDistributedLockFactory factory)
+    public ExternalLock(string key, IDistributedLockFactory factory, ExternalCacheSettings settings)
     {
         _key = key;
         _factory = factory;
+        _expire = settings.LockExpireTimeout;
+        _retry = settings.LockRetryInterval;
     }
     
     public bool Acquire()

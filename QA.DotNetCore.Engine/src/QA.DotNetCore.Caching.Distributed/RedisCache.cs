@@ -212,9 +212,6 @@ namespace QA.DotNetCore.Caching.Distributed
             _cache.ScriptEvaluate(InvalidateTagScript, new[] {tagKey});
        }
 
-
-
-  
         public void Set(
             string key,
             IEnumerable<string> tags,

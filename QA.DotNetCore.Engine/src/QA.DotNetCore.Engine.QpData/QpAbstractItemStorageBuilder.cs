@@ -530,10 +530,7 @@ namespace QA.DotNetCore.Engine.QpData
                 extensionsM2MData.TryGetValue(extensionContentItemId.Value, out var relations))
             {
                 item.M2MRelations.Merge(relations);
-                if (m2mFields.TryGetValue(extensionContentItemId.Value, out var map))
-                {
-                    item.M2MFieldNameMapToLinkIds = map;
-                }
+                item.M2MFieldNameMapToLinkIds = m2mFields[extensionContentId];
             }
 
             return details;

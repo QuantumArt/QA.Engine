@@ -207,8 +207,8 @@ JOIN {idListTable} on Id = link.item_id";
             command.CommandText = query;
             command.Parameters.Add(SqlQuerySyntaxHelper.GetIdsDatatableParam("@Ids", itemIds, UnitOfWork.DatabaseType));
             command.Transaction = transaction;
-
-            return ReadM2MRelations(command.ExecuteReader());
+            using var reader = command.ExecuteReader();
+            return ReadM2MRelations(reader);
         }
         
         public IDictionary<int, M2MRelations> GetManyToManyDataByContents(
@@ -232,9 +232,8 @@ JOIN {idListTableName} on Id = e.CONTENT_ID";
             command.CommandText = query;
             command.Transaction = transaction;
             command.Parameters.Add(SqlQuerySyntaxHelper.GetIdsDatatableParam("@Ids", contentIds, UnitOfWork.DatabaseType));
-
-
-            return ReadM2MRelations(command.ExecuteReader());
+            using var reader = command.ExecuteReader();
+            return ReadM2MRelations(reader);
         }
 
         private static Dictionary<int, M2MRelations> ReadM2MRelations(IDataReader reader)

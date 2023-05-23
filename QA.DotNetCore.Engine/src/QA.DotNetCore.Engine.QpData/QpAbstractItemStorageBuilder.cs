@@ -111,6 +111,7 @@ namespace QA.DotNetCore.Engine.QpData
                                 _context.ExtensionContents,
                                 _context.BaseContent,
                                 _context.ExtensionsM2MData,
+                                _context.M2MFields,
                                 _context.LogId,
                                 true
                             );
@@ -122,6 +123,7 @@ namespace QA.DotNetCore.Engine.QpData
                                 _context.ExtensionContents,
                                 _context.BaseContent,
                                 _context.ExtensionsM2MData,
+                                _context.M2MFields,
                                 _context.LogId,
                                 false
                         );
@@ -236,7 +238,8 @@ namespace QA.DotNetCore.Engine.QpData
             };
 
             _context.NeedLoadM2MInAbstractItem =
-                _buildSettings.LoadAbstractItemFieldsToDetailsCollection;
+                _buildSettings.LoadAbstractItemFieldsToDetailsCollection
+                && _context.BaseContent.ContentAttributes.Any(ca => ca.IsManyToManyField);
 
             if (extensions != null)
             {
@@ -422,6 +425,7 @@ namespace QA.DotNetCore.Engine.QpData
             IDictionary<int, ContentPersistentData> extensionContents,
             ContentPersistentData baseContent,
             IDictionary<int, M2MRelations> extensionsM2MData,
+            IDictionary<int, Dictionary<string, int>> m2mFields,
             string logId,
             bool createScope
             )
@@ -434,7 +438,7 @@ namespace QA.DotNetCore.Engine.QpData
             var logger = provider.GetRequiredService<ILogger<QpAbstractItemStorageBuilder>>();
 
             return BuildDetails(qpUrlResolver, buildSettings, logger,
-                item, extensionData, extensionContents, baseContent, extensionsM2MData, logId);
+                item, extensionData, extensionContents, baseContent, extensionsM2MData, m2mFields, logId);
         }
 
         /// <summary>
@@ -459,6 +463,7 @@ namespace QA.DotNetCore.Engine.QpData
             IDictionary<int, ContentPersistentData> extensionContents,
             ContentPersistentData baseContent,
             IDictionary<int, M2MRelations> extensionsM2MData,
+            IDictionary<int, Dictionary<string, int>> m2mFields,            
             string logId)
         {
             var extensionContentId = item.ExtensionId.GetValueOrDefault(0);
@@ -525,6 +530,7 @@ namespace QA.DotNetCore.Engine.QpData
                 extensionsM2MData.TryGetValue(extensionContentItemId.Value, out var relations))
             {
                 item.M2MRelations.Merge(relations);
+                item.M2MFieldNameMapToLinkIds = m2mFields[extensionContentItemId.Value];
             }
 
             return details;

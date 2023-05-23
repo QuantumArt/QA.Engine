@@ -236,8 +236,7 @@ namespace QA.DotNetCore.Engine.QpData
             };
 
             _context.NeedLoadM2MInAbstractItem =
-                _buildSettings.LoadAbstractItemFieldsToDetailsCollection
-                && _context.BaseContent.ContentAttributes.Any(ca => ca.IsManyToManyField);
+                _buildSettings.LoadAbstractItemFieldsToDetailsCollection;
 
             if (extensions != null)
             {

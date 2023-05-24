@@ -86,7 +86,11 @@ namespace QA.DotNetCore.Caching
                 else
                 {
                     var externalResult = externalResultsDict[result.Key];  
-                    _cache.Set(result.Key, externalResult);
+                    _cache.Set(result.Key, externalResult, new MemoryCacheEntryOptions()
+                    {
+                        Size = 1,
+                        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+                    });
                     yield return externalResult;
                 }
             }

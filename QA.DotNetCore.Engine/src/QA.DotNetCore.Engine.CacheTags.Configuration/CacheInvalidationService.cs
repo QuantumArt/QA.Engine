@@ -16,19 +16,18 @@ namespace QA.DotNetCore.Engine.CacheTags
     {
         private readonly ILogger<CacheInvalidationService> _logger;
         private readonly TimeSpan _interval;
-        private readonly IServiceScopeFactory _factory;
-        private readonly ICacheTagWatcher _watcher;
         private readonly Timer _timer;
+        private readonly IServiceProvider _provider;
+        private readonly ICacheTagWatcher _watcher;
 
         public CacheInvalidationService(
             ILogger<CacheInvalidationService> logger,
             CacheTagsRegistrationConfigurator cfg,
-            IServiceScopeFactory factory, 
-            ICacheTagWatcher watcher)
+            IServiceScopeFactory factory)
         {
             _logger = logger;
-            _factory = factory;
-            _watcher = watcher;
+            _provider = factory.CreateScope().ServiceProvider;
+            _watcher = _provider.GetRequiredService<ICacheTagWatcher>();
             _interval = cfg.TimerInterval;
             _timer = new Timer(
                 OnTick,
@@ -40,7 +39,7 @@ namespace QA.DotNetCore.Engine.CacheTags
         private void OnTick(object? state)
         {
             _logger.LogDebug("Cache invalidation started");
-            _watcher.TrackChanges(_factory.CreateScope().ServiceProvider);
+            _watcher.TrackChanges(_provider);
             _logger.LogDebug("Cache invalidation completed");
         }
 

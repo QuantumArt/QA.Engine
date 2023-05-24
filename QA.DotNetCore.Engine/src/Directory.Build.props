@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <LangVersion>10.0</LangVersion>
-    <Version>3.2.0-beta88</Version>
+    <Version>3.2.0-beta89</Version>
     <AssemblyVersion>3.2.0.0</AssemblyVersion>
     <FileVersion>3.2.0.0</FileVersion>
     <IncludeSymbols>true</IncludeSymbols>

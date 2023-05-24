@@ -26,12 +26,12 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
             services.TryAddSingleton(provider => provider.GetRequiredService<IOptions<CacheTagsRegistrationConfigurator>>().Value);
 
             services.TryAddMemoryCacheServices();
+            services.TryAddScoped<ICacheTagWatcher, CacheTagWatcher>();
             services.TryAddScoped<IQpContentCacheTagNamingProvider, DefaultQpContentCacheTagNamingProvider>();
             services.TryAddScoped<QpContentCacheTracker>();
             services.TryAddScoped<IContentModificationRepository, ContentModificationRepository>();
-
-            services.TryAddSingleton<ICacheTagWatcher, CacheTagWatcher>();
             services.TryAddSingleton<ICacheTrackersAccessor, CacheTrackersAccessor>();
+
             services.TryAddSingleton(provider => provider.GetRequiredService<IOptions<ServiceSetConfigurator<ICacheTagTracker>>>().Value);
 
             return new CacheTagConfigurationBuilder(services);

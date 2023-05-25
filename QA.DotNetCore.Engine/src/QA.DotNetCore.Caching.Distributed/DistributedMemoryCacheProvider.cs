@@ -99,6 +99,8 @@ namespace QA.DotNetCore.Caching
         public override void Add(object data, string key, string[] tags, TimeSpan expiration, bool skipSerialization)
         {
             key = GetKey(key);
+            tags = tags.Select(GetTag).ToArray();
+            
             var deprecatedKey = GetDeprecatedKey(key);
             var deprecatedExpiration = TimeSpan.FromTicks(expiration.Ticks * _defaultDeprecatedCoef);
             

@@ -306,8 +306,8 @@ namespace QA.DotNetCore.Caching.Distributed
 
             if (!string.IsNullOrEmpty(deprecatedKey) && deprecatedExpiry != default)
             {
-                transaction.KeyCopyAsync(key, deprecatedKey);
-                transaction.KeyExpireAsync(deprecatedKey, deprecatedExpiry);
+                operations.Add(transaction.KeyCopyAsync(key, deprecatedKey, replace: true));
+                operations.Add(transaction.KeyExpireAsync(deprecatedKey, deprecatedExpiry));
             }
 
             RedisValue tagExpiry = (long)GetTagExpiry(expiry).TotalMilliseconds;

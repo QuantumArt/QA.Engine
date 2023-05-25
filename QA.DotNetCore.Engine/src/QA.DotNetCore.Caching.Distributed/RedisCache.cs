@@ -79,7 +79,8 @@ namespace QA.DotNetCore.Caching.Distributed
             {
                 ContractResolver = new WritablePropertiesOnlyResolver(),
                 NullValueHandling = NullValueHandling.Ignore,
-                DefaultValueHandling = DefaultValueHandling.Ignore
+                DefaultValueHandling = DefaultValueHandling.Ignore,
+                TypeNameHandling = TypeNameHandling.Auto
             });
 
         /// <summary>
@@ -421,7 +422,7 @@ namespace QA.DotNetCore.Caching.Distributed
                 using var writer = new StreamWriter(compressedStream, Encoding.UTF8, bufferSize: -1, leaveOpen: true);
                 using var jsonWriter = new JsonTextWriter(writer);
 
-                _serializer.Serialize(jsonWriter, data);
+                _serializer.Serialize(jsonWriter, data, typeof(T));
                 jsonWriter.Flush();
                 compressedStream.Finish();
 

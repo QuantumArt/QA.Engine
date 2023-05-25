@@ -14,7 +14,7 @@ namespace QA.DotNetCore.Engine.Widgets.Tests.FakePagesAndWidgets
             DeniedUrlPatterns = deniedUrlPatterns;
         }
 
-        public override string ZoneName { get; protected set; }
+        public override string ZoneName { get; set; }
 
         public override string[] AllowedUrlPatterns { get; }
 

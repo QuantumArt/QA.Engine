@@ -91,7 +91,7 @@ namespace QA.DotNetCore.Engine.QpData
             return this;
         }
 
-        internal IAbstractItem VersionOf { get; private set; }
+        internal IAbstractItem VersionOf { get; set; }
         internal ICollection<IAbstractItem> Children { get; set; }
         internal int? RawSortOrder { get; set; }
         internal int? ExtensionId { get; set; }

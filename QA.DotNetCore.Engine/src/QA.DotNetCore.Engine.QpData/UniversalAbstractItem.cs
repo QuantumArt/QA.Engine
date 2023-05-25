@@ -19,7 +19,7 @@ namespace QA.DotNetCore.Engine.QpData
             base.MapPersistent(persistentItem);
         }
 
-        public string Type { get; private set; }
+        public string Type { get; set; }
 
         public IReadOnlyDictionary<string, object> GetUntypedFields()
         {

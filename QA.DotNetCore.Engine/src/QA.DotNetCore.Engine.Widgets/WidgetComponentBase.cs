@@ -8,7 +8,7 @@ namespace QA.DotNetCore.Engine.Widgets
     public abstract class WidgetComponentBase<T> : ViewComponent
         where T : IAbstractWidget
     {
-        protected T CurrentItem { get; private set; }
+        protected T CurrentItem { get; set; }
 
         public Task<IViewComponentResult> InvokeAsync(T currentItem)
         {

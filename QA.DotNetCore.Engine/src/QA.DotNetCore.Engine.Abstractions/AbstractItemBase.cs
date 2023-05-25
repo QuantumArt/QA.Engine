@@ -13,13 +13,13 @@ namespace QA.DotNetCore.Engine.Abstractions
     {
         private string _trail;
 
-        public virtual int Id { get; protected set; }
-        public virtual IAbstractItem Parent { get; protected set; }
-        public virtual ItemDefinitionDetails DefinitionDetails { get; protected set; }
-        public virtual string Alias { get; protected set; }
-        public virtual string Title { get; protected set; }
-        public virtual bool IsPage { get; protected set; }
-        public virtual int SortOrder { get; protected set; }
+        public virtual int Id { get; set; }
+        public virtual IAbstractItem Parent { get; set; }
+        public virtual ItemDefinitionDetails DefinitionDetails { get; set; }
+        public virtual string Alias { get; set; }
+        public virtual string Title { get; set; }
+        public virtual bool IsPage { get; set; }
+        public virtual int SortOrder { get; set; }
 
         /// <summary>
         /// Получение дочернего элемента (только IsPage) по алиасу

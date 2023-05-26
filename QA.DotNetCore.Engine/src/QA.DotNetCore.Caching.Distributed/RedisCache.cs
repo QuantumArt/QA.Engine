@@ -440,8 +440,8 @@ namespace QA.DotNetCore.Caching.Distributed
             Stream sourceStream = (_options.UseCompression) ? new GZipInputStream(stream) : stream;
             using var reader = new StreamReader(sourceStream, Encoding.UTF8);
             using var jsonReader = new JsonTextReader(reader);
-
-            return _serializer.Deserialize<T>(jsonReader);
+            return JsonSerializer.CreateDefault(new JsonSerializerSettings{ TypeNameHandling = TypeNameHandling.Auto })
+                .Deserialize<T>(jsonReader);
         }
         
         private bool TryDeserializeData<TResult>(string key, byte[] data, out TResult result)

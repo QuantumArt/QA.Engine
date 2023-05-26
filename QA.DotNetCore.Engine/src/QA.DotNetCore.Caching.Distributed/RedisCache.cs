@@ -413,18 +413,18 @@ namespace QA.DotNetCore.Caching.Distributed
             }
         }
         
-        private static MemoryStream SerializeData<T>(T data)
+        private MemoryStream SerializeData<T>(T data)
         {
             try
             {
                 var stream = new MemoryStream();
-                var compressedStream = new GZipOutputStream(stream);
-                using var writer = new StreamWriter(compressedStream, Encoding.UTF8, bufferSize: -1, leaveOpen: true);
+                Stream targetStream = (_options.UseCompression) ? new GZipOutputStream(stream) : stream;
+                using var writer = new StreamWriter(targetStream, Encoding.UTF8, bufferSize: -1, leaveOpen: true);
                 using var jsonWriter = new JsonTextWriter(writer);
 
                 _serializer.Serialize(jsonWriter, data, typeof(T));
                 jsonWriter.Flush();
-                compressedStream.Finish();
+                targetStream.Flush();
 
                 return stream;
             }
@@ -434,11 +434,11 @@ namespace QA.DotNetCore.Caching.Distributed
             }
         }
 
-        private static T DeserializeData<T>(byte[] data)
+        private T DeserializeData<T>(byte[] data)
         {
             using var stream = new MemoryStream(data, false);
-            using var decompressedStream = new GZipInputStream(stream);
-            using var reader = new StreamReader(decompressedStream, Encoding.UTF8);
+            Stream sourceStream = (_options.UseCompression) ? new GZipInputStream(stream) : stream;
+            using var reader = new StreamReader(sourceStream, Encoding.UTF8);
             using var jsonReader = new JsonTextReader(reader);
 
             return _serializer.Deserialize<T>(jsonReader);

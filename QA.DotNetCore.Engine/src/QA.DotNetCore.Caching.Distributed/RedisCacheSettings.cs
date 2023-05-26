@@ -14,6 +14,8 @@ namespace QA.DotNetCore.Caching.Distributed
         private static readonly TimeSpan _defaultRetryEnterLockInverval = TimeSpan.FromMilliseconds(100);
 
 
+        public bool UseCompression { get; set; }
+        
         /// <summary>
         /// The configuration used to connect to Redis.
         /// </summary>

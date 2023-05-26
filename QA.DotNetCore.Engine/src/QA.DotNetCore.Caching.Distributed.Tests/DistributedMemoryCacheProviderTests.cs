@@ -565,11 +565,9 @@ public class DistributedMemoryCacheProviderTests
         var options = CreateDefaultRedisCacheOptions();
 
         return new RedisCache(
-            
+
             Options.Create(options),
-            LoggerUtils.GetLogger<RedisCache>(_output),
-            new SiteStructureSerializer(new Mock<QpAbstractItemStorageBuilder>().Object)                        
-            );
+            LoggerUtils.GetLogger<RedisCache>(_output));
     }
     
     private RedisCache CreateRedisCacheWithoutOffsets()
@@ -583,9 +581,7 @@ public class DistributedMemoryCacheProviderTests
 
         return new RedisCache(
             optionsAccessor,
-            LoggerUtils.GetLogger<RedisCache>(_output),
-            new SiteStructureSerializer(new Mock<QpAbstractItemStorageBuilder>().Object)
-        );
+            LoggerUtils.GetLogger<RedisCache>(_output));
     }
 
     private DistributedMemoryCacheProvider CreateProvider(

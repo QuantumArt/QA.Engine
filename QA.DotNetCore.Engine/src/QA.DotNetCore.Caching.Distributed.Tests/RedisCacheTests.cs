@@ -334,8 +334,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
 
             return new RedisCache(
                 Options.Create(options),
-                LoggerUtils.GetLogger<RedisCache>(_output),
-                new SiteStructureSerializer(new Mock<QpAbstractItemStorageBuilder>().Object));
+                LoggerUtils.GetLogger<RedisCache>(_output));
         }
 
         private RedisCache CreateRedisCacheWithoutOffsets()
@@ -349,9 +348,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
 
             return new RedisCache(
                 optionsAccessor,
-                LoggerUtils.GetLogger<RedisCache>(_output),
-                new SiteStructureSerializer(new Mock<QpAbstractItemStorageBuilder>().Object)
-                );
+                LoggerUtils.GetLogger<RedisCache>(_output));
         }
 
         private static ConnectionMultiplexer CreateConnection() =>

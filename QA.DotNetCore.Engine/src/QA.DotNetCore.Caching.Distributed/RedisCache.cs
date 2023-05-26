@@ -77,7 +77,7 @@ namespace QA.DotNetCore.Caching.Distributed
         private static readonly JsonSerializer _serializer = JsonSerializer.CreateDefault(
             new JsonSerializerSettings
             {
-                ContractResolver = new WritablePropertiesOnlyResolver(),
+                ContractResolver = new ExcludeCalculatedResolver(),
                 NullValueHandling = NullValueHandling.Ignore,
                 DefaultValueHandling = DefaultValueHandling.Ignore,
                 TypeNameHandling = TypeNameHandling.Auto
@@ -440,8 +440,8 @@ namespace QA.DotNetCore.Caching.Distributed
             Stream sourceStream = (_options.UseCompression) ? new GZipInputStream(stream) : stream;
             using var reader = new StreamReader(sourceStream, Encoding.UTF8);
             using var jsonReader = new JsonTextReader(reader);
-            return JsonSerializer.CreateDefault(new JsonSerializerSettings{ TypeNameHandling = TypeNameHandling.Auto })
-                .Deserialize<T>(jsonReader);
+
+            return _serializer.Deserialize<T>(jsonReader);
         }
         
         private bool TryDeserializeData<TResult>(string key, byte[] data, out TResult result)

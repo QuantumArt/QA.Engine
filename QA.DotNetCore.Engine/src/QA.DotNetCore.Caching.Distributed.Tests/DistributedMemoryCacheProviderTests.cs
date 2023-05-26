@@ -17,6 +17,7 @@ using Newtonsoft.Json;
 using QA.DotNetCore.Caching.Distributed.Internals;
 using QA.DotNetCore.Caching.Distributed.Keys;
 using QA.DotNetCore.Caching.Exceptions;
+using QA.DotNetCore.Engine.QpData;
 using StackExchange.Redis;
 using Tests.CommonUtils.Helpers;
 using Tests.CommonUtils.Xunit.Traits;
@@ -564,8 +565,11 @@ public class DistributedMemoryCacheProviderTests
         var options = CreateDefaultRedisCacheOptions();
 
         return new RedisCache(
+            
             Options.Create(options),
-            LoggerUtils.GetLogger<RedisCache>(_output));
+            LoggerUtils.GetLogger<RedisCache>(_output),
+            new SiteStructureSerializer(new Mock<QpAbstractItemStorageBuilder>().Object)                        
+            );
     }
     
     private RedisCache CreateRedisCacheWithoutOffsets()
@@ -579,7 +583,9 @@ public class DistributedMemoryCacheProviderTests
 
         return new RedisCache(
             optionsAccessor,
-            LoggerUtils.GetLogger<RedisCache>(_output));
+            LoggerUtils.GetLogger<RedisCache>(_output),
+            new SiteStructureSerializer(new Mock<QpAbstractItemStorageBuilder>().Object)
+        );
     }
 
     private DistributedMemoryCacheProvider CreateProvider(

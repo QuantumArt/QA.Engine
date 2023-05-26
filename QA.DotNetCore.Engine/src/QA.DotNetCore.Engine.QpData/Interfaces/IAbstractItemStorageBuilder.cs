@@ -8,5 +8,6 @@ namespace QA.DotNetCore.Engine.QpData.Interfaces
     public interface IAbstractItemStorageBuilder
     {
         AbstractItemStorage Build();
+
     }
 }

@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.GZip;
 using Newtonsoft.Json;
 using QA.DotNetCore.Caching.Distributed.Internals;
+using QA.DotNetCore.Engine.QpData;
 
 namespace QA.DotNetCore.Caching.Distributed
 {
@@ -73,15 +74,9 @@ namespace QA.DotNetCore.Caching.Distributed
         private volatile IConnectionMultiplexer _connection;
         private IDatabase _cache;
         private bool _disposed;
+        private SiteStructureSerializer _serializer;
 
-        private static readonly JsonSerializer _serializer = JsonSerializer.CreateDefault(
-            new JsonSerializerSettings
-            {
-                ContractResolver = new WritablePropertiesOnlyResolver(),
-                NullValueHandling = NullValueHandling.Ignore,
-                DefaultValueHandling = DefaultValueHandling.Ignore,
-                TypeNameHandling = TypeNameHandling.Auto
-            });
+
 
         /// <summary>
         /// Initializes a new instance of <see cref="RedisCache"/>.
@@ -89,7 +84,7 @@ namespace QA.DotNetCore.Caching.Distributed
         /// <param name="optionsAccessor">The configuration options.</param>
         public RedisCache(
             IOptions<RedisCacheSettings> optionsAccessor,
-            ILogger<RedisCache> logger)
+            ILogger<RedisCache> logger, SiteStructureSerializer serializer)
         {
             if (optionsAccessor is null)
             {
@@ -97,6 +92,7 @@ namespace QA.DotNetCore.Caching.Distributed
             }
             _options = optionsAccessor.Value;
             _logger = logger;
+            _serializer = serializer;
         }
 
 
@@ -413,37 +409,6 @@ namespace QA.DotNetCore.Caching.Distributed
             }
         }
         
-        private static MemoryStream SerializeData<T>(T data)
-        {
-            try
-            {
-                var stream = new MemoryStream();
-                var compressedStream = new GZipOutputStream(stream);
-                using var writer = new StreamWriter(compressedStream, Encoding.UTF8, bufferSize: -1, leaveOpen: true);
-                using var jsonWriter = new JsonTextWriter(writer);
-
-                _serializer.Serialize(jsonWriter, data, typeof(T));
-                jsonWriter.Flush();
-                compressedStream.Finish();
-
-                return stream;
-            }
-            catch (Exception ex)
-            {
-                throw new CacheDataSerializationException<T>("Unable to serialize value to cache.", data, ex);
-            }
-        }
-
-        private static T DeserializeData<T>(byte[] data)
-        {
-            using var stream = new MemoryStream(data, false);
-            using var decompressedStream = new GZipInputStream(stream);
-            using var reader = new StreamReader(decompressedStream, Encoding.UTF8);
-            using var jsonReader = new JsonTextReader(reader);
-
-            return _serializer.Deserialize<T>(jsonReader);
-        }
-        
         private bool TryDeserializeData<TResult>(string key, byte[] data, out TResult result)
         {
             try
@@ -456,7 +421,7 @@ namespace QA.DotNetCore.Caching.Distributed
                     }
                     else
                     {
-                        result = DeserializeData<TResult>(data);                   
+                        result = _serializer.DeserializeData<TResult>(data);                   
                     }
                     return result != null;
                 } 
@@ -473,6 +438,19 @@ namespace QA.DotNetCore.Caching.Distributed
 
             result = default;
             return false;
+        }
+        
+        private MemoryStream SerializeData<T>(T data)
+        {
+            try
+            {
+                return _serializer.SerializeData(data);
+            }
+            
+            catch (Exception ex)
+            {
+                throw new CacheDataSerializationException<T>("Unable to serialize value to cache.", data, ex);
+            }
         }
 
     }

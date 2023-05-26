@@ -11,7 +11,9 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Moq;
 using QA.DotNetCore.Caching.Distributed.Keys;
+using QA.DotNetCore.Engine.QpData;
 using Tests.CommonUtils.Helpers;
 using Tests.CommonUtils.Xunit.Traits;
 using Xunit;
@@ -332,7 +334,8 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
 
             return new RedisCache(
                 Options.Create(options),
-                LoggerUtils.GetLogger<RedisCache>(_output));
+                LoggerUtils.GetLogger<RedisCache>(_output),
+                new SiteStructureSerializer(new Mock<QpAbstractItemStorageBuilder>().Object));
         }
 
         private RedisCache CreateRedisCacheWithoutOffsets()
@@ -346,7 +349,9 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
 
             return new RedisCache(
                 optionsAccessor,
-                LoggerUtils.GetLogger<RedisCache>(_output));
+                LoggerUtils.GetLogger<RedisCache>(_output),
+                new SiteStructureSerializer(new Mock<QpAbstractItemStorageBuilder>().Object)
+                );
         }
 
         private static ConnectionMultiplexer CreateConnection() =>

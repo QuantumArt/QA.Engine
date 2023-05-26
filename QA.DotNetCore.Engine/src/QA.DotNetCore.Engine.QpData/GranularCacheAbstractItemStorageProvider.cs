@@ -111,6 +111,11 @@ namespace QA.DotNetCore.Engine.QpData
                     () => BuildAbstractItems(extensionContentId, plainAbstractItems),
                     _buildSettings.CacheFetchTimeoutAbstractItemStorage);
 
+                foreach (var ai in abstractItems)
+                {
+                    ai.SetBuilder(_builder);
+                }
+                
                 result.AddRange(abstractItems);
             }
 

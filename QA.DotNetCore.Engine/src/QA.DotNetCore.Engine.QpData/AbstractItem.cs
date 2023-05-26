@@ -5,6 +5,7 @@ using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using QA.DotNetCore.Engine.QpData.Interfaces;
 
 namespace QA.DotNetCore.Engine.QpData
 {
@@ -13,6 +14,8 @@ namespace QA.DotNetCore.Engine.QpData
     /// </summary>
     public abstract class AbstractItem : AbstractItemBase, IAbstractItem
     {
+        private IAbstractItemContextStorageBuilder _builder;
+        
         public AbstractItem()
         {
             Children = new HashSet<IAbstractItem>();
@@ -91,20 +94,19 @@ namespace QA.DotNetCore.Engine.QpData
             return this;
         }
 
-        public IAbstractItem VersionOf { get; set; }
-        public ICollection<IAbstractItem> Children { get; set; }
-        public int? RawSortOrder { get; set; }
-        public int? ExtensionId { get; set; }
-        public int? ParentId { get; set; }
-        public int? VersionOfId { get; set; }
-        public string Discriminator { get; set; }
-        public bool Published { get; set; }
+        internal IAbstractItem VersionOf { get; set; }
+        internal ICollection<IAbstractItem> Children { get; set; }
+        internal int? RawSortOrder { get; set; }
+        internal int? ExtensionId { get; set; }
+        internal int? ParentId { get; set; }
+        internal int? VersionOfId { get; set; }
+        internal string Discriminator { get; set; }
+        internal bool Published { get; set; }
         
-        public Func<AbstractItemExtensionCollection> GetDetails { get; set; }
         
-        public AbstractItemExtensionCollection Details { get; set; }
-        public M2MRelations M2MRelations { get; set; }
-        public Dictionary<string, int> M2MFieldNameMapToLinkIds { get; set; }
+        internal AbstractItemExtensionCollection Details { get; set; }
+        internal M2MRelations M2MRelations { get; set; }
+        internal Dictionary<string, int> M2MFieldNameMapToLinkIds { get; set; }
 
         /// <summary>
         /// Получение свойств расширения
@@ -121,11 +123,13 @@ namespace QA.DotNetCore.Engine.QpData
             return (T)value;
         }
 
-        protected void VerifyDetailsLoaded()
+        public void SetBuilder(IAbstractItemContextStorageBuilder builder) => _builder = builder;
+
+        public void VerifyDetailsLoaded()
         {
-            if (Details == null)
+            if (Details == null && _builder != null)
             {
-                Details = GetDetails();
+                Details = _builder.BuildDetails(this, true);
             }
         }
 

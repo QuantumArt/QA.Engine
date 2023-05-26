@@ -103,30 +103,10 @@ namespace QA.DotNetCore.Engine.QpData
             {
                 foreach (var abstractItem in activatedAbstractItems.Values)
                 {
-                    if (lazyLoad)
+                    abstractItem.SetBuilder(this);
+                    if (!lazyLoad)
                     {
-                        abstractItem.GetDetails = () =>
-                            BuildDetails(abstractItem,
-                                _context.GetExtensionData(extensionContentId),
-                                _context.ExtensionContents,
-                                _context.BaseContent,
-                                _context.ExtensionsM2MData,
-                                _context.M2MFields,
-                                _context.LogId,
-                                true
-                            );
-                    }
-                    else
-                    {
-                        abstractItem.Details = BuildDetails(abstractItem,
-                                _context.GetExtensionData(extensionContentId),
-                                _context.ExtensionContents,
-                                _context.BaseContent,
-                                _context.ExtensionsM2MData,
-                                _context.M2MFields,
-                                _context.LogId,
-                                false
-                        );
+                        abstractItem.VerifyDetailsLoaded();
                     }
                 }
             }
@@ -188,6 +168,17 @@ namespace QA.DotNetCore.Engine.QpData
                 }
             }
         }
+
+        public AbstractItemExtensionCollection BuildDetails(AbstractItem item, bool createScope) =>
+            BuildDetails(item,
+                _context.GetExtensionData(item.ExtensionId ?? 0),
+                _context.ExtensionContents,
+                _context.BaseContent,
+                _context.ExtensionsM2MData,
+                _context.M2MFields,
+                _context.LogId,
+                createScope
+            );
 
         /// <summary>
         /// Очищаем поля иерархии Parent-Children, VersionOf

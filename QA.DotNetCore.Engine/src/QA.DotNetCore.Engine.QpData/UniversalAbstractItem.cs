@@ -8,7 +8,7 @@ namespace QA.DotNetCore.Engine.QpData
 {
     public class UniversalAbstractItem : AbstractItem
     {
-        public UniversalAbstractItem(string discriminator) : base()
+        public UniversalAbstractItem(string discriminator) : base(discriminator)
         {
             Type = discriminator;
         }

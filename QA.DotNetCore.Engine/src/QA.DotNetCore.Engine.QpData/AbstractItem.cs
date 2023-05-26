@@ -15,7 +15,11 @@ namespace QA.DotNetCore.Engine.QpData
     public abstract class AbstractItem : AbstractItemBase, IAbstractItem
     {
         private IAbstractItemContextStorageBuilder _builder;
-        
+
+        public AbstractItem(string discriminator) : this()
+        {
+            Discriminator = discriminator;
+        }
         public AbstractItem()
         {
             Children = new HashSet<IAbstractItem>();

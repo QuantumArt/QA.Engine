@@ -376,26 +376,43 @@ namespace QA.DotNetCore.Engine.QpData
             var buildSettings = provider.GetRequiredService<QpSiteStructureBuildSettings>();
             var logger = provider.GetRequiredService<ILogger<QpAbstractItemStorageBuilder>>();
 
-            logger.LogInformation("Load data from extension table {ExtensionId} in {scopeString} scope. Build id: {LogId}", extensionId, scopeString, logId);
-
-            // TODO: Batch cache checks (to avoid being chatty with redis).
             IDictionary<int, AbstractItemExtensionCollection> result;
+            var tags = GetTags(new[] {extensionId});
             if (extensionId == 0)
             {
-                result = abstractItemRepository.GetAbstractItemExtensionlessData(
-                    abstractItemIds, 
-                    baseContent,
-                    buildSettings.IsStage
-                );
+                result = _cacheProvider.GetOrAdd(
+                $"GetAbstractItemExtensionlessData",
+                new[] {tags.AbstractItemTag},
+                _cacheSettings.SiteStructureCachePeriod,
+                () =>
+                {
+                    logger.LogInformation("Load data from base abstract item table in {scopeString} scope. Build id: {LogId}", scopeString, logId);
+                    return abstractItemRepository.GetAbstractItemExtensionlessData(
+                        abstractItemIds, 
+                        baseContent,
+                        buildSettings.IsStage
+                    );
+                },
+                _buildSettings.CacheFetchTimeoutAbstractItemStorage);                
             }
             else
             {
-                result = abstractItemRepository.GetAbstractItemExtensionData(
-                    extensionId,
-                    baseContent,
-                    buildSettings.LoadAbstractItemFieldsToDetailsCollection,
-                    buildSettings.IsStage
-                );
+                result = _cacheProvider.GetOrAdd(
+                    $"GetAbstractItemExtensionData({extensionId})",
+                    new[] {tags.ExtensionsTags[extensionId]},
+                    _cacheSettings.SiteStructureCachePeriod,
+                    () =>
+                    {
+                        logger.LogInformation("Load data from extension table {ExtensionId} in {scopeString} scope. Build id: {LogId}", extensionId, scopeString, logId);
+                        return abstractItemRepository.GetAbstractItemExtensionData(
+                            extensionId,
+                            baseContent,
+                            buildSettings.LoadAbstractItemFieldsToDetailsCollection,
+                            buildSettings.IsStage
+                        );
+                    },
+                    _buildSettings.CacheFetchTimeoutAbstractItemStorage);
+
             }
             return result;
         }

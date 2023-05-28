@@ -214,26 +214,23 @@ namespace QA.DotNetCore.Caching
                 var locker = _lockFactory.CreateLock(cacheKey);
                 try
                 {
-                    var deprecatedResult = this.Get<T>(deprecatedCacheKey);
+                    //проверим, взял ли блокировку по этому кешу какой-то поток (т.е. вычисляется ли уже новое значение).
+                    //если взял, то и deprecated-значение, чтобы вернуть сразу, отсутствует, то надо ждать освобождения блокировки, чтобы нам было что вернуть
+                    //но ждать будем не дольше, чем waitForCalculateTimeout
+                    lockTaken = locker.Acquire();
+                    T deprecatedResult = default;
 
-                    if (deprecatedResult != null)
+                    if (!lockTaken)
                     {
-                        //проверим, взял ли блокировку по этому кешу какой-то поток (т.е. вычисляется ли уже новое значение).
-                        //т.к. найдено deprecated значение, то не будем ждать освобождения блокировки, если она будет
-                        //потому что нам и так есть что вернуть
-                        lockTaken = locker.Acquire();
-                    }
-                    else
-                    {
-                        //проверим, взял ли блокировку по этому кешу какой-то поток (т.е. вычисляется ли уже новое значение).
-                        //если взял, то т.к. deprecated значения нет, то надо ждать освобождения блокировки, чтобы нам было что вернуть
-                        //но ждать будем не дольше, чем waitForCalculateTimeout
-                        if (waitForCalculateTimeout == default(TimeSpan))
+                        deprecatedResult = this.Get<T>(deprecatedCacheKey);
+                        if (deprecatedResult == null)
                         {
-                            waitForCalculateTimeout = _defaultWaitForCalculateTimeout;
+                            if (waitForCalculateTimeout == default)
+                            {
+                                waitForCalculateTimeout = _defaultWaitForCalculateTimeout;
+                            }
+                            lockTaken = locker.Acquire(waitForCalculateTimeout);
                         }
-
-                        lockTaken = locker.Acquire(waitForCalculateTimeout);
                     }
 
                     if (lockTaken)
@@ -303,32 +300,31 @@ namespace QA.DotNetCore.Caching
             var result = this.Get<T>(cacheKey);
             if (result == null)
             {
+                T deprecatedResult = default;
                 var locker = _lockFactory.CreateAsyncLock(cacheKey);
                 bool lockTaken = false;
 
                 try
                 {
-                    var deprecatedResult = this.Get<T>(deprecatedCacheKey);
+                    //проверим, взял ли блокировку по этому кешу какой-то поток (т.е. вычисляется ли уже новое значение).
+                    //если взял и deprecated-значение, чтобы вернуть сразу, отсутствует, то надо ждать освобождения блокировки, чтобы нам было что вернуть
+                    //но ждать будем не дольше, чем waitForCalculateTimeout
+                    lockTaken = await locker.AcquireAsync().ConfigureAwait(false);
 
-                    if (deprecatedResult != null)
+                    if (!lockTaken)
                     {
-                        //проверим, взял ли блокировку по этому кешу какой-то поток (т.е. вычисляется ли уже новое значение).
-                        //т.к. найдено deprecated значение, то не будем ждать освобождения блокировки, если она будет
-                        //потому что нам и так есть что вернуть
-                        lockTaken = await locker.AcquireAsync().ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        //проверим, взял ли блокировку по этому кешу какой-то поток (т.е. вычисляется ли уже новое значение).
-                        //если взял, то т.к. deprecated значения нет, то надо ждать освобождения блокировки, чтобы нам было что вернуть
-                        //но ждать будем не дольше, чем waitForCalculateTimeout
-                        if (waitForCalculateTimeout == default)
+                        deprecatedResult = this.Get<T>(deprecatedCacheKey);
+                        if (deprecatedResult == null)
                         {
-                            waitForCalculateTimeout = _defaultWaitForCalculateTimeout;
-                        }
 
-                        lockTaken = await locker.AcquireAsync(waitForCalculateTimeout).ConfigureAwait(false);
+                            if (waitForCalculateTimeout == default)
+                            {
+                                waitForCalculateTimeout = _defaultWaitForCalculateTimeout;
+                            }
+                            lockTaken = await locker.AcquireAsync(waitForCalculateTimeout).ConfigureAwait(false);
+                        }                   
                     }
+
 
                     if (lockTaken)
                     {

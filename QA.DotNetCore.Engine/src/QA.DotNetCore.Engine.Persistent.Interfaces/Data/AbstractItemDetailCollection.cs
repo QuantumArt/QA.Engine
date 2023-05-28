@@ -8,39 +8,32 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces.Data
     /// </summary>
     public class AbstractItemExtensionCollection
     {
-        readonly Dictionary<string, InnerItem> _innerDictionary;
+        private Dictionary<string, object> InnerDictionary { get; set; }
 
         public AbstractItemExtensionCollection()
         {
-            _innerDictionary = new Dictionary<string, InnerItem>(StringComparer.OrdinalIgnoreCase);
+            InnerDictionary = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
         }
 
-        public void Add(string key, object value)
-        {
-            if (!_innerDictionary.ContainsKey(key))
-                _innerDictionary.Add(key, new InnerItem(value));
-        }
+        public void Add(string key, object value) => InnerDictionary.TryAdd(key, value);
 
-        public void Set(string key, object value)
-        {
-            if (_innerDictionary.ContainsKey(key))
-                _innerDictionary[key].Value = value;
-        }
+        public void Set(string key, object value) => InnerDictionary[key] = value;
 
-        public ICollection<string> Keys => _innerDictionary.Keys;
+        public ICollection<string> Keys => InnerDictionary.Keys;
 
         public object this[string key]
         {
-            get => _innerDictionary[key].Value;
-            set => _innerDictionary[key] = new InnerItem(value);
+            get => InnerDictionary[key];
         }
 
         public object Get(string key, Type type)
         {
-            if (!_innerDictionary.ContainsKey(key))
+            if (!InnerDictionary.ContainsKey(key))
+            {
                 return null;
+            }
 
-            var value = _innerDictionary[key].Value;
+            var value = InnerDictionary[key];
             if (type == typeof(string))
             {
                 return Convert.ToString(value);
@@ -73,20 +66,9 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces.Data
             return value;
         }
 
-        public bool ContainsKey(string key)
-        {
-            return _innerDictionary.ContainsKey(key);
-        }
+        public bool ContainsKey(string key) => InnerDictionary.ContainsKey(key);
 
-        public int Count => _innerDictionary.Count;
+        public int Count => InnerDictionary.Count;
 
-        internal class InnerItem
-        {
-            public object Value { get; set; }
-            public InnerItem(object obj)
-            {
-                Value = obj;
-            }
-        }
     }
 }

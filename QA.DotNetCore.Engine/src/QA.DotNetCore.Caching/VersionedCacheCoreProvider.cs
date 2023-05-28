@@ -204,6 +204,8 @@ namespace QA.DotNetCore.Caching
             TimeSpan waitForCalculateTimeout = default,
             bool skipSerialization = false)
         {
+            cacheKey = GetKey(cacheKey);
+            
             var deprecatedCacheKey = GetDeprecatedKey(cacheKey);
             var result = this.Get<T>(cacheKey);
             if (result == null)
@@ -295,8 +297,9 @@ namespace QA.DotNetCore.Caching
             TimeSpan waitForCalculateTimeout = default,
             bool skipSerialization = false)
         {
+            cacheKey = GetKey(cacheKey);
+            
             var deprecatedCacheKey = GetDeprecatedKey(cacheKey);
-
             var result = this.Get<T>(cacheKey);
             if (result == null)
             {

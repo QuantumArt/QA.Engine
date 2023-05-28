@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
@@ -8,27 +10,13 @@ namespace QA.DotNetCore.Caching.Distributed.Internals;
 
 public class ExcludeCalculatedResolver : DefaultContractResolver
 {
-    protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+   protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
     {
-        var property = base.CreateProperty(member, memberSerialization);
-        property.ShouldSerialize = _ => ShouldSerialize(member);
-        return property;
-    }
-
-    internal static bool ShouldSerialize(MemberInfo memberInfo)
-    {
-        var propertyInfo = memberInfo as PropertyInfo;
-        if (propertyInfo == null)
-        {
-            return false;
-        }
-
-        if (propertyInfo.SetMethod != null)
-        {
-            return true;
-        }
-
-        var getMethod = propertyInfo.GetMethod;
-        return Attribute.GetCustomAttribute(getMethod, typeof(CompilerGeneratedAttribute)) != null;
+        var props = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+            .Where(p => p.SetMethod != null || (p.GetMethod != null && Attribute.GetCustomAttribute(p.GetMethod, typeof(CompilerGeneratedAttribute)) != null))
+            .Select(p => base.CreateProperty(p, memberSerialization))
+            .ToList();
+        props.ForEach(p => { p.Writable = true; p.Readable = true; });
+        return props;
     }
 }

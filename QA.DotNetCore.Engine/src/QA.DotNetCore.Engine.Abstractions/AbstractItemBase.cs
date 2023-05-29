@@ -30,7 +30,8 @@ namespace QA.DotNetCore.Engine.Abstractions
         public virtual IAbstractItem GetChildPageByAlias(string alias, ITargetingFilter filter = null)
         {
             return GetChildren(filter)
-                .FirstOrDefault(children => children.IsPage && string.Equals(children.Alias, alias, StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(children =>
+                    children.IsPage && string.Equals(children.Alias, alias, StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>
@@ -45,7 +46,8 @@ namespace QA.DotNetCore.Engine.Abstractions
         /// </summary>
         /// <param name="filter">Опционально. Фильтр таргетирования</param>
         /// <returns></returns>
-        public abstract IEnumerable<TAbstractItem> GetChildren<TAbstractItem>(ITargetingFilter filter = null) where TAbstractItem : class, IAbstractItem;
+        public abstract IEnumerable<TAbstractItem> GetChildren<TAbstractItem>(ITargetingFilter filter = null)
+            where TAbstractItem : class, IAbstractItem;
 
         public abstract object GetMetadata(string key);
 

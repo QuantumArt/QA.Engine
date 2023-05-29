@@ -59,7 +59,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             using (var redisCache = CreateRedisCache())
             {
                 // Act
-                redisCache.Set(key, new[] { tag }, expiry, GetRandomDataStream());
+                redisCache.Set(key, new[] {tag}, expiry, GetRandomDataStream());
             }
 
             // Assert
@@ -91,7 +91,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             using (var redisCache = CreateRedisCacheWithoutOffsets())
             {
                 // Act
-                redisCache.Set(key, new[] { tag }, expiry, GetRandomDataStream());
+                redisCache.Set(key, new[] {tag}, expiry, GetRandomDataStream());
             }
 
             // Assert
@@ -124,7 +124,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             using (var redisCache = CreateRedisCache())
             {
                 // Act
-                redisCache.Set(key, new[] { tag }, expiry, GetRandomDataStream());
+                redisCache.Set(key, new[] {tag}, expiry, GetRandomDataStream());
             }
 
             // Assert
@@ -155,13 +155,12 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             using var redisCache = CreateRedisCache();
 
             // Act
-            var result = redisCache.Get<byte[]>(new[] { key });
+            var result = redisCache.Get<byte[]>(new[] {key});
 
             // Assert
             Assert.Equal(cachedData, result.Single());
         }
 
- 
 
         [Fact]
         public async Task Get_MissingKey_NullValue()
@@ -206,20 +205,21 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             Assert.Null(result);
         }
 
-        
+
         [Fact(Timeout = DefaultExpiryMs)]
         public async Task InvalidateTag_WithKeys_TagAndKeysRemoved()
         {
             // Arrange
             string tag = "tag91";
-            var keys = new[] { "key91", "key92" };
+            var keys = new[] {"key91", "key92"};
 
             using (var connection = CreateConnection())
             {
                 var cache = connection.GetDatabase();
                 _ = await cache.KeyDeleteAsync(tag);
                 _ = await cache.SetAddAsync(tag, keys.Select(key => new RedisValue(key)).ToArray());
-                _ = await Task.WhenAll(keys.Select(key => cache.StringSetAsync(key, "value", _existingCacheTtl)).ToArray());
+                _ = await Task.WhenAll(keys.Select(key => cache.StringSetAsync(key, "value", _existingCacheTtl))
+                    .ToArray());
             }
 
             using (var redisCache = CreateRedisCache())
@@ -281,7 +281,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
                 _ = await Task.WhenAll(
                     notExistingKeys.Select(key => db.KeyDeleteAsync(key)).ToList());
 
- 
+
                 _ = await Task.WhenAll(
                     existingKeys.Select(key => db.StringSetAsync(key, string.Empty, _existingCacheTtl)).ToList());
             }
@@ -302,17 +302,20 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
             var existingKeys = Enumerable.Range(0, existingCount).Select(GetKeyName).ToArray();
             var notExistingKeys = Enumerable.Range(existingCount, notExistingCount).Select(GetKeyName).ToArray();
 
-            yield return new object[] { existingKeys,  notExistingKeys };
-            yield return new object[] { Array.Empty<string>(), notExistingKeys };
-            yield return new object[] { existingKeys, Array.Empty<string>() };
-            yield return new object[] { existingKeys, notExistingKeys };
+            yield return new object[] {existingKeys, notExistingKeys};
+            yield return new object[] {Array.Empty<string>(), notExistingKeys};
+            yield return new object[] {existingKeys, Array.Empty<string>()};
+            yield return new object[] {existingKeys, notExistingKeys};
         }
 
-        private static string GetKey(string key) => new CacheKey(CacheKeyType.Key, key, _appName, _instanceName).ToString();
+        private static string GetKey(string key) =>
+            new CacheKey(CacheKeyType.Key, key, _appName, _instanceName).ToString();
 
-        private static string GetTag(string tag) => new CacheKey(CacheKeyType.Tag, tag, _appName, _instanceName).ToString();
+        private static string GetTag(string tag) =>
+            new CacheKey(CacheKeyType.Tag, tag, _appName, _instanceName).ToString();
 
-        private static string GetLock(string key) => new CacheKey(CacheKeyType.Lock, key, _appName, _instanceName).ToString();
+        private static string GetLock(string key) =>
+            new CacheKey(CacheKeyType.Lock, key, _appName, _instanceName).ToString();
 
         private static RedisCacheSettings CreateDefaultRedisCacheOptions() =>
             new()
@@ -324,7 +327,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
 
         private RedLockFactory CreateDefaultRedLockFactory() =>
             RedLockFactory.Create(
-                new[] { new RedLockEndPoint(_redisEndpoint) },
+                new[] {new RedLockEndPoint(_redisEndpoint)},
                 new RedLockRetryConfiguration(retryCount: 1),
                 LoggerUtils.CreateLoggerFactory(_output, nameof(RedLock)));
 

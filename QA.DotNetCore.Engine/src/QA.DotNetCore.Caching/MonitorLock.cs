@@ -9,7 +9,7 @@ public class MonitorLock : ILock
     public bool Acquire(TimeSpan timeout)
     {
         bool lockTaken = false;
-        Monitor.TryEnter(this, (int)timeout.TotalMilliseconds, ref lockTaken);
+        Monitor.TryEnter(this, (int) timeout.TotalMilliseconds, ref lockTaken);
         return lockTaken;
     }
 
@@ -22,4 +22,3 @@ public class MonitorLock : ILock
 
     public void Release() => Monitor.Exit(this);
 }
-

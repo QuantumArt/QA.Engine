@@ -17,15 +17,24 @@ namespace QA.DotNetCore.Engine.QpData.Tests
     public class QpUrlResolverTests
     {
         [Theory]
-        [InlineData(true, "http://static.quantumart.ru", "storage.demo.artq.com", "/upload/dpcupload/", false, "http://static.quantumart.ru/upload/dpcupload/images")]
-        [InlineData(true, "http://static.quantumart.ru/", "storage.demo.artq.com", "/upload/dpcupload/", false, "http://static.quantumart.ru/upload/dpcupload/images")]
-        [InlineData(true, "http://static.quantumart.ru", "storage.demo.artq.com", "/upload/dpcupload", false, "http://static.quantumart.ru/upload/dpcupload/images")]
-        [InlineData(true, "http://static.quantumart.ru", "storage.demo.artq.com", "/upload/dpcupload/", true, "//static.quantumart.ru/upload/dpcupload/images")]
-        [InlineData(true, "http://static.quantumart.ru/", "storage.demo.artq.com", "/upload/dpcupload/", true, "//static.quantumart.ru/upload/dpcupload/images")]
-        [InlineData(true, "blah://static.quantumart.ru", "storage.demo.artq.com", "/upload/dpcupload/", true, "blah://static.quantumart.ru/upload/dpcupload/images")]
-        [InlineData(false, "http://static.quantumart.ru", "storage.demo.artq.com", "/upload/dpcupload/", false, "http://storage.demo.artq.com/upload/dpcupload/images")]
-        [InlineData(false, "http://static.quantumart.ru", "storage.demo.artq.com", "/upload/dpcupload", false, "http://storage.demo.artq.com/upload/dpcupload/images")]
-        [InlineData(false, "http://static.quantumart.ru", "storage.demo.artq.com", "/upload/dpcupload/", true, "//storage.demo.artq.com/upload/dpcupload/images")]
+        [InlineData(true, "http://static.quantumart.ru", "storage.demo.artq.com", "/upload/dpcupload/", false,
+            "http://static.quantumart.ru/upload/dpcupload/images")]
+        [InlineData(true, "http://static.quantumart.ru/", "storage.demo.artq.com", "/upload/dpcupload/", false,
+            "http://static.quantumart.ru/upload/dpcupload/images")]
+        [InlineData(true, "http://static.quantumart.ru", "storage.demo.artq.com", "/upload/dpcupload", false,
+            "http://static.quantumart.ru/upload/dpcupload/images")]
+        [InlineData(true, "http://static.quantumart.ru", "storage.demo.artq.com", "/upload/dpcupload/", true,
+            "//static.quantumart.ru/upload/dpcupload/images")]
+        [InlineData(true, "http://static.quantumart.ru/", "storage.demo.artq.com", "/upload/dpcupload/", true,
+            "//static.quantumart.ru/upload/dpcupload/images")]
+        [InlineData(true, "blah://static.quantumart.ru", "storage.demo.artq.com", "/upload/dpcupload/", true,
+            "blah://static.quantumart.ru/upload/dpcupload/images")]
+        [InlineData(false, "http://static.quantumart.ru", "storage.demo.artq.com", "/upload/dpcupload/", false,
+            "http://storage.demo.artq.com/upload/dpcupload/images")]
+        [InlineData(false, "http://static.quantumart.ru", "storage.demo.artq.com", "/upload/dpcupload", false,
+            "http://storage.demo.artq.com/upload/dpcupload/images")]
+        [InlineData(false, "http://static.quantumart.ru", "storage.demo.artq.com", "/upload/dpcupload/", true,
+            "//storage.demo.artq.com/upload/dpcupload/images")]
         public void UploadUrlIsCorrect(bool useAbsoluteUploadUrl,
             string uploadUrlPrefix,
             string dns,
@@ -49,12 +58,18 @@ namespace QA.DotNetCore.Engine.QpData.Tests
         }
 
         [Theory]
-        [InlineData("http://static.quantumart.ru", "/upload/dpcupload/", 777, false, null, "http://static.quantumart.ru/upload/dpcupload/contents/777")]
-        [InlineData("http://static.quantumart.ru", "/upload/dpcupload/", 777, false, "subfolder", "http://static.quantumart.ru/upload/dpcupload/contents/777/subfolder")]
-        [InlineData("http://static.quantumart.ru", "/upload/dpcupload/", 777, false, @"\subfolder", "http://static.quantumart.ru/upload/dpcupload/contents/777/subfolder")]
-        [InlineData("http://static.quantumart.ru", "/upload/dpcupload/", 777, false, "/subfolder", "http://static.quantumart.ru/upload/dpcupload/contents/777/subfolder")]
-        [InlineData("http://static.quantumart.ru", "/upload/dpcupload/", 777, true, null, "http://static.quantumart.ru/upload/dpcupload/images")]
-        [InlineData("http://static.quantumart.ru", "/upload/dpcupload/", 777, true, "subfolder", "http://static.quantumart.ru/upload/dpcupload/images/subfolder")]
+        [InlineData("http://static.quantumart.ru", "/upload/dpcupload/", 777, false, null,
+            "http://static.quantumart.ru/upload/dpcupload/contents/777")]
+        [InlineData("http://static.quantumart.ru", "/upload/dpcupload/", 777, false, "subfolder",
+            "http://static.quantumart.ru/upload/dpcupload/contents/777/subfolder")]
+        [InlineData("http://static.quantumart.ru", "/upload/dpcupload/", 777, false, @"\subfolder",
+            "http://static.quantumart.ru/upload/dpcupload/contents/777/subfolder")]
+        [InlineData("http://static.quantumart.ru", "/upload/dpcupload/", 777, false, "/subfolder",
+            "http://static.quantumart.ru/upload/dpcupload/contents/777/subfolder")]
+        [InlineData("http://static.quantumart.ru", "/upload/dpcupload/", 777, true, null,
+            "http://static.quantumart.ru/upload/dpcupload/images")]
+        [InlineData("http://static.quantumart.ru", "/upload/dpcupload/", 777, true, "subfolder",
+            "http://static.quantumart.ru/upload/dpcupload/images/subfolder")]
         public void UrlForImageIsCorrect(string uploadUrlPrefix,
             string uploadUrl,
             int contentId,
@@ -77,13 +92,14 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 Dns = dns,
                 UploadUrl = uploadUrl
             });
-            metaInfoMoq.Setup(x => x.GetContentAttribute(contentId, fieldName, null)).Returns(new ContentAttributePersistentData
-            {
-                ContentId = contentId,
-                ColumnName = fieldName,
-                UseSiteLibrary = useSiteLibrary,
-                SubFolder = subfolder
-            });
+            metaInfoMoq.Setup(x => x.GetContentAttribute(contentId, fieldName, null)).Returns(
+                new ContentAttributePersistentData
+                {
+                    ContentId = contentId,
+                    ColumnName = fieldName,
+                    UseSiteLibrary = useSiteLibrary,
+                    SubFolder = subfolder
+                });
 
             var urlResolver = CreateMockedUrlResolver(metaInfoMoq.Object);
 
@@ -100,9 +116,9 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             };
             var cache = new MemoryCache(new MemoryCacheOptions());
             var cacheProvider = new VersionedCacheCoreProvider(
-                cache, 
-                new CacheKeyFactoryBase(),             
-                new MemoryLockFactory(), 
+                cache,
+                new CacheKeyFactoryBase(),
+                new MemoryLockFactory(),
                 Mock.Of<ILogger>()
             );
 

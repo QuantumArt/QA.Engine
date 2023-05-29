@@ -16,4 +16,3 @@ public class ExternalCacheSettings
 
     public TimeSpan LockRetryInterval { get; set; } = TimeSpan.FromSeconds(5);
 }
-

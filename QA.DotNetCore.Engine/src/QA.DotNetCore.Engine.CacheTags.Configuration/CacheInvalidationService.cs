@@ -37,7 +37,7 @@ namespace QA.DotNetCore.Engine.CacheTags
         private void OnTick(object? state)
         {
             _logger.LogDebug("Cache invalidation started");
-            var watcher = _provider.GetRequiredService<ICacheTagWatcher>(); 
+            var watcher = _provider.GetRequiredService<ICacheTagWatcher>();
             watcher.TrackChanges(_provider);
             _logger.LogDebug("Cache invalidation completed");
         }

@@ -23,7 +23,8 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
             this IServiceCollection services)
         {
             var cfg = new CacheTagsRegistrationConfigurator();
-            services.TryAddSingleton(provider => provider.GetRequiredService<IOptions<CacheTagsRegistrationConfigurator>>().Value);
+            services.TryAddSingleton(provider =>
+                provider.GetRequiredService<IOptions<CacheTagsRegistrationConfigurator>>().Value);
 
             services.TryAddMemoryCacheServices();
             services.TryAddScoped<ICacheTagWatcher, CacheTagWatcher>();
@@ -32,7 +33,8 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
             services.TryAddScoped<IContentModificationRepository, ContentModificationRepository>();
             services.TryAddSingleton<ICacheTrackersAccessor, CacheTrackersAccessor>();
 
-            services.TryAddSingleton(provider => provider.GetRequiredService<IOptions<ServiceSetConfigurator<ICacheTagTracker>>>().Value);
+            services.TryAddSingleton(provider =>
+                provider.GetRequiredService<IOptions<ServiceSetConfigurator<ICacheTagTracker>>>().Value);
 
             return new CacheTagConfigurationBuilder(services);
         }
@@ -76,7 +78,8 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
         public static ICacheTagConfigurationBuilder WithInvalidationByTimer(
             this ICacheTagConfigurationBuilder builder, TimeSpan? interval = null)
         {
-            _ = builder.Services.Configure<CacheTagsRegistrationConfigurator>(options => options.InvalidateByTimer(interval));
+            _ = builder.Services.Configure<CacheTagsRegistrationConfigurator>(options =>
+                options.InvalidateByTimer(interval));
             _ = builder.Services.AddSingleton<IHostedService, CacheInvalidationService>();
 
             return builder;
@@ -91,7 +94,8 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            _ = builder.Services.Configure<CacheTagsRegistrationConfigurator>(options => options.InvalidateByMiddleware(excludeRequestPathRegex));
+            _ = builder.Services.Configure<CacheTagsRegistrationConfigurator>(options =>
+                options.InvalidateByMiddleware(excludeRequestPathRegex));
 
             return builder;
         }

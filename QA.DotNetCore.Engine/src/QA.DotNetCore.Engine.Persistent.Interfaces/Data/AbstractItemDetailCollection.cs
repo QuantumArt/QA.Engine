@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace  QA.DotNetCore.Engine.Persistent.Interfaces.Data
+namespace QA.DotNetCore.Engine.Persistent.Interfaces.Data
 {
     /// <summary>
     /// Коллекция полей-расширений для AbstractItem (позаимствовано из QA.Core.Engine)
@@ -38,26 +38,32 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces.Data
             {
                 return Convert.ToString(value);
             }
+
             if (value == null)
             {
                 return null;
             }
+
             if (type == typeof(double) || type == typeof(double?))
             {
                 return Convert.ToDouble(value);
             }
+
             if (type == typeof(int) || type == typeof(int?))
             {
                 return Convert.ToInt32(value);
             }
+
             if (type == typeof(long) || type == typeof(long?))
             {
                 return Convert.ToInt64(value);
             }
+
             if (type == typeof(DateTime) || type == typeof(DateTime?))
             {
                 return Convert.ToDateTime(value);
             }
+
             if (type == typeof(bool) || type == typeof(bool?))
             {
                 return Convert.ToBoolean(value);
@@ -69,6 +75,5 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces.Data
         public bool ContainsKey(string key) => InnerDictionary.ContainsKey(key);
 
         public int Count => InnerDictionary.Count;
-
     }
 }

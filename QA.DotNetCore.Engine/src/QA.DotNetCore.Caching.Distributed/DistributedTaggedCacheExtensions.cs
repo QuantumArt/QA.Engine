@@ -14,7 +14,7 @@ namespace QA.DotNetCore.Caching.Distributed
                 throw new ArgumentNullException(nameof(taggedCache));
             }
 
-            return taggedCache.Get<object>(new[] { key }).Single();
+            return taggedCache.Get<object>(new[] {key}).Single();
         }
 
         public static bool IsExist(this IExternalCache taggedCache, string key)
@@ -24,7 +24,7 @@ namespace QA.DotNetCore.Caching.Distributed
                 throw new ArgumentNullException(nameof(taggedCache));
             }
 
-            return taggedCache.Exist(new[] { key }).Single();
+            return taggedCache.Exist(new[] {key}).Single();
         }
 
         public static async Task<byte[]> GetAsync(this IExternalCache taggedCache, string key)
@@ -34,7 +34,7 @@ namespace QA.DotNetCore.Caching.Distributed
                 throw new ArgumentNullException(nameof(taggedCache));
             }
 
-            var cachedValues = await taggedCache.GetAsync(new[] { key });
+            var cachedValues = await taggedCache.GetAsync(new[] {key});
 
             return cachedValues.Single();
         }
@@ -46,10 +46,9 @@ namespace QA.DotNetCore.Caching.Distributed
                 throw new ArgumentNullException(nameof(taggedCache));
             }
 
-            var existCollection = await taggedCache.ExistAsync(new[] { key });
+            var existCollection = await taggedCache.ExistAsync(new[] {key});
 
             return existCollection.Single();
         }
-
-  }
+    }
 }

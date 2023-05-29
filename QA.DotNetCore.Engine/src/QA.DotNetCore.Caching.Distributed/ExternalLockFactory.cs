@@ -8,7 +8,7 @@ public class ExternalLockFactory : ILockFactory
 {
     private readonly IDistributedLockFactory _lockFactory;
     private readonly ExternalCacheSettings _settings;
-    
+
     public ExternalLockFactory(IDistributedLockFactory lockFactory, ExternalCacheSettings settings)
     {
         _lockFactory = lockFactory;

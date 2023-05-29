@@ -17,10 +17,12 @@ namespace QA.DotNetCore.Caching.Distributed.Configuration
 {
     public static class RedisCacheServiceCollectionExtensions
     {
-        public static IServiceCollection AddRedisCache(this IServiceCollection services, Action<RedisCacheSettings> configureSettings) =>
+        public static IServiceCollection AddRedisCache(this IServiceCollection services,
+            Action<RedisCacheSettings> configureSettings) =>
             services.AddRedisCacheCore().Configure(configureSettings);
 
-        public static IServiceCollection AddRedisCache(this IServiceCollection services, IConfigurationSection redisSettingsSection) =>
+        public static IServiceCollection AddRedisCache(this IServiceCollection services,
+            IConfigurationSection redisSettingsSection) =>
             services.Configure<RedisCacheSettings>(redisSettingsSection).AddRedisCacheCore();
 
         private static IServiceCollection AddRedisCacheCore(this IServiceCollection services)
@@ -50,7 +52,7 @@ namespace QA.DotNetCore.Caching.Distributed.Configuration
 
                 var connectionConfiguration = ConfigurationOptions.Parse(redisConfig.Configuration);
                 var endPoints = connectionConfiguration.EndPoints
-                    .Select(endPoint => (RedLockEndPoint)endPoint)
+                    .Select(endPoint => (RedLockEndPoint) endPoint)
                     .ToList();
 
                 return RedLockFactory.Create(

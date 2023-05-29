@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace QA.DotNetCore.Caching.Distributed.Keys
 {
-    public class CacheKey : IEquatable<CacheKey>
+    public class CacheKey
     {
         public CacheKeyType Type { get; }
 
@@ -41,24 +41,8 @@ namespace QA.DotNetCore.Caching.Distributed.Keys
             {
                 list.Add(Instance);
             }
-            list.Add(Type == CacheKeyType.Lock ? GetLockNumber().ToString() : Key);
+            list.Add(Key);
             return String.Join(":", list);
         }
-
-        public bool Equals(CacheKey other) =>
-            other != null
-            && Type == other.Type
-            && Key.Equals(other.Key);
-
-        public override bool Equals(object obj) => obj is CacheKey other && Equals(other);
-
-        public override int GetHashCode() => ToString().GetHashCode();
-        
-        private uint GetLockNumber()
-        {
-            const int maxLocksNumber = 65536;
-            return (uint)GetHashCode() % maxLocksNumber;
-        }
-
     }
 }

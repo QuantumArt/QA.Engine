@@ -24,14 +24,14 @@ namespace QA.DotNetCore.Engine.QpData
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         private readonly ICacheProvider _cacheProvider;
         private readonly VersionedCacheCoreProvider _memoryCacheProvider;
-        
+
         public GranularCacheAbstractItemStorageProvider(
             IAbstractItemContextStorageBuilder builder,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
             QpSiteStructureBuildSettings buildSettings,
             QpSiteStructureCacheSettings cacheSettings,
             IAbstractItemRepository abstractItemRepository,
-            ICacheProvider cacheProvider, 
+            ICacheProvider cacheProvider,
             VersionedCacheCoreProvider memoryCacheProvider)
         {
             _builder = builder;
@@ -98,11 +98,12 @@ namespace QA.DotNetCore.Engine.QpData
                 var extensionContentId = extension.Key;
                 var plainAbstractItems = extension.Value;
 
-                var cacheKey = $"{nameof(GranularCacheAbstractItemStorageProvider)}.{nameof(GetCachedAbstractItems)}({extensionContentId})";
+                var cacheKey =
+                    $"{nameof(GranularCacheAbstractItemStorageProvider)}.{nameof(GetCachedAbstractItems)}({extensionContentId})";
 
                 var tags = cacheTags.ExtensionsTags.TryGetValue(extensionContentId, out var extensionCacheTag)
-                    ? new[] { cacheTags.ItemDefinitionTag, extensionCacheTag }
-                    : new[] { cacheTags.ItemDefinitionTag, cacheTags.AbstractItemTag };
+                    ? new[] {cacheTags.ItemDefinitionTag, extensionCacheTag}
+                    : new[] {cacheTags.ItemDefinitionTag, cacheTags.AbstractItemTag};
 
                 AbstractItem[] abstractItems = _cacheProvider.GetOrAdd(
                     cacheKey,
@@ -115,7 +116,7 @@ namespace QA.DotNetCore.Engine.QpData
                 {
                     ai.SetBuilder(_builder);
                 }
-                
+
                 result.AddRange(abstractItems);
             }
 
@@ -125,7 +126,8 @@ namespace QA.DotNetCore.Engine.QpData
         /// <summary>
         /// Формирование AbstractItem
         /// </summary>
-        private AbstractItem[] BuildAbstractItems(int extensionContentId, AbstractItemPersistentData[] plainAbstractItems)
+        private AbstractItem[] BuildAbstractItems(int extensionContentId,
+            AbstractItemPersistentData[] plainAbstractItems)
             => _builder.BuildAbstractItems(extensionContentId, plainAbstractItems, true);
 
         private IDictionary<int, AbstractItemPersistentData[]> GetExtensionContentsWithAbstractItemPersistentData()

@@ -15,13 +15,13 @@ namespace QA.DotNetCore.Caching.Distributed
 
 
         public bool UseCompression { get; set; }
-        
+
         /// <summary>
         /// The configuration used to connect to Redis.
         /// </summary>
         [Required]
         public string Configuration { get; set; }
-        
+
         /// <summary>
         /// Specifies how much longer will live a tag over its associated key.
         /// </summary>
@@ -45,7 +45,7 @@ namespace QA.DotNetCore.Caching.Distributed
             {
                 yield return new ValidationResult(
                     $"Tag expiration mustn't be less than {_minTagExpirationOffset}.",
-                    new[] { nameof(TagExpirationOffset) });
+                    new[] {nameof(TagExpirationOffset)});
             }
 
 
@@ -53,14 +53,14 @@ namespace QA.DotNetCore.Caching.Distributed
             {
                 yield return new ValidationResult(
                     $"Lock expiration mustn't be less than {_minLockExpiration}.",
-                    new[] { nameof(LockExpiration) });
+                    new[] {nameof(LockExpiration)});
             }
 
             if (RetryEnterLockInverval < TimeSpan.Zero)
             {
                 yield return new ValidationResult(
                     "Retry lock enter interval mustn't be negative.",
-                    new[] { nameof(RetryEnterLockInverval) });
+                    new[] {nameof(RetryEnterLockInverval)});
             }
         }
     }

@@ -24,7 +24,7 @@ namespace QA.DotNetCore.Caching
         private readonly ILogger _logger;
 
         public VersionedCacheCoreProvider(
-            IMemoryCache cache, 
+            IMemoryCache cache,
             ICacheKeyFactory keyFactory,
             ILockFactory lockFactory,
             ILogger logger
@@ -36,7 +36,8 @@ namespace QA.DotNetCore.Caching
             _keyFactory = keyFactory;
         }
 
-        public VersionedCacheCoreProvider(IMemoryCache cache, ICacheKeyFactory keyFactory, ILockFactory lockFactory, ILogger<VersionedCacheCoreProvider> genericLogger)
+        public VersionedCacheCoreProvider(IMemoryCache cache, ICacheKeyFactory keyFactory, ILockFactory lockFactory,
+            ILogger<VersionedCacheCoreProvider> genericLogger)
             : this(cache, keyFactory, lockFactory, logger: genericLogger)
         {
         }
@@ -103,10 +104,10 @@ namespace QA.DotNetCore.Caching
         public virtual void Add(object data, string key, string[] tags, TimeSpan expiration, bool skipSerialization)
         {
             key = GetKey(key);
-            
+
             //добавим новое значение в кеш и сразу обновим deprecated значение, которое хранится в 2 раза дольше, чем основное
             var deprecatedKey = GetDeprecatedKey(key);
-            var deprecatedExpiration = TimeSpan.FromTicks(expiration.Ticks * _defaultDeprecatedCoef);
+            var deprecatedExpiration = expiration * _defaultDeprecatedCoef;
 
             var policy = GetPolicy(expiration);
             var deprecatedPolicy = GetPolicy(deprecatedExpiration);
@@ -148,7 +149,7 @@ namespace QA.DotNetCore.Caching
                 _cache.Remove(GetTag(tag));
             }
         }
-        
+
         /// <summary>
         /// Проверяет наличие данных в кэше
         /// </summary>
@@ -171,13 +172,16 @@ namespace QA.DotNetCore.Caching
             return results.Single();
         }
 
-        T IMemoryCacheProvider.GetOrAdd<T>(string cacheKey, TimeSpan expiration, Func<T> getData, TimeSpan waitForCalculateTimeout) =>
+        T IMemoryCacheProvider.GetOrAdd<T>(string cacheKey, TimeSpan expiration, Func<T> getData,
+            TimeSpan waitForCalculateTimeout) =>
             this.GetOrAdd(cacheKey, expiration, getData, waitForCalculateTimeout);
 
-        public Task<T> GetOrAddAsync<T>(string cacheKey, TimeSpan expiration, Func<Task<T>> getData, TimeSpan waitForCalculateTimeout = default) => 
+        public Task<T> GetOrAddAsync<T>(string cacheKey, TimeSpan expiration, Func<Task<T>> getData,
+            TimeSpan waitForCalculateTimeout = default) =>
             GetOrAddAsync(cacheKey, Array.Empty<string>(), expiration, getData, waitForCalculateTimeout);
-        
-        public T GetOrAdd<T>(string cacheKey, TimeSpan expiration, Func<T> getData, TimeSpan waitForCalculateTimeout = default) =>
+
+        public T GetOrAdd<T>(string cacheKey, TimeSpan expiration, Func<T> getData,
+            TimeSpan waitForCalculateTimeout = default) =>
             GetOrAdd(cacheKey, Array.Empty<string>(), expiration, getData, waitForCalculateTimeout);
 
         /// <summary>
@@ -208,7 +212,7 @@ namespace QA.DotNetCore.Caching
             bool skipSerialization = false)
         {
             cacheKey = GetKey(cacheKey);
-            
+
             var deprecatedCacheKey = GetDeprecatedKey(cacheKey);
             var result = this.Get<T>(cacheKey);
             if (result == null)
@@ -232,6 +236,7 @@ namespace QA.DotNetCore.Caching
                             {
                                 waitForCalculateTimeout = _defaultWaitForCalculateTimeout;
                             }
+
                             lockTaken = locker.Acquire(waitForCalculateTimeout);
                         }
                     }
@@ -266,6 +271,7 @@ namespace QA.DotNetCore.Caching
                     }
                 }
             }
+
             return result;
         }
 
@@ -284,8 +290,8 @@ namespace QA.DotNetCore.Caching
         /// <param name="expiration">время жизни в кеше</param>
         /// <param name="getData">функция для получения данных, если объектов кеше нет. нужно использовать анонимный делегат</param>
         /// <param name="waitForCalculateTimeout">таймаут ожидания параллельными потоками события окончания
-        ///     вычисления <paramref name="getData"/> по истечении  которого им будет возвращён null.
-        ///     Актуален только когда в кеше нет устаревшего значения. По умолчанию используется 5 секунд.</param>
+        /// вычисления <paramref name="getData"/> по истечении  которого им будет возвращён null.
+        /// Актуален только когда в кеше нет устаревшего значения. По умолчанию используется 5 секунд.</param>
         /// <param name="skipSerialization"></param>
         /// <exception cref="DeprecateCacheIsExpiredOrMissingException">Выбрасывается в том случае, если другой поток уже выполняет запрос
         /// на обновления данных в кеше, а старых данные ещё (или уже) нет</exception>
@@ -298,7 +304,7 @@ namespace QA.DotNetCore.Caching
             bool skipSerialization = false)
         {
             cacheKey = GetKey(cacheKey);
-            
+
             var deprecatedCacheKey = GetDeprecatedKey(cacheKey);
             var result = this.Get<T>(cacheKey);
             if (result == null)
@@ -319,13 +325,13 @@ namespace QA.DotNetCore.Caching
                         deprecatedResult = this.Get<T>(deprecatedCacheKey);
                         if (deprecatedResult == null)
                         {
-
                             if (waitForCalculateTimeout == default)
                             {
                                 waitForCalculateTimeout = _defaultWaitForCalculateTimeout;
                             }
+
                             lockTaken = await locker.AcquireAsync(waitForCalculateTimeout).ConfigureAwait(false);
-                        }                   
+                        }
                     }
 
 
@@ -372,13 +378,12 @@ namespace QA.DotNetCore.Caching
 
             if (key is string strkey)
             {
-                ((VersionedCacheCoreProvider)state).AddTag(DateTime.Now.AddDays(1), strkey);
+                ((VersionedCacheCoreProvider) state).AddTag(DateTime.Now.AddDays(1), strkey);
             }
         }
 
         private CancellationTokenSource AddTag(DateTime tagExpiration, string item)
         {
-
             item = GetTag(item);
 
             var result = _cache.Get(item) as CancellationTokenSource;
@@ -394,6 +399,7 @@ namespace QA.DotNetCore.Caching
                 options.RegisterPostEvictionCallback(EvictionTagCallback, this);
                 _cache.Set(item, result, options);
             }
+
             return result;
         }
 

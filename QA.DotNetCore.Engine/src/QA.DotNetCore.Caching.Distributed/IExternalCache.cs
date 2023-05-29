@@ -8,11 +8,11 @@ namespace QA.DotNetCore.Caching.Distributed
 {
     public interface IExternalCache : IDisposable
     {
- 
         IEnumerable<TResult> Get<TResult>(IEnumerable<string> keys);
 
-        bool TryAdd(object value, string key, string deprecatedKey, string[] tags, TimeSpan expiration, TimeSpan deprecatedExpiration);
-        
+        bool TryAdd(object value, string key, string deprecatedKey, string[] tags, TimeSpan expiration,
+            TimeSpan deprecatedExpiration);
+
         /// <summary>
         /// Synchronous alternative of <see cref="InvalidateAsync(string, CancellationToken)"/>.
         /// </summary>
@@ -31,7 +31,8 @@ namespace QA.DotNetCore.Caching.Distributed
         /// <summary>
         /// Synchronous alternative of <see cref="SetAsync"/>.
         /// </summary>
-        void Set(string key, IEnumerable<string> tags, TimeSpan expiry, MemoryStream data, string deprecatedKey, TimeSpan deprecatedExpiry, CancellationToken token = default);
+        void Set(string key, IEnumerable<string> tags, TimeSpan expiry, MemoryStream data, string deprecatedKey,
+            TimeSpan deprecatedExpiry, CancellationToken token = default);
 
         /// <summary>
         /// Get cached data by the <paramref name="keys"/>.
@@ -76,6 +77,7 @@ namespace QA.DotNetCore.Caching.Distributed
         /// <param name="deprecatedExpiry"></param>
         /// <param name="token">Operation cancellation token</param>
         /// <returns>Caching task.</returns>
-        Task SetAsync(string key, IEnumerable<string> tags, TimeSpan expiry, MemoryStream dataStream, string deprecatedKey, TimeSpan deprecatedExpiry, CancellationToken token = default);
+        Task SetAsync(string key, IEnumerable<string> tags, TimeSpan expiry, MemoryStream dataStream,
+            string deprecatedKey, TimeSpan deprecatedExpiry, CancellationToken token = default);
     }
 }

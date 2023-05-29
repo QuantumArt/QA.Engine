@@ -7,5 +7,4 @@ public interface ICacheKeyFactory
     string GetTagKey(string tag);
 
     string GetDeprecatedKey(string key);
-
 }

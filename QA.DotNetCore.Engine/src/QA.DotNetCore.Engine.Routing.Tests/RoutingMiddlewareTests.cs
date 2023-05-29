@@ -28,10 +28,7 @@ namespace QA.DotNetCore.Engine.Routing.Tests
     [TestClass]
     public class RoutingMiddlewareTests
     {
-        private readonly RequestDelegate _next = (HttpContext hc) =>
-        {
-            return Task.CompletedTask;
-        };
+        private readonly RequestDelegate _next = (HttpContext hc) => { return Task.CompletedTask; };
 
         private const int
             siteID = 1,
@@ -61,7 +58,8 @@ namespace QA.DotNetCore.Engine.Routing.Tests
 
             RoutingMiddleware routingMiddleware = new RoutingMiddleware(_next, new NullTargetingFilterAccessor());
 
-            Mock<IAbstractItemStorageProvider> mockAbstractItemStorageProvider = new Mock<IAbstractItemStorageProvider>();
+            Mock<IAbstractItemStorageProvider> mockAbstractItemStorageProvider =
+                new Mock<IAbstractItemStorageProvider>();
 
             AbstractItemStorage abstractItemStorage = BuildAbstractItemStorage();
 
@@ -73,11 +71,11 @@ namespace QA.DotNetCore.Engine.Routing.Tests
 
             Assert.IsNotNull(ctx.Items[RoutingKeys.StartPage]);
             Assert.IsInstanceOfType(ctx.Items[RoutingKeys.StartPage], typeof(StubStartPage));
-            Assert.AreEqual(2, ((StubStartPage)ctx.Items[RoutingKeys.StartPage]).Id);
+            Assert.AreEqual(2, ((StubStartPage) ctx.Items[RoutingKeys.StartPage]).Id);
 
             Assert.IsNotNull(ctx.Items[RoutingKeys.AbstractItemStorage]);
             Assert.IsInstanceOfType(ctx.Items[RoutingKeys.AbstractItemStorage], typeof(AbstractItemStorage));
-            Assert.AreEqual(abstractItemStorage, (AbstractItemStorage)ctx.Items[RoutingKeys.AbstractItemStorage]);
+            Assert.AreEqual(abstractItemStorage, (AbstractItemStorage) ctx.Items[RoutingKeys.AbstractItemStorage]);
         }
 
         [TestMethod]
@@ -88,7 +86,8 @@ namespace QA.DotNetCore.Engine.Routing.Tests
 
             RoutingMiddleware routingMiddleware = new RoutingMiddleware(_next, new NullTargetingFilterAccessor());
 
-            Mock<IAbstractItemStorageProvider> mockAbstractItemStorageProvider = new Mock<IAbstractItemStorageProvider>();
+            Mock<IAbstractItemStorageProvider> mockAbstractItemStorageProvider =
+                new Mock<IAbstractItemStorageProvider>();
 
             AbstractItemStorage abstractItemStorage = BuildAbstractItemStorage();
 
@@ -96,7 +95,8 @@ namespace QA.DotNetCore.Engine.Routing.Tests
                 .Setup(x => x.Get())
                 .Returns(abstractItemStorage);
 
-            await Assert.ThrowsExceptionAsync<StartPageNotFoundException>(() => routingMiddleware.Invoke(ctx, mockAbstractItemStorageProvider.Object));
+            await Assert.ThrowsExceptionAsync<StartPageNotFoundException>(() =>
+                routingMiddleware.Invoke(ctx, mockAbstractItemStorageProvider.Object));
         }
 
         [TestMethod]
@@ -107,18 +107,24 @@ namespace QA.DotNetCore.Engine.Routing.Tests
 
             RoutingMiddleware routingMiddleware = new RoutingMiddleware(_next, new NullTargetingFilterAccessor());
 
-            Mock<IAbstractItemStorageProvider> mockAbstractItemStorageProvider = new Mock<IAbstractItemStorageProvider>();
+            Mock<IAbstractItemStorageProvider> mockAbstractItemStorageProvider =
+                new Mock<IAbstractItemStorageProvider>();
 
             AbstractItemStorage abstractItemStorage = BuildAbstractItemStorage(new AbstractItemPersistentData[]
             {
-                new AbstractItemPersistentData{ Id = 1, Title = "корневая страница", Alias = "root", Discriminator = typeof(RootPage).Name, IsPage = true, ParentId = null, ExtensionId = null },
+                new AbstractItemPersistentData
+                {
+                    Id = 1, Title = "корневая страница", Alias = "root", Discriminator = typeof(RootPage).Name,
+                    IsPage = true, ParentId = null, ExtensionId = null
+                },
             });
 
             mockAbstractItemStorageProvider
                 .Setup(x => x.Get())
                 .Returns(abstractItemStorage);
 
-            await Assert.ThrowsExceptionAsync<StartPageNotFoundException>(() => routingMiddleware.Invoke(ctx, mockAbstractItemStorageProvider.Object));
+            await Assert.ThrowsExceptionAsync<StartPageNotFoundException>(() =>
+                routingMiddleware.Invoke(ctx, mockAbstractItemStorageProvider.Object));
         }
 
         [TestMethod]
@@ -130,26 +136,55 @@ namespace QA.DotNetCore.Engine.Routing.Tests
             RoutingMiddleware routingMiddleware = new RoutingMiddleware(_next, new NullTargetingFilterAccessor());
 
             StubCacheProvider stubCacheProvider = new StubCacheProvider();
-            CacheStubAbstractItemStorageProvider cacheStubAbstractItemStorageProvider = new CacheStubAbstractItemStorageProvider(stubCacheProvider);
+            CacheStubAbstractItemStorageProvider cacheStubAbstractItemStorageProvider =
+                new CacheStubAbstractItemStorageProvider(stubCacheProvider);
 
-            await Assert.ThrowsExceptionAsync<DeprecateCacheIsExpiredOrMissingException>(() => routingMiddleware.Invoke(ctx, cacheStubAbstractItemStorageProvider));
+            await Assert.ThrowsExceptionAsync<DeprecateCacheIsExpiredOrMissingException>(() =>
+                routingMiddleware.Invoke(ctx, cacheStubAbstractItemStorageProvider));
         }
 
-        private AbstractItemStorage BuildAbstractItemStorage(AbstractItemPersistentData[] abstractItemPersistentDatas = null)
+        private AbstractItemStorage BuildAbstractItemStorage(
+            AbstractItemPersistentData[] abstractItemPersistentDatas = null)
         {
             if (abstractItemPersistentDatas == null)
-                abstractItemPersistentDatas = new[] {
-                    new AbstractItemPersistentData{ Id = 2, Title = "стартовая страница", Alias = "start", Discriminator = typeof(StubStartPage).Name, IsPage = true, ParentId = 1, ExtensionId = null },
-                    new AbstractItemPersistentData{ Id = 1, Title = "корневая страница", Alias = "root", Discriminator = typeof(RootPage).Name, IsPage = true, ParentId = null, ExtensionId = null },
-                    new AbstractItemPersistentData{ Id = 3, Title = "страница sitemap", Alias = "sitemap", Discriminator = typeof(StubPage).Name, IsPage = true, ParentId = 2, ExtensionId = null },
-                    new AbstractItemPersistentData{ Id = 101, Title = "страница 101", Alias = "page", Discriminator = typeof(StubPage).Name, IsPage = true, ParentId = 2, ExtensionId = null, IndexOrder = 1 },
-                    new AbstractItemPersistentData{ Id = 102, Title = "страница 102", Alias = "page", Discriminator = typeof(StubPage).Name, IsPage = true, ParentId = 2, ExtensionId = null, IndexOrder = 2 },
-                    new AbstractItemPersistentData{ Id = 1001, Title = "страница 1001", Alias = "page", Discriminator = typeof(StubPage).Name, IsPage = true, ParentId = 102, ExtensionId = null },
+                abstractItemPersistentDatas = new[]
+                {
+                    new AbstractItemPersistentData
+                    {
+                        Id = 2, Title = "стартовая страница", Alias = "start",
+                        Discriminator = typeof(StubStartPage).Name, IsPage = true, ParentId = 1, ExtensionId = null
+                    },
+                    new AbstractItemPersistentData
+                    {
+                        Id = 1, Title = "корневая страница", Alias = "root", Discriminator = typeof(RootPage).Name,
+                        IsPage = true, ParentId = null, ExtensionId = null
+                    },
+                    new AbstractItemPersistentData
+                    {
+                        Id = 3, Title = "страница sitemap", Alias = "sitemap", Discriminator = typeof(StubPage).Name,
+                        IsPage = true, ParentId = 2, ExtensionId = null
+                    },
+                    new AbstractItemPersistentData
+                    {
+                        Id = 101, Title = "страница 101", Alias = "page", Discriminator = typeof(StubPage).Name,
+                        IsPage = true, ParentId = 2, ExtensionId = null, IndexOrder = 1
+                    },
+                    new AbstractItemPersistentData
+                    {
+                        Id = 102, Title = "страница 102", Alias = "page", Discriminator = typeof(StubPage).Name,
+                        IsPage = true, ParentId = 2, ExtensionId = null, IndexOrder = 2
+                    },
+                    new AbstractItemPersistentData
+                    {
+                        Id = 1001, Title = "страница 1001", Alias = "page", Discriminator = typeof(StubPage).Name,
+                        IsPage = true, ParentId = 102, ExtensionId = null
+                    },
                 };
 
             Mock<IAbstractItemRepository> aiRepositoryMoq = new Mock<IAbstractItemRepository>();
 
-            aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteID, isStage, null)).Returns(abstractItemPersistentDatas);
+            aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteID, isStage, null))
+                .Returns(abstractItemPersistentDatas);
 
             aiRepositoryMoq
                 .Setup(x => x.GetAbstractItemExtensionIds(It.IsAny<int[]>(), null))
@@ -173,7 +208,8 @@ namespace QA.DotNetCore.Engine.Routing.Tests
                 return null;
             });
 
-            ILogger<QpAbstractItemStorageBuilder> logger = NullLoggerFactory.Instance.CreateLogger<QpAbstractItemStorageBuilder>();
+            ILogger<QpAbstractItemStorageBuilder> logger =
+                NullLoggerFactory.Instance.CreateLogger<QpAbstractItemStorageBuilder>();
 
             // Arrange serviceScopeFactory
             var serviceProvider = new Mock<IServiceProvider>();
@@ -200,7 +236,7 @@ namespace QA.DotNetCore.Engine.Routing.Tests
             var cacheProvider = new VersionedCacheCoreProvider(
                 new MemoryCache(new MemoryCacheOptions()),
                 new CacheKeyFactoryBase(),
-                new MemoryLockFactory(),                
+                new MemoryLockFactory(),
                 Mock.Of<ILogger>());
             var cacheSettings = new QpSiteStructureCacheSettings
             {

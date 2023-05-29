@@ -95,13 +95,15 @@ namespace QA.DotNetCore.Caching.Distributed
             {
                 throw new ArgumentNullException(nameof(optionsAccessor));
             }
+
             _options = optionsAccessor.Value;
             _logger = logger;
         }
 
 
         /// <inheritdoc/>
-        public bool TryAdd(object value, string key, string deprecatedKey, string[] tags, TimeSpan expiration, TimeSpan deprecatedExpiration)
+        public bool TryAdd(object value, string key, string deprecatedKey, string[] tags, TimeSpan expiration,
+            TimeSpan deprecatedExpiration)
         {
             var result = true;
             try
@@ -117,7 +119,7 @@ namespace QA.DotNetCore.Caching.Distributed
 
             return result;
         }
-        
+
         public void InvalidateByTags(params string[] tags)
         {
             foreach (var tag in tags)
@@ -158,6 +160,7 @@ namespace QA.DotNetCore.Caching.Distributed
 
             return existFlags;
         }
+
         public IEnumerable<TResult> Get<TResult>(IEnumerable<string> keys)
         {
             var dataValues = Get(keys);
@@ -211,7 +214,7 @@ namespace QA.DotNetCore.Caching.Distributed
             Connect(token);
             var tagKey = new RedisKey(tag);
             _cache.ScriptEvaluate(InvalidateTagScript, new[] {tagKey});
-       }
+        }
 
         public void Set(
             string key,
@@ -233,7 +236,8 @@ namespace QA.DotNetCore.Caching.Distributed
 
             Connect(token);
 
-            _ = TrySet(dataKey, deprecatedDataKey, tagKeys, expiry, deprecatedExpiry, RedisValue.CreateFrom(dataStream));
+            _ = TrySet(dataKey, deprecatedDataKey, tagKeys, expiry, deprecatedExpiry,
+                RedisValue.CreateFrom(dataStream));
         }
 
         private bool TrySet(
@@ -249,7 +253,8 @@ namespace QA.DotNetCore.Caching.Distributed
 
             try
             {
-                ITransaction transaction = CreateSetCacheTransaction(key, deprecatedKey, tags, expiry, deprecatedExpiry, data, conditions, out var transactionOperations);
+                ITransaction transaction = CreateSetCacheTransaction(key, deprecatedKey, tags, expiry, deprecatedExpiry,
+                    data, conditions, out var transactionOperations);
                 bool isExecuted = transaction.Execute();
 
                 var exceptions = transactionOperations
@@ -311,7 +316,7 @@ namespace QA.DotNetCore.Caching.Distributed
                 operations.Add(transaction.KeyExpireAsync(deprecatedKey, deprecatedExpiry));
             }
 
-            RedisValue tagExpiry = (long)GetTagExpiry(expiry).TotalMilliseconds;
+            RedisValue tagExpiry = (long) GetTagExpiry(expiry).TotalMilliseconds;
             RedisValue keyValue = new RedisValue(key.ToString());
 
             foreach (var tag in tags)
@@ -319,8 +324,8 @@ namespace QA.DotNetCore.Caching.Distributed
                 operations.Add(transaction.SetAddAsync(tag, keyValue));
                 operations.Add(transaction.ScriptEvaluateAsync(
                     ExtendKeyExpiryScript,
-                    new[] { tag },
-                    new[] { tagExpiry }));
+                    new[] {tag},
+                    new[] {tagExpiry}));
             }
 
             transactionOperations = operations;
@@ -333,11 +338,9 @@ namespace QA.DotNetCore.Caching.Distributed
             {
                 var cachedValues = _cache
                     .StringGet(redisKeys)
-                    .Select(value => 
-                        value.HasValue ? 
-                        new CachedValue(KeyState.Exist, (byte[]) value) : 
-                        CachedValue.Empty);
-                
+                    .Select(value =>
+                        value.HasValue ? new CachedValue(KeyState.Exist, (byte[]) value) : CachedValue.Empty);
+
                 _logger.LogTrace("Keys ({CacheKeys}) have values: {CacheValues}", redisKeys, cachedValues);
                 return cachedValues;
             }
@@ -412,7 +415,7 @@ namespace QA.DotNetCore.Caching.Distributed
                 throw new ObjectDisposedException(GetType().FullName);
             }
         }
-        
+
         private MemoryStream SerializeData<T>(T data)
         {
             try
@@ -443,7 +446,7 @@ namespace QA.DotNetCore.Caching.Distributed
 
             return _serializer.Deserialize<T>(jsonReader);
         }
-        
+
         private bool TryDeserializeData<TResult>(string key, byte[] data, out TResult result)
         {
             try
@@ -452,14 +455,15 @@ namespace QA.DotNetCore.Caching.Distributed
                 {
                     if (data.GetType() == typeof(TResult))
                     {
-                        result = (TResult)(object)data;
+                        result = (TResult) (object) data;
                     }
                     else
                     {
-                        result = DeserializeData<TResult>(data);                   
+                        result = DeserializeData<TResult>(data);
                     }
+
                     return result != null;
-                } 
+                }
             }
             catch (Exception ex)
             {
@@ -474,6 +478,5 @@ namespace QA.DotNetCore.Caching.Distributed
             result = default;
             return false;
         }
-
     }
 }

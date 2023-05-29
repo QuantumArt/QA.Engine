@@ -23,11 +23,12 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests
             var cacheProvider = new VersionedCacheCoreProvider(
                 new MemoryCache(Options.Create(new MemoryCacheOptions())),
                 new CacheKeyFactoryBase(),
-                new MemoryLockFactory(),                
+                new MemoryLockFactory(),
                 Mock.Of<ILogger>());
             var metaRepository = new MetaInfoRepository(serviceProvider, cacheProvider, settings);
             var sqlAnalyzer = new NetNameQueryAnalyzer(metaRepository);
-            _repository = new ItemDefinitionRepository(serviceProvider, sqlAnalyzer, new StubNamingProvider(), cacheProvider, settings);
+            _repository = new ItemDefinitionRepository(serviceProvider, sqlAnalyzer, new StubNamingProvider(),
+                cacheProvider, settings);
         }
 
         [Test]
@@ -37,7 +38,8 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests
             {
                 var defs = _repository.GetAllItemDefinitions(Global.SiteId, false);
 
-                var startPageDef = defs.FirstOrDefault(d => d.Discriminator.Equals("start_page", StringComparison.OrdinalIgnoreCase));
+                var startPageDef = defs.FirstOrDefault(d =>
+                    d.Discriminator.Equals("start_page", StringComparison.OrdinalIgnoreCase));
 
                 Assert.IsNotNull(startPageDef);
                 Assert.AreEqual(startPageDef.TypeName, "StartPage");

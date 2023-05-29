@@ -75,17 +75,15 @@ namespace QA.DotNetCore.Caching.Distributed
             return cachedData;
         }
 
-        private async Task<IEnumerable<CachedValue>>GetWithStatesAsync(RedisKey[] redisKeys)
+        private async Task<IEnumerable<CachedValue>> GetWithStatesAsync(RedisKey[] redisKeys)
         {
             try
             {
-                var  cachedValues = (await _cache
-                    .StringGetAsync(redisKeys))
-                    .Select(value => 
-                        value.HasValue ? 
-                            new CachedValue(KeyState.Exist, (byte[]) value) : 
-                            CachedValue.Empty);
-                
+                var cachedValues = (await _cache
+                        .StringGetAsync(redisKeys))
+                    .Select(value =>
+                        value.HasValue ? new CachedValue(KeyState.Exist, (byte[]) value) : CachedValue.Empty);
+
                 _logger.LogTrace("Keys ({CacheKeys}) have values: {CacheValues}", redisKeys, cachedValues);
                 return cachedValues;
             }
@@ -95,7 +93,7 @@ namespace QA.DotNetCore.Caching.Distributed
                 return Enumerable.Repeat(CachedValue.Empty, redisKeys.Length);
             }
         }
- 
+
         public async Task InvalidateAsync(string key, CancellationToken token = default)
         {
             await ConnectAsync(token);
@@ -118,15 +116,15 @@ namespace QA.DotNetCore.Caching.Distributed
             TimeSpan deprecatedExpiry,
             CancellationToken token)
         {
-
             RedisKey dataKey = new RedisKey(key);
             RedisKey deprecatedDataKey = new RedisKey(key);
-            
+
             RedisKey[] tagKeys = tags.Select(n => new RedisKey(n)).ToArray();
 
             await ConnectAsync(token);
 
-            _ = await TrySetAsync(dataKey, deprecatedDataKey, tagKeys, expiry, deprecatedExpiry, RedisValue.CreateFrom(dataStream));
+            _ = await TrySetAsync(dataKey, deprecatedDataKey, tagKeys, expiry, deprecatedExpiry,
+                RedisValue.CreateFrom(dataStream));
         }
 
         private async Task<bool> TrySetAsync(
@@ -142,7 +140,8 @@ namespace QA.DotNetCore.Caching.Distributed
 
             try
             {
-                ITransaction transaction = CreateSetCacheTransaction(key, deprecatedKey, tags, expiry, deprecatedExpiry, data, conditions, out var transactionOperations);
+                ITransaction transaction = CreateSetCacheTransaction(key, deprecatedKey, tags, expiry, deprecatedExpiry,
+                    data, conditions, out var transactionOperations);
                 bool isExecuted = await transaction.ExecuteAsync();
 
                 var exceptions = transactionOperations
@@ -204,8 +203,7 @@ namespace QA.DotNetCore.Caching.Distributed
             }
         }
 
- 
-  
+
         private async IAsyncEnumerable<CachedValue> GetCachedValuesByKeysAsync(IEnumerable<RedisKey> keysEnumerable)
         {
             if (keysEnumerable is not RedisKey[] keys)
@@ -218,11 +216,9 @@ namespace QA.DotNetCore.Caching.Distributed
             foreach (var value in cachedValues)
             {
                 yield return value.HasValue
-                    ? new CachedValue(KeyState.Exist, (byte[])value)
+                    ? new CachedValue(KeyState.Exist, (byte[]) value)
                     : CachedValue.Empty;
             }
         }
-
-  
     }
 }

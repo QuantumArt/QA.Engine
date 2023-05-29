@@ -23,33 +23,35 @@ namespace QA.DotNetCore.Engine.QpData
 
         public IReadOnlyDictionary<string, object> GetUntypedFields()
         {
-                VerifyDetailsLoaded();
-                
-                if (Details == null)
+            VerifyDetailsLoaded();
+
+            if (Details == null)
+            {
+                return new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            }
+
+            Dictionary<string, object> details = new(Details.Count);
+
+            foreach (var fieldName in Details.Keys)
+            {
+                var fieldValue = GetUntypedDetail(fieldName);
+                if (fieldValue is not null)
                 {
-                    return new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+                    details.Add(fieldName, fieldValue);
                 }
+            }
 
-                Dictionary<string, object> details = new(Details.Count);
-
-                foreach (var fieldName in Details.Keys)
-                {
-                    var fieldValue = GetUntypedDetail(fieldName);
-                    if (fieldValue is not null)
-                    {
-                        details.Add(fieldName, fieldValue);
-                    }
-                }
-
-                return details;
-
+            return details;
         }
 
-        public ICollection<IAbstractItem> ChildItems { get { return Children; } }
+        public ICollection<IAbstractItem> ChildItems
+        {
+            get { return Children; }
+        }
 
         private object GetUntypedDetail(string fieldName) =>
-            M2MFieldNameMapToLinkIds.ContainsKey(fieldName.ToLowerInvariant()) ? 
-                GetRelationIds(fieldName) : 
-                GetDetail<object>(fieldName, null);
+            M2MFieldNameMapToLinkIds.ContainsKey(fieldName.ToLowerInvariant())
+                ? GetRelationIds(fieldName)
+                : GetDetail<object>(fieldName, null);
     }
 }

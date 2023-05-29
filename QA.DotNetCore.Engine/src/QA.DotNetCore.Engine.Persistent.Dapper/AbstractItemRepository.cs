@@ -14,7 +14,8 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
     public class AbstractItemRepository : IAbstractItemRepository
     {
-        private static readonly IReadOnlyDictionary<int, M2MRelations> _emptyResult = new Dictionary<int, M2MRelations>();
+        private static readonly IReadOnlyDictionary<int, M2MRelations> _emptyResult =
+            new Dictionary<int, M2MRelations>();
 
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         private readonly ICacheProvider _cacheProvider;
@@ -36,7 +37,10 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             _cacheSettings = cacheSettings;
         }
 
-        protected IUnitOfWork UnitOfWork { get { return _serviceProvider.GetRequiredService<IUnitOfWork>(); } }
+        protected IUnitOfWork UnitOfWork
+        {
+            get { return _serviceProvider.GetRequiredService<IUnitOfWork>(); }
+        }
 
         //запрос с использованием NetName таблиц и столбцов
         private const string CmdGetAbstractItem = @"
@@ -57,7 +61,8 @@ FROM |QPAbstractItem| ai
 INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.content_item_id
 ";
 
-        public IEnumerable<AbstractItemPersistentData> GetPlainAllAbstractItems(int siteId, bool isStage, IDbTransaction transaction = null)
+        public IEnumerable<AbstractItemPersistentData> GetPlainAllAbstractItems(int siteId, bool isStage,
+            IDbTransaction transaction = null)
         {
             var connection = UnitOfWork.Connection;
             var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAbstractItem, siteId, isStage);
@@ -82,7 +87,8 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
         /// <param name="isStage"></param>
         /// <param name="transaction"></param>
         /// <returns></returns>
-        public IEnumerable<int> GetAbstractItemExtensionIds(IReadOnlyCollection<int> extensionContentIds, IDbTransaction transaction = null)
+        public IEnumerable<int> GetAbstractItemExtensionIds(IReadOnlyCollection<int> extensionContentIds,
+            IDbTransaction transaction = null)
         {
             const string idsTableParameterName = "@ids";
 
@@ -192,7 +198,8 @@ JOIN {idListTable} on Id = ai.Content_item_id";
             return result;
         }
 
-        public IDictionary<int, M2MRelations> GetManyToManyData(IEnumerable<int> itemIds, bool isStage, IDbTransaction transaction = null)
+        public IDictionary<int, M2MRelations> GetManyToManyData(IEnumerable<int> itemIds, bool isStage,
+            IDbTransaction transaction = null)
         {
             var m2MTableName = QpTableNameHelper.GetM2MTableName(isStage);
             var idListTable = SqlQuerySyntaxHelper.IdList(UnitOfWork.DatabaseType, "@ids", "ids");
@@ -210,7 +217,7 @@ JOIN {idListTable} on Id = link.item_id";
             using var reader = command.ExecuteReader();
             return ReadM2MRelations(reader);
         }
-        
+
         public IDictionary<int, M2MRelations> GetManyToManyDataByContents(
             IEnumerable<int> contentIds,
             bool isStage,
@@ -231,7 +238,8 @@ JOIN {idListTableName} on Id = e.CONTENT_ID";
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = query;
             command.Transaction = transaction;
-            command.Parameters.Add(SqlQuerySyntaxHelper.GetIdsDatatableParam("@Ids", contentIds, UnitOfWork.DatabaseType));
+            command.Parameters.Add(
+                SqlQuerySyntaxHelper.GetIdsDatatableParam("@Ids", contentIds, UnitOfWork.DatabaseType));
             using var reader = command.ExecuteReader();
             return ReadM2MRelations(reader);
         }
@@ -254,7 +262,5 @@ JOIN {idListTableName} on Id = e.CONTENT_ID";
 
             return result;
         }
-
-
     }
 }

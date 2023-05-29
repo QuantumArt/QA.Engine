@@ -30,6 +30,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
         private static string abstractItemNetName = KnownNetNames.AbstractItem;
         private const int abstractItemContentId = 666;
         private const string uploadUrlPlaceholder = "<%upload_url%>";
+
         private readonly QpSiteStructureBuildSettings buildSettings = new QpSiteStructureBuildSettings
         {
             SiteId = siteId,
@@ -38,18 +39,21 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             UploadUrlPlaceholder = uploadUrlPlaceholder,
             LoadAbstractItemFieldsToDetailsCollection = true
         };
+
         private readonly QpSiteStructureCacheSettings cacheSettings = new QpSiteStructureCacheSettings
         {
             ItemDefinitionCachePeriod = TimeSpan.FromSeconds(30),
             QpSchemeCachePeriod = TimeSpan.FromSeconds(30),
             SiteStructureCachePeriod = TimeSpan.FromSeconds(30)
         };
+
         private readonly QpSitePersistentData siteData = new QpSitePersistentData
         {
             UseAbsoluteUploadUrl = true,
             UploadUrlPrefix = "http://storage.quntumart.ru",
             UploadUrl = "/upload"
         };
+
         private readonly VersionedCacheCoreProvider _cacheProvider = new VersionedCacheCoreProvider(
             new MemoryCache(new MemoryCacheOptions()),
             new CacheKeyFactoryBase(),
@@ -65,13 +69,38 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             */
             var aiRepositoryMoq = new Mock<IAbstractItemRepository>();
 
-            var aiArray = new[] {
-                new AbstractItemPersistentData{ Id = 4, Title = "текстовая страница 2", Alias = "bar", Discriminator = typeof(StubPage).Name, IsPage = true, ParentId = 3, ExtensionId = null },
-                new AbstractItemPersistentData{ Id = 2, Title = "стартовая страница", Alias = "start", Discriminator = typeof(StubStartPage).Name, IsPage = true, ParentId = 1, ExtensionId = null },
-                new AbstractItemPersistentData{ Id = 5, Title = "некий виджет", Alias = "blah", Discriminator = typeof(StubWidget).Name, IsPage = false, ParentId = 3, ExtensionId = null, IndexOrder = 100, ZoneName = "zonename" },
-                new AbstractItemPersistentData{ Id = 1, Title = "корневая страница", Alias = "root", Discriminator = typeof(RootPage).Name, IsPage = true, ParentId = null, ExtensionId = null },
-                new AbstractItemPersistentData{ Id = 3, Title = "текстовая страница 1", Alias = "foo", Discriminator = typeof(StubPage).Name, IsPage = true, ParentId = 2, ExtensionId = null },
-                new AbstractItemPersistentData{ Id = 6, Title = "несуществующая страница 1", Alias = "bar2", Discriminator = "notexisting", IsPage = true, ParentId = 3, ExtensionId = null }
+            var aiArray = new[]
+            {
+                new AbstractItemPersistentData
+                {
+                    Id = 4, Title = "текстовая страница 2", Alias = "bar", Discriminator = typeof(StubPage).Name,
+                    IsPage = true, ParentId = 3, ExtensionId = null
+                },
+                new AbstractItemPersistentData
+                {
+                    Id = 2, Title = "стартовая страница", Alias = "start", Discriminator = typeof(StubStartPage).Name,
+                    IsPage = true, ParentId = 1, ExtensionId = null
+                },
+                new AbstractItemPersistentData
+                {
+                    Id = 5, Title = "некий виджет", Alias = "blah", Discriminator = typeof(StubWidget).Name,
+                    IsPage = false, ParentId = 3, ExtensionId = null, IndexOrder = 100, ZoneName = "zonename"
+                },
+                new AbstractItemPersistentData
+                {
+                    Id = 1, Title = "корневая страница", Alias = "root", Discriminator = typeof(RootPage).Name,
+                    IsPage = true, ParentId = null, ExtensionId = null
+                },
+                new AbstractItemPersistentData
+                {
+                    Id = 3, Title = "текстовая страница 1", Alias = "foo", Discriminator = typeof(StubPage).Name,
+                    IsPage = true, ParentId = 2, ExtensionId = null
+                },
+                new AbstractItemPersistentData
+                {
+                    Id = 6, Title = "несуществующая страница 1", Alias = "bar2", Discriminator = "notexisting",
+                    IsPage = true, ParentId = 3, ExtensionId = null
+                }
             };
             aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteId, isStage, null)).Returns(aiArray);
 
@@ -121,7 +150,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 metaInfoMoq.Object,
                 serviceScopeFactory.Object,
                 serviceProvider.Object
-                );
+            );
 
             var aiStorage = builder.Build();
 
@@ -194,10 +223,23 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             });
 
             //корневая и 2 стартовых страницы, тип стартовой страницы подразумевает extension поля
-            var aiArray = new[] {
-                new AbstractItemPersistentData{ Id = 1, Title = "корневая страница", Alias = "root", Discriminator = typeof(RootPage).Name, IsPage = true, ParentId = null, ExtensionId = null },
-                new AbstractItemPersistentData{ Id = 2, Title = "стартовая страница 1", Alias = "start1", Discriminator = typeof(StartPage).Name, IsPage = true, ParentId = 1, ExtensionId = extensionId },
-                new AbstractItemPersistentData{ Id = 3, Title = "стартовая страница 2", Alias = "start2", Discriminator = typeof(StartPage).Name, IsPage = true, ParentId = 1, ExtensionId = extensionId }
+            var aiArray = new[]
+            {
+                new AbstractItemPersistentData
+                {
+                    Id = 1, Title = "корневая страница", Alias = "root", Discriminator = typeof(RootPage).Name,
+                    IsPage = true, ParentId = null, ExtensionId = null
+                },
+                new AbstractItemPersistentData
+                {
+                    Id = 2, Title = "стартовая страница 1", Alias = "start1", Discriminator = typeof(StartPage).Name,
+                    IsPage = true, ParentId = 1, ExtensionId = extensionId
+                },
+                new AbstractItemPersistentData
+                {
+                    Id = 3, Title = "стартовая страница 2", Alias = "start2", Discriminator = typeof(StartPage).Name,
+                    IsPage = true, ParentId = 1, ExtensionId = extensionId
+                }
             };
             aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteId, isStage, null)).Returns(aiArray);
 
@@ -208,8 +250,8 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             startPageJobExt.Add("DnsBinding", "job.quantumart.ru");
             var startPageExtDictionary = new Dictionary<int, AbstractItemExtensionCollection>
             {
-                { 2, startPageBaseExt},
-                { 3, startPageJobExt}
+                {2, startPageBaseExt},
+                {3, startPageJobExt}
             };
             aiRepositoryMoq.Setup(x => x.GetAbstractItemExtensionData(extensionId,
                 It.IsAny<ContentPersistentData>(),
@@ -222,7 +264,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                     It.IsAny<int[]>(),
                     buildSettings.IsStage,
                     null))
-                .Returns(new Dictionary<int, M2MRelations>(0) );
+                .Returns(new Dictionary<int, M2MRelations>(0));
 
             //фабрика элементов структуры сайта
             var aiFactoryMoq = new Mock<IAbstractItemFactory>();
@@ -301,26 +343,40 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             metaInfoMoq.Setup(x => x.GetContent(abstractItemNetName, siteId, null)).Returns(new ContentPersistentData
             {
                 ContentId = abstractItemContentId,
-                ContentAttributes = new List<ContentAttributePersistentData> { iconField }
+                ContentAttributes = new List<ContentAttributePersistentData> {iconField}
             });
-            metaInfoMoq.Setup(x => x.GetContentsById(It.Is<int[]>(ids => ids.Contains(extensionId)), siteId, null)).Returns(new ContentPersistentData[1]
-            {
-                new ContentPersistentData
+            metaInfoMoq.Setup(x => x.GetContentsById(It.Is<int[]>(ids => ids.Contains(extensionId)), siteId, null))
+                .Returns(new ContentPersistentData[1]
                 {
-                    ContentId = extensionId,
-                    ContentAttributes = new List<ContentAttributePersistentData> { imageField }
-                }
-            });
+                    new ContentPersistentData
+                    {
+                        ContentId = extensionId,
+                        ContentAttributes = new List<ContentAttributePersistentData> {imageField}
+                    }
+                });
             metaInfoMoq.Setup(x => x.GetContentAttribute(abstractItemContentId, "Icon", null)).Returns(iconField);
             metaInfoMoq.Setup(x => x.GetContentAttribute(extensionId, "Image", null)).Returns(imageField);
 
             var aiRepositoryMoq = new Mock<IAbstractItemRepository>();
 
             //корневая, стартовая страница и виджет с картинкой
-            var aiArray = new[] {
-                new AbstractItemPersistentData{ Id = 1, Title = "корневая страница", Alias = "root", Discriminator = typeof(RootPage).Name, IsPage = true, ParentId = null, ExtensionId = null },
-                new AbstractItemPersistentData{ Id = 2, Title = "стартовая страница", Alias = "start", Discriminator = typeof(StubStartPage).Name, IsPage = true, ParentId = 1, ExtensionId = null },
-                new AbstractItemPersistentData{ Id = 3, Title = "виджет картинки", Alias = "pic", Discriminator = typeof(PictureWidget).Name, IsPage = false, ParentId = 2, ExtensionId = extensionId }
+            var aiArray = new[]
+            {
+                new AbstractItemPersistentData
+                {
+                    Id = 1, Title = "корневая страница", Alias = "root", Discriminator = typeof(RootPage).Name,
+                    IsPage = true, ParentId = null, ExtensionId = null
+                },
+                new AbstractItemPersistentData
+                {
+                    Id = 2, Title = "стартовая страница", Alias = "start", Discriminator = typeof(StubStartPage).Name,
+                    IsPage = true, ParentId = 1, ExtensionId = null
+                },
+                new AbstractItemPersistentData
+                {
+                    Id = 3, Title = "виджет картинки", Alias = "pic", Discriminator = typeof(PictureWidget).Name,
+                    IsPage = false, ParentId = 2, ExtensionId = extensionId
+                }
             };
             aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteId, isStage, null)).Returns(aiArray);
 
@@ -333,7 +389,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             widgetExt.Add("Description", $"blah blah {uploadUrlPlaceholder}/blah.");
             var widgetExtDictionary = new Dictionary<int, AbstractItemExtensionCollection>
             {
-                { 3, widgetExt}
+                {3, widgetExt}
             };
             aiRepositoryMoq.Setup(x => x.GetAbstractItemExtensionData(extensionId,
                 It.IsAny<ContentPersistentData>(),
@@ -430,7 +486,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             metaInfoMoq.Setup(x => x.GetContent(abstractItemNetName, siteId, null)).Returns(new ContentPersistentData
             {
                 ContentId = abstractItemContentId,
-                ContentAttributes = new List<ContentAttributePersistentData> { baseContentRelationField }
+                ContentAttributes = new List<ContentAttributePersistentData> {baseContentRelationField}
             });
             metaInfoMoq.Setup(x => x.GetContentsById(It.Is<int[]>(ids => ids.Contains(extensionId)), siteId, null))
                 .Returns(new ContentPersistentData[1]
@@ -470,7 +526,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
 
             aiRepositoryMoq
                 .Setup(x => x.GetAbstractItemExtensionIds(It.IsAny<IReadOnlyCollection<int>>(), null))
-                .Returns(new[] { widgetExtId });
+                .Returns(new[] {widgetExtId});
 
             //extension-поля виджета:
             //поле SomeRelations - это поле m2m(значением будет является некий relationid),
@@ -482,7 +538,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             widgetExt.Add(baseContentRelationField.ColumnName, baseContentRelationField.M2MLinkId);
             var widgetExtDictionary = new Dictionary<int, AbstractItemExtensionCollection>
             {
-                { widgetId, widgetExt}
+                {widgetId, widgetExt}
             };
             aiRepositoryMoq
                 .Setup(x => x.GetAbstractItemExtensionData(
@@ -496,30 +552,31 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             //по relationid и id виджета в qp можно получить полный список id, участвующих в связи m2m с этим виджетом
             //замокаем методы получения такой информации для 2х relation: один из контента с extension, один в базовом контенте. нужно проверить оба варианта
             var widgetRelation = new M2MRelations();
-            var relationValues = new[] { 435, 46, 56 };
+            var relationValues = new[] {435, 46, 56};
             foreach (var relValue in relationValues)
             {
                 widgetRelation.AddRelation(widgetRelationField.M2MLinkId.Value, relValue);
             }
+
             aiRepositoryMoq
                 .Setup(x => x.GetManyToManyDataByContents(
                     It.Is<int[]>(ids => ids.Single() == extensionId),
                     isStage,
                     null))
                 .Returns(
-
-                        new Dictionary<int, M2MRelations>
-                        {
-                            { widgetExtId, widgetRelation}
-                        }
-                    );
+                    new Dictionary<int, M2MRelations>
+                    {
+                        {widgetExtId, widgetRelation}
+                    }
+                );
 
             var baseContentRelation = new M2MRelations();
-            var baseContentRelationValues = new[] { 576, 7568 };
+            var baseContentRelationValues = new[] {576, 7568};
             foreach (var relValue in baseContentRelationValues)
             {
                 baseContentRelation.AddRelation(baseContentRelationField.M2MLinkId.Value, relValue);
             }
+
             aiRepositoryMoq
                 .Setup(x => x.GetManyToManyData(
                     It.Is<IEnumerable<int>>(ids => ids.Contains(widgetId)),
@@ -528,7 +585,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 .Returns(
                     new Dictionary<int, M2MRelations>
                     {
-                        { widgetId, baseContentRelation }
+                        {widgetId, baseContentRelation}
                     });
 
             //фабрика элементов структуры сайта
@@ -590,10 +647,26 @@ namespace QA.DotNetCore.Engine.QpData.Tests
 
             AbstractItemPersistentData[] aiArray = new[]
             {
-                new AbstractItemPersistentData{ Id = 1, Title = "корневая страница", Alias = "root", Discriminator = typeof(RootPage).Name, IsPage = true, ParentId = null, ExtensionId = null },
-                new AbstractItemPersistentData{ Id = 2, Title = "стартовая страница", Alias = "start", Discriminator = typeof(StubStartPage).Name, IsPage = true, ParentId = 1, ExtensionId = null },
-                new AbstractItemPersistentData{ Id = 3, Title = "новости (страница)", Alias = "novosti", Discriminator = typeof(NewsPage).Name, IsPage = true, ParentId = 2, ExtensionId = null },
-                new AbstractItemPersistentData{ Id = 4, Title = "новости (виджет)", Alias = "novosti", Discriminator = typeof(NewsPart).Name, IsPage = false, ParentId = 2, ExtensionId = null, IndexOrder = 100, ZoneName = "zonename" }
+                new AbstractItemPersistentData
+                {
+                    Id = 1, Title = "корневая страница", Alias = "root", Discriminator = typeof(RootPage).Name,
+                    IsPage = true, ParentId = null, ExtensionId = null
+                },
+                new AbstractItemPersistentData
+                {
+                    Id = 2, Title = "стартовая страница", Alias = "start", Discriminator = typeof(StubStartPage).Name,
+                    IsPage = true, ParentId = 1, ExtensionId = null
+                },
+                new AbstractItemPersistentData
+                {
+                    Id = 3, Title = "новости (страница)", Alias = "novosti", Discriminator = typeof(NewsPage).Name,
+                    IsPage = true, ParentId = 2, ExtensionId = null
+                },
+                new AbstractItemPersistentData
+                {
+                    Id = 4, Title = "новости (виджет)", Alias = "novosti", Discriminator = typeof(NewsPart).Name,
+                    IsPage = false, ParentId = 2, ExtensionId = null, IndexOrder = 100, ZoneName = "zonename"
+                }
             };
             aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteId, isStage, null)).Returns(aiArray);
 
@@ -670,20 +743,30 @@ namespace QA.DotNetCore.Engine.QpData.Tests
 
             AbstractItemPersistentData[] aiArray = new[]
             {
-                new AbstractItemPersistentData{ Id = 1, Title = "корневая страница", Alias = "root", Discriminator = typeof(RootPage).Name, IsPage = true, ParentId = null, ExtensionId = null },
-                new AbstractItemPersistentData{ Id = 2, Title = "стартовая страница", Alias = "start", Discriminator = typeof(StubStartPage).Name, IsPage = true, ParentId = 1, ExtensionId = null },
-                new AbstractItemPersistentData{ Id = 3, Title = "страница без extension", Alias = "foo", Discriminator = typeof(StubPage).Name, IsPage = true, ParentId = 2, ExtensionId = null },
+                new AbstractItemPersistentData
+                {
+                    Id = 1, Title = "корневая страница", Alias = "root", Discriminator = typeof(RootPage).Name,
+                    IsPage = true, ParentId = null, ExtensionId = null
+                },
+                new AbstractItemPersistentData
+                {
+                    Id = 2, Title = "стартовая страница", Alias = "start", Discriminator = typeof(StubStartPage).Name,
+                    IsPage = true, ParentId = 1, ExtensionId = null
+                },
+                new AbstractItemPersistentData
+                {
+                    Id = 3, Title = "страница без extension", Alias = "foo", Discriminator = typeof(StubPage).Name,
+                    IsPage = true, ParentId = 2, ExtensionId = null
+                },
             };
             aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteId, isStage, null)).Returns(aiArray);
 
             var metaInfoMoq = new Mock<IMetaInfoRepository>();
-            metaInfoMoq.
-                Setup(x => x.GetContent(abstractItemNetName, siteId, null)).
-                Returns(new ContentPersistentData
-                {
-                    ContentId = abstractItemContentId,
-                    ContentAttributes = new List<ContentAttributePersistentData>()
-                });
+            metaInfoMoq.Setup(x => x.GetContent(abstractItemNetName, siteId, null)).Returns(new ContentPersistentData
+            {
+                ContentId = abstractItemContentId,
+                ContentAttributes = new List<ContentAttributePersistentData>()
+            });
 
             //фабрика элементов структуры сайта
             var aiFactoryMoq = new Mock<IAbstractItemFactory>();
@@ -700,7 +783,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
 
             var baseContentFieldDictionary = new Dictionary<int, AbstractItemExtensionCollection>
             {
-                { 3, fieldCollection}
+                {3, fieldCollection}
             };
             aiRepositoryMoq.Setup(x => x.GetAbstractItemExtensionlessData(
                 It.Is<IEnumerable<int>>(ids => ids.Contains(3)),
@@ -759,10 +842,23 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             });
 
             //корневая и 2 стартовых страницы, тип стартовой страницы подразумевает extension поля
-            var aiArray = new[] {
-                new AbstractItemPersistentData{ Id = 1, Title = "корневая страница", Alias = "root", Discriminator = typeof(RootPage).Name, IsPage = true, ParentId = null, ExtensionId = null },
-                new AbstractItemPersistentData{ Id = 2, Title = "стартовая страница 1", Alias = "start1", Discriminator = typeof(StartPage).Name, IsPage = true, ParentId = 1, ExtensionId = extensionId },
-                new AbstractItemPersistentData{ Id = 3, Title = "стартовая страница 2", Alias = "start2", Discriminator = typeof(StartPage).Name, IsPage = true, ParentId = 1, ExtensionId = extensionId }
+            var aiArray = new[]
+            {
+                new AbstractItemPersistentData
+                {
+                    Id = 1, Title = "корневая страница", Alias = "root", Discriminator = typeof(RootPage).Name,
+                    IsPage = true, ParentId = null, ExtensionId = null
+                },
+                new AbstractItemPersistentData
+                {
+                    Id = 2, Title = "стартовая страница 1", Alias = "start1", Discriminator = typeof(StartPage).Name,
+                    IsPage = true, ParentId = 1, ExtensionId = extensionId
+                },
+                new AbstractItemPersistentData
+                {
+                    Id = 3, Title = "стартовая страница 2", Alias = "start2", Discriminator = typeof(StartPage).Name,
+                    IsPage = true, ParentId = 1, ExtensionId = extensionId
+                }
             };
             aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteId, isStage, null)).Returns(aiArray);
 
@@ -773,8 +869,8 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             startPageJobExt.Add("DnsBinding", "job.quantumart.ru|*.job.quantumart.ru");
             var startPageExtDictionary = new Dictionary<int, AbstractItemExtensionCollection>
             {
-                { 2, startPageBaseExt},
-                { 3, startPageJobExt}
+                {2, startPageBaseExt},
+                {3, startPageJobExt}
             };
             aiRepositoryMoq
                 .Setup(x => x.GetAbstractItemExtensionData(
@@ -857,7 +953,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             IMetaInfoRepository metaInfoRepository,
             IServiceScopeFactory scopeFactory,
             IServiceProvider serviceProvider
-            )
+        )
         {
             var mockQpContentCacheTagNamingProvider = new Mock<IQpContentCacheTagNamingProvider>();
             _ = mockQpContentCacheTagNamingProvider

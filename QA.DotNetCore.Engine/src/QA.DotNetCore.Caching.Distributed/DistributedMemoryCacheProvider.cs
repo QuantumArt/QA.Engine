@@ -40,7 +40,8 @@ namespace QA.DotNetCore.Caching
             if (keysToQuery.Length > 0)
             {
                 var results = new List<bool>();
-                var externalResults = _externalCache.Exist(keysToQuery).Zip(keysToQuery).ToDictionary(k => k.Second, v => v.First);
+                var externalResults = _externalCache.Exist(keysToQuery).Zip(keysToQuery)
+                    .ToDictionary(k => k.Second, v => v.First);
                 foreach (var localResult in localResults)
                 {
                     var result = localResult.Exists || externalResults[localResult.Key];
@@ -48,10 +49,13 @@ namespace QA.DotNetCore.Caching
                     {
                         _localKeys.Add(localResult.Key);
                     }
+
                     results.Add(result);
                 }
+
                 return results;
             }
+
             return Enumerable.Repeat(true, keys.Count());
         }
 
@@ -66,13 +70,14 @@ namespace QA.DotNetCore.Caching
         public override IEnumerable<TResult> Get<TResult>(IEnumerable<string> keys)
         {
             keys = keys.Select(GetKey).ToArray();
-            
+
             var localResults = base.IsSet(keys).ToArray();
             var externalResults = IsSet(keys);
             var results = localResults.Zip(externalResults).Zip(keys)
-                .Select(n => new { HasLocal = n.First.First, HasExternal = n.First.Second, Key = n.Second}).ToArray();
+                .Select(n => new {HasLocal = n.First.First, HasExternal = n.First.Second, Key = n.Second}).ToArray();
             var extKeys = results.Where(n => n.HasExternal && !n.HasLocal).Select(n => n.Key).ToArray();
-            var externalResultsDict = extKeys.Distinct().Zip(_externalCache.Get<TResult>(extKeys)).ToDictionary(n => n.First, m=> m.Second);
+            var externalResultsDict = extKeys.Distinct().Zip(_externalCache.Get<TResult>(extKeys))
+                .ToDictionary(n => n.First, m => m.Second);
             foreach (var result in results)
             {
                 if (!result.HasExternal)
@@ -80,12 +85,12 @@ namespace QA.DotNetCore.Caching
                     yield return default;
                 }
                 else if (result.HasLocal)
-                { 
+                {
                     yield return _cache.Get<TResult>(result.Key);
                 }
                 else
                 {
-                    var externalResult = externalResultsDict[result.Key];  
+                    var externalResult = externalResultsDict[result.Key];
                     _cache.Set(result.Key, externalResult, new MemoryCacheEntryOptions()
                     {
                         Size = 1,
@@ -100,28 +105,30 @@ namespace QA.DotNetCore.Caching
         {
             key = GetKey(key);
             tags = tags.Select(GetTag).ToArray();
-            
+
             var deprecatedKey = GetDeprecatedKey(key);
-            var deprecatedExpiration = TimeSpan.FromTicks(expiration.Ticks * _defaultDeprecatedCoef);
-            
-            if (skipSerialization || !_externalCache.TryAdd(data, key, deprecatedKey, tags, expiration, deprecatedExpiration))
+            var deprecatedExpiration = expiration * _defaultDeprecatedCoef;
+
+            if (skipSerialization ||
+                !_externalCache.TryAdd(data, key, deprecatedKey, tags, expiration, deprecatedExpiration))
             {
                 _externalCache.TryAdd(String.Empty, key, deprecatedKey, tags, expiration, deprecatedExpiration);
             }
+
             base.Add(data, key, tags, expiration, skipSerialization);
         }
 
         public override void Invalidate(string key)
         {
-            base.Invalidate(key); 
-            
+            base.Invalidate(key);
+
             _externalCache.Invalidate(GetKey(key));
         }
 
         public override void InvalidateByTags(params string[] tags)
         {
             base.InvalidateByTags(tags);
-            
+
             foreach (var tag in tags)
             {
                 _externalCache.InvalidateTag(GetTag(tag));

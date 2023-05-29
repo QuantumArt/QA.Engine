@@ -13,7 +13,7 @@ public class ExternalLock : ILock, IAsyncLock
     private readonly TimeSpan _expire;
     private readonly TimeSpan _retry;
     private IRedLock _lock;
-    
+
     public ExternalLock(string key, IDistributedLockFactory factory, ExternalCacheSettings settings)
     {
         _key = key;
@@ -21,7 +21,7 @@ public class ExternalLock : ILock, IAsyncLock
         _expire = settings.LockExpireTimeout;
         _retry = settings.LockRetryInterval;
     }
-    
+
     public bool Acquire()
     {
         _lock = _factory.CreateLock(_key, _expire);
@@ -37,13 +37,13 @@ public class ExternalLock : ILock, IAsyncLock
     public async Task<bool> AcquireAsync()
     {
         _lock = await _factory.CreateLockAsync(_key, _expire);
-        return _lock.IsAcquired;    
+        return _lock.IsAcquired;
     }
 
     public async Task<bool> AcquireAsync(TimeSpan timeout)
     {
         _lock = await _factory.CreateLockAsync(_key, _expire, timeout, _retry);
-        return _lock.IsAcquired;       
+        return _lock.IsAcquired;
     }
 
     public async Task ReleaseAsync() => await _lock.DisposeAsync();

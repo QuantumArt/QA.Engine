@@ -155,7 +155,6 @@ public class DistributedMemoryCacheProviderTests
         {
             // Arrange
             string key = "key1";
-            static MemoryStream dataFactory() => GetRandomDataStream();
             var expiry = _defaultExpiry;
 
             using (var connection = CreateConnection())
@@ -166,7 +165,7 @@ public class DistributedMemoryCacheProviderTests
             var provider = CreateProvider(CreateRedisCache());
             {
                 // Act
-                _ = provider.GetOrAdd(key, Array.Empty<string>(), expiry, dataFactory, _lockTimeout);
+                _ = provider.GetOrAdd(key, Array.Empty<string>(), expiry, GetRandomData, _lockTimeout);
             }
 
             // Assert
@@ -183,7 +182,7 @@ public class DistributedMemoryCacheProviderTests
             var key = "key1";
             var tag = "tag1";
             var expiry = TimeSpan.FromSeconds(0.5);
-            static MemoryStream dataFactory() => GetRandomDataStream();
+            var extraDelay = TimeSpan.FromSeconds(1);
 
             using (var connection = CreateConnection())
             {
@@ -196,10 +195,10 @@ public class DistributedMemoryCacheProviderTests
             var provider = CreateProvider(CreateRedisCache());
             {
                 // Act
-                _ = provider.GetOrAdd(key, new[] { tag }, expiry, dataFactory, _lockTimeout);
+                _ = provider.GetOrAdd(key, new[] { tag }, expiry, GetRandomData, _lockTimeout);
             }
 
-            await Task.Delay(expiry);
+            await Task.Delay(expiry + extraDelay);
 
             // Assert
             using (var connection = CreateConnection())
@@ -278,12 +277,12 @@ public class DistributedMemoryCacheProviderTests
             AutoResetEvent dataObtainingStartedEvent = new(false);
             var eventTimeout = _lockTimeout + TimeSpan.FromSeconds(2);
 
-            MemoryStream waitingDataFactory()
+            byte[] waitingDataFactory()
             {
                 Assert.True(dataObtainingStartedEvent.Set());
                 _output.WriteLine($"{DateTime.UtcNow.TimeOfDay}: Event released when key is locked.");
                 Assert.True(dataObtainingStartedEvent.WaitOne());
-                return GetRandomDataStream();
+                return GetRandomData();
             }
 
             using (var connection = CreateConnection())
@@ -314,7 +313,7 @@ public class DistributedMemoryCacheProviderTests
                     () =>
                     {
                         Assert.True(false, "Duplicate call of the data factory when already locked.");
-                        return GetRandomDataStream();
+                        return GetRandomData();
                     },
                     _lockTimeout);
             });
@@ -333,12 +332,12 @@ public class DistributedMemoryCacheProviderTests
             var tag = "tag1";
             var invalidatedTag = "tag2";
             var expiry = _defaultExpiry;
-            MemoryStream dataFactory()
+            byte[] dataFactory()
             {
                 using var redisCache = CreateRedisCache();
                 redisCache.InvalidateTag(invalidatedTag);
 
-                return GetRandomDataStream();
+                return GetRandomData();
             }
 
             using (var connection = CreateConnection())
@@ -600,8 +599,6 @@ public class DistributedMemoryCacheProviderTests
     
     private static ConnectionMultiplexer CreateConnection() =>
         ConnectionMultiplexer.Connect(ConnectionString);
-
-    private static MemoryStream GetRandomDataStream() => new(GetRandomData());
 
     private static byte[] GetRandomData()
     {

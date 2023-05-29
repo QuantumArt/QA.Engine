@@ -174,6 +174,9 @@ namespace QA.DotNetCore.Caching
         T IMemoryCacheProvider.GetOrAdd<T>(string cacheKey, TimeSpan expiration, Func<T> getData, TimeSpan waitForCalculateTimeout) =>
             this.GetOrAdd(cacheKey, expiration, getData, waitForCalculateTimeout);
 
+        public Task<T> GetOrAddAsync<T>(string cacheKey, TimeSpan expiration, Func<Task<T>> getData, TimeSpan waitForCalculateTimeout = default) => 
+            GetOrAddAsync(cacheKey, Array.Empty<string>(), expiration, getData, waitForCalculateTimeout);
+        
         public T GetOrAdd<T>(string cacheKey, TimeSpan expiration, Func<T> getData, TimeSpan waitForCalculateTimeout = default) =>
             GetOrAdd(cacheKey, Array.Empty<string>(), expiration, getData, waitForCalculateTimeout);
 
@@ -394,9 +397,9 @@ namespace QA.DotNetCore.Caching
             return result;
         }
 
-        protected string GetDeprecatedKey(string key) => _keyFactory.GetDeprecatedKey(key);
+        protected string GetDeprecatedKey(string key) => _keyFactory.GetDeprecatedKey(key ?? "");
 
-        protected string GetKey(string key) => _keyFactory.GetDataKey(key);
-        protected string GetTag(string tag) => _keyFactory.GetTagKey(tag);
+        protected string GetKey(string key) => _keyFactory.GetDataKey(key ?? "");
+        protected string GetTag(string tag) => _keyFactory.GetTagKey(tag ?? "");
     }
 }

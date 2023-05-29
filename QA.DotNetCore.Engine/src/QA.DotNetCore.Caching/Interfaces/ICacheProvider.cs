@@ -41,5 +41,10 @@ namespace QA.DotNetCore.Caching.Interfaces
 
         Task<T> GetOrAddAsync<T>(string cacheKey, string[] tags, TimeSpan expiration, Func<Task<T>> getData,
             TimeSpan waitForCalculateTimeout = default, bool skipSerialization = false);
+        
+        T GetOrAdd<T>(string cacheKey, TimeSpan expiration, Func<T> getData, TimeSpan waitForCalculateTimeout = default);
+
+        Task<T> GetOrAddAsync<T>(string cacheKey, TimeSpan expiration, Func<Task<T>> getData, TimeSpan waitForCalculateTimeout = default);
+        
     }
 }

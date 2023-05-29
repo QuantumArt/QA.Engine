@@ -241,13 +241,16 @@ namespace QA.DotNetCore.Engine.QpData
                         _buildSettings.SiteId)
                     .ToDictionary(c => c.ContentId);
 
+                var allTags = GetTags(extensions.Keys);
                 if (lazyLoad)
                 {
+                    
                     _context.LazyExtensionData = extensions.ToDictionary(x => x.Key,
                         x => new Lazy<IDictionary<int, AbstractItemExtensionCollection>>(
                             () => GetAbstractItemExtensionData(
                                 x.Key,
                                 x.Value.Select(i => i.Id),
+                                new [] {x.Key == 0 ? allTags.AbstractItemTag : allTags.ExtensionsTags[x.Key]},
                                 _context.BaseContent,
                                 _context.LogId,
                                 true
@@ -259,6 +262,7 @@ namespace QA.DotNetCore.Engine.QpData
                         x => GetAbstractItemExtensionData(
                             x.Key, 
                             x.Value.Select(i => i.Id),
+                            new [] {x.Key == 0 ? allTags.AbstractItemTag : allTags.ExtensionsTags[x.Key]},
                             _context.BaseContent,
                             _context.LogId,
                             false
@@ -267,7 +271,6 @@ namespace QA.DotNetCore.Engine.QpData
                 }
 
 
-                var allTags = GetTags(extensions.Keys);
                 var abstractItemTags = ConcatTags(allTags.AbstractItemTag, allTags.ItemDefinitionTag);
                 _context.AbstractItemsM2MData = GetAbstractItemsManyToManyRelations(extensions, abstractItemTags, _context.LogId);
                 _context.ExtensionsM2MData = GetExtensionsManyToManyRelations(extensions, allTags.AllTags, _context.LogId);
@@ -366,7 +369,7 @@ namespace QA.DotNetCore.Engine.QpData
             tags is null ? Array.Empty<string>() : tags.Where(tag => !string.IsNullOrEmpty(tag)).ToArray();
 
         private IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionId,
-            IEnumerable<int> abstractItemIds, ContentPersistentData baseContent, string logId, bool createScope)
+            IEnumerable<int> abstractItemIds, string[] tags, ContentPersistentData baseContent, string logId, bool createScope)
         {
             using var scope = createScope ? _scopeFactory.CreateScope() : null;
             var scopeString = scope != null ? "new" : "existing";
@@ -377,12 +380,12 @@ namespace QA.DotNetCore.Engine.QpData
             var logger = provider.GetRequiredService<ILogger<QpAbstractItemStorageBuilder>>();
 
             IDictionary<int, AbstractItemExtensionCollection> result;
-            var tags = GetTags(new[] {extensionId});
+
             if (extensionId == 0)
             {
                 result = _cacheProvider.GetOrAdd(
                 $"GetAbstractItemExtensionlessData",
-                new[] {tags.AbstractItemTag},
+                tags,
                 _cacheSettings.SiteStructureCachePeriod,
                 () =>
                 {
@@ -399,7 +402,7 @@ namespace QA.DotNetCore.Engine.QpData
             {
                 result = _cacheProvider.GetOrAdd(
                     $"GetAbstractItemExtensionData({extensionId})",
-                    new[] {tags.ExtensionsTags[extensionId]},
+                    tags,
                     _cacheSettings.SiteStructureCachePeriod,
                     () =>
                     {

@@ -72,6 +72,13 @@ namespace QA.DotNetCore.Caching
                 yield return !string.IsNullOrEmpty(key) && _cache.TryGetValue(GetKey(key), out _);
             }
         }
+        
+        
+        public void Set(string key, object data, TimeSpan expiration)
+        {
+            Add(data, key, Array.Empty<string>(), expiration);
+        }
+
 
         /// <summary>
         /// Пытается получить данные из кеша по ключу
@@ -101,7 +108,7 @@ namespace QA.DotNetCore.Caching
         }
 
         /// <inheritdoc/>
-        public virtual void Add(object data, string key, string[] tags, TimeSpan expiration, bool skipSerialization)
+        public virtual void Add(object data, string key, string[] tags, TimeSpan expiration, bool skipSerialization = false)
         {
             key = GetKey(key);
 
@@ -127,6 +134,7 @@ namespace QA.DotNetCore.Caching
             _cache.Set(key, data, policy);
             _cache.Set(deprecatedKey, data, deprecatedPolicy);
         }
+
 
         private static MemoryCacheEntryOptions GetPolicy(TimeSpan expiration)
         {

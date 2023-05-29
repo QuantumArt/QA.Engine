@@ -19,6 +19,8 @@ namespace QA.DotNetCore.Caching.Interfaces
         IEnumerable<TResult> Get<TResult>(IEnumerable<string> keys);
 
         TResult Get<TResult>(string key);
+        
+        bool TryGetValue<TResult>(string key, out TResult result);
 
         /// <summary>
         /// Проверяет наличие данных в кэше
@@ -37,7 +39,15 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// <param name="tags">Теги</param>
         /// <param name="expiration">Время кеширования (absolute expiration).</param>
         /// <param name="skipSerialization"></param>
-        void Add(object data, string key, string[] tags, TimeSpan expiration, bool skipSerialization);
+        void Add(object data, string key, string[] tags, TimeSpan expiration, bool skipSerialization = false);
+
+        /// <summary>
+        /// Записывает данные в кеш.
+        /// </summary>
+        /// <param name="key">Ключ</param>
+        /// <param name="data">Данные</param>
+        /// <param name="expiration">Интервал кэширования</param>
+        void Set(string key, object data, TimeSpan expiration);
 
         T GetOrAdd<T>(string cacheKey, string[] tags, TimeSpan expiration, Func<T> getData,
             TimeSpan waitForCalculateTimeout = default, bool skipSerialization = false);

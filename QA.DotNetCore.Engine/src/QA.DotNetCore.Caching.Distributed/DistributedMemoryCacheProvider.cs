@@ -101,7 +101,7 @@ namespace QA.DotNetCore.Caching
             }
         }
 
-        public override void Add(object data, string key, string[] tags, TimeSpan expiration, bool skipSerialization)
+        public override void Add(object data, string key, string[] tags, TimeSpan expiration, bool skipSerialization = false)
         {
             key = GetKey(key);
             tags = tags.Select(GetTag).ToArray();

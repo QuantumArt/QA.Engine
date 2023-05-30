@@ -36,5 +36,7 @@ namespace QA.DotNetCore.Engine.QpData.Interfaces
         /// </summary>
         /// <param name="abstractItems"></param>
         void SetRelationsBetweenAbstractItems(AbstractItem[] abstractItems);
+        
+        AbstractItemExtensionCollection BuildDetails(AbstractItem item, bool createScope);
     }
 }

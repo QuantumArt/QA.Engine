@@ -4,25 +4,14 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace QA.DotNetCore.Caching.Interfaces
+namespace QA.DotNetCore.Caching.Distributed
 {
-    public interface IDistributedTaggedCache : IDisposable
+    public interface IExternalCache : IDisposable
     {
-        string GetClientId(CancellationToken token = default);
+        IEnumerable<TResult> Get<TResult>(IEnumerable<string> keys);
 
-        /// <summary>
-        /// Synchronous alternative of <see cref="GetAsync(IEnumerable{string}, CancellationToken)"/>.
-        /// </summary>
-        IEnumerable<byte[]> Get(IEnumerable<string> keys, CancellationToken token = default);
-
-        /// <summary>
-        /// Synchronous alternative of <see cref="GetOrAddAsync{TId}(CacheInfo{TId}[], AsyncDataValuesFactoryDelegate{TId, MemoryStream}, CancellationToken)"/>.
-        /// </summary>
-        IReadOnlyList<byte[]> GetOrAdd<TId>(
-            CacheInfo<TId>[] dataInfos,
-            DataValuesFactoryDelegate<TId, MemoryStream> dataStreamsFactory,
-            TimeSpan lockEnterWaitTimeout,
-            CancellationToken token = default);
+        bool TryAdd(object value, string key, string deprecatedKey, string[] tags, TimeSpan expiration,
+            TimeSpan deprecatedExpiration);
 
         /// <summary>
         /// Synchronous alternative of <see cref="InvalidateAsync(string, CancellationToken)"/>.
@@ -35,14 +24,15 @@ namespace QA.DotNetCore.Caching.Interfaces
         void InvalidateTag(string tag, CancellationToken token = default);
 
         /// <summary>
-        /// Synchronous alternative of <see cref="IDistributedTaggedCache.ExistAsync(IEnumerable{string}, CancellationToken)"/>.
+        /// Synchronous alternative of <see cref="IExternalCache.ExistAsync(IEnumerable{string}, CancellationToken)"/>.
         /// </summary>
         IEnumerable<bool> Exist(IEnumerable<string> keys, CancellationToken token = default);
 
         /// <summary>
-        /// Synchronous alternative of <see cref="SetAsync(string, IEnumerable{string}, TimeSpan, MemoryStream, CancellationToken)"/>.
+        /// Synchronous alternative of <see cref="SetAsync"/>.
         /// </summary>
-        void Set(string key, IEnumerable<string> tags, TimeSpan expiry, MemoryStream data, CancellationToken token = default);
+        void Set(string key, IEnumerable<string> tags, TimeSpan expiry, MemoryStream data, string deprecatedKey,
+            TimeSpan deprecatedExpiry, CancellationToken token = default);
 
         /// <summary>
         /// Get cached data by the <paramref name="keys"/>.
@@ -51,19 +41,6 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// <param name="token">Operation cancellation token</param>
         /// <returns>List of cached data (or null if a key is missing).</returns>
         Task<IEnumerable<byte[]>> GetAsync(IEnumerable<string> keys, CancellationToken token = default);
-
-        /// <summary>
-        /// Atomically get existing cache or otherwise execute <paramref name="dataStreamFactory"/> to obtain data and cache it.
-        /// </summary>
-        /// <param name="cacheInfos">Information to get or set cache.</param>
-        /// <param name="dataStreamFactory">Method to retrieve fresh data.</param>
-        /// <param name="token">Operation cancellation token</param>
-        /// <returns>Cached data.</returns>
-        Task<IReadOnlyList<byte[]>> GetOrAddAsync<TId>(
-            CacheInfo<TId>[] cacheInfos,
-            AsyncDataValuesFactoryDelegate<TId, MemoryStream> dataStreamsFactory,
-            TimeSpan lockEnterWaitTimeout,
-            CancellationToken token = default);
 
         /// <summary>
         /// Remove data from cache by the <paramref name="key"/>.
@@ -96,8 +73,11 @@ namespace QA.DotNetCore.Caching.Interfaces
         /// <param name="tags">Tags to link to key.</param>
         /// <param name="expiry">Data expiration time in cache.</param>
         /// <param name="dataStream">Data to cache.</param>
+        /// <param name="deprecatedKey"></param>
+        /// <param name="deprecatedExpiry"></param>
         /// <param name="token">Operation cancellation token</param>
         /// <returns>Caching task.</returns>
-        Task SetAsync(string key, IEnumerable<string> tags, TimeSpan expiry, MemoryStream dataStream, CancellationToken token = default);
+        Task SetAsync(string key, IEnumerable<string> tags, TimeSpan expiry, MemoryStream dataStream,
+            string deprecatedKey, TimeSpan deprecatedExpiry, CancellationToken token = default);
     }
 }

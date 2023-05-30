@@ -8,7 +8,7 @@ namespace QA.DotNetCore.Engine.Xml
     {
         public override bool IsPage => false;
 
-        public virtual string ZoneName { get; private set; }
+        public virtual string ZoneName { get; set; }
 
         public virtual string[] AllowedUrlPatterns => _lazyAllowedUrlPatterns.Value;
 

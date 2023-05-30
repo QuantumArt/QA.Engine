@@ -1,4 +1,4 @@
-﻿namespace QA.DotNetCore.Caching.Distributed
+﻿namespace QA.DotNetCore.Caching.Distributed.Internals
 {
     internal enum KeyState
     {

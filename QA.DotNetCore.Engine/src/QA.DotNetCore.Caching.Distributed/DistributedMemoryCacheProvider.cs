@@ -5,90 +5,134 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using QA.DotNetCore.Caching.Helpers.Pipes;
+using QA.DotNetCore.Caching.Distributed;
 
 namespace QA.DotNetCore.Caching
 {
-    public class DistributedMemoryCacheProvider : VersionedCacheCoreProvider, IDistributedMemoryCacheProvider
+    public class DistributedMemoryCacheProvider : VersionedCacheCoreProvider
     {
         private static readonly TimeSpan _getUniqueIdTimout = TimeSpan.FromMinutes(1);
 
-        private readonly IDistributedCacheProvider _distributedCacheProvider;
-        private readonly ICacheInvalidator _distributedCacheInvalidator;
+        private IExternalCache _externalCache;
         private readonly ILogger<DistributedMemoryCacheProvider> _logger;
-        private readonly string _globalKeyPrefix;
-
-        private ICacheInvalidator Invalidator => this;
+        private readonly HashSet<string> _localKeys = new();
 
         public DistributedMemoryCacheProvider(
             IMemoryCache cache,
-            IDistributedCacheProvider distributedCacheProvider,
-            ICacheInvalidator distributedCacheInvalidator,
-            INodeIdentifier nodeIdentifier,
+            IExternalCache externalCache,
+            ICacheKeyFactory keyFactory,
+            ILockFactory lockFactory,
             ILogger<DistributedMemoryCacheProvider> logger)
-            : base(cache, logger)
+            : base(cache, keyFactory, lockFactory, logger)
         {
             using var timeoutTokenSource = new CancellationTokenSource(_getUniqueIdTimout);
 
-            _distributedCacheProvider = distributedCacheProvider;
-            _distributedCacheInvalidator = distributedCacheInvalidator;
-            _globalKeyPrefix = nodeIdentifier.GetUniqueId(timeoutTokenSource.Token) + ":";
+            _externalCache = externalCache;
             _logger = logger;
         }
 
         public override IEnumerable<bool> IsSet(IEnumerable<string> keys)
         {
-            return new Pipeline<string, bool>(_logger)
-                .AddPipe(base.IsSet, isFinal: isSet => !isSet)
-                .AddPipe(_distributedCacheProvider.IsSet)
-                .Execute(keys.ToArray());
+            keys = keys.Select(GetKey).ToArray();
+            var localResults = keys.Select(_localKeys.Contains).Zip(keys)
+                .Select(n => new {Exists = n.First, Key = n.Second}).ToArray();
+            var keysToQuery = localResults.Where(n => !n.Exists).Select(n => n.Key).Distinct().ToArray();
+            if (keysToQuery.Length > 0)
+            {
+                var results = new List<bool>();
+                var externalResults = _externalCache.Exist(keysToQuery).Zip(keysToQuery)
+                    .ToDictionary(k => k.Second, v => v.First);
+                foreach (var localResult in localResults)
+                {
+                    var result = localResult.Exists || externalResults[localResult.Key];
+                    if (result)
+                    {
+                        _localKeys.Add(localResult.Key);
+                    }
+
+                    results.Add(result);
+                }
+
+                return results;
+            }
+
+            return Enumerable.Repeat(true, keys.Count());
+        }
+
+        public override bool TryGetValue<TResult>(string key, out TResult result)
+        {
+            var keys = new[] {key};
+            var exists = IsSet(keys).Single();
+            result = exists ? Get<TResult>(keys).Single() : default(TResult);
+            return exists;
         }
 
         public override IEnumerable<TResult> Get<TResult>(IEnumerable<string> keys)
         {
-            IEnumerable<PipeOutput<TResult>> VerifyCacheIsGloballySet(string[] cachedKeys, PipeContext<TResult> context)
+            keys = keys.Select(GetKey).ToArray();
+
+            var localResults = base.IsSet(keys).ToArray();
+            var externalResults = IsSet(keys);
+            var results = localResults.Zip(externalResults).Zip(keys)
+                .Select(n => new {HasLocal = n.First.First, HasExternal = n.First.Second, Key = n.Second}).ToArray();
+            var extKeys = results.Where(n => n.HasExternal && !n.HasLocal).Select(n => n.Key).ToArray();
+            var externalResultsDict = extKeys.Distinct().Zip(_externalCache.Get<TResult>(extKeys))
+                .ToDictionary(n => n.First, m => m.Second);
+            foreach (var result in results)
             {
-                var globalSetResults = _distributedCacheProvider.IsSet(cachedKeys.Select(GetGlobalKey));
-                using var globallySetEnumerator = globalSetResults.GetEnumerator();
-
-                for (int i = 0; globallySetEnumerator.MoveNext(); i++)
+                if (!result.HasExternal)
                 {
-                    bool isSetGlobally = globallySetEnumerator.Current;
-                    TResult result = isSetGlobally ? context.GetPreviousResult(i) : default;
-
-                    yield return new PipeOutput<TResult>(result, isSetGlobally);
+                    yield return default;
+                }
+                else if (result.HasLocal)
+                {
+                    yield return _cache.Get<TResult>(result.Key);
+                }
+                else
+                {
+                    var externalResult = externalResultsDict[result.Key];
+                    _cache.Set(result.Key, externalResult, new MemoryCacheEntryOptions()
+                    {
+                        Size = 1,
+                        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+                    });
+                    yield return externalResult;
                 }
             }
-
-            return new Pipeline<string, TResult>(_logger)
-                .AddPipe(base.Get<TResult>, isFinal: cachedValue => cachedValue is null)
-                .AddPipe(VerifyCacheIsGloballySet)
-                .Execute(keys.ToArray());
         }
 
-        public override void Add(object data, string key, string[] tags, TimeSpan expiration)
+        public override void Add(object data, string key, string[] tags, TimeSpan expiration, bool skipSerialization = false)
         {
-            tags = tags.Append(key).ToArray();
-            _distributedCacheInvalidator.InvalidateByTags(key);
+            key = GetKey(key);
+            tags = tags.Select(GetTag).ToArray();
 
-            _distributedCacheProvider.Add(string.Empty, GetGlobalKey(key), tags, expiration);
-            base.Add(data, key, tags, expiration);
+            var deprecatedKey = GetDeprecatedKey(key);
+            var deprecatedExpiration = expiration * _defaultDeprecatedCoef;
+
+            if (skipSerialization ||
+                !_externalCache.TryAdd(data, key, deprecatedKey, tags, expiration, deprecatedExpiration))
+            {
+                _externalCache.TryAdd(String.Empty, key, deprecatedKey, tags, expiration, deprecatedExpiration);
+            }
+
+            base.Add(data, key, tags, expiration, skipSerialization);
         }
 
-        [Obsolete("Use " + nameof(ICacheInvalidator) + " interface instead.", true)]
         public override void Invalidate(string key)
         {
             base.Invalidate(key);
-            _distributedCacheInvalidator.Invalidate(key);
+
+            _externalCache.Invalidate(GetKey(key));
         }
 
-        [Obsolete("Use " + nameof(ICacheInvalidator) + " interface instead.", true)]
         public override void InvalidateByTags(params string[] tags)
         {
             base.InvalidateByTags(tags);
-            _distributedCacheInvalidator.InvalidateByTags(tags);
-        }
 
-        private string GetGlobalKey(string key) => _globalKeyPrefix + key;
+            foreach (var tag in tags)
+            {
+                _externalCache.InvalidateTag(GetTag(tag));
+            }
+        }
     }
 }

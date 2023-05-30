@@ -1,19 +1,19 @@
 using System;
 using System.Collections.Generic;
 
-namespace QA.DotNetCore.Caching.Distributed
+namespace QA.DotNetCore.Caching.Distributed.Keys
 {
-    public class CacheKey : IEquatable<CacheKey>
+    public class CacheKey
     {
-        private readonly string _fullKey;
-
         public CacheKeyType Type { get; }
 
         public string Key { get; }
 
         public string Instance { get; }
+        
+        public string AppName { get; }
 
-        public CacheKey(CacheKeyType type, string key, string instance)
+        public CacheKey(CacheKeyType type, string key, string appName, string instanceName)
         {
             if (string.IsNullOrEmpty(key))
             {
@@ -22,29 +22,27 @@ namespace QA.DotNetCore.Caching.Distributed
 
             Type = type;
             Key = key;
-            Instance = instance?.Trim();
-
-            var keyParts = new List<string> { Type.ToString().ToLower(), Key };
-            if (!string.IsNullOrEmpty(Instance))
-            {
-                keyParts.Insert(0, Instance);
-            }
-
-            _fullKey = string.Join(":", keyParts);
+            Instance = instanceName;
+            AppName = appName;
         }
 
-        public override string ToString() => _fullKey;
+        public override string ToString()
+        {
+            var list = new List<string>
+            {
+                Type.ToString().ToLower()
+            };
 
-        public bool Equals(CacheKey other) =>
-            other != null
-            && Type == other.Type
-            && Key.Equals(other.Key);
-
-        public override bool Equals(object obj) => obj is CacheKey other && Equals(other);
-
-        public override int GetHashCode() => ToString().GetHashCode();
-
-        public static CacheKey operator +(CacheKey key, string postfix) =>
-            new(key.Type, key.Key + postfix, key.Instance);
+            if (!string.IsNullOrEmpty(AppName))
+            {
+                list.Add(AppName);
+            }
+            if (!string.IsNullOrEmpty(Instance))
+            {
+                list.Add(Instance);
+            }
+            list.Add(Key);
+            return String.Join(":", list);
+        }
     }
 }

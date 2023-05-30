@@ -25,10 +25,16 @@ public class AbstractItemRepositoryTests
         var serviceProvider = Global.CreateMockServiceProviderWithConnection();
         var settings = TestUtils.CreateDefaultCacheSettings();
         var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
-        var memoryCacheProvider = new VersionedCacheCoreProvider(memoryCache, Mock.Of<ILogger>());
+        var memoryCacheProvider = new VersionedCacheCoreProvider(
+            memoryCache,
+            new CacheKeyFactoryBase(),
+            new MemoryLockFactory(),
+            Mock.Of<ILogger>()
+        );
         _metaRepo = new MetaInfoRepository(serviceProvider, memoryCacheProvider, settings);
         var sqlAnalyzer = new NetNameQueryAnalyzer(_metaRepo);
-        _repository = new AbstractItemRepository(serviceProvider, sqlAnalyzer, new StubNamingProvider(), memoryCacheProvider, settings);
+        _repository = new AbstractItemRepository(serviceProvider, sqlAnalyzer, new StubNamingProvider(),
+            memoryCacheProvider, settings);
     }
 
     [Fact]
@@ -60,7 +66,7 @@ public class AbstractItemRepositoryTests
     [Fact]
     public void LoadAbstractItemExtensionTest()
     {
-        var exception = Record.Exception(() => _repository.GetManyToManyData(new[] { 741035 }, false));
+        var exception = Record.Exception(() => _repository.GetManyToManyData(new[] {741035}, false));
 
         Assert.Null(exception);
     }
@@ -71,7 +77,7 @@ public class AbstractItemRepositoryTests
         const int ExtensionContentId = 547;
         const int ExtensionItemId = 741115;
 
-        var ids = _repository.GetAbstractItemExtensionIds(new[] { ExtensionContentId });
+        var ids = _repository.GetAbstractItemExtensionIds(new[] {ExtensionContentId});
 
         Assert.Contains(ExtensionItemId, ids);
     }
@@ -80,17 +86,17 @@ public class AbstractItemRepositoryTests
     public void GetAbstractItemExtensionlessData_ExistingItemId_ItemData()
     {
         const int AbstractItemId = 741114;
-        var baseContent = new ContentPersistentData { ContentId = BaseContentId };
+        var baseContent = new ContentPersistentData {ContentId = BaseContentId};
 
         var itemsData = _repository.GetAbstractItemExtensionlessData(
-            new[] { AbstractItemId },
+            new[] {AbstractItemId},
             baseContent,
             IsStage);
 
         var abstractItemData = Assert.Contains(AbstractItemId, itemsData);
         Assert.NotNull(abstractItemData);
         Assert.NotEmpty(abstractItemData.Keys);
-        Assert.Equal(AbstractItemId, (int)abstractItemData.Get("content_item_id", typeof(int)));
+        Assert.Equal(AbstractItemId, (int) abstractItemData.Get("content_item_id", typeof(int)));
     }
 
     [Fact]
@@ -100,7 +106,7 @@ public class AbstractItemRepositoryTests
         const int AbstractItemId = 741114;
         const int ExtensionItemId = 741115;
         const bool LoadAbstractItemFields = true;
-        var baseContent = new ContentPersistentData { ContentId = BaseContentId };
+        var baseContent = new ContentPersistentData {ContentId = BaseContentId};
 
         var itemsData = _repository.GetAbstractItemExtensionData(
             ExtensionContentId,
@@ -111,7 +117,7 @@ public class AbstractItemRepositoryTests
         var extensionItemData = Assert.Contains(AbstractItemId, itemsData);
         Assert.NotNull(extensionItemData);
         Assert.NotEmpty(extensionItemData.Keys);
-        Assert.Equal(ExtensionItemId, (int)extensionItemData.Get("content_item_id", typeof(int)));
+        Assert.Equal(ExtensionItemId, (int) extensionItemData.Get("content_item_id", typeof(int)));
     }
 
     [Fact]
@@ -119,7 +125,7 @@ public class AbstractItemRepositoryTests
     {
         const int ItemIdWithRelations = 741138;
 
-        var relations = _repository.GetManyToManyData(new[] { ItemIdWithRelations }, IsStage);
+        var relations = _repository.GetManyToManyData(new[] {ItemIdWithRelations}, IsStage);
 
         M2MRelations relation = Assert.Contains(ItemIdWithRelations, relations);
         Assert.NotEmpty(relation.GetRelations());
@@ -130,7 +136,7 @@ public class AbstractItemRepositoryTests
     {
         const int ItemIdWithoutRelations = 741114;
 
-        var relations = _repository.GetManyToManyData(new[] { ItemIdWithoutRelations }, IsStage);
+        var relations = _repository.GetManyToManyData(new[] {ItemIdWithoutRelations}, IsStage);
 
         Assert.Empty(relations);
     }
@@ -141,12 +147,11 @@ public class AbstractItemRepositoryTests
         const int ContentId = 538;
         const int ItemIdWithRelations = 741138;
 
-        var itemRelationsByContents = _repository.GetManyToManyDataByContent(
-            new[] { ContentId },
+        var itemRelationsByContents = _repository.GetManyToManyDataByContents(
+            new[] {ContentId},
             IsStage);
 
-        var itemRelations = Assert.Single(itemRelationsByContents);
-        var relation = Assert.Contains(ItemIdWithRelations, itemRelations);
+        var relation = Assert.Contains(ItemIdWithRelations, itemRelationsByContents);
         Assert.NotEmpty(relation.GetRelations());
     }
 
@@ -155,11 +160,10 @@ public class AbstractItemRepositoryTests
     {
         const int ContentId = 99999;
 
-        var itemRelationsByContents = _repository.GetManyToManyDataByContent(
-            new[] { ContentId },
+        var itemRelationsByContents = _repository.GetManyToManyDataByContents(
+            new[] {ContentId},
             IsStage);
 
-        var itemRelations = Assert.Single(itemRelationsByContents);
-        Assert.Empty(itemRelations);
+        Assert.Empty(itemRelationsByContents);
     }
 }

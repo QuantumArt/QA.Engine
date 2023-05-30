@@ -82,9 +82,9 @@ namespace QA.DotNetCore.Caching
             if (cacheTagsToInvalidate.Length > 0)
             {
                 _logger.LogInformation(
-                    "Invalidate tags: {InvalidTags}", 
+                    "Invalidate tags: {InvalidTags}",
                     String.Join(", ", cacheTagsToInvalidate)
-                 );
+                );
                 _cacheInvalidator.InvalidateByTags(cacheTagsToInvalidate.ToArray());
             }
             else

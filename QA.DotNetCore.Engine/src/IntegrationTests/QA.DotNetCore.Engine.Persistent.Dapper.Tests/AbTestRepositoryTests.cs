@@ -20,6 +20,8 @@ public class AbTestRepositoryTests
         var settings = TestUtils.CreateDefaultCacheSettings();
         var cacheProvider = new VersionedCacheCoreProvider(
             new MemoryCache(Options.Create(new MemoryCacheOptions())),
+            new CacheKeyFactoryBase(),
+            new MemoryLockFactory(),
             Mock.Of<ILogger>());
         var metaRepository = new MetaInfoRepository(serviceProvider, cacheProvider, settings);
         var sqlAnalyzer = new NetNameQueryAnalyzer(metaRepository);

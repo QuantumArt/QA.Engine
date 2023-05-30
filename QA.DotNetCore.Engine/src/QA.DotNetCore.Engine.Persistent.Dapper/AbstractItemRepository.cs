@@ -14,7 +14,8 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
     public class AbstractItemRepository : IAbstractItemRepository
     {
-        private static readonly IReadOnlyDictionary<int, M2MRelations> _emptyResult = new Dictionary<int, M2MRelations>();
+        private static readonly IReadOnlyDictionary<int, M2MRelations> _emptyResult =
+            new Dictionary<int, M2MRelations>();
 
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         private readonly ICacheProvider _cacheProvider;
@@ -36,7 +37,10 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             _cacheSettings = cacheSettings;
         }
 
-        protected IUnitOfWork UnitOfWork { get { return _serviceProvider.GetRequiredService<IUnitOfWork>(); } }
+        protected IUnitOfWork UnitOfWork
+        {
+            get { return _serviceProvider.GetRequiredService<IUnitOfWork>(); }
+        }
 
         //запрос с использованием NetName таблиц и столбцов
         private const string CmdGetAbstractItem = @"
@@ -57,7 +61,8 @@ FROM |QPAbstractItem| ai
 INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.content_item_id
 ";
 
-        public IEnumerable<AbstractItemPersistentData> GetPlainAllAbstractItems(int siteId, bool isStage, IDbTransaction transaction = null)
+        public IEnumerable<AbstractItemPersistentData> GetPlainAllAbstractItems(int siteId, bool isStage,
+            IDbTransaction transaction = null)
         {
             var connection = UnitOfWork.Connection;
             var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAbstractItem, siteId, isStage);
@@ -82,7 +87,8 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
         /// <param name="isStage"></param>
         /// <param name="transaction"></param>
         /// <returns></returns>
-        public IEnumerable<int> GetAbstractItemExtensionIds(IReadOnlyCollection<int> extensionContentIds, IDbTransaction transaction = null)
+        public IEnumerable<int> GetAbstractItemExtensionIds(IReadOnlyCollection<int> extensionContentIds,
+            IDbTransaction transaction = null)
         {
             const string idsTableParameterName = "@ids";
 
@@ -192,7 +198,8 @@ JOIN {idListTable} on Id = ai.Content_item_id";
             return result;
         }
 
-        public IDictionary<int, M2MRelations> GetManyToManyData(IEnumerable<int> itemIds, bool isStage, IDbTransaction transaction = null)
+        public IDictionary<int, M2MRelations> GetManyToManyData(IEnumerable<int> itemIds, bool isStage,
+            IDbTransaction transaction = null)
         {
             var m2MTableName = QpTableNameHelper.GetM2MTableName(isStage);
             var idListTable = SqlQuerySyntaxHelper.IdList(UnitOfWork.DatabaseType, "@ids", "ids");
@@ -207,10 +214,39 @@ JOIN {idListTable} on Id = link.item_id";
             command.CommandText = query;
             command.Parameters.Add(SqlQuerySyntaxHelper.GetIdsDatatableParam("@Ids", itemIds, UnitOfWork.DatabaseType));
             command.Transaction = transaction;
-            var result = new Dictionary<int, M2MRelations>();
-
             using var reader = command.ExecuteReader();
+            return ReadM2MRelations(reader);
+        }
 
+        public IDictionary<int, M2MRelations> GetManyToManyDataByContents(
+            IEnumerable<int> contentIds,
+            bool isStage,
+            IDbTransaction transaction = null)
+        {
+            const string idsTableParameterName = "@ids";
+
+            string withNoLock = SqlQuerySyntaxHelper.WithNoLock(UnitOfWork.DatabaseType);
+            string idListTableName = SqlQuerySyntaxHelper.IdList(UnitOfWork.DatabaseType, idsTableParameterName, "ids");
+            string m2MTableName = QpTableNameHelper.GetM2MTableName(isStage);
+
+            var query = $@"
+SELECT e.content_id, link_id, item_id, linked_item_id
+FROM {m2MTableName} link {withNoLock}
+JOIN CONTENT_ITEM e {withNoLock} ON e.CONTENT_ITEM_ID = link.item_id
+JOIN {idListTableName} on Id = e.CONTENT_ID";
+
+            using var command = UnitOfWork.Connection.CreateCommand();
+            command.CommandText = query;
+            command.Transaction = transaction;
+            command.Parameters.Add(
+                SqlQuerySyntaxHelper.GetIdsDatatableParam("@Ids", contentIds, UnitOfWork.DatabaseType));
+            using var reader = command.ExecuteReader();
+            return ReadM2MRelations(reader);
+        }
+
+        private static Dictionary<int, M2MRelations> ReadM2MRelations(IDataReader reader)
+        {
+            var result = new Dictionary<int, M2MRelations>();
             while (reader.Read())
             {
                 var itemId = Convert.ToInt32(reader.GetDecimal(reader.GetOrdinal("item_id")));
@@ -225,66 +261,6 @@ JOIN {idListTable} on Id = link.item_id";
             }
 
             return result;
-        }
-
-        public IEnumerable<IReadOnlyDictionary<int, M2MRelations>> GetManyToManyDataByContent(
-            IReadOnlyCollection<int> contentIds,
-            bool isStage,
-            IDbTransaction transaction = null)
-        {
-            const string idsTableParameterName = "@ids";
-
-            string withNoLock = SqlQuerySyntaxHelper.WithNoLock(UnitOfWork.DatabaseType);
-            string idListTableName = SqlQuerySyntaxHelper.IdList(UnitOfWork.DatabaseType, idsTableParameterName, "ids");
-            string m2MTableName = QpTableNameHelper.GetM2MTableName(isStage);
-
-            IDataParameter parameter = SqlQuerySyntaxHelper.GetIdsDatatableParam(
-                idsTableParameterName,
-                contentIds.Where(id => id != 0),
-                UnitOfWork.DatabaseType);
-            var query = $@"
-SELECT e.content_id, link_id, item_id, linked_item_id
-FROM {m2MTableName} link {withNoLock}
-JOIN CONTENT_ITEM e {withNoLock} ON e.CONTENT_ITEM_ID = link.item_id
-JOIN {idListTableName} on Id = e.CONTENT_ID";
-
-            using var command = UnitOfWork.Connection.CreateCommand();
-            command.CommandText = query;
-            command.Transaction = transaction;
-            _ = command.Parameters.Add(parameter);
-
-            var groupedRelations = new Dictionary<int, Dictionary<int, M2MRelations>>();
-
-            using (var reader = command.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    int extensionId = Convert.ToInt32(reader.GetDecimal(reader.GetOrdinal("content_id")));
-                    int itemId = Convert.ToInt32(reader.GetDecimal(reader.GetOrdinal("item_id")));
-
-                    if (!groupedRelations.TryGetValue(extensionId, out var itemInfo))
-                    {
-                        itemInfo = new Dictionary<int, M2MRelations>();
-                        groupedRelations.Add(extensionId, itemInfo);
-                    }
-
-                    if (!itemInfo.TryGetValue(itemId, out var relations))
-                    {
-                        relations = new M2MRelations();
-                        itemInfo.Add(itemId, relations);
-                    }
-
-                    relations.AddRelation(
-                        Convert.ToInt32(reader.GetDecimal(reader.GetOrdinal("link_id"))),
-                        Convert.ToInt32(reader.GetDecimal(reader.GetOrdinal("linked_item_id"))));
-                }
-            }
-
-            // Return in the same order as input collection.
-            foreach (int extensionId in contentIds)
-            {
-                yield return groupedRelations.TryGetValue(extensionId, out var itemInfos) ? itemInfos : _emptyResult;
-            }
         }
     }
 }

@@ -23,7 +23,7 @@ namespace QA.DotNetCore.Engine.QpData
             }
         }
 
-        public virtual string ZoneName { get; protected set; }
+        public virtual string ZoneName { get; set; }
 
         public virtual string[] AllowedUrlPatterns
         {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace QA.DotNetCore.Caching.Distributed
+namespace QA.DotNetCore.Caching.Distributed.Internals
 {
     internal readonly struct CachedValue
     {

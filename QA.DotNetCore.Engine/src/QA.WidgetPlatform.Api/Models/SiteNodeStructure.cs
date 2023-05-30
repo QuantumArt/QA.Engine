@@ -38,7 +38,7 @@ namespace QA.WidgetPlatform.Api.Models
 
             if (includeFields != null && includeFields.Any())
             {
-                Details = abstractItem.UntypedFields
+                Details = abstractItem.GetUntypedFields()
                     .Where(kvp =>
                         kvp.Value !=
                         null) // думаю, косяк в UniversalAbstractItem, отсекать null-значения скорее всего надо там

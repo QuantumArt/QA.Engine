@@ -5,6 +5,7 @@ using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Settings;
 using System;
 using System.Linq;
+using QA.DotNetCore.Caching;
 
 namespace QA.DotNetCore.Engine.QpData
 {
@@ -14,20 +15,20 @@ namespace QA.DotNetCore.Engine.QpData
     public class SimpleCacheAbstractItemStorageProvider : IAbstractItemStorageProvider
     {
         private readonly IAbstractItemStorageBuilder _builder;
-        private readonly IDistributedMemoryCacheProvider _cacheProvider;
+        private readonly VersionedCacheCoreProvider _memoryCacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly QpSiteStructureBuildSettings _buildSettings;
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
 
         public SimpleCacheAbstractItemStorageProvider(
-            IDistributedMemoryCacheProvider compositeCacheProvider,
+            VersionedCacheCoreProvider memoryCacheProvider,
             IAbstractItemStorageBuilder builder,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
             QpSiteStructureBuildSettings buildSettings,
             QpSiteStructureCacheSettings cacheSettings)
         {
             _builder = builder;
-            _cacheProvider = compositeCacheProvider;
+            _memoryCacheProvider = memoryCacheProvider;
             _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
             _cacheSettings = cacheSettings;
             _buildSettings = buildSettings;
@@ -46,7 +47,7 @@ namespace QA.DotNetCore.Engine.QpData
                 .Where(t => t != null)
                 .ToArray();
 
-            return _cacheProvider.GetOrAdd(
+            return _memoryCacheProvider.GetOrAdd(
                 cacheKey,
                 cacheTags,
                 _cacheSettings.SiteStructureCachePeriod,

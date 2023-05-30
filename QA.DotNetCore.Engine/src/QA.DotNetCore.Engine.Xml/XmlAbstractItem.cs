@@ -56,8 +56,8 @@ namespace QA.DotNetCore.Engine.Xml
             Attributes = attrs;
         }
 
-        internal ICollection<IAbstractItem> Children { get; private set; }
-        internal IDictionary<string, string> Attributes { get; private set; }
+        internal ICollection<IAbstractItem> Children { get; set; }
+        internal IDictionary<string, string> Attributes { get; set; }
 
         /// <summary>
         /// Получение значений из атрибута

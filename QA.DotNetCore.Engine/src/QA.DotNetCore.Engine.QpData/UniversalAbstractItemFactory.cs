@@ -13,14 +13,14 @@ namespace QA.DotNetCore.Engine.QpData
     public class UniversalAbstractItemFactory : IAbstractItemFactory
     {
         private readonly IItemDefinitionRepository _repository;
-        private readonly IDistributedMemoryCacheProvider _cacheProvider;
+        private readonly ICacheProvider _cacheProvider;
         private readonly IMemoryCacheProvider _memoryCacheProvider;
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly QpSiteStructureBuildSettings _buildSettings;
 
         public UniversalAbstractItemFactory(
-            IDistributedMemoryCacheProvider cacheProvider,
+            ICacheProvider cacheProvider,
             IMemoryCacheProvider memoryCacheProvider,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
             IItemDefinitionRepository repository,
@@ -28,10 +28,10 @@ namespace QA.DotNetCore.Engine.QpData
             QpSiteStructureBuildSettings buildSettings)
         {
             _repository = repository;
-            _cacheProvider = cacheProvider;
             _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
             _cacheSettings = cacheSettings;
             _buildSettings = buildSettings;
+            _cacheProvider = cacheProvider;
             _memoryCacheProvider = memoryCacheProvider;
         }
 
@@ -40,7 +40,7 @@ namespace QA.DotNetCore.Engine.QpData
             var itemDefinition = GetItemDefinitionByDiscriminator(discriminator);
             if (itemDefinition == null)
             {
-                return null;//элементов без ItemDefinition для структуры сайта не существует
+                return null; //элементов без ItemDefinition для структуры сайта не существует
             }
 
             var definition = new ItemDefinitionDetails
@@ -79,14 +79,19 @@ namespace QA.DotNetCore.Engine.QpData
 
         private Dictionary<string, ItemDefinitionPersistentData> GetCachedItemDefinitions()
         {
-            var cacheTags = new string[1] { _qpContentCacheTagNamingProvider.GetByNetName(KnownNetNames.ItemDefinition, _buildSettings.SiteId, _buildSettings.IsStage) }
+            var cacheTags = new string[1]
+                {
+                    _qpContentCacheTagNamingProvider.GetByNetName(KnownNetNames.ItemDefinition, _buildSettings.SiteId,
+                        _buildSettings.IsStage)
+                }
                 .Where(t => t != null)
                 .ToArray();
 
             var result = _cacheProvider.GetOrAdd("UniversalAbstractItemFactory.GetCachedItemDefinitions",
                 cacheTags,
                 _cacheSettings.ItemDefinitionCachePeriod,
-                () => _repository.GetAllItemDefinitions(_buildSettings.SiteId, _buildSettings.IsStage).ToDictionary(def => def.Discriminator));
+                () => _repository.GetAllItemDefinitions(_buildSettings.SiteId, _buildSettings.IsStage)
+                    .ToDictionary(def => def.Discriminator));
 
             return result;
         }

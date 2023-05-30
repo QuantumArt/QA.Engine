@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\QA.DotNetCore.Caching\QA.DotNetCore.Caching.csproj" />
+    <ProjectReference Include="..\QA.DotNetCore.Engine.QpData\QA.DotNetCore.Engine.QpData.csproj" />
   </ItemGroup>
 
 </Project>

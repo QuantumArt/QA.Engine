@@ -22,7 +22,7 @@ namespace QA.WidgetPlatform.Api.Models
             Alias = item.Alias;
             NodeType = item.Type;
 
-            Details = item.UntypedFields
+            Details = item.GetUntypedFields()
                 .Where(kvp =>
                     kvp.Value !=
                     null) // думаю, косяк в UniversalAbstractItem, отсекать null-значения скорее всего надо там

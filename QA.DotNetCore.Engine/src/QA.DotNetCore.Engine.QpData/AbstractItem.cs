@@ -5,6 +5,7 @@ using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using QA.DotNetCore.Engine.QpData.Interfaces;
 
 namespace QA.DotNetCore.Engine.QpData
 {
@@ -13,6 +14,13 @@ namespace QA.DotNetCore.Engine.QpData
     /// </summary>
     public abstract class AbstractItem : AbstractItemBase, IAbstractItem
     {
+        private IAbstractItemContextStorageBuilder _builder;
+
+        public AbstractItem(string discriminator) : this()
+        {
+            Discriminator = discriminator;
+        }
+
         public AbstractItem()
         {
             Children = new HashSet<IAbstractItem>();
@@ -20,7 +28,10 @@ namespace QA.DotNetCore.Engine.QpData
             M2MFieldNameMapToLinkIds = new Dictionary<string, int>();
         }
 
-        public override int SortOrder { get => RawSortOrder ?? 0; }
+        public override int SortOrder
+        {
+            get => RawSortOrder ?? 0;
+        }
 
         /// <summary>
         /// Получение дочерних элементов
@@ -73,9 +84,9 @@ namespace QA.DotNetCore.Engine.QpData
         internal virtual void MapVersionOf(AbstractItem main)
         {
             VersionOf = main;
-            Alias = main.Alias;//у контентной версии не проставлен алиас, берём из основной
-            Children = main.Children;//у контентной версии должно быть те же дочерние элементы, что и у основной
-            if (!RawSortOrder.HasValue)//если у контентной версии нет порядкового номера, берём его у основной
+            Alias = main.Alias; //у контентной версии не проставлен алиас, берём из основной
+            Children = main.Children; //у контентной версии должно быть те же дочерние элементы, что и у основной
+            if (!RawSortOrder.HasValue) //если у контентной версии нет порядкового номера, берём его у основной
                 RawSortOrder = main.RawSortOrder;
         }
 
@@ -91,7 +102,7 @@ namespace QA.DotNetCore.Engine.QpData
             return this;
         }
 
-        internal IAbstractItem VersionOf { get; private set; }
+        internal IAbstractItem VersionOf { get; set; }
         internal ICollection<IAbstractItem> Children { get; set; }
         internal int? RawSortOrder { get; set; }
         internal int? ExtensionId { get; set; }
@@ -99,8 +110,8 @@ namespace QA.DotNetCore.Engine.QpData
         internal int? VersionOfId { get; set; }
         internal string Discriminator { get; set; }
         internal bool Published { get; set; }
-        internal Lazy<AbstractItemExtensionCollection> LazyDetails { get; set; }
-        
+
+
         internal AbstractItemExtensionCollection Details { get; set; }
         internal M2MRelations M2MRelations { get; set; }
         internal Dictionary<string, int> M2MFieldNameMapToLinkIds { get; set; }
@@ -110,12 +121,25 @@ namespace QA.DotNetCore.Engine.QpData
         /// </summary>
         public virtual T GetDetail<T>(string name, T defaultValue)
         {
-            object value = Details != null ? Details.Get(name, typeof(T)) : LazyDetails?.Value?.Get(name, typeof(T));
+            VerifyDetailsLoaded();
+
+            object value = Details.Get(name, typeof(T));
             if (value == null)
             {
                 return defaultValue;
             }
-            return (T)value;
+
+            return (T) value;
+        }
+
+        public void SetBuilder(IAbstractItemContextStorageBuilder builder) => _builder = builder;
+
+        public void VerifyDetailsLoaded()
+        {
+            if (Details == null && _builder != null)
+            {
+                Details = _builder.BuildDetails(this, true);
+            }
         }
 
         /// <summary>
@@ -130,7 +154,7 @@ namespace QA.DotNetCore.Engine.QpData
                 return Enumerable.Empty<int>();
             }
 
-            var linkId = M2MFieldNameMapToLinkIds.TryGetValue(name.ToLowerInvariant(), out int value) ? value : 0 ;
+            var linkId = M2MFieldNameMapToLinkIds.TryGetValue(name.ToLowerInvariant(), out int value) ? value : 0;
             return M2MRelations.GetRelationValue(linkId);
         }
 
@@ -146,11 +170,17 @@ namespace QA.DotNetCore.Engine.QpData
         /// <summary>
         /// Список id регионов
         /// </summary>
-        public virtual IEnumerable<int> RegionIds { get { return GetRelationIds("Regions"); } }
+        public virtual IEnumerable<int> RegionIds
+        {
+            get { return GetRelationIds("Regions"); }
+        }
 
         /// <summary>
         /// Id культуры
         /// </summary>
-        public virtual int? CultureId { get { return GetDetail("Culture", default(int?)); } }
+        public virtual int? CultureId
+        {
+            get { return GetDetail("Culture", default(int?)); }
+        }
     }
 }

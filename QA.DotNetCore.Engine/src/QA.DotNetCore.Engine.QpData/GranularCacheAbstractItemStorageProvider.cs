@@ -8,6 +8,7 @@ using QA.DotNetCore.Engine.QpData.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using QA.DotNetCore.Caching;
 
 namespace QA.DotNetCore.Engine.QpData
 {
@@ -21,7 +22,8 @@ namespace QA.DotNetCore.Engine.QpData
         private readonly IAbstractItemRepository _abstractItemRepository;
         private readonly QpSiteStructureBuildSettings _buildSettings;
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
-        private readonly IDistributedMemoryCacheProvider _cacheProvider;
+        private readonly ICacheProvider _cacheProvider;
+        private readonly VersionedCacheCoreProvider _memoryCacheProvider;
 
         public GranularCacheAbstractItemStorageProvider(
             IAbstractItemContextStorageBuilder builder,
@@ -29,14 +31,16 @@ namespace QA.DotNetCore.Engine.QpData
             QpSiteStructureBuildSettings buildSettings,
             QpSiteStructureCacheSettings cacheSettings,
             IAbstractItemRepository abstractItemRepository,
-            IDistributedMemoryCacheProvider compositeCacheProvider)
+            ICacheProvider cacheProvider,
+            VersionedCacheCoreProvider memoryCacheProvider)
         {
             _builder = builder;
             _abstractItemRepository = abstractItemRepository;
             _buildSettings = buildSettings;
             _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
             _cacheSettings = cacheSettings;
-            _cacheProvider = compositeCacheProvider;
+            _cacheProvider = cacheProvider;
+            _memoryCacheProvider = memoryCacheProvider;
         }
 
         public AbstractItemStorage Get()
@@ -59,12 +63,13 @@ namespace QA.DotNetCore.Engine.QpData
             TimeSpan expiry = _cacheSettings.SiteStructureCachePeriod;
             const string cacheKey = nameof(GranularCacheAbstractItemStorageProvider) + "." + nameof(Get);
 
-            return _cacheProvider.GetOrAdd(
+            return _memoryCacheProvider.GetOrAdd(
                 cacheKey,
                 tags.AllTags,
                 expiry,
                 () => BuildStorageWithCache(extensionsWithAbsItems, tags),
-                _buildSettings.CacheFetchTimeoutAbstractItemStorage);
+                _buildSettings.CacheFetchTimeoutAbstractItemStorage,
+                true);
         }
 
         /// <summary>
@@ -93,11 +98,12 @@ namespace QA.DotNetCore.Engine.QpData
                 var extensionContentId = extension.Key;
                 var plainAbstractItems = extension.Value;
 
-                var cacheKey = $"{nameof(GranularCacheAbstractItemStorageProvider)}.{nameof(GetCachedAbstractItems)}({extensionContentId})";
+                var cacheKey =
+                    $"{nameof(GranularCacheAbstractItemStorageProvider)}.{nameof(GetCachedAbstractItems)}({extensionContentId})";
 
                 var tags = cacheTags.ExtensionsTags.TryGetValue(extensionContentId, out var extensionCacheTag)
-                    ? new[] { cacheTags.ItemDefinitionTag, extensionCacheTag }
-                    : new[] { cacheTags.ItemDefinitionTag, cacheTags.AbstractItemTag };
+                    ? new[] {cacheTags.ItemDefinitionTag, extensionCacheTag}
+                    : new[] {cacheTags.ItemDefinitionTag, cacheTags.AbstractItemTag};
 
                 AbstractItem[] abstractItems = _cacheProvider.GetOrAdd(
                     cacheKey,
@@ -105,6 +111,11 @@ namespace QA.DotNetCore.Engine.QpData
                     _cacheSettings.SiteStructureCachePeriod,
                     () => BuildAbstractItems(extensionContentId, plainAbstractItems),
                     _buildSettings.CacheFetchTimeoutAbstractItemStorage);
+
+                foreach (var ai in abstractItems)
+                {
+                    ai.SetBuilder(_builder);
+                }
 
                 result.AddRange(abstractItems);
             }
@@ -115,7 +126,8 @@ namespace QA.DotNetCore.Engine.QpData
         /// <summary>
         /// Формирование AbstractItem
         /// </summary>
-        private AbstractItem[] BuildAbstractItems(int extensionContentId, AbstractItemPersistentData[] plainAbstractItems)
+        private AbstractItem[] BuildAbstractItems(int extensionContentId,
+            AbstractItemPersistentData[] plainAbstractItems)
             => _builder.BuildAbstractItems(extensionContentId, plainAbstractItems, true);
 
         private IDictionary<int, AbstractItemPersistentData[]> GetExtensionContentsWithAbstractItemPersistentData()

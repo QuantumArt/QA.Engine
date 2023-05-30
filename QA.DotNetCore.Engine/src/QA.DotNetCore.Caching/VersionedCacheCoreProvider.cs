@@ -14,7 +14,7 @@ namespace QA.DotNetCore.Caching
     /// <summary>
     /// Реализует провайдер кеширования данных
     /// </summary>
-    public class VersionedCacheCoreProvider : ICacheProvider, ICacheInvalidator, IMemoryCacheProvider
+    public class VersionedCacheCoreProvider : ICacheProvider, IMemoryCacheProvider
     {
         protected readonly IMemoryCache _cache;
         protected readonly ICacheKeyFactory _keyFactory;

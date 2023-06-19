@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace QA.DotNetCore.Engine.CacheTags.Configuration;
@@ -6,6 +5,7 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration;
 public class RabbitMqSettings
 {
     private const string DefaultHost = "localhost";
+    private const ushort DefaultPort = 5672;
     private const string DefaultUsername = "guest";
     private const string DefaultPassword = "guest";
     private const string RootVirtualPath = "/";
@@ -14,6 +14,8 @@ public class RabbitMqSettings
     private static readonly TimeSpan _defaultHeartbeat = TimeSpan.FromSeconds(20);
 
     public string Host { get; set; } = DefaultHost;
+
+    public ushort Port { get; set; } = DefaultPort;
 
     public string Username { get; set; } = DefaultUsername;
 

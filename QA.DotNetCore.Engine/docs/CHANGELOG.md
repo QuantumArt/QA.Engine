@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.2.1
+
+* Добавлена поддержка Port для поключения MassTransit with RabbitMQ
+
 ## 3.2.0 
 
 * Исправлена ошибка с лишним возникновением DeprecateCacheIsExpiredOrMissingException

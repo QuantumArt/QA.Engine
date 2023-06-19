@@ -60,6 +60,7 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
 
                     factoryConfig.Host(
                         rabbitMqSettings.Host,
+                        rabbitMqSettings.Port,
                         rabbitMqSettings.VirtualPath,
                         hostConfig =>
                         {

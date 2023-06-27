@@ -16,6 +16,8 @@ namespace QA.DotNetCore.Engine.QpData
     {
         private IAbstractItemContextStorageBuilder _builder;
 
+        private object _locker = new object();
+
         public AbstractItem(string discriminator) : this()
         {
             Discriminator = discriminator;
@@ -138,7 +140,10 @@ namespace QA.DotNetCore.Engine.QpData
         {
             if (Details == null && _builder != null)
             {
-                Details = _builder.BuildDetails(this, true);
+                lock (_locker)
+                {
+                    Details = _builder.BuildDetails(this, true);
+                }
             }
         }
 

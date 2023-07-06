@@ -51,8 +51,15 @@ namespace QA.DotNetCore.Caching.Distributed.Configuration
                 var redisConfig = provider.GetRequiredService<RedisCacheSettings>();
 
                 var connectionConfiguration = ConfigurationOptions.Parse(redisConfig.Configuration);
+                
                 var endPoints = connectionConfiguration.EndPoints
-                    .Select(endPoint => (RedLockEndPoint) endPoint)
+                    .Select(endPoint => new RedLockEndPoint(endPoint)
+                    {
+                        Password = connectionConfiguration.Password,
+                        Ssl = connectionConfiguration.Ssl,
+                        ConnectionTimeout = connectionConfiguration.ConnectTimeout,
+                        SyncTimeout = connectionConfiguration.SyncTimeout
+                    })
                     .ToList();
 
                 return RedLockFactory.Create(

@@ -14,7 +14,7 @@ public class SemaphoreAsyncLock : IAsyncLock
         _semaphore = semaphore;
     }
 
-    public Task<bool> AcquireAsync(TimeSpan timeout) => _semaphore.WaitAsync(timeout.Milliseconds);
+    public Task<bool> AcquireAsync(TimeSpan timeout) => _semaphore.WaitAsync(timeout);
 
     public Task<bool> AcquireAsync() => _semaphore.WaitAsync(0);
 

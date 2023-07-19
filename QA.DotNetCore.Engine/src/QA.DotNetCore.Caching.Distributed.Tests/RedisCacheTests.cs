@@ -26,7 +26,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
     {
         private const int DefaultExpiryMs = 3000;
 
-        private static readonly DnsEndPoint _redisEndpoint = new("SPBREDIS01.ARTQ.COM", 6407);
+        private static readonly DnsEndPoint _redisEndpoint = new("mscredis01.artq.com", 6382);
         private static readonly string _connectionString = $"{_redisEndpoint.Host}:{_redisEndpoint.Port}";
         private static readonly string _instanceName = Guid.NewGuid().ToString();
         private static readonly string _appName = "wptests";

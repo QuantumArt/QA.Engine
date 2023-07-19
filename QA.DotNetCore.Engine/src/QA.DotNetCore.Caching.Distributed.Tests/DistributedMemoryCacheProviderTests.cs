@@ -31,7 +31,7 @@ public class DistributedMemoryCacheProviderTests
     private const int DefaultExpiryMs = 3000;
     private static readonly TimeSpan _defaultExpiry = TimeSpan.FromSeconds(10);
     private static readonly TimeSpan _existingCacheTtl = _defaultExpiry;
-    private static readonly DnsEndPoint s_redisEndpoint = new("SPBREDIS01.ARTQ.COM", 6407);
+    private static readonly DnsEndPoint s_redisEndpoint = new("mscredis01.artq.com", 6382);
     private static readonly string ConnectionString = $"{s_redisEndpoint.Host}:{s_redisEndpoint.Port}";
     private static readonly string _instanceName = Guid.NewGuid().ToString();
     private static readonly string _appName = "wptests";

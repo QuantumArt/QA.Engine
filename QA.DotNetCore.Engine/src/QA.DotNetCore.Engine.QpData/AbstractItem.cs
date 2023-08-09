@@ -125,7 +125,7 @@ namespace QA.DotNetCore.Engine.QpData
         {
             VerifyDetailsLoaded();
 
-            object value = Details.Get(name, typeof(T));
+            object value = Details?.Get(name, typeof(T));
             if (value == null)
             {
                 return defaultValue;

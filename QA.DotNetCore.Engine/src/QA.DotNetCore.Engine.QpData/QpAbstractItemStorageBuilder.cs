@@ -538,7 +538,7 @@ namespace QA.DotNetCore.Engine.QpData
                     if (fileFields.TryGetValue(key.ToLowerInvariant(), out var fileField))
                     {
                         var baseUrl = qpUrlResolver.UrlForImage(buildSettings.SiteId, fileField);
-                        if (!string.IsNullOrEmpty(baseUrl))
+                        if (!string.IsNullOrEmpty(baseUrl) && !stringValue.StartsWith(baseUrl))
                         {
                             details.Set(key, baseUrl + "/" + stringValue);
                         }

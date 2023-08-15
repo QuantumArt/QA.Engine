@@ -235,7 +235,7 @@ public class DistributedMemoryCacheProviderTests
             _ = await db.StringSetAsync(key2, deprecatedData, _existingCacheTtl);
         }
 
-        var lockFactory = new MemoryLockFactory();
+        var lockFactory = new MemoryLockFactory(LoggerUtils.GetLogger<MemoryLockFactory>(_output));
         var lockCacheTask = Task.Factory.StartNew(
             () =>
             {
@@ -290,7 +290,7 @@ public class DistributedMemoryCacheProviderTests
             _ = await connection.GetDatabase().KeyDeleteAsync(GetKey(sharedKey));
         }
 
-        var lockFactory = new MemoryLockFactory();
+        var lockFactory = new MemoryLockFactory(LoggerUtils.GetLogger<MemoryLockFactory>(_output));
 
         var lockCacheKeyTask = Task.Factory.StartNew(
             () =>
@@ -418,7 +418,7 @@ public class DistributedMemoryCacheProviderTests
         // Arrange
         var provider = CreateProvider(_mockDistributedTaggedCache.Object);
 
-        // Act 
+        // Act
         var results = provider.Get<string>(keys).ToArray();
 
         // Assert
@@ -592,7 +592,7 @@ public class DistributedMemoryCacheProviderTests
             memoryCache,
             cache,
             new ExternalCacheKeyFactory(new ExternalCacheSettings() {AppName = _appName, InstanceName = _instanceName}),
-            lockFactory ?? new MemoryLockFactory(),
+            lockFactory ?? new MemoryLockFactory(LoggerUtils.GetLogger<MemoryLockFactory>(_output)),
             LoggerUtils.GetLogger<DistributedMemoryCacheProvider>(_output));
     }
 

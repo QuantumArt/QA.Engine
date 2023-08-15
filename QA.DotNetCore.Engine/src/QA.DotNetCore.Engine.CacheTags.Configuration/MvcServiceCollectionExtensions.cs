@@ -81,7 +81,7 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
         {
             _ = builder.Services.Configure<CacheTagsRegistrationConfigurator>(options =>
                 options.InvalidateByTimer(interval));
-            _ = builder.Services.AddSingleton<IHostedService, CacheInvalidationService>();
+            _ = builder.Services.AddHostedService<CacheInvalidationService>();
 
             return builder;
         }

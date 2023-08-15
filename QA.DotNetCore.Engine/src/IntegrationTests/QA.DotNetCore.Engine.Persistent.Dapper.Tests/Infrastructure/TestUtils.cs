@@ -5,6 +5,7 @@ using Moq;
 using QA.DotNetCore.Caching;
 using QA.DotNetCore.Engine.QpData.Settings;
 using System;
+using Tests.CommonUtils.Helpers;
 
 namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure
 {
@@ -20,17 +21,6 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure
                 ItemDefinitionCachePeriod = _generalExpiry,
                 SiteStructureCachePeriod = _generalExpiry
             };
-        }
-
-        public static VersionedCacheCoreProvider CreateDefaultMemoryCacheProvider()
-        {
-            var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
-            return new VersionedCacheCoreProvider(
-                memoryCache,
-                new CacheKeyFactoryBase(),
-                new MemoryLockFactory(),
-                Mock.Of<ILogger>()
-            );
         }
     }
 }

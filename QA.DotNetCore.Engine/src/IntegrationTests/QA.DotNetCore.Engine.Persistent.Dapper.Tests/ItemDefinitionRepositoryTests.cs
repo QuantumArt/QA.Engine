@@ -8,6 +8,7 @@ using QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 using System;
 using System.Linq;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests
 {
@@ -23,7 +24,7 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests
             var cacheProvider = new VersionedCacheCoreProvider(
                 new MemoryCache(Options.Create(new MemoryCacheOptions())),
                 new CacheKeyFactoryBase(),
-                new MemoryLockFactory(),
+                new MemoryLockFactory(NullLoggerFactory.Instance.CreateLogger<MemoryLockFactory>()),
                 Mock.Of<ILogger>());
             var metaRepository = new MetaInfoRepository(serviceProvider, cacheProvider, settings);
             var sqlAnalyzer = new NetNameQueryAnalyzer(metaRepository);

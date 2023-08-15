@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\QA.DotNetCore.Engine.QpData\QA.DotNetCore.Engine.QpData.csproj" />
+    <ProjectReference Include="..\Tests.CommonUtils\Tests.CommonUtils.csproj" />
   </ItemGroup>
 
 </Project>

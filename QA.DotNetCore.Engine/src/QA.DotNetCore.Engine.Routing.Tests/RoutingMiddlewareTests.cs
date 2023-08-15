@@ -22,6 +22,7 @@ using QA.DotNetCore.Engine.Routing.Tests.StubClasses;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Tests.CommonUtils.Helpers;
 
 namespace QA.DotNetCore.Engine.Routing.Tests
 {
@@ -236,7 +237,7 @@ namespace QA.DotNetCore.Engine.Routing.Tests
             var cacheProvider = new VersionedCacheCoreProvider(
                 new MemoryCache(new MemoryCacheOptions()),
                 new CacheKeyFactoryBase(),
-                new MemoryLockFactory(),
+                new MemoryLockFactory(NullLoggerFactory.Instance.CreateLogger<MemoryLockFactory>()),
                 Mock.Of<ILogger>());
             var cacheSettings = new QpSiteStructureCacheSettings
             {

@@ -7,7 +7,9 @@ using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using QA.DotNetCore.Engine.QpData.Replacements;
 using QA.DotNetCore.Engine.QpData.Settings;
 using System;
+using Tests.CommonUtils.Helpers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace QA.DotNetCore.Engine.QpData.Tests
 {
@@ -16,6 +18,13 @@ namespace QA.DotNetCore.Engine.QpData.Tests
     /// </summary>
     public class QpUrlResolverTests
     {
+        private readonly ITestOutputHelper _output;
+
+        public QpUrlResolverTests(ITestOutputHelper output)
+        {
+            _output = output;
+        }
+
         [Theory]
         [InlineData(true, "http://static.quantumart.ru", "storage.demo.artq.com", "/upload/dpcupload/", false,
             "http://static.quantumart.ru/upload/dpcupload/images")]
@@ -106,7 +115,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             Assert.Equal(expected, urlResolver.UrlForImage(siteId, contentId, fieldName, removeScheme));
         }
 
-        private static QpUrlResolver CreateMockedUrlResolver(IMetaInfoRepository metaInfoRepository)
+        private QpUrlResolver CreateMockedUrlResolver(IMetaInfoRepository metaInfoRepository)
         {
             var cacheSettings = new QpSiteStructureCacheSettings
             {
@@ -118,7 +127,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             var cacheProvider = new VersionedCacheCoreProvider(
                 cache,
                 new CacheKeyFactoryBase(),
-                new MemoryLockFactory(),
+                new MemoryLockFactory(LoggerUtils.GetLogger<MemoryLockFactory>(_output)),
                 Mock.Of<ILogger>()
             );
 

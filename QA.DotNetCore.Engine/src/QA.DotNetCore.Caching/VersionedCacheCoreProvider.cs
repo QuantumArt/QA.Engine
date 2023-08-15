@@ -72,8 +72,8 @@ namespace QA.DotNetCore.Caching
                 yield return !string.IsNullOrEmpty(key) && _cache.TryGetValue(GetKey(key), out _);
             }
         }
-        
-        
+
+
         public void Set(string key, object data, TimeSpan expiration)
         {
             Add(data, key, Array.Empty<string>(), expiration);
@@ -409,6 +409,41 @@ namespace QA.DotNetCore.Caching
             }
 
             return result;
+        }
+
+        public T[] GetOrAddBatch<T>(string[] keys, string keySuffix, string[] tags, TimeSpan expiration,
+            Func<string[], Dictionary<string, T>> getData)
+        {
+            keys = keys.Distinct().ToArray();
+
+            List<T> resultValues = new List<T>(keys.Length);
+            List<string> excludeKeys = new List<string>(keys.Length);
+            foreach (string key in keys)
+            {
+                string fullKey = key + keySuffix;
+                T cacheValue = Get<T>(fullKey);
+                if (cacheValue == null)
+                {
+                    excludeKeys.Add(key);
+                }
+                else
+                {
+                    resultValues.Add(cacheValue);
+                }
+            }
+
+            if (excludeKeys.Count > 0)
+            {
+                Dictionary<string, T> newValues = getData(excludeKeys.ToArray());
+
+                foreach (KeyValuePair<string, T> newValue in newValues.Where(nv => nv.Value != null))
+                {
+                    Add(newValue.Value, newValue.Key + keySuffix, tags, expiration);
+                    resultValues.Add(newValue.Value);
+                }
+            }
+
+            return resultValues.ToArray();
         }
 
         protected string GetDeprecatedKey(string key) => _keyFactory.GetDeprecatedKey(key ?? "");

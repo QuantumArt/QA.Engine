@@ -1,11 +1,13 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using QA.DotNetCore.Caching;
 using QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
+using Tests.CommonUtils.Helpers;
 using Tests.CommonUtils.Xunit.Traits;
 using Xunit;
 
@@ -20,6 +22,7 @@ public class AbstractItemRepositoryTests
     private readonly AbstractItemRepository _repository;
     private readonly MetaInfoRepository _metaRepo;
 
+
     public AbstractItemRepositoryTests()
     {
         var serviceProvider = Global.CreateMockServiceProviderWithConnection();
@@ -28,7 +31,7 @@ public class AbstractItemRepositoryTests
         var memoryCacheProvider = new VersionedCacheCoreProvider(
             memoryCache,
             new CacheKeyFactoryBase(),
-            new MemoryLockFactory(),
+            new MemoryLockFactory(NullLoggerFactory.Instance.CreateLogger<MemoryLockFactory>()),
             Mock.Of<ILogger>()
         );
         _metaRepo = new MetaInfoRepository(serviceProvider, memoryCacheProvider, settings);

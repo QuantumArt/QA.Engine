@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
@@ -21,7 +22,7 @@ public class AbTestRepositoryTests
         var cacheProvider = new VersionedCacheCoreProvider(
             new MemoryCache(Options.Create(new MemoryCacheOptions())),
             new CacheKeyFactoryBase(),
-            new MemoryLockFactory(),
+            new MemoryLockFactory(NullLoggerFactory.Instance.CreateLogger<MemoryLockFactory>()),
             Mock.Of<ILogger>());
         var metaRepository = new MetaInfoRepository(serviceProvider, cacheProvider, settings);
         var sqlAnalyzer = new NetNameQueryAnalyzer(metaRepository);

@@ -27,6 +27,8 @@ namespace QA.DotNetCore.Caching.Configuration
             services.TryAddSingleton<IModificationStateStorage, DefaultModificationStateStorage>();
             services.TryAddSingleton<MemoryLockFactory>();
             services.TryAddSingleton<ILockFactory>(svc => svc.GetRequiredService<MemoryLockFactory>());
+            services.TryAddSingleton(_ => new CleanCacheLockerServiceSettings());
+            services.AddHostedService<CleanCacheLockerService>();
         }
     }
 }

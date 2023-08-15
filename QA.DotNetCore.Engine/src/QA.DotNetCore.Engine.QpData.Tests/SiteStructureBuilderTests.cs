@@ -17,6 +17,8 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using QA.DotNetCore.Caching.Interfaces;
+using Tests.CommonUtils.Helpers;
+using Xunit.Abstractions;
 
 namespace QA.DotNetCore.Engine.QpData.Tests
 {
@@ -54,11 +56,18 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             UploadUrl = "/upload"
         };
 
-        private readonly VersionedCacheCoreProvider _cacheProvider = new VersionedCacheCoreProvider(
-            new MemoryCache(new MemoryCacheOptions()),
-            new CacheKeyFactoryBase(),
-            new MemoryLockFactory(),
-            Mock.Of<ILogger>());
+        private readonly VersionedCacheCoreProvider _cacheProvider;
+        private readonly ITestOutputHelper _output;
+
+        public SiteStructureBuilderTests(ITestOutputHelper output)
+        {
+            _output = output;
+            _cacheProvider = new VersionedCacheCoreProvider(
+                new MemoryCache(new MemoryCacheOptions()),
+                new CacheKeyFactoryBase(),
+                new MemoryLockFactory(LoggerUtils.GetLogger<MemoryLockFactory>(_output)),
+                Mock.Of<ILogger>());
+        }
 
         [Fact]
         public void GeneralBuildIsCorrect()

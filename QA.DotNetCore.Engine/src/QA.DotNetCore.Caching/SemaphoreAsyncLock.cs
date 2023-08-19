@@ -5,7 +5,7 @@ using QA.DotNetCore.Caching.Interfaces;
 
 namespace QA.DotNetCore.Caching;
 
-public class SemaphoreAsyncLock : IAsyncLock, ITrackableUsage
+public class SemaphoreAsyncLock : IAsyncLock, ITrackableUsage, IDisposable
 {
     private readonly SemaphoreSlim _semaphore;
 
@@ -15,6 +15,7 @@ public class SemaphoreAsyncLock : IAsyncLock, ITrackableUsage
     }
 
     public DateTime LastUsed { get; private set; }
+    public bool InUse => _semaphore.CurrentCount == 0;
 
     public async Task<bool> AcquireAsync(TimeSpan timeout)
     {
@@ -36,6 +37,8 @@ public class SemaphoreAsyncLock : IAsyncLock, ITrackableUsage
         return Task.CompletedTask;
     }
 
+    public void Dispose() => _semaphore?.Dispose();
+
     private void SetLastUsed(bool lockTaken)
     {
         if (lockTaken)
@@ -43,4 +46,5 @@ public class SemaphoreAsyncLock : IAsyncLock, ITrackableUsage
             LastUsed = DateTime.Now;
         }
     }
+
 }

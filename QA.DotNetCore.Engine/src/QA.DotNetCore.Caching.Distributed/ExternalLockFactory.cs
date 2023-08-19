@@ -18,6 +18,11 @@ public class ExternalLockFactory : ILockFactory
         _logger = logger;
     }
 
+    public ExternalLockFactory(IDistributedLockFactory lockFactory, ExternalCacheSettings settings, ILogger<ExternalLockFactory> genericLogger)
+        : this(lockFactory, settings, logger: genericLogger)
+    {
+    }
+
     public ILock CreateLock(string key) => new ExternalLock(key, _lockFactory, _settings);
 
     public IAsyncLock CreateAsyncLock(string key) => new ExternalLock(key, _lockFactory, _settings);

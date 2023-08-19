@@ -23,6 +23,10 @@ public class MemoryLockFactory : ILockFactory
         _logger = logger;
     }
 
+    public MemoryLockFactory(ILogger<MemoryLockFactory> genericLogger) : this(logger: genericLogger)
+    {
+    }
+
     public ILock CreateLock(string key) => _lockers.GetOrAdd(key, _ => new MonitorLock());
 
     public IAsyncLock CreateAsyncLock(string key) =>
@@ -39,7 +43,14 @@ public class MemoryLockFactory : ILockFactory
         var semaphoreKeys = _semaphores.Where(n => n.Value.LastUsed < dateTime)
             .Select(n => n.Key).ToList();
         _logger.LogInformation($"Deleting {semaphoreKeys.Count} semaphores from {_semaphores.Count}");
-        semaphoreKeys.ForEach(key => _semaphores.Remove(key, out _));
+        semaphoreKeys.ForEach(key =>
+        {
+            _semaphores.Remove(key, out SemaphoreAsyncLock semaphoreAsyncLock);
+            if (semaphoreAsyncLock != null && !semaphoreAsyncLock.InUse)
+            {
+                semaphoreAsyncLock.Dispose();
+            }
+        });
 
     }
 }

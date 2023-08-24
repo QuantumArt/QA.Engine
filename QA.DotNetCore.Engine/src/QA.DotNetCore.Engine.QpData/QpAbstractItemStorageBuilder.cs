@@ -547,14 +547,19 @@ namespace QA.DotNetCore.Engine.QpData
             }
 
             //установим связи m2m в контентах расширений, в которых они есть
-            if (extensionContentItemId.HasValue &&
-                extensionsM2MData != null &&
-                extensionsM2MData.TryGetValue(extensionContentItemId.Value, out var relations))
+            if (extensionContentItemId.HasValue)
             {
-                item.M2MRelations.Merge(relations);
-                item.M2MFieldNameMapToLinkIds = m2mFields[extensionContentId];
+                if (extensionsM2MData != null && extensionsM2MData.TryGetValue(extensionContentItemId.Value, out var relations))
+                {
+                    item.M2MRelations.Merge(relations);
+                }
             }
 
+            if (m2mFields != null && m2mFields.TryGetValue(extensionContentId, out var mapping))
+            {
+                item.M2MFieldNameMapToLinkIds = mapping;
+            }
+            
             return details;
         }
     }

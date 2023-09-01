@@ -18,7 +18,7 @@ namespace QA.DotNetCore.Caching
             return null;
         }
 
-        public Dictionary<int, string> GetByContentIds(int[] contentIds, int siteId, bool isStage)
+        public Dictionary<int, string> GetByContentIds(int[] contentIds, bool isStage)
         {
             return new Dictionary<int, string>();
         }

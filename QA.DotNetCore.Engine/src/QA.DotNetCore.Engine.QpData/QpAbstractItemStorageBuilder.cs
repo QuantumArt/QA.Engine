@@ -243,8 +243,7 @@ namespace QA.DotNetCore.Engine.QpData
                 //получим инфу обо всех контентах-расширениях, которые используются
                 _context.ExtensionContents = _metaInfoRepository
                     .GetContentsById(
-                        extensions.Select(group => group.Key).Where(key => key > 0).ToArray(),
-                        _buildSettings.SiteId)
+                        extensions.Select(group => group.Key).Where(key => key > 0).ToArray())
                     .ToDictionary(c => c.ContentId);
 
                 var allTags = GetTags(extensions.Keys);
@@ -361,7 +360,7 @@ namespace QA.DotNetCore.Engine.QpData
                 .GetByNetName(KnownNetNames.ItemDefinition, _buildSettings.SiteId, _buildSettings.IsStage);
 
             Dictionary<int, string> extensionsTags = _qpContentCacheTagNamingProvider
-                .GetByContentIds(extensions.ToArray(), _buildSettings.SiteId, _buildSettings.IsStage);
+                .GetByContentIds(extensions.ToArray(), _buildSettings.IsStage);
 
             return new WidgetsAndPagesCacheTags
             {
@@ -559,7 +558,7 @@ namespace QA.DotNetCore.Engine.QpData
             {
                 item.M2MFieldNameMapToLinkIds = mapping;
             }
-            
+
             return details;
         }
     }

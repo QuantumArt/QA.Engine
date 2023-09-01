@@ -73,6 +73,7 @@ WHERE ca.CONTENT_ID={0} AND lower(ca.NET_ATTRIBUTE_NAME)=lower('{1}')
         private const string BaseCmdGetContents = @"
 SELECT
     c.CONTENT_NAME as " + nameof(ContentPersistentData.ContentName) + @",
+    c.SITE_ID as " + nameof(ContentPersistentData.SiteId) + @",
     c.NET_CONTENT_NAME as " + nameof(ContentPersistentData.ContentNetName) + @",
     c.USE_DEFAULT_FILTRATION as " + nameof(ContentAttributePersistentData.UseDefaultFiltration) + @",
     ca.ATTRIBUTE_ID as " + nameof(ContentAttributePersistentData.Id) + @",
@@ -86,10 +87,10 @@ SELECT
 FROM CONTENT c
 INNER JOIN CONTENT_ATTRIBUTE ca on ca.CONTENT_ID = c.CONTENT_ID
 INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
-WHERE c.SITE_ID = {0}";
+";
 
-        private const string CmdGetContentsByNetName = BaseCmdGetContents + " AND lower(c.NET_CONTENT_NAME) IN ({1})";
-        private const string CmdGetContentsById = BaseCmdGetContents + " AND c.CONTENT_ID in ({1})";
+        private const string CmdGetContentsByNetName = BaseCmdGetContents + "WHERE c.SITE_ID = {0} AND lower(c.NET_CONTENT_NAME) IN ({1})";
+        private const string CmdGetContentsById = BaseCmdGetContents + " WHERE c.CONTENT_ID in ({1})";
 
         public QpSitePersistentData GetSite(int siteId)
         {
@@ -132,12 +133,12 @@ WHERE c.SITE_ID = {0}";
         public ContentPersistentData GetContent(string contentNetName, int siteId, IDbTransaction transaction = null) =>
             GetContents(new[] { contentNetName }, siteId, transaction).FirstOrDefault();
 
-        public ContentPersistentData[] GetContentsById(int[] contentIds, int siteId, IDbTransaction transaction = null) =>
+        public ContentPersistentData[] GetContentsById(int[] contentIds, IDbTransaction transaction = null) =>
             GetContentsCore(
                 nameof(CmdGetContentsById),
                 CmdGetContentsById,
                 contentIds,
-                siteId,
+                0,
                 transaction);
 
         private ContentPersistentData[] GetContentsCore<T>(
@@ -206,13 +207,14 @@ WHERE c.SITE_ID = {0}";
         {
             return attributes
                 .GroupBy(
-                    attribute => (attribute.ContentId, attribute.ContentName, attribute.ContentNetName),
+                    attribute => (attribute.ContentId, attribute.ContentName, attribute.SiteId, attribute.ContentNetName),
                     attribute => attribute,
                     (key, value) => new ContentPersistentData
                     {
                         ContentId = key.ContentId,
                         ContentName = key.ContentName,
                         ContentNetName = key.ContentNetName,
+                        SiteId = key.SiteId,
                         ContentAttributes = value
                     });
         }

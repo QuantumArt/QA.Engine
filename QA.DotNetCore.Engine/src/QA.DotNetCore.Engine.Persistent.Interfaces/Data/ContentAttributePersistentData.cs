@@ -9,6 +9,8 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces.Data
 
         public int ContentId { get; set; }
 
+        public int SiteId { get; set; }
+
         public string ContentName { get; set; }
 
         public string ContentNetName { get; set; }

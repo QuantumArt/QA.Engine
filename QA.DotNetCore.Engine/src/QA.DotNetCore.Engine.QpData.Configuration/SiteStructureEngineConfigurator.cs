@@ -197,6 +197,9 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
                 {
                     return new UnitOfWork(options.QpConnectionString, options.QpDatabaseType);
                 });
+
+                Services.AddScoped<Func<IUnitOfWork>>(sp => () => sp.GetRequiredService<IUnitOfWork>());
+
             }
         }
     }

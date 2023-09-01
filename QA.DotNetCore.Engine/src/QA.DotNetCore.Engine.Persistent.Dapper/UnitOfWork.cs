@@ -6,13 +6,15 @@ using Npgsql;
 
 namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
-    public class UnitOfWork : IUnitOfWork, IDisposable
+    public class UnitOfWork : IUnitOfWork
     {
         private bool disposed = false;
         public IDbConnection Connection { get; private set; }
         public DatabaseType DatabaseType { get; }
 
-        public UnitOfWork(string connectionString, string dbType = "MSSQL")
+        public string CustomerCode { get; }
+
+        public UnitOfWork(string connectionString, string dbType = "MSSQL", string customerCode = "current")
         {
             switch (dbType.ToUpperInvariant())
             {
@@ -28,6 +30,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
                     break;
             }
 
+            CustomerCode = customerCode;
             Connection.Open();
         }
 

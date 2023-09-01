@@ -7,5 +7,7 @@ namespace QA.DotNetCore.Engine.Persistent.Interfaces
     public interface IContentModificationRepository
     {
         IEnumerable<QpContentModificationPersistentData> GetAll(IDbTransaction transaction = null);
+
+        void SetUnitOfWork(IUnitOfWork unitOfWork);
     }
 }

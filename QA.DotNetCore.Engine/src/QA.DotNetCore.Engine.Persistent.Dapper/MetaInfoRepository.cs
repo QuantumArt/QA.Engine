@@ -18,6 +18,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
         private readonly IMemoryCacheProvider _memoryCacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly IServiceProvider _serviceProvider;
+        private IUnitOfWork _unitOfWork;
 
         public MetaInfoRepository(
             IServiceProvider serviceProvider,
@@ -29,7 +30,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             _cacheSettings = cacheSettings;
         }
 
-        protected IUnitOfWork UnitOfWork { get { return _serviceProvider.GetRequiredService<IUnitOfWork>(); } }
+        protected IUnitOfWork UnitOfWork => _unitOfWork ?? _serviceProvider.GetRequiredService<IUnitOfWork>();
 
         private const string CmdGetSite = @"
 SELECT
@@ -140,6 +141,11 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
                 contentIds,
                 0,
                 transaction);
+
+        public void SetUnitOfWork(IUnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+        }
 
         private ContentPersistentData[] GetContentsCore<T>(
             string templateId,

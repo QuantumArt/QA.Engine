@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
 
 namespace QA.DotNetCore.Caching.Interfaces
 {
@@ -9,14 +10,7 @@ namespace QA.DotNetCore.Caching.Interfaces
     {
         string Get(string contentName, int siteId, bool isStage);
         string GetByNetName(string contentNetName, int siteId, bool isStage);
-
-        /// <summary>
-        /// Получить словарь кэштегов для контентов
-        /// </summary>
-        /// <param name="contentIds"></param>
-        /// <param name="siteId"></param>
-        /// <param name="isStage"></param>
-        /// <returns></returns>
         Dictionary<int, string> GetByContentIds(int[] contentIds, bool isStage);
+        void SetUnitOfWork(IUnitOfWork unitOfWork);
     }
 }

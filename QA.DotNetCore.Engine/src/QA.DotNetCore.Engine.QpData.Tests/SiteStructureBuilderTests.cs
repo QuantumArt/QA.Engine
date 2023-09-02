@@ -967,7 +967,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             var mockQpContentCacheTagNamingProvider = new Mock<IQpContentCacheTagNamingProvider>();
             _ = mockQpContentCacheTagNamingProvider
                 .Setup(provider => provider.GetByContentIds(It.IsAny<int[]>(), It.IsAny<bool>()))
-                .Returns<int[], int, bool>((ids, _, _) => ids.ToDictionary(id => id, id => id.ToString()));
+                .Returns<int[], bool>((ids, _) => ids.ToDictionary(id => id, id => id.ToString()));
 
             return new QpAbstractItemStorageBuilder(
                 itemFactory,

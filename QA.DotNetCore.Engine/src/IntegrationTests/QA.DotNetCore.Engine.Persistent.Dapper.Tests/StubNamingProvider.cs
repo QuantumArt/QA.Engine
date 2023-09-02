@@ -1,5 +1,6 @@
 using QA.DotNetCore.Caching.Interfaces;
 using System.Collections.Generic;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
 
 namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests;
 
@@ -10,6 +11,10 @@ internal class StubNamingProvider : IQpContentCacheTagNamingProvider
 
     public Dictionary<int, string> GetByContentIds(int[] contentIds, bool isStage) =>
         new Dictionary<int, string>();
+
+    public void SetUnitOfWork(IUnitOfWork unitOfWork)
+    {
+    }
 
     public string GetByNetName(string contentNetName, int siteId, bool isStage) =>
         string.Empty;

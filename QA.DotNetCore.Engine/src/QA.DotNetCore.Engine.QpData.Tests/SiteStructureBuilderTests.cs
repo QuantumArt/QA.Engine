@@ -354,7 +354,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 ContentId = abstractItemContentId,
                 ContentAttributes = new List<ContentAttributePersistentData> {iconField}
             });
-            metaInfoMoq.Setup(x => x.GetContentsById(It.Is<int[]>(ids => ids.Contains(extensionId)), siteId, null))
+            metaInfoMoq.Setup(x => x.GetContentsById(It.Is<int[]>(ids => ids.Contains(extensionId)), null))
                 .Returns(new ContentPersistentData[1]
                 {
                     new ContentPersistentData
@@ -497,7 +497,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 ContentId = abstractItemContentId,
                 ContentAttributes = new List<ContentAttributePersistentData> {baseContentRelationField}
             });
-            metaInfoMoq.Setup(x => x.GetContentsById(It.Is<int[]>(ids => ids.Contains(extensionId)), siteId, null))
+            metaInfoMoq.Setup(x => x.GetContentsById(It.Is<int[]>(ids => ids.Contains(extensionId)), null))
                 .Returns(new ContentPersistentData[1]
                 {
                     new ContentPersistentData
@@ -966,8 +966,8 @@ namespace QA.DotNetCore.Engine.QpData.Tests
         {
             var mockQpContentCacheTagNamingProvider = new Mock<IQpContentCacheTagNamingProvider>();
             _ = mockQpContentCacheTagNamingProvider
-                .Setup(provider => provider.GetByContentIds(It.IsAny<int[]>(), It.IsAny<int>(), It.IsAny<bool>()))
-                .Returns<int[], int, bool>((ids, _, _) => ids.ToDictionary(id => id, id => id.ToString()));
+                .Setup(provider => provider.GetByContentIds(It.IsAny<int[]>(), It.IsAny<bool>()))
+                .Returns<int[], bool>((ids, _) => ids.ToDictionary(id => id, id => id.ToString()));
 
             return new QpAbstractItemStorageBuilder(
                 itemFactory,

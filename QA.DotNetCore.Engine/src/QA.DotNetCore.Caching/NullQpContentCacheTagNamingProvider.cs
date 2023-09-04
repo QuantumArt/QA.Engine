@@ -1,5 +1,6 @@
 using QA.DotNetCore.Caching.Interfaces;
 using System.Collections.Generic;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
 
 namespace QA.DotNetCore.Caching
 {
@@ -18,9 +19,12 @@ namespace QA.DotNetCore.Caching
             return null;
         }
 
-        public Dictionary<int, string> GetByContentIds(int[] contentIds, int siteId, bool isStage)
+        public Dictionary<int, string> GetByContentIds(int[] contentIds, bool isStage)
         {
             return new Dictionary<int, string>();
+        }
+
+        public void SetUnitOfWork(IUnitOfWork unitOfWork)  {
         }
     }
 }

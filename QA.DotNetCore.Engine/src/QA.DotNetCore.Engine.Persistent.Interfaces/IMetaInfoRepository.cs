@@ -16,6 +16,8 @@ namespace QA.DotNetCore.Engine.Persistent.Interfaces
 
         ContentPersistentData[] GetContents(ICollection<string> contentNetNames, int siteId, IDbTransaction transaction = null);
 
-        ContentPersistentData[] GetContentsById(int[] ids, int siteId, IDbTransaction transaction = null);
+        ContentPersistentData[] GetContentsById(int[] ids, IDbTransaction transaction = null);
+
+        void SetUnitOfWork(IUnitOfWork unitOfWork);
     }
 }

@@ -57,7 +57,7 @@ namespace QA.DotNetCore.Engine.QpData
                 ItemDefinitionTag = _qpContentCacheTagNamingProvider.GetByNetName(
                     KnownNetNames.ItemDefinition, siteId, isStage),
                 ExtensionsTags = _qpContentCacheTagNamingProvider.GetByContentIds(
-                    extensionsWithAbsItems.Keys.ToArray(), siteId, isStage)
+                    extensionsWithAbsItems.Keys.ToArray(), isStage)
             };
 
             TimeSpan expiry = _cacheSettings.SiteStructureCachePeriod;

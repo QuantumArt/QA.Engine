@@ -1,4 +1,11 @@
 # Changelog
+## 3.2.13
+
+* Исправлен scope для QpContentCacheTracker
+
+## 3.2.12
+
+* Добавлен интерфейс ITargetingFiltersFactory
 
 ## 3.2.11
 

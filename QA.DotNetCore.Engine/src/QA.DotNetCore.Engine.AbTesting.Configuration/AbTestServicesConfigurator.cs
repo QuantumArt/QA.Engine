@@ -49,6 +49,7 @@ namespace QA.DotNetCore.Engine.AbTesting.Configuration
                     return new UnitOfWork(options.QpConnectionString, options.QpDatabaseType);
                 });
                 services.AddScoped<Func<IUnitOfWork>>(sp => () => sp.GetRequiredService<IUnitOfWork>());
+                services.AddScoped<Func<IServiceProvider, IUnitOfWork>>(_ => (provider) => provider.GetRequiredService<IUnitOfWork>());
             }
 
             services.TryAddSiteStructureRepositories();

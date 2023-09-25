@@ -199,6 +199,7 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
                 });
 
                 Services.AddScoped<Func<IUnitOfWork>>(sp => () => sp.GetRequiredService<IUnitOfWork>());
+                Services.AddScoped<Func<IServiceProvider, IUnitOfWork>>(_ => (provider) => provider.GetRequiredService<IUnitOfWork>());
 
             }
         }

@@ -29,7 +29,7 @@ namespace QA.DotNetCore.Engine.Targeting.Factories
                 return new EmptyFilter();
             }
 
-            var regionIds = GetGerionIds(targetingValue);
+            var regionIds = GetRerionIds(targetingValue);
 
             if (regionIds.Count == 0)
             {
@@ -58,7 +58,7 @@ namespace QA.DotNetCore.Engine.Targeting.Factories
                 return new EmptyFilter();
             }
 
-            var regionIds = GetGerionIds(targetingValue);
+            var regionIds = GetRerionIds(targetingValue);
 
             if (regionIds.Count == 0)
             {
@@ -102,7 +102,7 @@ namespace QA.DotNetCore.Engine.Targeting.Factories
             ILogger logger) =>
             filter.AddFilter(currentTargeting.AddRelationFilter(targetingKey, fieldName, logger));
 
-        private static HashSet<int> GetGerionIds(string value) =>
+        private static HashSet<int> GetRerionIds(string value) =>
             SplitTargetingRegions(value)
                 .Distinct()
                 .ToHashSet();

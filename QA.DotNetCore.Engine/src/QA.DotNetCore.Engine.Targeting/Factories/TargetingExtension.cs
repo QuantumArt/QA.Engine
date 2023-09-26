@@ -10,6 +10,14 @@ namespace QA.DotNetCore.Engine.Targeting.Factories
 {
     public static class TargetingExtension
     {
+        /// <summary>
+        /// Добавляет <typeparamref name="RelationFilter"/> 
+        /// </summary>
+        /// <param name="currentTargeting">Параметры таргетинга</param>
+        /// <param name="targetingKey">Ключ таргетинга</param>
+        /// <param name="relationFieldName">Имя relation поля</param>
+        /// <param name="logger">Логгер</param>
+        /// <returns></returns>
         public static ITargetingFilter AddRelationFilter(
             this IDictionary<string, string> currentTargeting,
             string targetingKey,
@@ -31,6 +39,14 @@ namespace QA.DotNetCore.Engine.Targeting.Factories
             return new RelationFilter(item => item.GetRelationIds(relationFieldName), regionIds, logger);
         }
 
+        /// <summary>
+        /// Добавляет <typeparamref name="RelationFilter"/> 
+        /// </summary>
+        /// <param name="currentTargeting">Параметры таргетинга</param>
+        /// <param name="targetingKey">Ключ таргетинга</param>
+        /// <param name="relationSelector">Предикат выбора relation поля</param>
+        /// <param name="logger">Логгер</param>
+        /// <returns></returns>
         public static ITargetingFilter AddRelationFilter(
             this IDictionary<string, string> currentTargeting,
             string targetingKey,
@@ -52,6 +68,15 @@ namespace QA.DotNetCore.Engine.Targeting.Factories
             return new RelationFilter(relationSelector, regionIds, logger);
         }
 
+        /// <summary>
+        /// Добавляет <typeparamref name="RelationFilter"/> 
+        /// </summary>
+        /// <param name="filter">Фильтр</param>
+        /// <param name="currentTargeting">Параметры таргетинга</param>
+        /// <param name="targetingKey">Ключ таргетинга</param>
+        /// <param name="relationSelector">Предикат выбора relation поля</param>
+        /// <param name="logger">Логгер</param>
+        /// <returns></returns>
         public static ITargetingFilter AddRelationFilter(
             this ITargetingFilter filter,
             IDictionary<string, string> currentTargeting,
@@ -60,6 +85,15 @@ namespace QA.DotNetCore.Engine.Targeting.Factories
             ILogger logger) =>
             filter.AddFilter(currentTargeting.AddRelationFilter(targetingKey, relationSelector, logger));
 
+        /// <summary>
+        /// Добавляет <typeparamref name="RelationFilter"/> 
+        /// </summary>
+        /// <param name="filter">Фильтр</param>
+        /// <param name="currentTargeting">Параметры таргетинга</param>
+        /// <param name="targetingKey">Ключ таргетинга</param>
+        /// <param name="fieldName">Имя relation поля</param>
+        /// <param name="logger">Логгер</param>
+        /// <returns></returns>
         public static ITargetingFilter AddRelationFilter(
             this ITargetingFilter filter,
             IDictionary<string, string> currentTargeting,

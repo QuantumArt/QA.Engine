@@ -8,6 +8,9 @@ using System.Linq;
 
 namespace QA.DotNetCore.Engine.Targeting.Filters
 {
+    /// <summary>
+    /// Фильтр по relation полю
+    /// </summary>
     public class RelationFilter : BaseTargetingFilter
     {
         private readonly Func<AbstractItem, IEnumerable<int>> _getRelationIds;

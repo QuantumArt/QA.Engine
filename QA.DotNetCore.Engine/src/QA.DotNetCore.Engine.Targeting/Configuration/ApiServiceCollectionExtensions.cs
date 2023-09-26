@@ -12,6 +12,12 @@ namespace QA.DotNetCore.Engine.Targeting.Configuration
 {
     public static class ApiServiceCollectionExtensions
     {
+        /// <summary>
+        /// Добавление сервисов для таргетирования в IServiceCollection
+        /// </summary>
+        /// <param name="services">Коллекция сервисов</param>
+        /// <param name="configuration">Конфигурация</param>
+        /// <returns></returns>
         public static IServiceCollection AddApiTargeting(this IServiceCollection services, IConfiguration configuration)
         {
             var _ = services.Configure<TargetingFilterSettings>(configuration.GetSection("TargetingFilterSettings"));

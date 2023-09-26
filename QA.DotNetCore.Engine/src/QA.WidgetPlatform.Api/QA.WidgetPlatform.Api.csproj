@@ -12,6 +12,7 @@
     
   <ItemGroup>
     <ProjectReference Include="..\QA.DotNetCore.Engine.QpData.Configuration\QA.DotNetCore.Engine.QpData.Configuration.csproj" />
+    <ProjectReference Include="..\QA.DotNetCore.Engine.Targeting\QA.DotNetCore.Engine.Targeting.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

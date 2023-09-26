@@ -1,15 +1,11 @@
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.QpData;
-using QA.DotNetCore.Engine.Widgets;
+using QA.DotNetCore.Engine.Targeting.Filters;
 using QA.WidgetPlatform.Api.Application.Exceptions;
 using QA.WidgetPlatform.Api.Models;
 using QA.WidgetPlatform.Api.Services.Abstract;
-using QA.WidgetPlatform.Api.TargetingFilters;
 
 namespace QA.WidgetPlatform.Api.Services
 {

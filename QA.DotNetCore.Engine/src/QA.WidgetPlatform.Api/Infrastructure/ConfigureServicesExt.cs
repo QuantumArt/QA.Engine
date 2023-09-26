@@ -1,9 +1,12 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
+using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.CacheTags;
 using QA.DotNetCore.Engine.CacheTags.Configuration;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 using QA.DotNetCore.Engine.QpData.Configuration;
+using QA.DotNetCore.Engine.Targeting.Configuration;
+using QA.DotNetCore.Engine.Targeting.Factories;
 using QA.WidgetPlatform.Api.Services;
 using QA.WidgetPlatform.Api.Services.Abstract;
 using System.Text.Json.Serialization;
@@ -62,7 +65,8 @@ namespace QA.WidgetPlatform.Api.Infrastructure
             }
 
             services.AddScoped<ISiteStructureService, SiteStructureService>();
-            services.TryAddSingleton<ITargetingFiltersFactory, EmptyTargetingFiltersFactory>();
+            services.AddApiTargeting(configuration);
+
 
             return services;
         }

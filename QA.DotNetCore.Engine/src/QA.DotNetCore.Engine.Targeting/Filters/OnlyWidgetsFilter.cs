@@ -1,7 +1,7 @@
-﻿using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
+using QA.DotNetCore.Engine.Abstractions;
 
-namespace QA.WidgetPlatform.Api.TargetingFilters
+namespace QA.DotNetCore.Engine.Targeting.Filters
 {
     public class OnlyWidgetsFilter : BaseTargetingFilter
     {

@@ -54,7 +54,7 @@ namespace QA.DotNetCore.Engine.Targeting.Configuration
         {
             if (settings?.TargetingLibrary != null)
             {
-                var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, settings.TargetingLibrary);
+                var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{settings.TargetingLibrary}.dll");
 
                 try
                 {

@@ -58,6 +58,11 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
         private readonly List<Type> headTokenPossibleValuesProviders = new List<Type>();
 
         public IReadOnlyList<Type> HeadTokenPossibleValuesProviders { get { return headTokenPossibleValuesProviders.AsReadOnly(); } }
+
+        /// <summary>
+        /// Настройки справочников таргетинга
+        /// </summary>
+        public List<DictionarySettings> DictionarySettings { get; set; }
     }
 
     /// <summary>

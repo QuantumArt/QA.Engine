@@ -17,6 +17,7 @@ using QA.DotNetCore.Engine.Routing.UrlResolve;
 using QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching;
 using QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching;
 using QA.DotNetCore.Engine.Routing.UrlResolve.Targeting;
+using QA.DotNetCore.Engine.Targeting.TargetingProviders;
 using QA.DotNetCore.Engine.Widgets;
 using QA.DotNetCore.Engine.Widgets.Mappers;
 using System;
@@ -49,6 +50,7 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
                 HeadPatterns = options.UrlHeadPatterns ?? new List<HeadUrlMatchingPattern> { new HeadUrlMatchingPattern { Pattern = "/" } }
             });
 
+           services.AddSingleton(options.DictionarySettings);
 
             services.TryAddScoped<IAbstractItemFactory, AbstractItemFactory>();
             services.TryAddSingleton<ITargetingFilterAccessor, NullTargetingFilterAccessor>();
@@ -67,9 +69,12 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
 
             services.TryAddSingleton<ITargetingUrlTransformator, TargetingUrlTransformator>();
             services.TryAddSingleton<UrlTokenTargetingProvider>();
+            services.TryAddScoped<RegionTargetingProvider>();
+            services.TryAddScoped<CultureTargetingProvider>();
+            services.TryAddScoped<IDictionaryProvider, DictionaryProvider>();
 
             services.TryAddSingleton<SiteStructureRouteValueTransformer>();
-            services.TryAdd(new ServiceDescriptor(typeof(ITypeFinder), provider => options.TypeFinder, ServiceLifetime.Singleton));
+            services.TryAdd(new ServiceDescriptor(typeof(ITypeFinder), provider => options.TypeFinder, ServiceLifetime.Singleton));    
 
             if (options.ItemDefinitionConvention == ItemDefinitionConvention.Name)
             {

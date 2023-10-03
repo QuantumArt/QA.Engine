@@ -38,7 +38,7 @@ namespace QA.DotNetCore.Engine.Targeting.Configuration
             return app;
         }
 
-        private static ITargetingRegistration[] GetTargetingRegistrations(this TargetingFilterSettings settings) => settings
+        private static ITargetingRegistration[] GetTargetingRegistrations(this TargetingFilterSettings settings) => settings?.TargetingLibraries == null ? new ITargetingRegistration[0] : settings
             .TargetingLibraries
             .LoadExternalLibraries()
             .Select(GetTargetingRegistration)

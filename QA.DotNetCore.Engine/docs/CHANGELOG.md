@@ -1,7 +1,22 @@
 # Changelog
 ## 3.2.14
 
-* в проект Targeting вынесена реализация фильтров таргетинга
+* Добавлены сервисы по работе со справочниками IAbstractItem
+* Добавлены реализациы фильтров таргетинга ITargetingFilter
+  * RelationFilter - абстрактный фильтр для relation полей
+  * ManyToManyFilter - абстрактный фильтр для m2m полей
+  * OneToManyFilter - абстрактный фильтр для o2m полей
+  * CultureFilter - фильтр по культуре
+  * RegionFilter - фильтр по регионам
+* Добавлены реализации провайдеров данных для фильтров ITargetingProvider
+  * QueryTargetingProvider - провайдер данных query string
+  * RelationTargetingProvider - абстрактный провайдер справочников IAbstractItem
+  * CultureTargetingProvider - провайдер культур
+  * RegionTargetingProvider - провайдер регионов
+* Добавлен провайдер DictionariesPossibleValuesProvider для корректной работы url токенов в демосайте
+* Удален интерфейс ITargetingFiltersFactory
+* Удален проект с примером API для виджетной платформы
+* Донастроен проект демосайта для корректной работы таргетинга
 
 ## 3.2.13
 

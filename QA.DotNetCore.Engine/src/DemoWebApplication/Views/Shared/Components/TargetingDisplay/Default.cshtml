@@ -6,9 +6,13 @@
     position: absolute;
   ">
     <strong>Таргетирование</strong><br />
+    @foreach (var key in Model.PrimaryItems.Keys)
+    {
+      <strong>primary_@key</strong> @Model.PrimaryItems[key] <br/>
+    }
     @foreach (var key in Model.Items.Keys)
     {
-      <strong>@key</strong> @Model.Items[key] <br/>
+        <strong>@key</strong> @Model.Items[key] <br/>
     }
   </div>
 }

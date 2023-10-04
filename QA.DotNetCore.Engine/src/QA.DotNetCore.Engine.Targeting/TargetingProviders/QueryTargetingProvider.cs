@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace QA.DotNetCore.Engine.Targeting.TargetingProviders
     {
         private const string TargetingPrefix = "t.";
         readonly IHttpContextAccessor _httpContextAccessor;
+        public TargetingSource Source => TargetingSource.Primary;
 
         public QueryTargetingProvider(IHttpContextAccessor httpContextAccessor)
         {

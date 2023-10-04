@@ -1,17 +1,9 @@
-using System;
-
 namespace QA.DotNetCore.Engine.Abstractions.Targeting
 {
     public sealed class NullTargetingContext : ITargetingContext
     {
-        public string[] GetTargetingKeys()
-        {
-            return Array.Empty<string>();
-        }
-
-        public object GetTargetingValue(string key)
-        {
-            return null;
-        }
+        public object GetPrimaryTargetingValue(string key) => new string[0];
+        public string[] GetTargetingKeys() => new string[0];
+        public object GetTargetingValue(string key) => null;
     }
 }

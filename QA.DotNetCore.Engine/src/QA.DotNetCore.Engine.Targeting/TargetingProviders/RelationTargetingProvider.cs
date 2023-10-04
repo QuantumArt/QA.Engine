@@ -1,3 +1,4 @@
+using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.QpData.Interfaces;
 using System.Collections.Generic;
@@ -11,10 +12,10 @@ namespace QA.DotNetCore.Engine.Targeting.TargetingProviders
     /// </summary>
     public abstract class RelationTargetingProvider : ITargetingProvider
     {
-        protected abstract string TargetingKey { get; }
+        protected abstract string TargetingKey { get; }        
         private readonly ITargetingContext _context;
         private readonly IDictionaryProvider _dictionaryProvider;
-
+        public TargetingSource Source => TargetingSource.Chained;
 
         public RelationTargetingProvider(ITargetingContext context, IDictionaryProvider dictionaryProvider)
         {

@@ -13,6 +13,7 @@ namespace QA.DotNetCore.Engine.Targeting.Configuration
         /// <param name="services"></param>
         public static void AddTargeting(this IServiceCollection services)
         {
+            services.AddSingleton<ITargetingContextUpdater, HttpTargetingContextUpdater>();
             services.AddSingleton<ITargetingContext, HttpTargetingContext>();
             services.AddSingleton<ServiceSetConfigurator<ITargetingProvider>>();
             services.AddSingleton<ServiceSetConfigurator<ITargetingProviderAsync>>();

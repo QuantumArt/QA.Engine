@@ -21,7 +21,7 @@ namespace QA.DotNetCore.Engine.Targeting
 
         public async Task Invoke(HttpContext context)
         {
-            await _updater.Update(context, null);
+            await _updater.Update(null);
 
             // Call the next delegate/middleware in the pipeline
             await _next(context);

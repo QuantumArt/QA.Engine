@@ -11,19 +11,24 @@ namespace QA.DotNetCore.Engine.Targeting
     {
         private readonly record struct TargetingConfiguration(IDictionary<string, object> Values, TargetingSource Source);
 
-        readonly ServiceSetConfigurator<ITargetingProvider> _targetingConfigurationBuilder;
-        readonly ServiceSetConfigurator<ITargetingProviderAsync> _targetingConfigurationBuilderForAsync;
+        private readonly ServiceSetConfigurator<ITargetingProvider> _targetingConfigurationBuilder;
+        private readonly ServiceSetConfigurator<ITargetingProviderAsync> _targetingConfigurationBuilderForAsync;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public HttpTargetingContextUpdater(
             ServiceSetConfigurator<ITargetingProvider> p,
-            ServiceSetConfigurator<ITargetingProviderAsync> p2)
+            ServiceSetConfigurator<ITargetingProviderAsync> p2,
+            IHttpContextAccessor httpContextAccessor)
         {
             _targetingConfigurationBuilder = p;
             _targetingConfigurationBuilderForAsync = p2;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task Update(HttpContext context, IDictionary<string, string> values)
+        public async Task Update(IDictionary<string, string> values)
         {
+            var context = _httpContextAccessor.HttpContext;
+
             var startValues = values == null ?
                 new TargetingConfiguration[0] :
                 new TargetingConfiguration[] { new TargetingConfiguration(values.ToDictionary(pair => pair.Key, pair => (object)pair.Value), TargetingSource.Primary) };

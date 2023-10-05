@@ -13,8 +13,10 @@
   * RelationTargetingProvider - абстрактный провайдер справочников IAbstractItem
   * CultureTargetingProvider - провайдер культур
   * RegionTargetingProvider - провайдер регионов
+* Добавлен базовый интерфейс ITargetingProviderSource для провайдеров таргетинга
 * Добавлен провайдер DictionariesPossibleValuesProvider для корректной работы url токенов в демосайте
 * Удален интерфейс ITargetingFiltersFactory
+* Добавлен интерфейс ITargetingContextUpdater с реализацией для возможности на выбор передавать таргетинг явно или через TargetingMiddleware
 * Добавлен интерфейс ITargetingRegistration для регистрации фильтров и провайдеров, а также механизм регистрации из внешних сборок
 * Удален проект с примером API для виджетной платформы
 * Донастроен проект демосайта для корректной работы таргетинга

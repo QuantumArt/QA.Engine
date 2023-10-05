@@ -15,7 +15,7 @@ namespace QA.DotNetCore.Engine.Targeting.TargetingProviders
         protected abstract string TargetingKey { get; }        
         private readonly ITargetingContext _context;
         private readonly IDictionaryProvider _dictionaryProvider;
-        public TargetingSource Source => TargetingSource.Chained;
+        public TargetingSource Source => TargetingSource.Targeting;
 
         public RelationTargetingProvider(ITargetingContext context, IDictionaryProvider dictionaryProvider)
         {

@@ -191,7 +191,8 @@ namespace DemoWebApplication
                 providers.Register<UrlTokenTargetingProvider>();
                 providers.Register<CultureTargetingProvider>();
                 providers.Register<RegionTargetingProvider>();
-            });
+            },
+            useMiddleware:true);
 
             //мидлвара, добавляющая структуру сайта в pipeline запроса
             //необходимо, чтобы было подключено services.AddSiteStructureEngine

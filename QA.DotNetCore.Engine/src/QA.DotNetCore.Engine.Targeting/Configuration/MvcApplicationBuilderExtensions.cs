@@ -16,7 +16,7 @@ namespace QA.DotNetCore.Engine.Targeting.Configuration
         /// <param name="useMiddleware"></param>
         /// <returns></returns>
         public static IApplicationBuilder UseTargeting(this IApplicationBuilder app,
-            Action<ServiceSetConfigurator<ITargetingProvider>> configureTargeting, bool useMiddleware=true)
+            Action<ServiceSetConfigurator<ITargetingProvider>> configureTargeting, bool useMiddleware=false)
         {
             if (useMiddleware)
             {
@@ -38,7 +38,7 @@ namespace QA.DotNetCore.Engine.Targeting.Configuration
         /// <param name="useMiddleware"></param>
         /// <returns></returns>
         public static IApplicationBuilder UseTargeting(this IApplicationBuilder app,
-            Action<ServiceSetConfigurator<ITargetingProviderAsync>> configureTargeting, bool useMiddleware = true)
+            Action<ServiceSetConfigurator<ITargetingProviderAsync>> configureTargeting, bool useMiddleware=false)
         {
             if (useMiddleware)
             {

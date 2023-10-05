@@ -6,6 +6,6 @@ namespace QA.DotNetCore.Engine.Abstractions.Targeting
 {
     public interface ITargetingContextUpdater
     {
-        Task Update(HttpContext context, IDictionary<string, object> values);
+        Task Update(HttpContext context, IDictionary<string, string> values);
     }
 }

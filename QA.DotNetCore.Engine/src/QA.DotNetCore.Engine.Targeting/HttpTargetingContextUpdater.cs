@@ -22,11 +22,11 @@ namespace QA.DotNetCore.Engine.Targeting
             _targetingConfigurationBuilderForAsync = p2;
         }
 
-        public async Task Update(HttpContext context, IDictionary<string, object> values)
+        public async Task Update(HttpContext context, IDictionary<string, string> values)
         {
             var startValues = values == null ?
                 new TargetingConfiguration[0] :
-                new TargetingConfiguration[] { new TargetingConfiguration(values, TargetingSource.Primary) };
+                new TargetingConfiguration[] { new TargetingConfiguration(values.ToDictionary(pair => pair.Key, pair => (object)pair.Value), TargetingSource.Primary) };
 
             //сохраним в HttpContext все значения таргетирования, как из синхронных провайдеров, так и асинхронных
             var targetingKeys = new List<string>();

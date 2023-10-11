@@ -9,7 +9,7 @@ namespace QA.DotNetCore.Engine.Abstractions.Targeting
             return new NullFilter();
         }
 
-        public ITargetingFilter Get(string key)
+        public ITargetingFilter Get(TargetingDestination key)
         {
             return new NullFilter();
         }

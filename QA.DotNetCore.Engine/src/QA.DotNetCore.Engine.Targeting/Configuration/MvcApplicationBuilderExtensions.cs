@@ -57,9 +57,9 @@ namespace QA.DotNetCore.Engine.Targeting.Configuration
         /// <param name="app"></param>
         /// <param name="configureFilters"></param>
         /// <returns></returns>
-        public static IApplicationBuilder UseSiteStructureFilters(this IApplicationBuilder app, Action<KeyedServiceSetConfigurator<string, ITargetingFilter>> configureFilters)
+        public static IApplicationBuilder UseSiteStructureFilters(this IApplicationBuilder app, Action<KeyedServiceSetConfigurator<TargetingDestination, ITargetingFilter>> configureFilters)
         {
-            var builder = app.ApplicationServices.GetRequiredService<KeyedServiceSetConfigurator<string, ITargetingFilter>>();
+            var builder = app.ApplicationServices.GetRequiredService<KeyedServiceSetConfigurator<TargetingDestination, ITargetingFilter>>();
             configureFilters(builder);
             return app;
         }

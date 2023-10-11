@@ -6,10 +6,10 @@ namespace QA.DotNetCore.Engine.Targeting.Filters
 {
     public class TargetingFilterAccessor : ITargetingFilterAccessor
     {
-        readonly ServiceSetConfigurator<ITargetingFilter> _cfg;
+        readonly KeyedServiceSetConfigurator<string, ITargetingFilter> _cfg;
         readonly IHttpContextAccessor _httpContextAccessor;
 
-        public TargetingFilterAccessor(ServiceSetConfigurator<ITargetingFilter> cfg, IHttpContextAccessor httpContextAccessor)
+        public TargetingFilterAccessor(KeyedServiceSetConfigurator<string, ITargetingFilter> cfg, IHttpContextAccessor httpContextAccessor)
         {
             _cfg = cfg;
             _httpContextAccessor = httpContextAccessor;
@@ -18,6 +18,11 @@ namespace QA.DotNetCore.Engine.Targeting.Filters
         public ITargetingFilter Get()
         {
             return new UnitedFilter(_cfg.GetServices(_httpContextAccessor.HttpContext.RequestServices));
+        }
+
+        public ITargetingFilter Get(string key)
+        {
+            return new UnitedFilter(_cfg.GetServices(_httpContextAccessor.HttpContext.RequestServices, key));
         }
     }
 }

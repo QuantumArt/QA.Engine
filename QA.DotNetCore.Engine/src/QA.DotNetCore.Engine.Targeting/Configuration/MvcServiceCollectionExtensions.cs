@@ -30,7 +30,7 @@ namespace QA.DotNetCore.Engine.Targeting.Configuration
             services.AddSingleton<ServiceSetConfigurator<ITargetingProviderAsync>>();
 
             services.AddSingleton<ITargetingFilterAccessor, TargetingFilterAccessor>();
-            services.AddSingleton<ServiceSetConfigurator<ITargetingFilter>>();
+            services.AddSingleton<KeyedServiceSetConfigurator<string, ITargetingFilter>>();
         }
     }
 }

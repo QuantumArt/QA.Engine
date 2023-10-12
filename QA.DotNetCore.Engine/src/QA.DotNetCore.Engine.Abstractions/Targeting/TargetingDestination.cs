@@ -8,10 +8,10 @@ namespace QA.DotNetCore.Engine.Abstractions.Targeting
         /// <summary>
         ///  Для применения к древовидной структуре (Parent-Children)
         /// </summary>
-        Structure,
+        Structure = 0,
         /// <summary>
         /// Для применения к плоской коллекции нод
         /// </summary>
-        Nodes
+        Nodes = 1
     }
 }

@@ -1,4 +1,35 @@
 # Changelog
+## 3.2.16
+
+* Добавлены сервисы по работе со справочниками IAbstractItem
+* Добавлены реализации фильтров таргетинга ITargetingFilter
+  * RelationFilter - абстрактный фильтр для relation полей
+  * ManyToManyFilter - абстрактный фильтр для m2m полей
+  * OneToManyFilter - абстрактный фильтр для o2m полей
+  * CultureFilter - фильтр по культуре
+  * RegionFilter - фильтр по регионам
+* Добавлены реализации провайдеров данных для фильтров ITargetingProvider
+  * QueryTargetingProvider - провайдер данных query string
+  * RelationTargetingProvider - абстрактный провайдер справочников IAbstractItem
+  * CultureTargetingProvider - провайдер культур
+  * RegionTargetingProvider - провайдер регионов
+* Добавлен базовый интерфейс ITargetingProviderSource для провайдеров таргетинга
+* Добавлен провайдер DictionariesPossibleValuesProvider для корректной работы url токенов в демосайте
+* Удален интерфейс ITargetingFiltersFactory
+* Добавлен интерфейс ITargetingContextUpdater с реализацией для возможности на выбор передавать таргетинг явно или через TargetingMiddleware
+* Добавлен интерфейс ITargetingRegistration для регистрации фильтров и провайдеров, а также механизм регистрации из внешних сборок
+* Добавлена реализация KeyedServiceSetConfigurator, которая теперь используется для регистрации фильтров таргетинга
+* Удален проект с примером API для виджетной платформы
+* Донастроен проект демосайта для корректной работы таргетинга
+
+## 3.2.15
+
+* Внутренняя версия
+
+## 3.2.14
+
+* Внутренняя версия
+
 ## 3.2.13
 
 * Исправлен scope для QpContentCacheTracker

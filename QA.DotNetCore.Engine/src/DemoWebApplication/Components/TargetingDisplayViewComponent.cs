@@ -22,6 +22,7 @@ namespace DemoWebApplication.Components
 
             var model = new TargetingDisplayViewModel
             {
+                PrimaryItems = ctx.GetTargetingKeys().ToDictionary(k => k, k => ctx.GetPrimaryTargetingValue(k).ToString()),
                 Items = ctx.GetTargetingKeys().ToDictionary(k => k, k => ctx.GetTargetingValue(k).ToString())
             };
 
@@ -31,6 +32,7 @@ namespace DemoWebApplication.Components
 
     public class TargetingDisplayViewModel
     {
+        public Dictionary<string, string> PrimaryItems { get; set; }
         public Dictionary<string, string> Items { get; set; }
     }
 }

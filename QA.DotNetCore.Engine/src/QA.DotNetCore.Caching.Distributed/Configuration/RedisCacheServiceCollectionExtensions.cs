@@ -30,14 +30,14 @@ namespace QA.DotNetCore.Caching.Distributed.Configuration
             services.TryAddSingleton<IExternalCache, RedisCache>();
             _ = services.AddSingleton(svc =>
                 svc.GetRequiredService<IOptionsMonitor<RedisCacheSettings>>().CurrentValue);
-            _ = services.AddScoped<ExternalCacheSettings>(svc => svc.GetRequiredService<RedisCacheSettings>());
+            _ = services.AddSingleton<ExternalCacheSettings>(svc => svc.GetRequiredService<RedisCacheSettings>());
 
             _ = services.AddScoped<DistributedMemoryCacheProvider>();
             _ = services.AddScoped<ICacheProvider>(svc => svc.GetRequiredService<DistributedMemoryCacheProvider>());
             _ = services.AddScoped<ICacheInvalidator>(svc => svc.GetRequiredService<DistributedMemoryCacheProvider>());
             _ = services.AddScoped<ICacheKeyFactory, ExternalCacheKeyFactory>();
-            _ = services.AddScoped<ExternalLockFactory>();
-            _ = services.AddScoped<ILockFactory>(svc =>
+            _ = services.AddSingleton<ExternalLockFactory>();
+            _ = services.AddSingleton<ILockFactory>(svc =>
             {
                 var settings = svc.GetRequiredService<ExternalCacheSettings>();
                 return settings.UseExternalLock
@@ -51,7 +51,7 @@ namespace QA.DotNetCore.Caching.Distributed.Configuration
                 var redisConfig = provider.GetRequiredService<RedisCacheSettings>();
 
                 var connectionConfiguration = ConfigurationOptions.Parse(redisConfig.Configuration);
-                
+
                 var endPoints = connectionConfiguration.EndPoints
                     .Select(endPoint => new RedLockEndPoint(endPoint)
                     {

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using QA.DotNetCore.Caching.Configuration;
 using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.CacheTags;
+using QA.DotNetCore.Engine.Persistent.Dapper;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 using QA.DotNetCore.Engine.QpData.Settings;
@@ -29,5 +30,6 @@ public static class PersistentServiceCollectionExtensions
         services.TryAddScoped<IQpContentCacheTagNamingProvider, DefaultQpContentCacheTagNamingProvider>();
         services.TryAddScoped<IAbstractItemRepository, AbstractItemRepository>();
         services.TryAddScoped<IItemDefinitionRepository, ItemDefinitionRepository>();
+        services.TryAddScoped<IDictionaryItemRepository, DictionaryItemRepository>();
     }
 }

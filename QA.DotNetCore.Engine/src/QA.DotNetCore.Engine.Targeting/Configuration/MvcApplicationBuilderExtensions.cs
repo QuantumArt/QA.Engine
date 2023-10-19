@@ -13,11 +13,15 @@ namespace QA.DotNetCore.Engine.Targeting.Configuration
         /// </summary>
         /// <param name="app"></param>
         /// <param name="configureTargeting"></param>
+        /// <param name="useMiddleware"></param>
         /// <returns></returns>
         public static IApplicationBuilder UseTargeting(this IApplicationBuilder app,
-            Action<ServiceSetConfigurator<ITargetingProvider>> configureTargeting)
+            Action<ServiceSetConfigurator<ITargetingProvider>> configureTargeting, bool useMiddleware=false)
         {
-            app.UseMiddleware<TargetingMiddleware>();
+            if (useMiddleware)
+            {
+                app.UseMiddleware<TargetingMiddleware>();
+            }
 
             var providerConfigurator = app.ApplicationServices.GetRequiredService<ServiceSetConfigurator<ITargetingProvider>>();
             configureTargeting(providerConfigurator);
@@ -31,11 +35,15 @@ namespace QA.DotNetCore.Engine.Targeting.Configuration
         /// </summary>
         /// <param name="app"></param>
         /// <param name="configureTargeting"></param>
+        /// <param name="useMiddleware"></param>
         /// <returns></returns>
         public static IApplicationBuilder UseTargeting(this IApplicationBuilder app,
-            Action<ServiceSetConfigurator<ITargetingProviderAsync>> configureTargeting)
+            Action<ServiceSetConfigurator<ITargetingProviderAsync>> configureTargeting, bool useMiddleware=false)
         {
-            app.UseMiddleware<TargetingMiddleware>();
+            if (useMiddleware)
+            {
+                app.UseMiddleware<TargetingMiddleware>();
+            }
 
             var providerConfigurator = app.ApplicationServices.GetRequiredService<ServiceSetConfigurator<ITargetingProviderAsync>>();
             configureTargeting(providerConfigurator);
@@ -49,9 +57,9 @@ namespace QA.DotNetCore.Engine.Targeting.Configuration
         /// <param name="app"></param>
         /// <param name="configureFilters"></param>
         /// <returns></returns>
-        public static IApplicationBuilder UseSiteStructureFilters(this IApplicationBuilder app, Action<ServiceSetConfigurator<ITargetingFilter>> configureFilters)
+        public static IApplicationBuilder UseSiteStructureFilters(this IApplicationBuilder app, Action<KeyedServiceSetConfigurator<TargetingDestination, ITargetingFilter>> configureFilters)
         {
-            var builder = app.ApplicationServices.GetRequiredService<ServiceSetConfigurator<ITargetingFilter>>();
+            var builder = app.ApplicationServices.GetRequiredService<KeyedServiceSetConfigurator<TargetingDestination, ITargetingFilter>>();
             configureFilters(builder);
             return app;
         }

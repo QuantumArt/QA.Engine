@@ -18,6 +18,8 @@ using QA.DotNetCore.Engine.Routing.Configuration;
 using QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching;
 using QA.DotNetCore.Engine.Routing.UrlResolve.TailMatching;
 using QA.DotNetCore.Engine.Targeting.Configuration;
+using QA.DotNetCore.Engine.Targeting.Filters;
+using QA.DotNetCore.Engine.Targeting.TargetingProviders;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using static QA.DotNetCore.Engine.Routing.Configuration.ControllerEndpointRouteBuilderExtensions;
@@ -41,7 +43,6 @@ namespace DemoWebApplication
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddLogging();
             services.AddMemoryCache();
 
@@ -68,7 +69,7 @@ namespace DemoWebApplication
                 //если в UrlHeadPatterns заданы какие-то токены, то можно через RegisterUrlHeadTokenPossibleValues зарегистрировать один
                 //или несколько классов-реализаций IHeadTokenPossibleValuesProvider
                 options.UrlHeadPatterns = Configuration.GetSection("UrlTokenConfig:HeadPatterns").Get<List<HeadUrlMatchingPattern>>();
-                options.RegisterUrlHeadTokenPossibleValues<DemoCultureRegionPossibleValuesProvider>();
+                options.RegisterUrlHeadTokenPossibleValues<DictionariesPossibleValuesProvider>();
 
                 //[опционально]
                 //[ТОЛЬКО для Endpoint routing]
@@ -103,6 +104,9 @@ namespace DemoWebApplication
                 //настройка того, нужно ли загружать ли в нетипизированную коллекцию всех свойств страниц и виджетов поля из AbstractItem
                 //по умолчанию - true
                 options.LoadAbstractItemFieldsToDetailsCollection = true;
+
+
+                options.DictionarySettings = Configuration.GetSection("DictionariesConfig").Get<List<DictionarySettings>>();
             });
 
             //подключение необходимых сервисов для работы self-contained аб-тестов
@@ -161,11 +165,11 @@ namespace DemoWebApplication
             services.AddScoped<CacheTagUtilities>();
 
             //регистрация всех используемых фильтров структуры сайта
-            services.AddSingleton(typeof(DemoRegionFilter));
-            services.AddSingleton(typeof(DemoCultureFilter));
+            services.AddSingleton(typeof(RegionFilter));
+            services.AddSingleton(typeof(CultureFilter));
 
             //регистрация всех используемых IHeadTokenPossibleValuesProvider
-            services.AddSingleton<DemoCultureRegionPossibleValuesProvider>();
+            services.AddScoped<DictionariesPossibleValuesProvider>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -177,10 +181,6 @@ namespace DemoWebApplication
             //мидлвара для инвалидации кештегов
             app.UseCacheTagsInvalidation();
 
-            //мидлвара, добавляющая структуру сайта в pipeline запроса
-            //необходимо, чтобы было подключено services.AddSiteStructureEngine
-            app.UseSiteStructure();
-
             //мидлвара, вычисляющая для запроса значения таргетирования
             //необходимо, чтобы было подключено services.AddTargeting
             app.UseTargeting(providers =>
@@ -188,14 +188,21 @@ namespace DemoWebApplication
                 //регистрация одного или нескольких ITargetingProvider
                 //UrlTokenTargetingProvider - уже реализованный ITargetingProvider, который получает значения таргетирования на основе UrlHeadPatterns
                 providers.Register<UrlTokenTargetingProvider>();
-            });
+                providers.Register<CultureTargetingProvider>();
+                providers.Register<RegionTargetingProvider>();
+            },
+            useMiddleware:true);
+
+            //мидлвара, добавляющая структуру сайта в pipeline запроса
+            //необходимо, чтобы было подключено services.AddSiteStructureEngine
+            app.UseSiteStructure();
 
             //регистрируем фильтры для структуры сайта
             //необходимо, чтобы было подключено services.AddTargeting
             app.UseSiteStructureFilters(filters =>
             {
-                filters.Register<DemoRegionFilter>();
-                filters.Register<DemoCultureFilter>();
+                filters.Register<RegionFilter>();
+                filters.Register<CultureFilter>();
             });
 
             //мидлвара aspnet core для endpoint routing (EnableEndpointRouting = true)

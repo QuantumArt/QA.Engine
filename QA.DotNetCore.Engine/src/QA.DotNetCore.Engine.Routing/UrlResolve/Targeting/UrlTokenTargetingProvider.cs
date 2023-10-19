@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ namespace QA.DotNetCore.Engine.Routing.UrlResolve.HeadMatching
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IHeadUrlResolver _urlResolver;
+        public TargetingSource Source => TargetingSource.Primary;
 
         public UrlTokenTargetingProvider(IHttpContextAccessor httpContextAccessor, IHeadUrlResolver urlResolver)
         {

@@ -9,13 +9,14 @@ namespace QA.DotNetCore.Engine.Targeting
     /// </summary>
     public class HttpTargetingContext : ITargetingContext
     {
+        public const string TargetingPrimaryKey = "Primary_";
         public const string TargetingKeysContextKey = "HttpTargetingContext.Keys";
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public HttpTargetingContext(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
-        }
+        }        
 
         public string[] GetTargetingKeys()
         {
@@ -24,9 +25,7 @@ namespace QA.DotNetCore.Engine.Targeting
                 : Array.Empty<string>();
         }
 
-        public object GetTargetingValue(string key)
-        {
-            return _httpContextAccessor.HttpContext.Items[key];
-        }
+        public object GetTargetingValue(string key) => _httpContextAccessor.HttpContext.Items[key];
+        public object GetPrimaryTargetingValue(string key) => _httpContextAccessor.HttpContext.Items[TargetingPrimaryKey + key];
     }
 }

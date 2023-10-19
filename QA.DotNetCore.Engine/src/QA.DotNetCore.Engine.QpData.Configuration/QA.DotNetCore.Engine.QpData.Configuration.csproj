@@ -8,6 +8,7 @@
     <ProjectReference Include="..\QA.DotNetCore.Engine.CacheTags.Configuration\QA.DotNetCore.Engine.CacheTags.Configuration.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Persistent.Configuration\QA.DotNetCore.Engine.Persistent.Configuration.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Reflection\QA.DotNetCore.Engine.Reflection.csproj" />
+    <ProjectReference Include="..\QA.DotNetCore.Engine.Targeting\QA.DotNetCore.Engine.Targeting.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Widgets\QA.DotNetCore.Engine.Widgets.csproj" />
   </ItemGroup>
 </Project>

@@ -34,11 +34,18 @@ namespace QA.DotNetCore.Caching
 
             _modificationStateStorage.Update((previousModifications) =>
             {
-                var currentModifications = GetCurrentCacheTagModifications(provider);
-                var cacheTagsToInvalidate = GetCacheTagsToInvalidate(previousModifications, currentModifications);
-                InvalidateTags(cacheTagsToInvalidate);
-
-                return currentModifications;
+                try
+                {
+                    var currentModifications = GetCurrentCacheTagModifications(provider);
+                    var cacheTagsToInvalidate = GetCacheTagsToInvalidate(previousModifications, currentModifications);
+                    InvalidateTags(cacheTagsToInvalidate);
+                    return currentModifications;
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Invalidation failed");
+                    return previousModifications;
+                }
             });
         }
 

@@ -39,6 +39,22 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
             return new CacheTagConfigurationBuilder(services);
         }
 
+        public static ICacheTagConfigurationBuilder AddBasicCacheTagServices(
+            this IServiceCollection services)
+        {
+            var cfg = new CacheTagsRegistrationConfigurator();
+            services.TryAddSingleton(provider =>
+                provider.GetRequiredService<IOptions<CacheTagsRegistrationConfigurator>>().Value);
+            services.TryAddMemoryCacheServices();
+            services.TryAddScoped<ICacheTagWatcher, CacheTagWatcher>();
+            services.TryAddSingleton<ICacheTrackersAccessor, CacheTrackersAccessor>();
+
+            services.TryAddSingleton(provider =>
+                provider.GetRequiredService<IOptions<ServiceSetConfigurator<ICacheTagTracker>>>().Value);
+
+            return new CacheTagConfigurationBuilder(services);
+        }
+
         public static ICacheTagConfigurationBuilder WithInvalidationByEvent<TEvent, TConsumer, TFaultConsumer>(
             this ICacheTagConfigurationBuilder builder)
             where TEvent : class

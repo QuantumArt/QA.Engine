@@ -7,6 +7,7 @@ using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.CacheTags.Configuration;
 using QA.DotNetCore.Engine.Persistent.Configuration;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
 using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 using QA.DotNetCore.Engine.QpData.Replacements;
@@ -50,7 +51,7 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
                 HeadPatterns = options.UrlHeadPatterns ?? new List<HeadUrlMatchingPattern> { new HeadUrlMatchingPattern { Pattern = "/" } }
             });
 
-           services.AddSingleton(options.DictionarySettings);
+           services.AddSingleton(options.DictionarySettings ?? new List<DictionarySettings>());
 
             services.TryAddScoped<IAbstractItemFactory, AbstractItemFactory>();
             services.TryAddSingleton<ITargetingFilterAccessor, NullTargetingFilterAccessor>();

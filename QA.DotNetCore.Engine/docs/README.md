@@ -1,5 +1,6 @@
-# Increment package versions
-Via powershell from ```src``` folder ```.\set-package-version.ps1 1.5.15```
+# Документация репозитория QA.Engine
 
-# Changelog
-Versions changes stored in [CHANGELOG.md](./CHANGELOG.md).
+## Nuget-пакеты
+
+* [QA.DotNetCore.*](nuget/QA.DotNetCore.md)
+* [QA.DotNetCore.* (старые версии)](nuget/CHANGELOG.md)

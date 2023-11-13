@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.2.18
+## 3.2.19
 
 * Вернулся TargetingKeys (был удален в 3.2.16)
 * Секция DictionariesConfig теперь необязательная

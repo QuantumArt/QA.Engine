@@ -190,4 +190,4 @@
 
 ## Более старые версии
 
-Описаны в файле [CHANGELOG.md](CHANGELOG.md)
+Описаны в файле [old_changes.md](old_changes.md)

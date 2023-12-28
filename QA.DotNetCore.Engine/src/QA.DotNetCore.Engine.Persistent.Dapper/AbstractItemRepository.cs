@@ -64,7 +64,6 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
         public IEnumerable<AbstractItemPersistentData> GetPlainAllAbstractItems(int siteId, bool isStage,
             IDbTransaction transaction = null)
         {
-            var connection = UnitOfWork.Connection;
             var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAbstractItem, siteId, isStage);
 
             var cacheKey = $"{nameof(AbstractItemRepository)}.{nameof(GetPlainAllAbstractItems)}({siteId},{isStage})";
@@ -77,7 +76,7 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
                 cacheKey,
                 cacheTags,
                 expiry,
-                () => connection.Query<AbstractItemPersistentData>(query, transaction: transaction));
+                () => UnitOfWork.Connection.Query<AbstractItemPersistentData>(query, transaction: transaction));
         }
 
         /// <summary>
@@ -133,7 +132,7 @@ JOIN {idListTableName} on Id = ext.CONTENT_ID";
             var withNoLock = SqlQuerySyntaxHelper.WithNoLock(UnitOfWork.DatabaseType);
             var extFields = loadAbstractItemFields ? ", ext.*" : "";
             var query = $@"
-SELECT cast(ai.content_item_id as numeric) as Id{extFields}, ai.* 
+SELECT cast(ai.content_item_id as numeric) as Id{extFields}, ai.*
 FROM {extTableName} ext {withNoLock}
 JOIN {baseContent.GetTableName(isStage)} ai {withNoLock} on ai.content_item_id = ext.itemid";
 

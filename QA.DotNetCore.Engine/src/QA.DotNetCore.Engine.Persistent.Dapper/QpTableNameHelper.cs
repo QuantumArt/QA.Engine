@@ -21,7 +21,7 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper
 
         public static string GetUnitedTableName(int contentId)
         {
-            return $"CONTENT_{contentId}_united";
+            return $"CONTENT_{contentId}_UNITED_NEW";
         }
 
         public static string GetM2MTableName(bool isStage)

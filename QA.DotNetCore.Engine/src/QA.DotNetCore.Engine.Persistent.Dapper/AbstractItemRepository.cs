@@ -209,7 +209,7 @@ SELECT link_id, item_id, linked_item_id
 FROM {m2MTableName} link {withNoLock}
 JOIN {idListTable} on Id = link.item_id
 JOIN content_item ci on ci.content_item_id = link.linked_item_id
-WHERE {SqlQuerySyntaxHelper.IsFalse(UnitOfWork.DatabaseType, "ci.archive")}";
+WHERE ci.archive = 0";
 
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = query;

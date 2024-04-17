@@ -208,7 +208,7 @@ JOIN {idListTable} on Id = ai.Content_item_id";
 SELECT link_id, item_id, linked_item_id
 FROM {m2MTableName} link {withNoLock}
 JOIN {idListTable} on Id = link.item_id
-JOIN content_item ci on ci.content_item_id = link.linked_item_id
+JOIN content_item ci {withNoLock} on ci.content_item_id = link.linked_item_id
 WHERE ci.archive = 0";
 
             using var command = UnitOfWork.Connection.CreateCommand();

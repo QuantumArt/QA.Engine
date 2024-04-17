@@ -207,7 +207,9 @@ JOIN {idListTable} on Id = ai.Content_item_id";
             var query = $@"
 SELECT link_id, item_id, linked_item_id
 FROM {m2MTableName} link {withNoLock}
-JOIN {idListTable} on Id = link.item_id";
+JOIN {idListTable} on Id = link.item_id
+JOIN content_item ci on ci.content_item_id = link.linked_item_id
+WHERE {SqlQuerySyntaxHelper.IsFalse(UnitOfWork.DatabaseType, "ci.archive")}";
 
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = query;

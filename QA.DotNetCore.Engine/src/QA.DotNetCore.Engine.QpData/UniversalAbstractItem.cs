@@ -21,7 +21,7 @@ namespace QA.DotNetCore.Engine.QpData
 
         public string Type { get; set; }
 
-        public IReadOnlyDictionary<string, object> GetUntypedFields()
+        public IReadOnlyDictionary<string, object> GetUntypedFields(bool includeNullFields = false)
         {
             VerifyDetailsLoaded();
 
@@ -35,7 +35,7 @@ namespace QA.DotNetCore.Engine.QpData
             foreach (var fieldName in Details.Keys)
             {
                 var fieldValue = GetUntypedDetail(fieldName);
-                if (fieldValue is not null)
+                if (includeNullFields || fieldValue is not null)
                 {
                     details.Add(fieldName, fieldValue);
                 }

@@ -30,7 +30,7 @@
 
 ### 3.2.24
 
-* В метод GetUntypedFields в UniversalAbstractItem добавлена возможность возврата пустых значений полей 
+* В метод GetUntypedFields в UniversalAbstractItem добавлена возможность возврата пустых значений полей  (#175018)
 
 ### 3.2.23
 

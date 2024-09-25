@@ -62,10 +62,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{328BDC61-7594-4288-A7D9-C78B61B17196}"
 	ProjectSection(SolutionItems) = preProject
 		..\..\.editorconfig = ..\..\.editorconfig
-		..\docs\CHANGELOG.md = ..\docs\CHANGELOG.md
 		Directory.Build.props = Directory.Build.props
 		nuget.config = nuget.config
-		..\docs\README.md = ..\docs\README.md
+		..\..\docs\QA.DotNetCore.md = ..\..\docs\QA.DotNetCore.md
 		set-package-version.ps1 = set-package-version.ps1
 	EndProjectSection
 EndProject

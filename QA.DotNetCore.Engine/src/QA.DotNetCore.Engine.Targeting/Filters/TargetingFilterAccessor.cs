@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Http;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
@@ -6,8 +8,8 @@ namespace QA.DotNetCore.Engine.Targeting.Filters
 {
     public class TargetingFilterAccessor : ITargetingFilterAccessor
     {
-        readonly KeyedServiceSetConfigurator<TargetingDestination, ITargetingFilter> _cfg;
-        readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly KeyedServiceSetConfigurator<TargetingDestination, ITargetingFilter> _cfg;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public TargetingFilterAccessor(KeyedServiceSetConfigurator<TargetingDestination, ITargetingFilter> cfg, IHttpContextAccessor httpContextAccessor)
         {
@@ -17,12 +19,23 @@ namespace QA.DotNetCore.Engine.Targeting.Filters
 
         public ITargetingFilter Get()
         {
-            return new UnitedFilter(_cfg.GetServices(_httpContextAccessor.HttpContext.RequestServices));
+            var filters = _cfg.GetServices(_httpContextAccessor.HttpContext.RequestServices);
+
+            return GetResultFilter(filters);
         }
 
         public ITargetingFilter Get(TargetingDestination key)
         {
-            return new UnitedFilter(_cfg.GetServices(_httpContextAccessor.HttpContext.RequestServices, key));
+            var filters = _cfg.GetServices(_httpContextAccessor.HttpContext.RequestServices, key);
+
+            return GetResultFilter(filters);
+        }
+
+        private static ITargetingFilter GetResultFilter(IEnumerable<ITargetingFilter> filters)
+        {
+            return (filters?.Any() ?? false)
+                ? new UnitedFilter(filters)
+                : new NullFilter();
         }
     }
 }

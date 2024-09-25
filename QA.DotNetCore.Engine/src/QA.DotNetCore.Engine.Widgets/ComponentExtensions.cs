@@ -174,9 +174,11 @@ namespace QA.DotNetCore.Engine.Widgets
             //фильтр виджетов. проверяет зону и доступен ли для текущего урла
             var widgetFilter = new WidgetFilter(zone, html.ViewContext.HttpContext.Request.Path);
             //общий фильтр структуры сайта
-            var siteSctructureFilter = ((ITargetingFilterAccessor)html.ViewContext.HttpContext.RequestServices.GetService(typeof(ITargetingFilterAccessor)))?.Get() ?? new NullFilter();
-            //объединяем их
-            return new UnitedFilter(siteSctructureFilter, widgetFilter);
+            var siteStructureFilter = ((ITargetingFilterAccessor)html.ViewContext.HttpContext.RequestServices.GetService(typeof(ITargetingFilterAccessor)))?.Get();
+            //объединяем их (сначала widgetFilter - как, с большой долей вероятности, более легковесный - порядок имеет значение)
+            return siteStructureFilter == null
+                ? widgetFilter
+                : new UnitedFilter(widgetFilter, siteStructureFilter);
         }
 
         private static bool ZoneIsRecursive(string zoneName)

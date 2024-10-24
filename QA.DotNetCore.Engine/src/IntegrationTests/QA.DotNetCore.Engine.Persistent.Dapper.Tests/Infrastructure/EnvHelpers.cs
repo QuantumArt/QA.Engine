@@ -1,12 +1,10 @@
 using System;
+using NUnit.Framework;
 
 namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure
 {
     internal static class EnvHelpers
     {
-        private static readonly IRunSettings _runSettings = UniversalRunSettings.Load();
-        //private static readonly IRunSettings _runSettings = UniversalRunSettings.Load();
-
         private const string CiDbNameParamPrefix = "wp_test_ci_";
 
         private const string CiDbNameParam = CiDbNameParamPrefix + "dbname";
@@ -19,17 +17,17 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure
         private static readonly string _ciLocalDbName = $"{CiDbNameParamPrefix}{Environment.MachineName}";
 
         internal static string DbNameToRunTests =>
-            _runSettings.Get(CiDbNameParam, _ciLocalDbName).ToLowerInvariant();
+            TestContext.Parameters.Get(CiDbNameParam, _ciLocalDbName)?.ToLowerInvariant();
 
         internal static string DbServerToRunTests =>
-            _runSettings.Get(CiDbServerParam) ?? throw new InvalidOperationException();
+            TestContext.Parameters.Get(CiDbServerParam);
 
-        internal static string PgDbLoginToRunTests => _runSettings.Get(CiPgLoginParam);
+        internal static string PgDbLoginToRunTests =>  TestContext.Parameters.Get(CiPgLoginParam);
 
-        internal static string PgDbPasswordToRunTests => _runSettings.Get(CiPgPasswordParam);
+        internal static string PgDbPasswordToRunTests =>  TestContext.Parameters.Get(CiPgPasswordParam);
 
-        internal static string SqlDbLoginToRunTests => _runSettings.Get(CiSqlLoginParam);
+        internal static string SqlDbLoginToRunTests =>  TestContext.Parameters.Get(CiSqlLoginParam);
 
-        internal static string SqlDbPasswordToRunTests => _runSettings.Get(CiSqlPasswordParam);
+        internal static string SqlDbPasswordToRunTests =>  TestContext.Parameters.Get(CiSqlPasswordParam);
     }
 }

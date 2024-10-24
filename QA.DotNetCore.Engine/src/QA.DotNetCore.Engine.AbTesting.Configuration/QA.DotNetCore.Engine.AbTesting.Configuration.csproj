@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Authors>Grigorenko Paul, Karlov Nickolay</Authors>
     <Description>Provides easy configuration way for ab-testing features.</Description>
   </PropertyGroup>
@@ -8,5 +8,11 @@
     <ProjectReference Include="..\QA.DotNetCore.Engine.AbTesting\QA.DotNetCore.Engine.AbTesting.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.CacheTags.Configuration\QA.DotNetCore.Engine.CacheTags.Configuration.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Persistent.Configuration\QA.DotNetCore.Engine.Persistent.Configuration.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="Microsoft.SourceLink.AzureDevOpsServer.Git" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 </Project>

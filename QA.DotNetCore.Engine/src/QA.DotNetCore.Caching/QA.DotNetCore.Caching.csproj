@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Authors>Grigorenko Paul, Karlov Nickolay</Authors>
     <Description>Provides interface and .Net Core implementation of cache provider.</Description>
   </PropertyGroup>
@@ -9,6 +9,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+    <PackageReference Update="Microsoft.SourceLink.AzureDevOpsServer.Git" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\QA.DotNetCore.Engine.Persistent.Interfaces\QA.DotNetCore.Engine.Persistent.Interfaces.csproj" />

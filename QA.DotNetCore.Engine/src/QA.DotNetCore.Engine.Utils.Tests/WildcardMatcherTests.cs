@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Linq;
 using NUnit.Framework;
 using QA.DotNetCore.Engine.Abstractions.Wildcard;
 
@@ -8,10 +6,7 @@ namespace QA.DotNetCore.Engine.Utils.Tests
 {
     public class WildcardMatcherTests
     {
-        private static IWildcardMatcher Create(WildcardMatchingOption option, params string[] items)
-        {
-            return new WildcardMatcher(option, items);
-        }
+        private static IWildcardMatcher Create(WildcardMatchingOption option, params string[] items) => new WildcardMatcher(option, items);
 
         [Test]
         public void Test_WildCardMatcher()
@@ -23,14 +18,14 @@ namespace QA.DotNetCore.Engine.Utils.Tests
                 "stage.*.ru",
                 "*");
 
-            Assert.AreEqual("*.bee.ru", matcher.MatchLongest("msc.bee.ru"));
-            Assert.AreEqual("stage.bee.ru", matcher.MatchLongest("stage.bee.ru"));
-            Assert.AreEqual("*.bee.ru", matcher.MatchLongest("msc.bee.ru"));
-            Assert.AreEqual("stage.*.ru", matcher.MatchLongest("stage.123.ru"));
-            Assert.AreEqual("stage.*.ru", matcher.MatchLongest("stage.1232344.ru"));
-            Assert.AreEqual("*.bee.ru", matcher.MatchLongest("msc.bee.ru"));
-            Assert.AreEqual("*", matcher.MatchLongest("ee.ru"));
-            Assert.AreEqual("*.bee.ru", matcher.MatchLongest("moskovskaya-obl.bee.ru"));
+            Assert.That("*.bee.ru", Is.EqualTo(matcher.MatchLongest("msc.bee.ru")));
+            Assert.That("stage.bee.ru", Is.EqualTo(matcher.MatchLongest("stage.bee.ru")));
+            Assert.That("*.bee.ru", Is.EqualTo(matcher.MatchLongest("msc.bee.ru")));
+            Assert.That("stage.*.ru", Is.EqualTo(matcher.MatchLongest("stage.123.ru")));
+            Assert.That("stage.*.ru", Is.EqualTo(matcher.MatchLongest("stage.1232344.ru")));
+            Assert.That("*.bee.ru", Is.EqualTo(matcher.MatchLongest("msc.bee.ru")));
+            Assert.That("*", Is.EqualTo(matcher.MatchLongest("ee.ru")));
+            Assert.That("*.bee.ru", Is.EqualTo(matcher.MatchLongest("moskovskaya-obl.bee.ru")));
         }
 
         [Test]
@@ -59,9 +54,9 @@ namespace QA.DotNetCore.Engine.Utils.Tests
                 "stage.bee.ru"
             );
 
-            Assert.AreEqual("*.bee.ru", matcher.MatchLongest("msc.bee.ru"));
-            Assert.AreEqual("*.bee.ru", matcher.MatchLongest("www.bee.ru"));
-            Assert.Null(matcher.MatchLongest("bee.ru.artq.com"));
+            Assert.That("*.bee.ru", Is.EqualTo(matcher.MatchLongest("msc.bee.ru")));
+            Assert.That("*.bee.ru", Is.EqualTo(matcher.MatchLongest("www.bee.ru")));
+            Assert.That(matcher.MatchLongest("bee.ru.artq.com"), Is.Null);
 
         }
 
@@ -75,9 +70,9 @@ namespace QA.DotNetCore.Engine.Utils.Tests
                 "f.bee.ru"
             );
 
-            Assert.AreEqual("*.bee.ru", matcher.MatchLongest("msc.bee.ru"));
-            Assert.AreEqual("f.bee.ru", matcher.MatchLongest("f.bee.ru"));
-            Assert.Null(matcher.MatchLongest("bee.ru.artq.com"));
+            Assert.That("*.bee.ru", Is.EqualTo(matcher.MatchLongest("msc.bee.ru")));
+            Assert.That("f.bee.ru", Is.EqualTo(matcher.MatchLongest("f.bee.ru")));
+            Assert.That(matcher.MatchLongest("bee.ru.artq.com"), Is.Null);
         }
 
         [Test]
@@ -89,18 +84,18 @@ namespace QA.DotNetCore.Engine.Utils.Tests
                 "/page3*/details/*"
             );
 
-            Assert.True(matcher.Match("/page1/page3").Any());
-            Assert.True(matcher.Match("/page1").Any());
+            Assert.That(matcher.Match("/page1/page3").Any(), Is.True);
+            Assert.That(matcher.Match("/page1").Any(), Is.True);
 
-            Assert.False(matcher.Match("/page2").Any());
-            Assert.True(matcher.Match("/page2/test").Any());
-            Assert.True(matcher.Match("/page2/test/test2").Any());
-            Assert.False(matcher.Match("/page2/tes").Any());
+            Assert.That(matcher.Match("/page2").Any(), Is.False);
+            Assert.That(matcher.Match("/page2/test").Any(), Is.True);
+            Assert.That(matcher.Match("/page2/test/test2").Any(), Is.True);
+            Assert.That(matcher.Match("/page2/tes").Any(), Is.False);
 
-            Assert.True(matcher.Match("/page3/details/123").Any());
-            Assert.True(matcher.Match("/page3/a/b/c/details/123").Any());
-            Assert.False(matcher.Match("/page3/a/b/c/details").Any());
-            Assert.False(matcher.Match("/page3/a/b/c/detail/123").Any());
+            Assert.That(matcher.Match("/page3/details/123").Any(), Is.True);
+            Assert.That(matcher.Match("/page3/a/b/c/details/123").Any(), Is.True);
+            Assert.That(matcher.Match("/page3/a/b/c/details").Any(), Is.False);
+            Assert.That(matcher.Match("/page3/a/b/c/detail/123").Any(), Is.False);
         }
     }
 }

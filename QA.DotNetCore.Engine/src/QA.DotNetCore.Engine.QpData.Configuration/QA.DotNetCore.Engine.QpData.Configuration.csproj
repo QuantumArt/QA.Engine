@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Authors>Grigorenko Paul, Karlov Nickolay</Authors>
     <Description>Provides easy configuration way for .Net Core site structure implementation via QP.</Description>
   </PropertyGroup>
@@ -10,5 +10,11 @@
     <ProjectReference Include="..\QA.DotNetCore.Engine.Reflection\QA.DotNetCore.Engine.Reflection.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Targeting\QA.DotNetCore.Engine.Targeting.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Widgets\QA.DotNetCore.Engine.Widgets.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="Microsoft.SourceLink.AzureDevOpsServer.Git" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 </Project>

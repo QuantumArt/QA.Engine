@@ -34,7 +34,7 @@ public class MetaInfoRepositoryTests
         Assert.DoesNotThrow(() =>
         {
             var siteInfo = _repository.GetSite(Global.SiteId);
-            Assert.IsNotEmpty(siteInfo.UploadUrlPrefix);
+            Assert.That(siteInfo.UploadUrlPrefix, Is.Not.Empty);
         });
     }
 
@@ -44,7 +44,7 @@ public class MetaInfoRepositoryTests
         Assert.DoesNotThrow(() =>
         {
             var contentInfo = _repository.GetContent("QPDiscriminator", Global.SiteId);
-            Assert.AreEqual(contentInfo.ContentNetName, "QPDiscriminator");
+            Assert.That(contentInfo.ContentNetName, Is.EqualTo("QPDiscriminator"));
         });
     }
 
@@ -55,7 +55,7 @@ public class MetaInfoRepositoryTests
         {
             var contentInfo = _repository.GetContent("QPDiscriminator", Global.SiteId);
             var fieldInfo = _repository.GetContentAttribute(contentInfo.ContentId, "Description");
-            Assert.AreEqual(fieldInfo.ColumnName, "Description");
+            Assert.That(fieldInfo.ColumnName, Is.EqualTo("Description"));
         });
     }
 
@@ -66,7 +66,7 @@ public class MetaInfoRepositoryTests
         {
             var contentInfo = _repository.GetContent("QPDiscriminator", Global.SiteId);
             var fieldInfo = _repository.GetContentAttributeByNetName(contentInfo.ContentId, "Description");
-            Assert.AreEqual(fieldInfo.NetName, "Description");
+            Assert.That(fieldInfo.NetName, Is.EqualTo("Description"));
         });
     }
 

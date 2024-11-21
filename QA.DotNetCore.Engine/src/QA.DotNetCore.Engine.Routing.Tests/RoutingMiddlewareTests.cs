@@ -9,7 +9,6 @@ using QA.DotNetCore.Caching;
 using QA.DotNetCore.Caching.Exceptions;
 using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions;
-using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using QA.DotNetCore.Engine.QpData;
@@ -22,7 +21,7 @@ using QA.DotNetCore.Engine.Routing.Tests.StubClasses;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Tests.CommonUtils.Helpers;
+using QA.DotNetCore.Engine.Routing.Configuration;
 
 namespace QA.DotNetCore.Engine.Routing.Tests
 {
@@ -57,7 +56,7 @@ namespace QA.DotNetCore.Engine.Routing.Tests
             HttpContext ctx = new DefaultHttpContext();
             ctx.Request.Host = new HostString(stubHost);
 
-            RoutingMiddleware routingMiddleware = new RoutingMiddleware(_next, new NullTargetingFilterAccessor());
+            RoutingMiddleware routingMiddleware = new RoutingMiddleware(_next, new ExcludePathChecker());
 
             Mock<IAbstractItemStorageProvider> mockAbstractItemStorageProvider =
                 new Mock<IAbstractItemStorageProvider>();
@@ -85,7 +84,7 @@ namespace QA.DotNetCore.Engine.Routing.Tests
             HttpContext ctx = new DefaultHttpContext();
             ctx.Request.Host = new HostString("test.qp.lan");
 
-            RoutingMiddleware routingMiddleware = new RoutingMiddleware(_next, new NullTargetingFilterAccessor());
+            RoutingMiddleware routingMiddleware = new RoutingMiddleware(_next, new ExcludePathChecker());
 
             Mock<IAbstractItemStorageProvider> mockAbstractItemStorageProvider =
                 new Mock<IAbstractItemStorageProvider>();
@@ -106,7 +105,7 @@ namespace QA.DotNetCore.Engine.Routing.Tests
             HttpContext ctx = new DefaultHttpContext();
             ctx.Request.Host = new HostString("test.qp.lan");
 
-            RoutingMiddleware routingMiddleware = new RoutingMiddleware(_next, new NullTargetingFilterAccessor());
+            RoutingMiddleware routingMiddleware = new RoutingMiddleware(_next, new ExcludePathChecker());
 
             Mock<IAbstractItemStorageProvider> mockAbstractItemStorageProvider =
                 new Mock<IAbstractItemStorageProvider>();
@@ -134,7 +133,7 @@ namespace QA.DotNetCore.Engine.Routing.Tests
             HttpContext ctx = new DefaultHttpContext();
             ctx.Request.Host = new HostString("test.qp.lan");
 
-            RoutingMiddleware routingMiddleware = new RoutingMiddleware(_next, new NullTargetingFilterAccessor());
+            RoutingMiddleware routingMiddleware = new RoutingMiddleware(_next, new ExcludePathChecker());
 
             StubCacheProvider stubCacheProvider = new StubCacheProvider();
             CacheStubAbstractItemStorageProvider cacheStubAbstractItemStorageProvider =

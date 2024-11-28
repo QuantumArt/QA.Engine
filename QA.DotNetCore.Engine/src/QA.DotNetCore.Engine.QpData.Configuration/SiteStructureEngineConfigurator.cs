@@ -24,6 +24,7 @@ using QA.DotNetCore.Engine.Widgets.Mappers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace QA.DotNetCore.Engine.QpData.Configuration
 {
@@ -75,7 +76,7 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
             services.TryAddScoped<IDictionaryProvider, DictionaryProvider>();
 
             services.TryAddSingleton<SiteStructureRouteValueTransformer>();
-            services.TryAdd(new ServiceDescriptor(typeof(ITypeFinder), provider => options.TypeFinder, ServiceLifetime.Singleton));    
+            services.TryAdd(new ServiceDescriptor(typeof(ITypeFinder), provider => options.TypeFinder, ServiceLifetime.Singleton));
 
             if (options.ItemDefinitionConvention == ItemDefinitionConvention.Name)
             {
@@ -201,7 +202,7 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
 
                 Services.AddScoped<IUnitOfWork, UnitOfWork>(sp =>
                 {
-                    return new UnitOfWork(options.QpConnectionString, options.QpDatabaseType);
+                    return new UnitOfWork(options.QpConnectionString, options.QpDatabaseType, sp.GetRequiredService<ILogger>());
                 });
 
                 Services.AddScoped<Func<IUnitOfWork>>(sp => () => sp.GetRequiredService<IUnitOfWork>());

@@ -7,6 +7,7 @@ using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.Persistent.Configuration;
 using QA.DotNetCore.Engine.CacheTags.Configuration;
@@ -46,7 +47,7 @@ namespace QA.DotNetCore.Engine.AbTesting.Configuration
 
                 services.AddScoped<IUnitOfWork, UnitOfWork>(sp =>
                 {
-                    return new UnitOfWork(options.QpConnectionString, options.QpDatabaseType);
+                    return new UnitOfWork(options.QpConnectionString, options.QpDatabaseType, sp.GetService<ILogger>());
                 });
                 services.AddScoped<Func<IUnitOfWork>>(sp => () => sp.GetRequiredService<IUnitOfWork>());
                 services.AddScoped<Func<IServiceProvider, IUnitOfWork>>(_ => (provider) => provider.GetRequiredService<IUnitOfWork>());

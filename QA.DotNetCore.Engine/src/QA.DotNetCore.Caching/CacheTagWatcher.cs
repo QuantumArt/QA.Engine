@@ -8,9 +8,9 @@ namespace QA.DotNetCore.Caching
 {
     public class CacheTagWatcher : ICacheTagWatcher
     {
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly ICacheTrackersAccessor _trackersAccessor;
         private readonly ICacheInvalidator _cacheInvalidator;
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly IModificationStateStorage _modificationStateStorage;
 
         public CacheTagWatcher(

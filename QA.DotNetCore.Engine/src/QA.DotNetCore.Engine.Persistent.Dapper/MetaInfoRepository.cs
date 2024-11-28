@@ -10,11 +10,13 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using NLog;
 
 namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
     public class MetaInfoRepository : IMetaInfoRepository
     {
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly IMemoryCacheProvider _memoryCacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly IServiceProvider _serviceProvider;
@@ -30,7 +32,19 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             _cacheSettings = cacheSettings;
         }
 
-        protected IUnitOfWork UnitOfWork => _unitOfWork ?? _serviceProvider.GetRequiredService<IUnitOfWork>();
+        protected IUnitOfWork UnitOfWork {
+            get
+            {
+                if (_unitOfWork != null)
+                {
+                    _logger.ForTraceEvent().Message($"Using existing UnitOfWork {_unitOfWork.Id}");
+                    return _unitOfWork;
+                }
+                var uow = _serviceProvider.GetRequiredService<IUnitOfWork>();
+                _logger.ForTraceEvent().Message($"Received UnitOfWork {uow.Id} from ServiceProvider");
+                return uow;
+            }
+        }
 
         private const string CmdGetSite = @"
 SELECT

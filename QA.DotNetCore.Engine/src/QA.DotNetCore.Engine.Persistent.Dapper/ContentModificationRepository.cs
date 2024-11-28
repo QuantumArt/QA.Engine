@@ -5,11 +5,13 @@ using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using NLog;
 
 namespace QA.DotNetCore.Engine.Persistent.Dapper
 {
     public class ContentModificationRepository : IContentModificationRepository
     {
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly IServiceProvider _serviceProvider;
         private IUnitOfWork _unitOfWork;
 
@@ -24,7 +26,19 @@ INNER JOIN CONTENT c on c.CONTENT_ID = cm.CONTENT_ID";
             _serviceProvider = serviceProvider;
         }
 
-        protected IUnitOfWork UnitOfWork => _unitOfWork ?? _serviceProvider.GetRequiredService<IUnitOfWork>();
+        protected IUnitOfWork UnitOfWork {
+            get
+            {
+                if (_unitOfWork != null)
+                {
+                    _logger.ForTraceEvent().Message($"Using existing UnitOfWork {_unitOfWork.Id}");
+                    return _unitOfWork;
+                }
+                var uow = _serviceProvider.GetRequiredService<IUnitOfWork>();
+                _logger.ForTraceEvent().Message($"Received UnitOfWork {uow.Id} from ServiceProvider");
+                return uow;
+            }
+        }
 
         public void SetUnitOfWork(IUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
 

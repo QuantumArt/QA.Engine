@@ -9,17 +9,27 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using NLog;
 
 namespace QA.DotNetCore.Engine.Persistent.Dapper
 {
     public class DictionaryItemRepository : IDictionaryItemRepository
     {
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         private readonly ICacheProvider _cacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly IServiceProvider _serviceProvider;
         private readonly INetNameQueryAnalyzer _netNameQueryAnalyzer;
-        protected IUnitOfWork UnitOfWork { get { return _serviceProvider.GetRequiredService<IUnitOfWork>(); } }
+        protected IUnitOfWork UnitOfWork
+        {
+            get
+            {
+                var uow = _serviceProvider.GetRequiredService<IUnitOfWork>();
+                _logger.ForTraceEvent().Message($"Received UnitOfWork {uow.Id} from ServiceProvider");
+                return uow;
+            }
+        }
 
         public DictionaryItemRepository(
             IServiceProvider serviceProvider,

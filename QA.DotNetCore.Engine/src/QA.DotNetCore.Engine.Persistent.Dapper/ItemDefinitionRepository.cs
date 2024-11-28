@@ -8,11 +8,13 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using NLog;
 
 namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
     public class ItemDefinitionRepository : IItemDefinitionRepository
     {
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         private readonly ICacheProvider _cacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
@@ -34,7 +36,15 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
         }
 
-        protected IUnitOfWork UnitOfWork { get { return _serviceProvider.GetRequiredService<IUnitOfWork>(); } }
+        protected IUnitOfWork UnitOfWork
+        {
+            get
+            {
+                var uow = _serviceProvider.GetRequiredService<IUnitOfWork>();
+                _logger.ForTraceEvent().Message($"Received UnitOfWork {uow.Id} from ServiceProvider");
+                return uow;
+            }
+        }
 
         private const string CmdGetAll = @"
 SELECT

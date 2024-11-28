@@ -6,11 +6,13 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using NLog;
 
 namespace QA.DotNetCore.Engine.Persistent.Dapper
 {
     public class AbTestRepository : IAbTestRepository
     {
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly IServiceProvider _serviceProvider;
         private readonly INetNameQueryAnalyzer _netNameQueryAnalyzer;
 
@@ -20,7 +22,15 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper
             _netNameQueryAnalyzer = netNameQueryAnalyzer;
         }
 
-        protected IUnitOfWork UnitOfWork { get { return _serviceProvider.GetRequiredService<IUnitOfWork>(); } }
+        protected IUnitOfWork UnitOfWork
+        {
+            get
+            {
+                var uow = _serviceProvider.GetRequiredService<IUnitOfWork>();
+                _logger.ForTraceEvent().Message($"Received UnitOfWork {uow.Id} from ServiceProvider");
+                return uow;
+            }
+        }
 
         //запросы с использованием NetName таблиц и столбцов
         private const string CmdGetTests = @"

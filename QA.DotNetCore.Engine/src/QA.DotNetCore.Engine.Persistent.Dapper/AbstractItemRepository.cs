@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using NLog;
 
 namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
@@ -17,6 +18,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
         private static readonly IReadOnlyDictionary<int, M2MRelations> _emptyResult =
             new Dictionary<int, M2MRelations>();
 
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         private readonly ICacheProvider _cacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
@@ -39,7 +41,12 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 
         protected IUnitOfWork UnitOfWork
         {
-            get { return _serviceProvider.GetRequiredService<IUnitOfWork>(); }
+            get
+            {
+                var uow = _serviceProvider.GetRequiredService<IUnitOfWork>();
+                _logger.ForTraceEvent().Message($"Received UnitOfWork {uow.Id} from ServiceProvider");
+                return uow;
+            }
         }
 
         //запрос с использованием NetName таблиц и столбцов

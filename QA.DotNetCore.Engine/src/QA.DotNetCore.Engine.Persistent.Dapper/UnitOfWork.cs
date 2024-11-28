@@ -11,11 +11,15 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
     public class UnitOfWork : IUnitOfWork
     {
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
-        private bool disposed = false;
+        private bool disposed;
+
         public IDbConnection Connection { get; private set; }
+
         public DatabaseType DatabaseType { get; }
 
         public string CustomerCode { get; }
+
+        public string Id { get; } = Guid.NewGuid().ToString();
 
         public UnitOfWork(string connectionString, string dbType, string customerCode = "current")
         {

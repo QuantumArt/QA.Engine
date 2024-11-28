@@ -27,7 +27,9 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper
             get
             {
                 var uow = _serviceProvider.GetRequiredService<IUnitOfWork>();
-                _logger.ForTraceEvent().Message($"Received UnitOfWork {uow.Id} from ServiceProvider");
+                _logger.ForTraceEvent()
+                    .Message($"Received UnitOfWork {uow.Id} from ServiceProvider")
+                    .Log();
                 return uow;
             }
         }

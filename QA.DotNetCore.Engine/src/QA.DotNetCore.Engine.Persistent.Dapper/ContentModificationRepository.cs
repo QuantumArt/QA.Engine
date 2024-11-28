@@ -31,11 +31,15 @@ INNER JOIN CONTENT c on c.CONTENT_ID = cm.CONTENT_ID";
             {
                 if (_unitOfWork != null)
                 {
-                    _logger.ForTraceEvent().Message($"Using existing UnitOfWork {_unitOfWork.Id}");
+                    _logger.ForTraceEvent()
+                        .Message($"Using existing UnitOfWork {_unitOfWork.Id}")
+                        .Log();
                     return _unitOfWork;
                 }
                 var uow = _serviceProvider.GetRequiredService<IUnitOfWork>();
-                _logger.ForTraceEvent().Message($"Received UnitOfWork {uow.Id} from ServiceProvider");
+                _logger.ForTraceEvent()
+                    .Message($"Received UnitOfWork {uow.Id} from ServiceProvider")
+                    .Log();
                 return uow;
             }
         }

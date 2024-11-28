@@ -32,13 +32,13 @@ INNER JOIN CONTENT c on c.CONTENT_ID = cm.CONTENT_ID";
                 if (_unitOfWork != null)
                 {
                     _logger.ForTraceEvent()
-                        .Message($"Using existing UnitOfWork {_unitOfWork.Id}")
+                        .Message("Using existing UnitOfWork {unitOfWorkId}", _unitOfWork.Id)
                         .Log();
                     return _unitOfWork;
                 }
                 var uow = _serviceProvider.GetRequiredService<IUnitOfWork>();
                 _logger.ForTraceEvent()
-                    .Message($"Received UnitOfWork {uow.Id} from ServiceProvider")
+                    .Message("Received UnitOfWork {unitOfWorkId} from ServiceProvider", uow.Id)
                     .Log();
                 return uow;
             }

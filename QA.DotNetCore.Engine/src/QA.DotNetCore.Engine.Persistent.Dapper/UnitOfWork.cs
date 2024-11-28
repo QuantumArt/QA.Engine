@@ -2,7 +2,6 @@ using QA.DotNetCore.Engine.Persistent.Interfaces;
 using System;
 using System.Data;
 using System.Data.SqlClient;
-using Microsoft.Extensions.Logging;
 using NLog;
 using Npgsql;
 
@@ -11,7 +10,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
     public class UnitOfWork : IUnitOfWork
     {
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
-        private bool disposed;
+        private bool _disposed;
 
         public IDbConnection Connection { get; private set; }
 
@@ -39,7 +38,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 
             CustomerCode = customerCode;
             _logger.ForInfoEvent().Message("Creating connection")
-                .Property("callStack", Environment.StackTrace)
+                .Property("unitOfWorkId", Id)
                 .Log();
             Connection.Open();
         }
@@ -57,7 +56,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (!_disposed)
             {
                 if (disposing)
                 {
@@ -65,13 +64,13 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
                     if (Connection.State != ConnectionState.Closed)
                     {
                         _logger.ForInfoEvent().Message("Closing connection")
-                            .Property("callStack", Environment.StackTrace)
+                            .Property("unitOfWorkId", Id)
                             .Log();
                         Connection.Close();
                     }
                 }
 
-                disposed = true;
+                _disposed = true;
             }
         }
     }

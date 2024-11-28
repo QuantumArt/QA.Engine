@@ -136,13 +136,13 @@ namespace QA.DotNetCore.Engine.QpData
 
         public void SetBuilder(IAbstractItemContextStorageBuilder builder) => _builder = builder;
 
-        public void VerifyDetailsLoaded()
+        public void VerifyDetailsLoaded(bool lazyLoad = true)
         {
             if (Details == null && _builder != null)
             {
                 lock (_locker)
                 {
-                    Details = _builder.BuildDetails(this, true);
+                    Details = _builder.BuildDetails(this, lazyLoad);
                 }
             }
         }

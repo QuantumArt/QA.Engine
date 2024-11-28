@@ -37,8 +37,8 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             }
 
             CustomerCode = customerCode;
-            _logger.ForInfoEvent().Message("Creating connection")
-                .Property("unitOfWorkId", Id)
+            _logger.ForInfoEvent()
+                .Message("Creating connection for UnitOfWork {unitOfWorkId}", Id)
                 .Log();
             Connection.Open();
         }
@@ -63,8 +63,8 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
                     // Free other state (managed objects).
                     if (Connection.State != ConnectionState.Closed)
                     {
-                        _logger.ForInfoEvent().Message("Closing connection")
-                            .Property("unitOfWorkId", Id)
+                        _logger.ForInfoEvent()
+                            .Message("Closing connection for UnitOfWork {unitOfWorkId}", Id)
                             .Log();
                         Connection.Close();
                     }

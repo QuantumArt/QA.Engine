@@ -109,7 +109,7 @@ namespace QA.DotNetCore.Engine.QpData
                     abstractItem.SetBuilder(this);
                     if (!lazyLoad)
                     {
-                        abstractItem.VerifyDetailsLoaded();
+                        abstractItem.VerifyDetailsLoaded(false);
                     }
                 }
             }

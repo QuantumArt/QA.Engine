@@ -3,22 +3,22 @@ using System;
 using System.Data;
 using System.Data.SqlClient;
 using Microsoft.Extensions.Logging;
+using NLog;
 using Npgsql;
 
 namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private ILogger _logger;
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private bool disposed = false;
         public IDbConnection Connection { get; private set; }
         public DatabaseType DatabaseType { get; }
 
         public string CustomerCode { get; }
 
-        public UnitOfWork(string connectionString, string dbType, ILogger logger, string customerCode = "current")
+        public UnitOfWork(string connectionString, string dbType, string customerCode = "current")
         {
-            _logger = logger;
             switch (dbType.ToUpperInvariant())
             {
                 case "POSTGRESQL":
@@ -34,14 +34,11 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             }
 
             CustomerCode = customerCode;
-            using (_logger.BeginScope(new { Environment.StackTrace }))
-            {
-                _logger.LogInformation($"Creating connection");
-            }
+            _logger.ForInfoEvent().Message("Creating connection")
+                .Property("callStack", Environment.StackTrace)
+                .Log();
             Connection.Open();
         }
-
-
 
         public void Dispose()
         {
@@ -63,10 +60,9 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
                     // Free other state (managed objects).
                     if (Connection.State != ConnectionState.Closed)
                     {
-                        using (_logger.BeginScope(new { Environment.StackTrace }))
-                        {
-                            _logger.LogInformation($"Closing connection.");
-                        }
+                        _logger.ForInfoEvent().Message("Closing connection")
+                            .Property("callStack", Environment.StackTrace)
+                            .Log();
                         Connection.Close();
                     }
                 }

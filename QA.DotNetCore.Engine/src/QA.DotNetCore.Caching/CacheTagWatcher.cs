@@ -1,8 +1,8 @@
-using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Caching.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NLog;
 
 namespace QA.DotNetCore.Caching
 {
@@ -10,27 +10,25 @@ namespace QA.DotNetCore.Caching
     {
         private readonly ICacheTrackersAccessor _trackersAccessor;
         private readonly ICacheInvalidator _cacheInvalidator;
-        private readonly ILogger<CacheTagWatcher> _logger;
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly IModificationStateStorage _modificationStateStorage;
 
         public CacheTagWatcher(
             ICacheTrackersAccessor trackersAccessor,
             ICacheInvalidator cacheInvalidator,
-            ILogger<CacheTagWatcher> logger,
             IModificationStateStorage modificationStateStorage)
         {
             _trackersAccessor = trackersAccessor;
             _cacheInvalidator = cacheInvalidator;
-            _logger = logger;
             _modificationStateStorage = modificationStateStorage;
         }
 
         public void TrackChanges(IServiceProvider provider)
         {
-            var checkId = Guid.NewGuid();
-            using var invalidationScope = _logger.BeginScope("InvalidationId", checkId);
-
-            _logger.LogTrace("Invalidation started");
+            var checkId = Guid.NewGuid().ToString();
+            _logger.ForInfoEvent().Message("Invalidation started")
+                .Property("invalidationId", checkId)
+                .Log();
 
             _modificationStateStorage.Update((previousModifications) =>
             {
@@ -38,12 +36,15 @@ namespace QA.DotNetCore.Caching
                 {
                     var currentModifications = GetCurrentCacheTagModifications(provider);
                     var cacheTagsToInvalidate = GetCacheTagsToInvalidate(previousModifications, currentModifications);
-                    InvalidateTags(cacheTagsToInvalidate);
+                    InvalidateTags(cacheTagsToInvalidate, checkId);
                     return currentModifications;
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, "Invalidation failed");
+                    _logger.ForErrorEvent().Message("Invalidation failed")
+                        .Exception(e)
+                        .Property("invalidationId", checkId)
+                        .Log();
                     return previousModifications;
                 }
             });
@@ -60,7 +61,9 @@ namespace QA.DotNetCore.Caching
             var changedModificationsString = String.Join(", ", changedModifications.Select(
                 n => n.Name + " - " + n.Modified.ToLongTimeString()
             ));
-            _logger.LogDebug($"Changed modifications: ({changedModificationsString})");
+            _logger.ForDebugEvent()
+                .Message($"Changed modifications: ({changedModificationsString})")
+                .Log();
 
             if (changedModifications.Length <= 0)
             {
@@ -84,19 +87,21 @@ namespace QA.DotNetCore.Caching
             return cacheTagsToInvalidate.ToArray();
         }
 
-        private void InvalidateTags(string[] cacheTagsToInvalidate)
+        private void InvalidateTags(string[] cacheTagsToInvalidate, string checkId)
         {
             if (cacheTagsToInvalidate.Length > 0)
             {
-                _logger.LogInformation(
-                    "Invalidate tags: {InvalidTags}",
-                    String.Join(", ", cacheTagsToInvalidate)
-                );
+                _logger.ForInfoEvent().Message("Invalidate tags")
+                    .Property("tags", cacheTagsToInvalidate)
+                    .Property("invalidationId", checkId)
+                    .Log();
                 _cacheInvalidator.InvalidateByTags(cacheTagsToInvalidate.ToArray());
             }
             else
             {
-                _logger.LogInformation("No tags are invalidated");
+                _logger.ForInfoEvent().Message("No tags are invalidated")
+                    .Property("invalidationId", checkId)
+                    .Log();
             }
         }
 

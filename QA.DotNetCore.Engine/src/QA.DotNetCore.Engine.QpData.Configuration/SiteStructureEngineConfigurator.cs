@@ -202,8 +202,7 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
 
                 Services.AddScoped<IUnitOfWork, UnitOfWork>(sp => new UnitOfWork(
                     options.QpConnectionString,
-                    options.QpDatabaseType,
-                    sp.GetRequiredService<ILoggerFactory>().CreateLogger<UnitOfWork>())
+                    options.QpDatabaseType)
                 );
 
                 Services.AddScoped<Func<IUnitOfWork>>(sp => sp.GetRequiredService<IUnitOfWork>);

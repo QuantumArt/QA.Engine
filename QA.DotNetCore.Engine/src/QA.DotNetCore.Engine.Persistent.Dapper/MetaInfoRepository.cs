@@ -35,18 +35,14 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
         protected IUnitOfWork UnitOfWork {
             get
             {
-                if (_unitOfWork != null)
+                if (_unitOfWork == null)
                 {
+                    _unitOfWork = _serviceProvider.GetRequiredService<IUnitOfWork>();
                     _logger.ForTraceEvent()
-                        .Message("Using existing UnitOfWork {unitOfWorkId}", _unitOfWork.Id)
+                        .Message("Received UnitOfWork {unitOfWorkId} from ServiceProvider", _unitOfWork.Id)
                         .Log();
-                    return _unitOfWork;
                 }
-                var uow = _serviceProvider.GetRequiredService<IUnitOfWork>();
-                _logger.ForTraceEvent()
-                    .Message("Received UnitOfWork {unitOfWorkId} from ServiceProvider", uow.Id)
-                    .Log();
-                return uow;
+                return _unitOfWork;
             }
         }
 

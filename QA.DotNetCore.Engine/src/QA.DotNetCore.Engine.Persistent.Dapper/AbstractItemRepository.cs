@@ -24,6 +24,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
         private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly IServiceProvider _serviceProvider;
         private readonly INetNameQueryAnalyzer _netNameQueryAnalyzer;
+        private IUnitOfWork _unitOfWork;
 
         public AbstractItemRepository(
             IServiceProvider serviceProvider,
@@ -43,11 +44,14 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
         {
             get
             {
-                var uow = _serviceProvider.GetRequiredService<IUnitOfWork>();
-                _logger.ForTraceEvent()
-                    .Message("Received UnitOfWork {unitOfWorkId} from ServiceProvider", uow.Id)
-                    .Log();
-                return uow;
+                if (_unitOfWork == null)
+                {
+                    _unitOfWork = _serviceProvider.GetRequiredService<IUnitOfWork>();
+                    _logger.ForTraceEvent()
+                        .Message("Received UnitOfWork {unitOfWorkId} from ServiceProvider", _unitOfWork.Id)
+                        .Log();
+                }
+                return _unitOfWork;
             }
         }
 

@@ -31,12 +31,9 @@ namespace QA.DotNetCore.Engine.CacheTags
             _scopeFactory = scopeFactory;
         }
 
-        public IEnumerable<CacheTagModification> TrackChanges()
+        public IEnumerable<CacheTagModification> TrackChanges(IServiceProvider provider)
         {
-            _logger.Info("Creating new scope");
-            using var scope = _scopeFactory.CreateScope();
-            using var unitOfWork = _unitOfWorkFunc(scope.ServiceProvider);
-
+            using var unitOfWork = _unitOfWorkFunc(provider);
             _contentModificationRepository.SetUnitOfWork(unitOfWork);
             _qpContentCacheTagNamingProvider.SetUnitOfWork(unitOfWork);
             var result = new List<CacheTagModification>();

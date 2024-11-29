@@ -108,7 +108,7 @@ namespace QA.DotNetCore.Caching
         private HashSet<CacheTagModification> GetCurrentCacheTagModifications(IServiceProvider provider)
         {
             var modifications = _trackersAccessor.Get(provider)
-                .Select(tracker => tracker.TrackChanges())
+                .Select(tracker => tracker.TrackChanges(provider))
                 .SelectMany(modifications => modifications)
                 .Reverse()
                 .ToArray();

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace QA.DotNetCore.Caching.Interfaces
@@ -7,6 +8,6 @@ namespace QA.DotNetCore.Caching.Interfaces
     /// </summary>
     public interface ICacheTagTracker
     {
-        IEnumerable<CacheTagModification> TrackChanges();
+        IEnumerable<CacheTagModification> TrackChanges(IServiceProvider provider);
     }
 }

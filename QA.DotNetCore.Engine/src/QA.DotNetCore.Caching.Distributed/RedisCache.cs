@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QA.DotNetCore.Caching.Interfaces;
 using StackExchange.Redis;
@@ -12,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.GZip;
 using Newtonsoft.Json;
+using NLog;
 using QA.DotNetCore.Caching.Distributed.Internals;
 
 namespace QA.DotNetCore.Caching.Distributed
@@ -29,7 +29,7 @@ namespace QA.DotNetCore.Caching.Distributed
         ///     <item>ARGV[1] - New tag expiry in milliseconds</item>
         /// </list>
         /// </summary>
-        /// 
+        ///
         /// <remarks>
         /// Tags can be linked to multiple keys. That is why
         /// a key should be allowed only to increase tag expiry
@@ -65,9 +65,9 @@ namespace QA.DotNetCore.Caching.Distributed
             ";
 
         private static readonly Version _leastSupportedServerVersion = new(4, 0, 0);
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
         private readonly RedisCacheSettings _options;
-        private readonly ILogger<RedisCache> _logger;
         private readonly SemaphoreSlim _connectionLock = new(initialCount: 1, maxCount: 1);
 
         private volatile IConnectionMultiplexer _connection;
@@ -88,8 +88,7 @@ namespace QA.DotNetCore.Caching.Distributed
         /// </summary>
         /// <param name="optionsAccessor">The configuration options.</param>
         public RedisCache(
-            IOptions<RedisCacheSettings> optionsAccessor,
-            ILogger<RedisCache> logger)
+            IOptions<RedisCacheSettings> optionsAccessor)
         {
             if (optionsAccessor is null)
             {
@@ -97,7 +96,6 @@ namespace QA.DotNetCore.Caching.Distributed
             }
 
             _options = optionsAccessor.Value;
-            _logger = logger;
         }
 
 
@@ -113,7 +111,7 @@ namespace QA.DotNetCore.Caching.Distributed
             }
             catch (CacheDataSerializationException<object> ex)
             {
-                _logger.LogInformation(ex, "Unable to cache value with the key {CacheKey}.", key);
+                _logger.Info(ex, "Unable to cache value with the key {CacheKey}.", key);
                 result = false;
             }
 
@@ -129,7 +127,7 @@ namespace QA.DotNetCore.Caching.Distributed
         }
 
 
-        public IEnumerable<bool> Exist(IEnumerable<string> keys, CancellationToken token = default)
+        public IEnumerable<bool> Exist(string[] keys, CancellationToken token = default)
         {
             if (keys is null)
             {
@@ -152,7 +150,7 @@ namespace QA.DotNetCore.Caching.Distributed
                 .Select(key => _cache.KeyExists(key))
                 .ToList();
 
-            _logger.LogTrace(
+            _logger.Trace(
                 "Keys {Keys} exist {ExistFlags} (Elapsed: {Elapsed})",
                 keys,
                 existFlags,
@@ -161,7 +159,7 @@ namespace QA.DotNetCore.Caching.Distributed
             return existFlags;
         }
 
-        public IEnumerable<TResult> Get<TResult>(IEnumerable<string> keys)
+        public IEnumerable<TResult> Get<TResult>(string[] keys)
         {
             var dataValues = Get(keys);
 
@@ -173,7 +171,7 @@ namespace QA.DotNetCore.Caching.Distributed
             }
         }
 
-        public IEnumerable<byte[]> Get(IEnumerable<string> keys, CancellationToken token = default)
+        public IEnumerable<byte[]> Get(string[] keys, CancellationToken token = default)
         {
             if (keys is null)
             {
@@ -197,7 +195,7 @@ namespace QA.DotNetCore.Caching.Distributed
                 .Select(result => result.State == KeyState.Exist ? result.Value : null)
                 .ToList();
 
-            _logger.LogTrace("Obtained cached data (Elapsed: {Elapsed})", watch.ElapsedMilliseconds);
+            _logger.Trace("Obtained cached data (Elapsed: {Elapsed})", watch.ElapsedMilliseconds);
 
             return cachedData;
         }
@@ -218,7 +216,7 @@ namespace QA.DotNetCore.Caching.Distributed
 
         public void Set(
             string key,
-            IEnumerable<string> tags,
+            string[] tags,
             TimeSpan expiry,
             MemoryStream dataStream,
             string deprecatedKey = null,
@@ -257,16 +255,17 @@ namespace QA.DotNetCore.Caching.Distributed
                     data, conditions, out var transactionOperations);
                 bool isExecuted = transaction.Execute();
 
-                var exceptions = transactionOperations
+                Exception[] exceptions = transactionOperations
                     .Where(operation => operation.IsFaulted)
-                    .Select(operation => operation.Exception);
+                    .Select(operation => operation.Exception)
+                    .ToArray();
 
                 if (exceptions.Any())
                 {
                     throw new AggregateException(exceptions);
                 }
 
-                _logger.LogInformation(
+                _logger.Info(
                     "Set cache operation is finished " +
                     "(isSet: {SetTransactionStatus}, expiry: {Expiration}, key: {CacheKey}, elapsed: {Elapsed}).",
                     isExecuted,
@@ -278,7 +277,7 @@ namespace QA.DotNetCore.Caching.Distributed
             }
             catch (Exception ex)
             {
-                _logger.LogError(
+                _logger.Error(
                     ex,
                     "Unable to set cache with the key {CacheKey} (Elapsed: {Elapsed})",
                     key,
@@ -339,14 +338,15 @@ namespace QA.DotNetCore.Caching.Distributed
                 var cachedValues = _cache
                     .StringGet(redisKeys)
                     .Select(value =>
-                        value.HasValue ? new CachedValue(KeyState.Exist, (byte[]) value) : CachedValue.Empty);
+                        value.HasValue ? new CachedValue(KeyState.Exist, (byte[]) value) : CachedValue.Empty)
+                    .ToArray();
 
-                _logger.LogTrace("Keys ({CacheKeys}) have values: {CacheValues}", redisKeys, cachedValues);
+                _logger.Trace("Keys ({CacheKeys}) have values: {CacheValues}", redisKeys, cachedValues);
                 return cachedValues;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unable to get multiple caches ({CacheKeys}).", redisKeys);
+                _logger.Error(ex, "Unable to get multiple caches ({CacheKeys}).", redisKeys);
                 return Enumerable.Repeat(CachedValue.Empty, redisKeys.Length);
             }
         }
@@ -467,7 +467,7 @@ namespace QA.DotNetCore.Caching.Distributed
             }
             catch (Exception ex)
             {
-                _logger.LogError(
+                _logger.Error(
                     ex,
                     "Unable to deserialize cached data associated with the key {CacheKey} to type {Type}. " +
                     "Try to erase inconsistent data from cache.",

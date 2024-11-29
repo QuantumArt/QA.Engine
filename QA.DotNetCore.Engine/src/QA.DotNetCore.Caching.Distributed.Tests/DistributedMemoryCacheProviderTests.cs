@@ -235,7 +235,7 @@ public class DistributedMemoryCacheProviderTests
             _ = await db.StringSetAsync(key2, deprecatedData, _existingCacheTtl);
         }
 
-        var lockFactory = new MemoryLockFactory(LoggerUtils.GetLogger<MemoryLockFactory>(_output));
+        var lockFactory = new MemoryLockFactory();
         var lockCacheTask = Task.Factory.StartNew(
             () =>
             {
@@ -290,7 +290,7 @@ public class DistributedMemoryCacheProviderTests
             _ = await connection.GetDatabase().KeyDeleteAsync(GetKey(sharedKey));
         }
 
-        var lockFactory = new MemoryLockFactory(LoggerUtils.GetLogger<MemoryLockFactory>(_output));
+        var lockFactory = new MemoryLockFactory();
 
         var lockCacheKeyTask = Task.Factory.StartNew(
             () =>
@@ -367,11 +367,11 @@ public class DistributedMemoryCacheProviderTests
     {
         // Arrange
         _mockDistributedTaggedCache
-            .Setup(cache => cache.Get<string>(It.IsAny<IEnumerable<string>>()))
+            .Setup(cache => cache.Get<string>(It.IsAny<string[]>()))
             .Returns(GetValues);
 
         _mockDistributedTaggedCache
-            .Setup(cache => cache.Exist(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .Setup(cache => cache.Exist(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
             .Returns(GetFlags);
 
         var provider = CreateProvider(_mockDistributedTaggedCache.Object);
@@ -411,9 +411,9 @@ public class DistributedMemoryCacheProviderTests
     public void Get_MissingKeys_NullValues(string[] keys)
     {
         _mockDistributedTaggedCache
-            .Setup(cache => cache.Get<string>(It.IsAny<IEnumerable<string>>())).Returns(GetValues);
+            .Setup(cache => cache.Get<string>(It.IsAny<string[]>())).Returns(GetValues);
         _mockDistributedTaggedCache
-            .Setup(cache => cache.Exist(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .Setup(cache => cache.Exist(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
             .Returns(GetFlags);
         // Arrange
         var provider = CreateProvider(_mockDistributedTaggedCache.Object);
@@ -441,7 +441,7 @@ public class DistributedMemoryCacheProviderTests
     public void IsSet_ExistingKey_IsExist(string[] keys)
     {
         _mockDistributedTaggedCache
-            .Setup(cache => cache.Exist(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .Setup(cache => cache.Exist(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
             .Returns(Enumerable.Repeat(true, keys.Length));
         // Arrange
         var provider = CreateProvider(_mockDistributedTaggedCache.Object);
@@ -462,7 +462,7 @@ public class DistributedMemoryCacheProviderTests
     {
         // Arrange
         _ = _mockDistributedTaggedCache
-            .Setup(cache => cache.Exist(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .Setup(cache => cache.Exist(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
             .Returns(Enumerable.Repeat(false, keys.Length));
 
         var provider = CreateProvider(_mockDistributedTaggedCache.Object);
@@ -484,7 +484,7 @@ public class DistributedMemoryCacheProviderTests
 
         _mockDistributedTaggedCache
             .Setup(cache => cache.Exist(
-                It.IsAny<IEnumerable<string>>(),
+                It.IsAny<string[]>(),
                 It.IsAny<CancellationToken>())
             ).Returns(new[] {false});
 
@@ -507,12 +507,12 @@ public class DistributedMemoryCacheProviderTests
         DateTime value = DateTime.UtcNow;
         _mockDistributedTaggedCache
             .Setup(cache => cache.Exist(
-                It.IsAny<IEnumerable<string>>(),
+                It.IsAny<string[]>(),
                 It.IsAny<CancellationToken>())
             ).Returns(new[] {true});
 
         _ = _mockDistributedTaggedCache
-            .Setup(cache => cache.Get<DateTime>(It.IsAny<IEnumerable<string>>()))
+            .Setup(cache => cache.Get<DateTime>(It.IsAny<string[]>()))
             .Returns(new[] {value});
 
         var provider = CreateProvider(_mockDistributedTaggedCache.Object);
@@ -563,9 +563,7 @@ public class DistributedMemoryCacheProviderTests
     {
         var options = CreateDefaultRedisCacheOptions();
 
-        return new RedisCache(
-            Options.Create(options),
-            LoggerUtils.GetLogger<RedisCache>(_output));
+        return new RedisCache(Options.Create(options));
     }
 
     private RedisCache CreateRedisCacheWithoutOffsets()
@@ -577,9 +575,7 @@ public class DistributedMemoryCacheProviderTests
             AppName = _instanceName,
         });
 
-        return new RedisCache(
-            optionsAccessor,
-            LoggerUtils.GetLogger<RedisCache>(_output));
+        return new RedisCache(optionsAccessor);
     }
 
     private DistributedMemoryCacheProvider CreateProvider(
@@ -592,8 +588,7 @@ public class DistributedMemoryCacheProviderTests
             memoryCache,
             cache,
             new ExternalCacheKeyFactory(new ExternalCacheSettings() {AppName = _appName, InstanceName = _instanceName}),
-            lockFactory ?? new MemoryLockFactory(LoggerUtils.GetLogger<MemoryLockFactory>(_output)),
-            LoggerUtils.GetLogger<DistributedMemoryCacheProvider>(_output));
+            lockFactory ?? new MemoryLockFactory());
     }
 
     private static ConnectionMultiplexer CreateConnection() =>

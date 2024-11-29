@@ -31,8 +31,7 @@ public class AbstractItemRepositoryTests
         var memoryCacheProvider = new VersionedCacheCoreProvider(
             memoryCache,
             new CacheKeyFactoryBase(),
-            new MemoryLockFactory(NullLoggerFactory.Instance.CreateLogger<MemoryLockFactory>()),
-            Mock.Of<ILogger>()
+            new MemoryLockFactory()
         );
         _metaRepo = new MetaInfoRepository(serviceProvider, memoryCacheProvider, settings);
         var sqlAnalyzer = new NetNameQueryAnalyzer(_metaRepo);

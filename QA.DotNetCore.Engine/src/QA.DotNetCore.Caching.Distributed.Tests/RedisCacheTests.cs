@@ -335,9 +335,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
         {
             var options = CreateDefaultRedisCacheOptions();
 
-            return new RedisCache(
-                Options.Create(options),
-                LoggerUtils.GetLogger<RedisCache>(_output));
+            return new RedisCache(Options.Create(options));
         }
 
         private RedisCache CreateRedisCacheWithoutOffsets()
@@ -349,9 +347,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
                 AppName = _instanceName,
             });
 
-            return new RedisCache(
-                optionsAccessor,
-                LoggerUtils.GetLogger<RedisCache>(_output));
+            return new RedisCache(optionsAccessor);
         }
 
         private static ConnectionMultiplexer CreateConnection() =>

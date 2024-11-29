@@ -236,8 +236,7 @@ namespace QA.DotNetCore.Engine.Routing.Tests
             var cacheProvider = new VersionedCacheCoreProvider(
                 new MemoryCache(new MemoryCacheOptions()),
                 new CacheKeyFactoryBase(),
-                new MemoryLockFactory(NullLoggerFactory.Instance.CreateLogger<MemoryLockFactory>()),
-                Mock.Of<ILogger>());
+                new MemoryLockFactory());
             var cacheSettings = new QpSiteStructureCacheSettings
             {
                 ItemDefinitionCachePeriod = TimeSpan.FromSeconds(30),
@@ -250,7 +249,6 @@ namespace QA.DotNetCore.Engine.Routing.Tests
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
                 buildSettings,
-                logger,
                 serviceScopeFactory.Object,
                 serviceProvider.Object,
                 Mock.Of<IQpContentCacheTagNamingProvider>(),

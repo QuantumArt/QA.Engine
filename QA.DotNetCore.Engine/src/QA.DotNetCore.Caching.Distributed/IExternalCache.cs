@@ -8,7 +8,7 @@ namespace QA.DotNetCore.Caching.Distributed
 {
     public interface IExternalCache : IDisposable
     {
-        IEnumerable<TResult> Get<TResult>(IEnumerable<string> keys);
+        IEnumerable<TResult> Get<TResult>(string[] keys);
 
         bool TryAdd(object value, string key, string deprecatedKey, string[] tags, TimeSpan expiration,
             TimeSpan deprecatedExpiration);
@@ -26,12 +26,12 @@ namespace QA.DotNetCore.Caching.Distributed
         /// <summary>
         /// Synchronous alternative of <see cref="IExternalCache.ExistAsync(IEnumerable{string}, CancellationToken)"/>.
         /// </summary>
-        IEnumerable<bool> Exist(IEnumerable<string> keys, CancellationToken token = default);
+        IEnumerable<bool> Exist(string[] keys, CancellationToken token = default);
 
         /// <summary>
         /// Synchronous alternative of <see cref="SetAsync"/>.
         /// </summary>
-        void Set(string key, IEnumerable<string> tags, TimeSpan expiry, MemoryStream data, string deprecatedKey,
+        void Set(string key, string[] tags, TimeSpan expiry, MemoryStream data, string deprecatedKey,
             TimeSpan deprecatedExpiry, CancellationToken token = default);
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace QA.DotNetCore.Caching.Distributed
         /// <param name="keys">Keys associated with data.</param>
         /// <param name="token">Operation cancellation token</param>
         /// <returns>List of cached data (or null if a key is missing).</returns>
-        Task<IEnumerable<byte[]>> GetAsync(IEnumerable<string> keys, CancellationToken token = default);
+        Task<IEnumerable<byte[]>> GetAsync(string[] keys, CancellationToken token = default);
 
         /// <summary>
         /// Remove data from cache by the <paramref name="key"/>.
@@ -64,7 +64,7 @@ namespace QA.DotNetCore.Caching.Distributed
         /// <param name="keys">Keys to find.</param>
         /// <param name="token">Operation cancellation token</param>
         /// <returns>Search keys operation task.</returns>
-        Task<IEnumerable<bool>> ExistAsync(IEnumerable<string> keys, CancellationToken token = default);
+        Task<IEnumerable<bool>> ExistAsync(string[] keys, CancellationToken token = default);
 
         /// <summary>
         /// Set data in cache.
@@ -77,7 +77,7 @@ namespace QA.DotNetCore.Caching.Distributed
         /// <param name="deprecatedExpiry"></param>
         /// <param name="token">Operation cancellation token</param>
         /// <returns>Caching task.</returns>
-        Task SetAsync(string key, IEnumerable<string> tags, TimeSpan expiry, MemoryStream dataStream,
+        Task SetAsync(string key, string[] tags, TimeSpan expiry, MemoryStream dataStream,
             string deprecatedKey, TimeSpan deprecatedExpiry, CancellationToken token = default);
     }
 }

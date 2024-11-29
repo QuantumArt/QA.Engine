@@ -15,8 +15,7 @@ namespace QA.DotNetCore.Caching.Configuration
                 new VersionedCacheCoreProvider(
                     svc.GetRequiredService<IMemoryCache>(),
                     svc.GetRequiredService<ICacheKeyFactory>(),
-                    svc.GetRequiredService<MemoryLockFactory>(),
-                    svc.GetRequiredService<ILoggerFactory>().CreateLogger<VersionedCacheCoreProvider>()
+                    svc.GetRequiredService<MemoryLockFactory>()
                 )
             );
             services.TryAddScoped<ICacheProvider>(svc => svc.GetRequiredService<VersionedCacheCoreProvider>());

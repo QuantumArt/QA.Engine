@@ -65,8 +65,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             _cacheProvider = new VersionedCacheCoreProvider(
                 new MemoryCache(new MemoryCacheOptions()),
                 new CacheKeyFactoryBase(),
-                new MemoryLockFactory(LoggerUtils.GetLogger<MemoryLockFactory>(_output)),
-                Mock.Of<ILogger>());
+                new MemoryLockFactory());
         }
 
         [Fact]
@@ -974,7 +973,6 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 abstractItemRepository,
                 metaInfoRepository,
                 buildSettings,
-                Mock.Of<ILogger<QpAbstractItemStorageBuilder>>(),
                 scopeFactory,
                 serviceProvider,
                 mockQpContentCacheTagNamingProvider.Object,

@@ -13,7 +13,7 @@ namespace QA.DotNetCore.Caching.Distributed
 {
     public partial class RedisCache
     {
-        public async Task<IEnumerable<bool>> ExistAsync(IEnumerable<string> keys, CancellationToken token = default)
+        public async Task<IEnumerable<bool>> ExistAsync(string[] keys, CancellationToken token = default)
         {
             if (keys is null)
             {
@@ -35,7 +35,7 @@ namespace QA.DotNetCore.Caching.Distributed
             var existFlagsTasks = dataKeys.Select(key => _cache.KeyExistsAsync(key));
             var existFlags = await Task.WhenAll(existFlagsTasks);
 
-            _logger.LogTrace(
+            _logger.Trace(
                 "Keys {Keys} exist {ExistFlags} (Elapsed: {Elapsed})",
                 keys,
                 existFlags,
@@ -44,7 +44,7 @@ namespace QA.DotNetCore.Caching.Distributed
             return existFlags;
         }
 
-        public async Task<IEnumerable<byte[]>> GetAsync(IEnumerable<string> keys, CancellationToken token = default)
+        public async Task<IEnumerable<byte[]>> GetAsync(string[] keys, CancellationToken token = default)
         {
             if (keys is null)
             {
@@ -70,7 +70,7 @@ namespace QA.DotNetCore.Caching.Distributed
                 .Select(result => result.State == KeyState.Exist ? result.Value : null)
                 .ToList();
 
-            _logger.LogTrace("Obtained cached data (Elapsed: {Elapsed})", watch.ElapsedMilliseconds);
+            _logger.Trace("Obtained cached data (Elapsed: {Elapsed})", watch.ElapsedMilliseconds);
 
             return cachedData;
         }
@@ -82,14 +82,15 @@ namespace QA.DotNetCore.Caching.Distributed
                 var cachedValues = (await _cache
                         .StringGetAsync(redisKeys))
                     .Select(value =>
-                        value.HasValue ? new CachedValue(KeyState.Exist, (byte[]) value) : CachedValue.Empty);
+                        value.HasValue ? new CachedValue(KeyState.Exist, (byte[]) value) : CachedValue.Empty)
+                    .ToArray();
 
-                _logger.LogTrace("Keys ({CacheKeys}) have values: {CacheValues}", redisKeys, cachedValues);
+                _logger.Trace("Keys ({CacheKeys}) have values: {CacheValues}", redisKeys, cachedValues);
                 return cachedValues;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unable to get multiple caches ({CacheKeys}).", redisKeys);
+                _logger.Error(ex, "Unable to get multiple caches ({CacheKeys}).", redisKeys);
                 return Enumerable.Repeat(CachedValue.Empty, redisKeys.Length);
             }
         }
@@ -109,7 +110,7 @@ namespace QA.DotNetCore.Caching.Distributed
         }
 
         public async Task SetAsync(string key,
-            IEnumerable<string> tags,
+            string[] tags,
             TimeSpan expiry,
             MemoryStream dataStream,
             string deprecatedKey,
@@ -144,16 +145,17 @@ namespace QA.DotNetCore.Caching.Distributed
                     data, conditions, out var transactionOperations);
                 bool isExecuted = await transaction.ExecuteAsync();
 
-                var exceptions = transactionOperations
+                Exception[] exceptions = transactionOperations
                     .Where(operation => operation.IsFaulted)
-                    .Select(operation => operation.Exception);
+                    .Select(operation => operation.Exception)
+                    .ToArray();
 
                 if (exceptions.Any())
                 {
                     throw new AggregateException(exceptions);
                 }
 
-                _logger.LogInformation(
+                _logger.Info(
                     "Set cache operation is finished " +
                     "(isSet: {SetTransactionStatus}, expiry: {Expiration}, key: {CacheKey}, elapsed: {Elapsed})).",
                     isExecuted,
@@ -165,7 +167,7 @@ namespace QA.DotNetCore.Caching.Distributed
             }
             catch (Exception ex)
             {
-                _logger.LogError(
+                _logger.Error(
                     ex,
                     "Unable to set cache with the key {CacheKey} (Elapsed: {Elapsed})",
                     key,
@@ -200,24 +202,6 @@ namespace QA.DotNetCore.Caching.Distributed
             finally
             {
                 _ = _connectionLock.Release();
-            }
-        }
-
-
-        private async IAsyncEnumerable<CachedValue> GetCachedValuesByKeysAsync(IEnumerable<RedisKey> keysEnumerable)
-        {
-            if (keysEnumerable is not RedisKey[] keys)
-            {
-                keys = keysEnumerable.ToArray();
-            }
-
-            var cachedValues = await _cache.StringGetAsync(keys);
-
-            foreach (var value in cachedValues)
-            {
-                yield return value.HasValue
-                    ? new CachedValue(KeyState.Exist, (byte[]) value)
-                    : CachedValue.Empty;
             }
         }
     }

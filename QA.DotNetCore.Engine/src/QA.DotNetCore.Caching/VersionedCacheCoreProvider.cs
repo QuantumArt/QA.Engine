@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using QA.DotNetCore.Caching.Exceptions;
 using QA.DotNetCore.Caching.Interfaces;
@@ -8,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NLog;
 
 namespace QA.DotNetCore.Caching
 {
@@ -16,30 +16,23 @@ namespace QA.DotNetCore.Caching
     /// </summary>
     public class VersionedCacheCoreProvider : ICacheProvider, IMemoryCacheProvider
     {
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         protected readonly IMemoryCache _cache;
         protected readonly ICacheKeyFactory _keyFactory;
         protected readonly ILockFactory _lockFactory;
         protected readonly TimeSpan _defaultWaitForCalculateTimeout = TimeSpan.FromSeconds(5);
         protected readonly int _defaultDeprecatedCoef = 2;
-        private readonly ILogger _logger;
+
 
         public VersionedCacheCoreProvider(
             IMemoryCache cache,
             ICacheKeyFactory keyFactory,
-            ILockFactory lockFactory,
-            ILogger logger
+            ILockFactory lockFactory
         )
         {
             _cache = cache;
-            _logger = logger;
             _lockFactory = lockFactory;
             _keyFactory = keyFactory;
-        }
-
-        public VersionedCacheCoreProvider(IMemoryCache cache, ICacheKeyFactory keyFactory, ILockFactory lockFactory,
-            ILogger<VersionedCacheCoreProvider> genericLogger)
-            : this(cache, keyFactory, lockFactory, logger: genericLogger)
-        {
         }
 
         /// <summary>
@@ -97,6 +90,7 @@ namespace QA.DotNetCore.Caching
         /// <param name="key">Ключ</param>
         public virtual void Invalidate(string key)
         {
+            _logger.Trace("Invalidate by key: {key}", key);
             if (string.IsNullOrEmpty(key))
             {
                 return;
@@ -152,6 +146,7 @@ namespace QA.DotNetCore.Caching
         /// <param name="tags">Теги</param>
         public virtual void InvalidateByTags(params string[] tags)
         {
+            _logger.Trace("Invalidate by tags: {tags}", tags);
             foreach (var tag in tags)
             {
                 _cache.Remove(GetTag(tag));
@@ -362,6 +357,7 @@ namespace QA.DotNetCore.Caching
                             throw new DeprecateCacheIsExpiredOrMissingException();
                         }
 
+                        _logger.Trace("Return deprecated result for key: {key}", cacheKey);
                         result = deprecatedResult;
                     }
                 }

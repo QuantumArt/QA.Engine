@@ -1,30 +1,24 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using NLog;
 using QA.DotNetCore.Caching.Interfaces;
-using QA.DotNetCore.Engine.CacheTags.Configuration;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace QA.DotNetCore.Engine.CacheTags
+namespace QA.DotNetCore.Engine.CacheTags.Configuration
 {
     /// <summary>
     /// Фоновый процесс, отслеживающий изменения кештегов
     /// </summary>
     public class CacheInvalidationService : IHostedService, IDisposable
     {
-        private readonly ILogger<CacheInvalidationService> _logger;
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly TimeSpan _interval;
         private readonly Timer _timer;
         private readonly IServiceProvider _provider;
 
         public CacheInvalidationService(
-            ILogger<CacheInvalidationService> logger,
             CacheTagsRegistrationConfigurator cfg,
             IServiceScopeFactory factory)
         {
-            _logger = logger;
             _provider = factory.CreateScope().ServiceProvider;
             _interval = cfg.TimerInterval;
             _timer = new Timer(
@@ -36,10 +30,10 @@ namespace QA.DotNetCore.Engine.CacheTags
 
         private void OnTick(object? state)
         {
-            _logger.LogDebug("Cache invalidation started");
+            _logger.Info("Cache invalidation started");
             var watcher = _provider.GetRequiredService<ICacheTagWatcher>();
             watcher.TrackChanges(_provider);
-            _logger.LogDebug("Cache invalidation completed");
+            _logger.Info("Cache invalidation completed");
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -54,9 +48,6 @@ namespace QA.DotNetCore.Engine.CacheTags
             return Task.CompletedTask;
         }
 
-        public void Dispose()
-        {
-            _timer?.Dispose();
-        }
+        public void Dispose() => _timer.Dispose();
     }
 }

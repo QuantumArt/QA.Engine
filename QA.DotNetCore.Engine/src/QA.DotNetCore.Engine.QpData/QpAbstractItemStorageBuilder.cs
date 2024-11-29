@@ -183,10 +183,6 @@ namespace QA.DotNetCore.Engine.QpData
         public AbstractItemExtensionCollection BuildDetails(AbstractItem item, bool createScope) =>
             BuildDetails(item,
                 _context.GetExtensionData(item.ExtensionId ?? 0),
-                _context.ExtensionContents,
-                _context.BaseContent,
-                _context.ExtensionsM2MData,
-                _context.M2MFields,
                 createScope
             );
 
@@ -364,6 +360,11 @@ namespace QA.DotNetCore.Engine.QpData
         private IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionId,
             IEnumerable<int> abstractItemIds, string[] tags, bool createScope)
         {
+            if (createScope)
+            {
+                _logger.Info("Creating new scope");
+            }
+
             using var scope = createScope ? _scopeFactory.CreateScope() : null;
             var scopeString = scope != null ? "new" : "existing";
             var provider = scope != null ? scope.ServiceProvider : _serviceProvider;
@@ -425,54 +426,40 @@ namespace QA.DotNetCore.Engine.QpData
         /// </summary>
         /// <param name="item">AbstractItem</param>
         /// <param name="extensionData"></param>
-        /// <param name="extensionContents"></param>
-        /// <param name="baseContent"></param>
-        /// <param name="extensionsM2MData">Данные о связях m2m у расширения</param>
-        /// <param name="manyToManyFields"></param>
         /// <param name="createScope"></param>
         /// <returns></returns>
         private AbstractItemExtensionCollection BuildDetails(AbstractItem item,
             IDictionary<int, AbstractItemExtensionCollection> extensionData,
-            IDictionary<int, ContentPersistentData> extensionContents,
-            ContentPersistentData baseContent,
-            IDictionary<int, M2MRelations> extensionsM2MData,
-            IDictionary<int, Dictionary<string, int>> manyToManyFields,
             bool createScope
         )
         {
+            if (createScope)
+            {
+                _logger.Info("Creating new scope");
+            }
+
             using var scope = createScope ? _scopeFactory.CreateScope() : null;
             var provider = scope != null ? scope.ServiceProvider : _serviceProvider;
 
             var qpUrlResolver = provider.GetRequiredService<IQpUrlResolver>();
             var buildSettings = provider.GetRequiredService<QpSiteStructureBuildSettings>();
 
-            return BuildDetails(qpUrlResolver, buildSettings,
-                item, extensionData, extensionContents, baseContent, extensionsM2MData, manyToManyFields, _context.Id);
+            return BuildDetails(qpUrlResolver, buildSettings, item, extensionData);
         }
 
         /// <summary>
         /// Возвращает данные контента расширения для AbstractItem <paramref name="item"/>
         /// </summary>
+        /// <param name="qpUrlResolver"></param>
         /// <param name="buildSettings"></param>
         /// <param name="item">AbstractItem</param>
         /// <param name="extensionData">Словарь, где ключ - это CID расширения, в значение - это данные расширения</param>
-        /// <param name="extensionContents"></param>
-        /// <param name="baseContent"></param>
-        /// <param name="extensionsM2MData">Данные о связях m2m у расширения</param>
-        /// <param name="manyToManyFields"></param>
-        /// <param name="logId"></param>
-        /// <param name="qpUrlResolver"></param>
         /// <returns></returns>
-        private static AbstractItemExtensionCollection BuildDetails(
+        private AbstractItemExtensionCollection BuildDetails(
             IQpUrlResolver qpUrlResolver,
             QpSiteStructureBuildSettings buildSettings,
             AbstractItem item,
-            IDictionary<int, AbstractItemExtensionCollection> extensionData,
-            IDictionary<int, ContentPersistentData> extensionContents,
-            ContentPersistentData baseContent,
-            IDictionary<int, M2MRelations> extensionsM2MData,
-            IDictionary<int, Dictionary<string, int>> manyToManyFields,
-            string logId)
+            IDictionary<int, AbstractItemExtensionCollection> extensionData)
         {
             var extensionContentId = item.ExtensionId.GetValueOrDefault(0);
 
@@ -480,13 +467,13 @@ namespace QA.DotNetCore.Engine.QpData
             {
                 _logger.ForTraceEvent()
                     .Message("Not found data for extension {id}", extensionContentId)
-                    .Property("buildId", logId)
+                    .Property("buildId", _context.Id)
                     .Log();
 
                 return null;
             }
 
-            var extensionContent = extensionContents.TryGetValue(extensionContentId, out var content) ? content : null;
+            var extensionContent = _context.ExtensionContents.TryGetValue(extensionContentId, out var content) ? content : null;
 
             var fields = new List<ContentAttributePersistentData>();
             int? extensionContentItemId = null;
@@ -498,7 +485,7 @@ namespace QA.DotNetCore.Engine.QpData
 
             if (buildSettings.LoadAbstractItemFieldsToDetailsCollection)
             {
-                fields.AddRange(baseContent.ContentAttributes);
+                fields.AddRange(_context.BaseContent.ContentAttributes);
             }
 
             var fileFields = new Dictionary<string, ContentAttributePersistentData>();
@@ -536,13 +523,13 @@ namespace QA.DotNetCore.Engine.QpData
             //установим связи m2m в контентах расширений, в которых они есть
             if (extensionContentItemId.HasValue)
             {
-                if (extensionsM2MData != null && extensionsM2MData.TryGetValue(extensionContentItemId.Value, out var relations))
+                if (_context.ExtensionsM2MData != null && _context.ExtensionsM2MData.TryGetValue(extensionContentItemId.Value, out var relations))
                 {
                     item.M2MRelations.Merge(relations);
                 }
             }
 
-            if (manyToManyFields != null && manyToManyFields.TryGetValue(extensionContentId, out var mapping))
+            if (_context.M2MFields != null && _context.M2MFields.TryGetValue(extensionContentId, out var mapping))
             {
                 item.M2MFieldNameMapToLinkIds = mapping;
             }

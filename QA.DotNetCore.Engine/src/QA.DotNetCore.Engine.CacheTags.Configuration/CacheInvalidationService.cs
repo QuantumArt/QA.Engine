@@ -19,6 +19,7 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
             CacheTagsRegistrationConfigurator cfg,
             IServiceScopeFactory factory)
         {
+            _logger.Info("Creating new scope");
             _provider = factory.CreateScope().ServiceProvider;
             _interval = cfg.TimerInterval;
             _timer = new Timer(

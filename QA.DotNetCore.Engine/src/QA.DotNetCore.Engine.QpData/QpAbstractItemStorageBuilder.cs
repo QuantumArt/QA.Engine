@@ -360,12 +360,13 @@ namespace QA.DotNetCore.Engine.QpData
         private IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionId,
             IEnumerable<int> abstractItemIds, string[] tags, bool createScope)
         {
-            if (createScope)
+            bool currentProviderFailed = CheckCurrentProvider(createScope);
+            if (createScope && currentProviderFailed)
             {
                 _logger.Info("Creating new scope");
             }
 
-            using var scope = createScope ? _scopeFactory.CreateScope() : null;
+            using var scope = createScope && currentProviderFailed ? _scopeFactory.CreateScope() : null;
             var scopeString = scope != null ? "new" : "existing";
             var provider = scope != null ? scope.ServiceProvider : _serviceProvider;
 
@@ -433,18 +434,39 @@ namespace QA.DotNetCore.Engine.QpData
             bool createScope
         )
         {
-            if (createScope)
+            bool currentProviderFailed = CheckCurrentProvider(createScope);
+            if (createScope && currentProviderFailed)
             {
                 _logger.Info("Creating new scope");
             }
-
-            using var scope = createScope ? _scopeFactory.CreateScope() : null;
+            using var scope = createScope && currentProviderFailed ? _scopeFactory.CreateScope() : null;
             var provider = scope != null ? scope.ServiceProvider : _serviceProvider;
 
             var qpUrlResolver = provider.GetRequiredService<IQpUrlResolver>();
             var buildSettings = provider.GetRequiredService<QpSiteStructureBuildSettings>();
 
             return BuildDetails(qpUrlResolver, buildSettings, item, extensionData);
+        }
+
+        private bool CheckCurrentProvider(bool createScope)
+        {
+            var currentProviderFailed = false;
+            if (createScope)
+            {
+                try
+                {
+                    _logger.Info("Trying to receive UnitOfWork from current service provider");
+                    _serviceProvider.GetRequiredService<IUnitOfWork>();
+                    _logger.Info("Done");
+                }
+                catch (Exception ex)
+                {
+                    _logger.Info(ex, "Failed. Creating new scope instead");
+                    currentProviderFailed = true;
+                }
+            }
+
+            return currentProviderFailed;
         }
 
         /// <summary>

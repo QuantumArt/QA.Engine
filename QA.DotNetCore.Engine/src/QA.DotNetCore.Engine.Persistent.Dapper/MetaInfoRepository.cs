@@ -114,6 +114,7 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
 
         public QpSitePersistentData GetSite(int siteId, IDbTransaction transaction = null)
         {
+            _logger.Trace("Get site info from DB");
             return UnitOfWork.Connection.QueryFirst<QpSitePersistentData>(string.Format(CmdGetSite, siteId), transaction: transaction);
         }
 
@@ -124,12 +125,14 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
 
         public ContentAttributePersistentData GetContentAttribute(int contentId, string fieldName, IDbTransaction transaction = null)
         {
+            _logger.Trace("Get content field by name from DB");
             return UnitOfWork.Connection.QueryFirstOrDefault<ContentAttributePersistentData>(
                 string.Format(CmdGetContentAttributeByName, contentId, fieldName), transaction: transaction);
         }
 
         public ContentAttributePersistentData GetContentAttributeByNetName(int contentId, string fieldNetName, IDbTransaction transaction = null)
         {
+            _logger.Trace("Get content field by .NET name from DB");
             return UnitOfWork.Connection.QueryFirstOrDefault<ContentAttributePersistentData>(
                 string.Format(CmdGetContentAttributeByNetName, contentId, fieldNetName), transaction: transaction);
         }
@@ -188,7 +191,11 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
             var attributes = _memoryCacheProvider.GetOrAdd(
                 cacheKey,
                 expiry,
-                () => UnitOfWork.Connection.Query<ContentAttributePersistentData>(query, parameters, transaction));
+                () =>
+                {
+                    _logger.Trace("Get contents and fields from DB");
+                    return UnitOfWork.Connection.Query<ContentAttributePersistentData>(query, parameters, transaction);
+                });
 
             return GroupAttributesIntoContents(attributes).ToArray();
         }

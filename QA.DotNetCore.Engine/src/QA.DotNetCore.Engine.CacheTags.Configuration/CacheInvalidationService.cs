@@ -11,16 +11,17 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
     public class CacheInvalidationService : IHostedService, IDisposable
     {
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private static readonly object _locker = new();
+        private static bool _busy;
         private readonly TimeSpan _interval;
         private readonly Timer _timer;
-        private readonly IServiceProvider _provider;
+        private readonly IServiceScopeFactory _factory;
 
         public CacheInvalidationService(
             CacheTagsRegistrationConfigurator cfg,
             IServiceScopeFactory factory)
         {
-            _logger.Info("Creating new scope");
-            _provider = factory.CreateScope().ServiceProvider;
+            _factory = factory;
             _interval = cfg.TimerInterval;
             _timer = new Timer(
                 OnTick,
@@ -31,10 +32,24 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
 
         private void OnTick(object? state)
         {
-            _logger.Info("Cache invalidation started");
-            var watcher = _provider.GetRequiredService<ICacheTagWatcher>();
-            watcher.TrackChanges(_provider);
-            _logger.Info("Cache invalidation completed");
+            if (_busy)
+            {
+                _logger.Info("A previous cache invalidation is in progress now. Proceeding exit");
+                return;
+            }
+
+            lock (_locker)
+            {
+                _busy = true;
+                _logger.Info("Creating new scope");
+                using var scope = _factory.CreateScope();
+                var provider = scope.ServiceProvider;
+                _logger.Info("Cache invalidation started");
+                var watcher = provider.GetRequiredService<ICacheTagWatcher>();
+                watcher.TrackChanges();
+                _logger.Info("Cache invalidation completed");
+                _busy = false;
+            }
         }
 
         public Task StartAsync(CancellationToken cancellationToken)

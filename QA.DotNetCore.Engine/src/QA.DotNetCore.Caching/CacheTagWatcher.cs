@@ -12,29 +12,32 @@ namespace QA.DotNetCore.Caching
         private readonly ICacheTrackersAccessor _trackersAccessor;
         private readonly ICacheInvalidator _cacheInvalidator;
         private readonly IModificationStateStorage _modificationStateStorage;
+        private readonly IServiceProvider _provider;
 
         public CacheTagWatcher(
             ICacheTrackersAccessor trackersAccessor,
             ICacheInvalidator cacheInvalidator,
-            IModificationStateStorage modificationStateStorage)
+            IModificationStateStorage modificationStateStorage,
+            IServiceProvider provider)
         {
             _trackersAccessor = trackersAccessor;
             _cacheInvalidator = cacheInvalidator;
             _modificationStateStorage = modificationStateStorage;
+            _provider = provider;
         }
 
-        public void TrackChanges(IServiceProvider provider)
+        public void TrackChanges()
         {
             var checkId = Guid.NewGuid().ToString();
             _logger.ForInfoEvent().Message("Invalidation started")
                 .Property("invalidationId", checkId)
                 .Log();
 
-            _modificationStateStorage.Update((previousModifications) =>
+            _modificationStateStorage.Update(previousModifications =>
             {
                 try
                 {
-                    var currentModifications = GetCurrentCacheTagModifications(provider);
+                    var currentModifications = GetCurrentCacheTagModifications();
                     var cacheTagsToInvalidate = GetCacheTagsToInvalidate(previousModifications, currentModifications);
                     InvalidateTags(cacheTagsToInvalidate, checkId);
                     return currentModifications;
@@ -105,10 +108,10 @@ namespace QA.DotNetCore.Caching
             }
         }
 
-        private HashSet<CacheTagModification> GetCurrentCacheTagModifications(IServiceProvider provider)
+        private HashSet<CacheTagModification> GetCurrentCacheTagModifications()
         {
-            var modifications = _trackersAccessor.Get(provider)
-                .Select(tracker => tracker.TrackChanges(provider))
+            var modifications = _trackersAccessor.Get(_provider)
+                .Select(tracker => tracker.TrackChanges(_provider))
                 .SelectMany(modifications => modifications)
                 .Reverse()
                 .ToArray();

@@ -34,7 +34,7 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
         {
             if (_busy)
             {
-                _logger.Info("A previous cache invalidation is in progress now. Proceeding exit");
+                _logger.Info("A previous invalidation is in progress now. Proceeding exit");
                 return;
             }
 
@@ -44,10 +44,8 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
                 _logger.Info("Creating new scope");
                 using var scope = _factory.CreateScope();
                 var provider = scope.ServiceProvider;
-                _logger.Info("Cache invalidation started");
                 var watcher = provider.GetRequiredService<ICacheTagWatcher>();
                 watcher.TrackChanges();
-                _logger.Info("Cache invalidation completed");
                 _busy = false;
             }
         }

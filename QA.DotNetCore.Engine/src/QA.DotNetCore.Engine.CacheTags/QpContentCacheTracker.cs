@@ -5,6 +5,7 @@ using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
+using NLog;
 
 namespace QA.DotNetCore.Engine.CacheTags
 {
@@ -13,6 +14,7 @@ namespace QA.DotNetCore.Engine.CacheTags
     /// </summary>
     public class QpContentCacheTracker : ICacheTagTracker
     {
+        private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly IContentModificationRepository _contentModificationRepository;
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         public QpContentCacheTracker(IContentModificationRepository contentModificationRepository,
@@ -26,6 +28,9 @@ namespace QA.DotNetCore.Engine.CacheTags
         public IEnumerable<CacheTagModification> TrackChanges(IServiceProvider provider)
         {
             var unitOfWork = provider.GetRequiredService<IUnitOfWork>();
+            _logger.ForTraceEvent()
+                .Message("Received UnitOfWork {unitOfWorkId} from ServiceProvider", unitOfWork.Id)
+                .Log();
             _contentModificationRepository.SetUnitOfWork(unitOfWork);
             _qpContentCacheTagNamingProvider.SetUnitOfWork(unitOfWork);
             var result = new List<CacheTagModification>();

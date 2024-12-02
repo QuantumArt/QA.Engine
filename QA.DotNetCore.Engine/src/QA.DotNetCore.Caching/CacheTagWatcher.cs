@@ -40,6 +40,10 @@ namespace QA.DotNetCore.Caching
                     var currentModifications = GetCurrentCacheTagModifications();
                     var cacheTagsToInvalidate = GetCacheTagsToInvalidate(previousModifications, currentModifications);
                     InvalidateTags(cacheTagsToInvalidate, checkId);
+                    _logger.ForInfoEvent().Message("Invalidation completed")
+                        .Property("invalidationId", checkId)
+                        .Log();
+
                     return currentModifications;
                 }
                 catch (Exception e)

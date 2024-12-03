@@ -295,15 +295,20 @@ namespace QA.DotNetCore.Engine.QpData
 
         private IDictionary<int, M2MRelations> GetAbstractItemsManyToManyRelations(
             IDictionary<int, AbstractItemPersistentData[]> extensions,
-            string[] abstractItemTags) =>
-            _cacheProvider.GetOrAdd(
-                $"{nameof(Init)}.{nameof(GetAbstractItemsManyToManyRelations)}",
+            string[] abstractItemTags)
+        {
+            var cacheKey = $"{nameof(Init)}.{nameof(GetAbstractItemsManyToManyRelations)}";
+            return _cacheProvider.GetOrAdd(
+                cacheKey,
                 abstractItemTags,
                 _cacheSettings.SiteStructureCachePeriod,
                 () =>
                 {
                     _logger.ForInfoEvent()
-                        .Message("Load M2M data for base table (AbstractItem)")
+                        .Message("Load M2M data for abstract items")
+                        .Property("cacheKey", cacheKey)
+                        .Property("cacheTags", abstractItemTags)
+                        .Property("expiry", _cacheSettings.SiteStructureCachePeriod)
                         .Property("buildId", _context.Id)
                         .Log();
 
@@ -314,20 +319,26 @@ namespace QA.DotNetCore.Engine.QpData
                         _buildSettings.IsStage);
                 },
                 _buildSettings.CacheFetchTimeoutAbstractItemStorage);
+        }
 
         private IDictionary<int, M2MRelations> GetExtensionsManyToManyRelations(
             IDictionary<int, AbstractItemPersistentData[]> extensions,
             string[] tags)
         {
+            var cacheKey = $"{nameof(Init)}.{nameof(GetExtensionsManyToManyRelations)}"
             return _cacheProvider.GetOrAdd(
-                $"{nameof(Init)}.{nameof(GetExtensionsManyToManyRelations)}",
+                cacheKey,
                 tags,
                 _cacheSettings.SiteStructureCachePeriod,
                 () =>
                 {
                     var extensionKeys = extensions.Keys.Where(k => k != 0).ToArray();
                     _logger.ForInfoEvent()
-                        .Message("Load M2M data for extension tables: {extensionIds}", extensions.Keys)
+                        .Message("Load M2M data for extension tables")
+                        .Property("extensionIds", extensions.Keys)
+                        .Property("cacheKey", cacheKey)
+                        .Property("cacheTags", tags)
+                        .Property("expiry", _cacheSettings.SiteStructureCachePeriod)
                         .Property("buildId", _context.Id)
                         .Log();
                     return _abstractItemRepository.GetManyToManyDataByContents(extensionKeys, _buildSettings.IsStage);
@@ -344,7 +355,7 @@ namespace QA.DotNetCore.Engine.QpData
                 .GetByNetName(KnownNetNames.ItemDefinition, _buildSettings.SiteId, _buildSettings.IsStage);
 
             Dictionary<int, string> extensionsTags = _qpContentCacheTagNamingProvider
-                .GetByContentIds(extensions.ToArray(), _buildSettings.IsStage);
+                .GetByContentIds(extensions.Where(n => n > 0).ToArray(), _buildSettings.IsStage);
 
             return new WidgetsAndPagesCacheTags
             {
@@ -372,14 +383,18 @@ namespace QA.DotNetCore.Engine.QpData
 
             if (extensionId == 0)
             {
+                var cacheKey = "GetAbstractItemExtensionlessData";
                 result = _cacheProvider.GetOrAdd(
-                    $"GetAbstractItemExtensionlessData",
+                    cacheKey,
                     tags,
                     _cacheSettings.SiteStructureCachePeriod,
                     () =>
                     {
                         _logger.ForInfoEvent()
                             .Message("Load data from base abstract item table in {scope} scope", scopeString)
+                            .Property("cacheKey", cacheKey)
+                            .Property("cacheTags", tags)
+                            .Property("expiry", _cacheSettings.SiteStructureCachePeriod)
                             .Property("buildId", _context.Id)
                             .Log();
 
@@ -393,14 +408,18 @@ namespace QA.DotNetCore.Engine.QpData
             }
             else
             {
+                var cacheKey = $"GetAbstractItemExtensionData({extensionId})";
                 result = _cacheProvider.GetOrAdd(
-                    $"GetAbstractItemExtensionData({extensionId})",
+                    cacheKey,
                     tags,
                     _cacheSettings.SiteStructureCachePeriod,
                     () =>
                     {
                         _logger.ForInfoEvent()
                             .Message("Load data from extension table {extensionId} in {scope} scope", extensionId, scopeString)
+                            .Property("cacheKey", cacheKey)
+                            .Property("cacheTags", tags)
+                            .Property("expiry", _cacheSettings.SiteStructureCachePeriod)
                             .Property("buildId", _context.Id)
                             .Log();
 
@@ -446,13 +465,13 @@ namespace QA.DotNetCore.Engine.QpData
             {
                 try
                 {
-                    _logger.Info("Trying to receive UnitOfWork from current service provider");
+                    _logger.Trace("Trying to receive UnitOfWork from current service provider");
                     _serviceProvider.GetRequiredService<IUnitOfWork>();
-                    _logger.Info("Done");
+                    _logger.Trace("Done");
                 }
                 catch (Exception ex)
                 {
-                    _logger.Info(ex, "Failed. Creating new scope instead");
+                    _logger.Trace(ex, "Failed. Creating new scope instead");
                     currentProviderFailed = true;
                 }
             }

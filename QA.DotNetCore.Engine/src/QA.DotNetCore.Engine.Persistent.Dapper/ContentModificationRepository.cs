@@ -44,7 +44,7 @@ INNER JOIN CONTENT c on c.CONTENT_ID = cm.CONTENT_ID";
 
         public IEnumerable<QpContentModificationPersistentData> GetAll(IDbTransaction transaction = null)
         {
-            _logger.Info("Received content modifications");
+            _logger.Trace("Received content modifications");
             return UnitOfWork.Connection.Query<QpContentModificationPersistentData>(CmdGetAll, transaction);
         }
     }

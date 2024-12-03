@@ -202,7 +202,9 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
                 () =>
                 {
                     _logger.ForTraceEvent().Message("Get contents and fields from DB")
-                        .Property("parameters", parametersList)
+                        .Property("templateId", templateId)
+                        .Property("parameters", parameterValues)
+                        .Property("siteId", siteId)
                         .Property("cacheKey", cacheKey)
                         .Property("expiry", expiry)
                         .Log();

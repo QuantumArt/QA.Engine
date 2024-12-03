@@ -27,10 +27,10 @@ namespace QA.DotNetCore.Engine.QpData
         private readonly IMetaInfoRepository _metaInfoRepository;
         private readonly QpSiteStructureBuildSettings _buildSettings;
         private readonly IServiceScopeFactory _scopeFactory;
-        private readonly IServiceProvider _serviceProvider;
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         private readonly ICacheProvider _cacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
+        private IServiceProvider _serviceProvider;
 
         public QpAbstractItemStorageBuilder(
             IAbstractItemFactory itemFactory,
@@ -361,17 +361,12 @@ namespace QA.DotNetCore.Engine.QpData
             IEnumerable<int> abstractItemIds, string[] tags, bool createScope)
         {
             bool currentProviderFailed = CheckCurrentProvider(createScope);
-            if (createScope && currentProviderFailed)
-            {
-                _logger.Info("Creating new scope");
-            }
-
             using var scope = createScope && currentProviderFailed ? _scopeFactory.CreateScope() : null;
             var scopeString = scope != null ? "new" : "existing";
-            var provider = scope != null ? scope.ServiceProvider : _serviceProvider;
+            _serviceProvider = scope != null ? scope.ServiceProvider : _serviceProvider;
 
-            var abstractItemRepository = provider.GetRequiredService<IAbstractItemRepository>();
-            var buildSettings = provider.GetRequiredService<QpSiteStructureBuildSettings>();
+            var abstractItemRepository = _serviceProvider.GetRequiredService<IAbstractItemRepository>();
+            var buildSettings = _serviceProvider.GetRequiredService<QpSiteStructureBuildSettings>();
 
             IDictionary<int, AbstractItemExtensionCollection> result;
 
@@ -435,15 +430,11 @@ namespace QA.DotNetCore.Engine.QpData
         )
         {
             bool currentProviderFailed = CheckCurrentProvider(createScope);
-            if (createScope && currentProviderFailed)
-            {
-                _logger.Info("Creating new scope");
-            }
             using var scope = createScope && currentProviderFailed ? _scopeFactory.CreateScope() : null;
-            var provider = scope != null ? scope.ServiceProvider : _serviceProvider;
+            _serviceProvider = scope != null ? scope.ServiceProvider : _serviceProvider;
 
-            var qpUrlResolver = provider.GetRequiredService<IQpUrlResolver>();
-            var buildSettings = provider.GetRequiredService<QpSiteStructureBuildSettings>();
+            var qpUrlResolver = _serviceProvider.GetRequiredService<IQpUrlResolver>();
+            var buildSettings = _serviceProvider.GetRequiredService<QpSiteStructureBuildSettings>();
 
             return BuildDetails(qpUrlResolver, buildSettings, item, extensionData);
         }

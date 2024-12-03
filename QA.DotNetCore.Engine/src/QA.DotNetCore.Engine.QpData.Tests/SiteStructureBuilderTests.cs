@@ -587,7 +587,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
 
             aiRepositoryMoq
                 .Setup(x => x.GetManyToManyData(
-                    It.Is<IEnumerable<int>>(ids => ids.Contains(widgetId)),
+                    It.Is<int[]>(ids => ids.Contains(widgetId)),
                     isStage,
                     null))
                 .Returns(
@@ -794,7 +794,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 {3, fieldCollection}
             };
             aiRepositoryMoq.Setup(x => x.GetAbstractItemExtensionlessData(
-                It.Is<IEnumerable<int>>(ids => ids.Contains(3)),
+                It.Is<int[]>(ids => ids.Contains(3)),
                 It.IsAny<ContentPersistentData>(),
                 buildSettings.IsStage,
                 null)).Returns(baseContentFieldDictionary);

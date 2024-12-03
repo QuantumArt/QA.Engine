@@ -94,7 +94,17 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper
                 cacheKey,
                 cacheTags,
                 expiry,
-                () => connection.Query<DictionaryItemPersistentData>(query, transaction).ToList());
+                () =>
+                {
+                    _logger.ForTraceEvent().Message("Get all dictionary items")
+                        .Property("siteId", siteId)
+                        .Property("isStage", isStage)
+                        .Property("cacheKey", cacheKey)
+                        .Property("cacheTags", cacheTags)
+                        .Property("expiry", expiry)
+                        .Log();
+                    return connection.Query<DictionaryItemPersistentData>(query, transaction).ToList();
+                });
         }
     }
 }

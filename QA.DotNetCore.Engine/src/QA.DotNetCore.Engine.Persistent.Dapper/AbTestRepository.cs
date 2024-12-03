@@ -128,11 +128,21 @@ JOIN |AbTestClientRedirectContainer| rcont on rcont.content_item_id = r.|AbTestC
         {
             var currentDate = DateTime.Now;
             var scriptContainersQuery = _netNameQueryAnalyzer.PrepareQuery(CmdGetTestsContainers, siteId, isStage);
-            _logger.Trace("Get test containers from DB");
-            var scriptContainersDict = UnitOfWork.Connection.Query<AbTestScriptContainerPersistentData>(scriptContainersQuery, new { currentDate, onlyActive = (onlyActive ? 1 : 0), containerType = "AbTestScriptContainer" }, transaction).ToDictionary(_ => _.Id);
+            _logger.ForTraceEvent().Message("Get test containers")
+                .Property("siteId", siteId)
+                .Property("isStage", isStage)
+                .Log();
+            var containerType = "AbTestScriptContainer";
+            var scriptContainersDict = UnitOfWork.Connection.Query<AbTestScriptContainerPersistentData>(scriptContainersQuery, new { currentDate, onlyActive = onlyActive ? 1 : 0, containerType }, transaction).ToDictionary(_ => _.Id);
 
             var scriptQuery = _netNameQueryAnalyzer.PrepareQuery(CmdGetAbTestScripts, siteId, isStage);
-            _logger.Trace("Get test scripts from DB");
+            _logger.ForTraceEvent().Message("Get test scripts")
+                .Property("siteId", siteId)
+                .Property("isStage", isStage)
+                .Property("currentDate", currentDate)
+                .Property("onlyActive", onlyActive)
+                .Property("containerType", containerType)
+                .Log();
             var scripts = UnitOfWork.Connection.Query<AbTestScriptPersistentData>(scriptQuery, transaction: transaction);
 
             foreach (var s in scripts)
@@ -144,11 +154,17 @@ JOIN |AbTestClientRedirectContainer| rcont on rcont.content_item_id = r.|AbTestC
             }
 
             var redirectContainersQuery = _netNameQueryAnalyzer.PrepareQuery(CmdGetTestsContainers, siteId, isStage);
-            _logger.Trace("Get redirect containers from DB");
+            _logger.ForTraceEvent().Message("Get redirect containers")
+                .Property("siteId", siteId)
+                .Property("isStage", isStage)
+                .Log();
             var redirectContainersDict = UnitOfWork.Connection.Query<AbTestClientRedirectContainerPersistentData>(redirectContainersQuery, new { currentDate, onlyActive = (onlyActive ? 1 : 0), containerType = "AbTestClientRedirectContainer" }, transaction).ToDictionary(_ => _.Id);
 
             var redirectQuery = _netNameQueryAnalyzer.PrepareQuery(CmdGetAbTestClientRedirects, siteId, isStage);
-            _logger.Trace("Get redirects from DB");
+            _logger.ForTraceEvent().Message("Get redirects")
+                .Property("siteId", siteId)
+                .Property("isStage", isStage)
+                .Log();
             var redirects = UnitOfWork.Connection.Query<AbTestClientRedirectPersistentData>(redirectQuery, transaction: transaction);
 
             foreach (var r in redirects)
@@ -166,7 +182,10 @@ JOIN |AbTestClientRedirectContainer| rcont on rcont.content_item_id = r.|AbTestC
         private IEnumerable<AbTestPersistentData> GetTests(int siteId, bool isStage, bool onlyActive, IDbTransaction transaction)
         {
             var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetTests, siteId, isStage);
-            _logger.Trace("Get tests from DB");
+            _logger.ForTraceEvent().Message("Get tests")
+                .Property("siteId", siteId)
+                .Property("isStage", isStage)
+                .Log();
             return UnitOfWork.Connection.Query<AbTestPersistentData>(query, new { currentDate = DateTime.Now, onlyActive = (onlyActive ? 1 : 0) }, transaction);
         }
     }

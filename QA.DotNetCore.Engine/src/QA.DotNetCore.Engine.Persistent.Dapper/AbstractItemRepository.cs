@@ -89,7 +89,18 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
                 cacheKey,
                 cacheTags,
                 expiry,
-                () => UnitOfWork.Connection.Query<AbstractItemPersistentData>(query, transaction: transaction));
+                () =>
+                {
+                    _logger.ForTraceEvent().Message("Get all abstract items")
+                        .Property("siteId", siteId)
+                        .Property("isStage", isStage)
+                        .Property("cacheKey", cacheKey)
+                        .Property("cacheTags", cacheTags)
+                        .Property("expiry", expiry)
+                        .Log();
+
+                    return UnitOfWork.Connection.Query<AbstractItemPersistentData>(query, transaction: transaction);
+                });
         }
 
         /// <summary>
@@ -115,6 +126,10 @@ JOIN {idListTableName} on Id = ext.CONTENT_ID";
                 idsTableParameterName,
                 extensionContentIds.Where(id => id != 0),
                 UnitOfWork.DatabaseType);
+
+            _logger.ForTraceEvent().Message("Get abstract items extension ids")
+                .Property("extensionContentIds", extensionContentIds)
+                .Log();
 
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = extensionItemsQuery;
@@ -149,15 +164,20 @@ SELECT cast(ai.content_item_id as numeric) as Id{extFields}, ai.*
 FROM {extTableName} ext {withNoLock}
 JOIN {baseContent.GetTableName(isStage)} ai {withNoLock} on ai.content_item_id = ext.itemid";
 
+            _logger.ForTraceEvent().Message("Get abstract items extension data")
+                .Property("extensionContentId", extensionContentId)
+                .Property("loadAbstractItemFields", loadAbstractItemFields)
+                .Property("isStage", isStage)
+                .Log();
+
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = query;
             command.Transaction = transaction;
-
             return LoadAbstractItemExtension(command);
         }
 
         public IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionlessData(
-            IEnumerable<int> ids,
+            int[] ids,
             ContentPersistentData baseContent,
             bool isStage,
             IDbTransaction transaction = null)
@@ -168,6 +188,11 @@ JOIN {baseContent.GetTableName(isStage)} ai {withNoLock} on ai.content_item_id =
             string extFieldsQuery = $@"
 SELECT * FROM {baseContent.GetTableName(isStage)} ai {withNoLock}
 JOIN {idListTable} on Id = ai.Content_item_id";
+
+            _logger.ForTraceEvent().Message("Get abstract items extensionless data")
+                .Property("ids", ids)
+                .Property("isStage", isStage)
+                .Log();
 
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = extFieldsQuery;
@@ -210,8 +235,7 @@ JOIN {idListTable} on Id = ai.Content_item_id";
             return result;
         }
 
-        public IDictionary<int, M2MRelations> GetManyToManyData(IEnumerable<int> itemIds, bool isStage,
-            IDbTransaction transaction = null)
+        public IDictionary<int, M2MRelations> GetManyToManyData(int[] itemIds, bool isStage, IDbTransaction transaction = null)
         {
             var m2MTableName = QpTableNameHelper.GetM2MTableName(isStage);
             var idListTable = SqlQuerySyntaxHelper.IdList(UnitOfWork.DatabaseType, "@ids", "ids");
@@ -224,6 +248,11 @@ JOIN {idListTable} on Id = link.item_id
 JOIN content_item ci {withNoLock} on ci.content_item_id = link.linked_item_id
 WHERE ci.archive = 0";
 
+            _logger.ForTraceEvent().Message("Get M2M data for articles")
+                .Property("ids", itemIds)
+                .Property("isStage", isStage)
+                .Log();
+
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = query;
             command.Parameters.Add(SqlQuerySyntaxHelper.GetIdsDatatableParam("@Ids", itemIds, UnitOfWork.DatabaseType));
@@ -233,7 +262,7 @@ WHERE ci.archive = 0";
         }
 
         public IDictionary<int, M2MRelations> GetManyToManyDataByContents(
-            IEnumerable<int> contentIds,
+            int[] contentIds,
             bool isStage,
             IDbTransaction transaction = null)
         {
@@ -248,6 +277,11 @@ SELECT e.content_id, link_id, item_id, linked_item_id
 FROM {m2MTableName} link {withNoLock}
 JOIN CONTENT_ITEM e {withNoLock} ON e.CONTENT_ITEM_ID = link.item_id
 JOIN {idListTableName} on Id = e.CONTENT_ID";
+
+            _logger.ForTraceEvent().Message("Get M2M data for contents")
+                .Property("contentIds", contentIds)
+                .Property("isStage", isStage)
+                .Log();
 
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = query;

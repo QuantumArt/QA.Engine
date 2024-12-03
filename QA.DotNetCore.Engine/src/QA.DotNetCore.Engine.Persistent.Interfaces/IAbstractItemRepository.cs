@@ -17,16 +17,15 @@ namespace QA.DotNetCore.Engine.Persistent.Interfaces
             IDbTransaction transaction = null);
 
         IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionlessData(
-            IEnumerable<int> ids,
+            int[] ids,
             ContentPersistentData baseContent,
             bool isStage,
             IDbTransaction transaction = null);
 
-        IDictionary<int, M2MRelations> GetManyToManyData(IEnumerable<int> itemIds, bool isStage,
-            IDbTransaction transaction = null);
+        IDictionary<int, M2MRelations> GetManyToManyData(int[] itemIds, bool isStage, IDbTransaction transaction = null);
 
         IDictionary<int, M2MRelations> GetManyToManyDataByContents(
-            IEnumerable<int> contentIds,
+            int[] contentIds,
             bool isStage,
             IDbTransaction transaction = null);
 

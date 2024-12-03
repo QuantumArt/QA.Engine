@@ -253,7 +253,7 @@ namespace QA.DotNetCore.Engine.QpData
                         x => new Lazy<IDictionary<int, AbstractItemExtensionCollection>>(
                             () => GetAbstractItemExtensionData(
                                 x.Key,
-                                x.Value.Select(i => i.Id),
+                                x.Value.Select(i => i.Id).ToArray(),
                                 new[] {x.Key == 0 ? allTags.AbstractItemTag : allTags.ExtensionsTags[x.Key]},
                                 true
                             )));
@@ -263,7 +263,7 @@ namespace QA.DotNetCore.Engine.QpData
                     _context.ExtensionData = extensions.ToDictionary(x => x.Key,
                         x => GetAbstractItemExtensionData(
                             x.Key,
-                            x.Value.Select(i => i.Id),
+                            x.Value.Select(i => i.Id).ToArray(),
                             new[] {x.Key == 0 ? allTags.AbstractItemTag : allTags.ExtensionsTags[x.Key]},
                             false
                         )
@@ -310,7 +310,7 @@ namespace QA.DotNetCore.Engine.QpData
                     return _abstractItemRepository.GetManyToManyData(
                         extensions.Values
                             .SelectMany(x => x)
-                            .Select(item => item.Id),
+                            .Select(item => item.Id).ToArray(),
                         _buildSettings.IsStage);
                 },
                 _buildSettings.CacheFetchTimeoutAbstractItemStorage);
@@ -358,7 +358,7 @@ namespace QA.DotNetCore.Engine.QpData
             tags is null ? Array.Empty<string>() : tags.Where(tag => !string.IsNullOrEmpty(tag)).ToArray();
 
         private IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionData(int extensionId,
-            IEnumerable<int> abstractItemIds, string[] tags, bool createScope)
+            int[] abstractItemIds, string[] tags, bool createScope)
         {
             bool currentProviderFailed = CheckCurrentProvider(createScope);
             using var scope = createScope && currentProviderFailed ? _scopeFactory.CreateScope() : null;

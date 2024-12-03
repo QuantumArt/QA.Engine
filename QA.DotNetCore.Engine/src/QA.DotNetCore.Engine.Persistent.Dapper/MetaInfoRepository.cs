@@ -114,7 +114,9 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
 
         public QpSitePersistentData GetSite(int siteId, IDbTransaction transaction = null)
         {
-            _logger.Trace("Get site info from DB");
+            _logger.ForTraceEvent().Message("Get site info from DB")
+                .Property("siteId", siteId)
+                .Log();
             return UnitOfWork.Connection.QueryFirst<QpSitePersistentData>(string.Format(CmdGetSite, siteId), transaction: transaction);
         }
 
@@ -125,14 +127,20 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
 
         public ContentAttributePersistentData GetContentAttribute(int contentId, string fieldName, IDbTransaction transaction = null)
         {
-            _logger.Trace("Get content field by name from DB");
+            _logger.ForTraceEvent().Message("Get content field by name from DB")
+                .Property("contentId", contentId)
+                .Property("fieldName", fieldName)
+                .Log();
             return UnitOfWork.Connection.QueryFirstOrDefault<ContentAttributePersistentData>(
                 string.Format(CmdGetContentAttributeByName, contentId, fieldName), transaction: transaction);
         }
 
         public ContentAttributePersistentData GetContentAttributeByNetName(int contentId, string fieldNetName, IDbTransaction transaction = null)
         {
-            _logger.Trace("Get content field by .NET name from DB");
+            _logger.ForTraceEvent().Message("Get content field by .NET name from DB")
+                .Property("contentId", contentId)
+                .Property("fieldNetName", fieldNetName)
+                .Log();
             return UnitOfWork.Connection.QueryFirstOrDefault<ContentAttributePersistentData>(
                 string.Format(CmdGetContentAttributeByNetName, contentId, fieldNetName), transaction: transaction);
         }
@@ -193,7 +201,11 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
                 expiry,
                 () =>
                 {
-                    _logger.Trace("Get contents and fields from DB");
+                    _logger.ForTraceEvent().Message("Get contents and fields from DB")
+                        .Property("parameters", parametersList)
+                        .Property("cacheKey", cacheKey)
+                        .Property("expiry", expiry)
+                        .Log();
                     return UnitOfWork.Connection.Query<ContentAttributePersistentData>(query, parameters, transaction);
                 });
 

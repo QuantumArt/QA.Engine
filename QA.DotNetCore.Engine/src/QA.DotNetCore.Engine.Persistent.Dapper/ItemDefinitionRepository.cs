@@ -80,7 +80,17 @@ FROM |QPDiscriminator|
                 cacheKey,
                 cacheTags,
                 expiry,
-                () => connection.Query<ItemDefinitionPersistentData>(query, transaction).ToList());
+                () =>
+                {
+                    _logger.ForTraceEvent().Message("Get all item definitions")
+                        .Property("siteId", siteId)
+                        .Property("isStage", isStage)
+                        .Property("cacheKey", cacheKey)
+                        .Property("cacheTags", cacheTags)
+                        .Property("expiry", expiry)
+                        .Log();
+                    return connection.Query<ItemDefinitionPersistentData>(query, transaction).ToList();
+                });
         }
     }
 }

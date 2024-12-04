@@ -71,8 +71,12 @@ FROM |QPDiscriminator|
             var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAll, siteId, isStage, potentiallyMissingColumns: _potentiallyMissingColumns);
 
             var cacheKey = query;
-            var cacheTags = _netNameQueryAnalyzer.GetContentNetNames(CmdGetAll, siteId, isStage)
-                .Select(name => _qpContentCacheTagNamingProvider.GetByNetName(name, siteId, isStage))
+            var contentNetNames = _netNameQueryAnalyzer
+                .GetContentNetNames(CmdGetAll, siteId, isStage)
+                .ToArray();
+            var cacheTags = _qpContentCacheTagNamingProvider
+                .GetByContentNetNames(contentNetNames, siteId, isStage)
+                .Select(n => n.Value)
                 .ToArray();
             var expiry = _cacheSettings.ItemDefinitionCachePeriod;
 

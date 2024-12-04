@@ -8,6 +8,7 @@ using QA.DotNetCore.Engine.QpData.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NLog;
 using QA.DotNetCore.Caching;
 
 namespace QA.DotNetCore.Engine.QpData
@@ -17,6 +18,7 @@ namespace QA.DotNetCore.Engine.QpData
     /// </summary>
     public class GranularCacheAbstractItemStorageProvider : IAbstractItemStorageProvider
     {
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly IAbstractItemContextStorageBuilder _builder;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly IAbstractItemRepository _abstractItemRepository;
@@ -50,25 +52,37 @@ namespace QA.DotNetCore.Engine.QpData
             int siteId = _buildSettings.SiteId;
             bool isStage = _buildSettings.IsStage;
 
+            var cacheTags = _qpContentCacheTagNamingProvider.GetByContentNetNames(
+                new[] { KnownNetNames.AbstractItem, KnownNetNames.ItemDefinition }, siteId, isStage);
+
             var tags = new WidgetsAndPagesCacheTags
             {
-                AbstractItemTag = _qpContentCacheTagNamingProvider.GetByNetName(
-                    KnownNetNames.AbstractItem, siteId, isStage),
-                ItemDefinitionTag = _qpContentCacheTagNamingProvider.GetByNetName(
-                    KnownNetNames.ItemDefinition, siteId, isStage),
+                AbstractItemTag = cacheTags[KnownNetNames.AbstractItem],
+                ItemDefinitionTag = cacheTags[KnownNetNames.ItemDefinition],
                 ExtensionsTags = _qpContentCacheTagNamingProvider.GetByContentIds(
-                    extensionsWithAbsItems.Keys.ToArray(), isStage)
+                    extensionsWithAbsItems.Keys.Where(n => n > 0).ToArray(), isStage)
             };
 
             TimeSpan expiry = _cacheSettings.SiteStructureCachePeriod;
+            TimeSpan waitTimeout = _buildSettings.CacheFetchTimeoutAbstractItemStorage;
             const string cacheKey = nameof(GranularCacheAbstractItemStorageProvider) + "." + nameof(Get);
 
             return _memoryCacheProvider.GetOrAdd(
                 cacheKey,
                 tags.AllTags,
                 expiry,
-                () => BuildStorageWithCache(extensionsWithAbsItems, tags),
-                _buildSettings.CacheFetchTimeoutAbstractItemStorage,
+                () =>
+                {
+                    _logger.ForInfoEvent().Message("Building storage")
+                        .Property("cacheKey", cacheKey)
+                        .Property("cacheTags", tags.AllTags)
+                        .Property("expiry", expiry)
+                        .Property("waitTimeout", waitTimeout)
+                        .Log();
+
+                    return BuildStorageWithCache(extensionsWithAbsItems, tags);
+                },
+                waitTimeout,
                 true);
         }
 

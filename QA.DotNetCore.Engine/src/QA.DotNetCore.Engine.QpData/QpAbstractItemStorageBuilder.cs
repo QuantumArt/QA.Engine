@@ -348,19 +348,16 @@ namespace QA.DotNetCore.Engine.QpData
 
         private WidgetsAndPagesCacheTags GetTags(IEnumerable<int> extensions)
         {
-            string abstractItemTag = _qpContentCacheTagNamingProvider
-                .GetByNetName(KnownNetNames.AbstractItem, _buildSettings.SiteId, _buildSettings.IsStage);
-
-            string itemDefinitionTag = _qpContentCacheTagNamingProvider
-                .GetByNetName(KnownNetNames.ItemDefinition, _buildSettings.SiteId, _buildSettings.IsStage);
-
+            var knownNetNames = new[] { KnownNetNames.AbstractItem, KnownNetNames.ItemDefinition };
+            var cacheTags = _qpContentCacheTagNamingProvider.GetByContentNetNames(
+                knownNetNames, _buildSettings.SiteId, _buildSettings.IsStage);
             Dictionary<int, string> extensionsTags = _qpContentCacheTagNamingProvider
                 .GetByContentIds(extensions.Where(n => n > 0).ToArray(), _buildSettings.IsStage);
 
             return new WidgetsAndPagesCacheTags
             {
-                AbstractItemTag = abstractItemTag,
-                ItemDefinitionTag = itemDefinitionTag,
+                AbstractItemTag = cacheTags[KnownNetNames.AbstractItem],
+                ItemDefinitionTag = cacheTags[KnownNetNames.ItemDefinition],
                 ExtensionsTags = extensionsTags
             };
         }

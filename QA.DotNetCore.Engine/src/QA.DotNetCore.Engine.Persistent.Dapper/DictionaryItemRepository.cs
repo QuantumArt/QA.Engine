@@ -86,8 +86,12 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper
             var rawQuery = GetCmdGetAll(settings);
             var query = _netNameQueryAnalyzer.PrepareQuery(rawQuery, siteId, isStage);
             var cacheKey = query;
-            var cacheTags = _netNameQueryAnalyzer.GetContentNetNames(rawQuery, siteId, isStage)
-                .Select(name => _qpContentCacheTagNamingProvider.GetByNetName(name, siteId, isStage))
+            var contentNetNames = _netNameQueryAnalyzer
+                .GetContentNetNames(rawQuery, siteId, isStage)
+                .ToArray();
+            var cacheTags = _qpContentCacheTagNamingProvider
+                .GetByContentNetNames(contentNetNames, siteId, isStage)
+                .Select(n => n.Value)
                 .ToArray();
             var expiry = _cacheSettings.ItemDefinitionCachePeriod;
             return _cacheProvider.GetOrAdd(

@@ -56,7 +56,7 @@ namespace QA.DotNetCore.Engine.QpData
 
         public AbstractItemStorage BuildStorage(AbstractItem[] abstractItems)
         {
-            _logger.ForDebugEvent()
+            _logger.ForTraceEvent()
                 .Message("AbstractItemStorage build (from AbstractItem array) started")
                 .Property("buildId", _context.Id)
                 .Property("siteId", _buildSettings.SiteId)
@@ -82,7 +82,7 @@ namespace QA.DotNetCore.Engine.QpData
                 throw new ArgumentNullException(nameof(_context));
             }
 
-            _logger.ForDebugEvent()
+            _logger.ForTraceEvent()
                 .Message("AbstractItemStorage build (from AbstractItemPersistentData array) started")
                 .Property("buildId", _context.Id)
                 .Property("siteId", _buildSettings.SiteId)
@@ -466,9 +466,9 @@ namespace QA.DotNetCore.Engine.QpData
                     _serviceProvider.GetRequiredService<IUnitOfWork>();
                     _logger.Trace("Done");
                 }
-                catch (Exception ex)
+                catch (ObjectDisposedException)
                 {
-                    _logger.Trace(ex, "Failed. Creating new scope instead");
+                    _logger.Trace("Failed. Creating new scope instead");
                     currentProviderFailed = true;
                 }
             }

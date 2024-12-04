@@ -12,5 +12,7 @@ namespace QA.DotNetCore.Caching
             Name = name ?? throw new ArgumentNullException(nameof(name));
             Modified = modified;
         }
+
+        public override string ToString() => Name + " - " + Modified.ToLongTimeString();
     }
 }

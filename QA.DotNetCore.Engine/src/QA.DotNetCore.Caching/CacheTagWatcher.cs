@@ -65,11 +65,13 @@ namespace QA.DotNetCore.Caching
                 ? currentModifications.Except(previousModifications).ToArray()
                 : Array.Empty<CacheTagModification>();
 
-            var changedModificationsString = String.Join(", ", changedModifications.Select(
-                n => n.Name + " - " + n.Modified.ToLongTimeString()
-            ));
-            _logger.ForDebugEvent()
-                .Message($"Changed modifications: ({changedModificationsString})")
+            var modifications = changedModifications
+                .Select(n => n.ToString())
+                .ToArray();
+
+            _logger.ForTraceEvent()
+                .Message($"Changed modifications")
+                .Property("modifications", modifications)
                 .Log();
 
             if (changedModifications.Length <= 0)

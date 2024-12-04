@@ -53,9 +53,9 @@ namespace QA.DotNetCore.Caching
             if (_cleanInterval != default)
             {
                 var timeToDelete = DateTime.Now - _cleanInterval;
-                _logger.Debug($"Cache locker cleaning older than {timeToDelete} started.");
+                _logger.Trace($"Cache locker cleaning older than {timeToDelete} started.");
                 _lockFactory.DeleteLocksOlderThan(timeToDelete);
-                _logger.Debug("Cache locker cleaning completed.");
+                _logger.Trace("Cache locker cleaning completed.");
             }
         }
     }

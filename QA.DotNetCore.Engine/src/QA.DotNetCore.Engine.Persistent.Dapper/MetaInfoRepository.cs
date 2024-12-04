@@ -39,7 +39,8 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
                 {
                     _unitOfWork = _serviceProvider.GetRequiredService<IUnitOfWork>();
                     _logger.ForTraceEvent()
-                        .Message("Received UnitOfWork {unitOfWorkId} from ServiceProvider", _unitOfWork.Id)
+                        .Message("Received UnitOfWork from ServiceProvider")
+                        .Property("unitOfWorkId", _unitOfWork.Id)
                         .Log();
                 }
                 return _unitOfWork;
@@ -116,6 +117,7 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
         {
             _logger.ForTraceEvent().Message("Get site info from DB")
                 .Property("siteId", siteId)
+                .Property("unitOfWorkId", UnitOfWork.Id)
                 .Log();
             return UnitOfWork.Connection.QueryFirst<QpSitePersistentData>(string.Format(CmdGetSite, siteId), transaction: transaction);
         }
@@ -130,6 +132,7 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
             _logger.ForTraceEvent().Message("Get content field by name from DB")
                 .Property("contentId", contentId)
                 .Property("fieldName", fieldName)
+                .Property("unitOfWorkId", UnitOfWork.Id)
                 .Log();
             return UnitOfWork.Connection.QueryFirstOrDefault<ContentAttributePersistentData>(
                 string.Format(CmdGetContentAttributeByName, contentId, fieldName), transaction: transaction);
@@ -140,6 +143,7 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
             _logger.ForTraceEvent().Message("Get content field by .NET name from DB")
                 .Property("contentId", contentId)
                 .Property("fieldNetName", fieldNetName)
+                .Property("unitOfWorkId", UnitOfWork.Id)
                 .Log();
             return UnitOfWork.Connection.QueryFirstOrDefault<ContentAttributePersistentData>(
                 string.Format(CmdGetContentAttributeByNetName, contentId, fieldNetName), transaction: transaction);
@@ -207,6 +211,7 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
                         .Property("siteId", siteId)
                         .Property("cacheKey", cacheKey)
                         .Property("expiry", expiry)
+                        .Property("unitOfWorkId", UnitOfWork.Id)
                         .Log();
                     return UnitOfWork.Connection.Query<ContentAttributePersistentData>(query, parameters, transaction);
                 });

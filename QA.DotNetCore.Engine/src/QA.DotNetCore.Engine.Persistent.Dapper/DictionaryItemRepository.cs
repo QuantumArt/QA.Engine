@@ -27,7 +27,8 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper
             {
                 var uow = _serviceProvider.GetRequiredService<IUnitOfWork>();
                 _logger.ForTraceEvent()
-                    .Message("Received UnitOfWork {unitOfWorkId} from ServiceProvider", uow.Id)
+                    .Message("Received UnitOfWork from ServiceProvider")
+                    .Property("unitOfWorkId", uow.Id)
                     .Log();
                 return uow;
             }
@@ -82,7 +83,6 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper
 
         public IEnumerable<DictionaryItemPersistentData> GetAllDictionaryItems(DictionarySettings settings, int siteId, bool isStage, IDbTransaction transaction = null)
         {
-            var connection = UnitOfWork.Connection;
             var rawQuery = GetCmdGetAll(settings);
             var query = _netNameQueryAnalyzer.PrepareQuery(rawQuery, siteId, isStage);
             var cacheKey = query;
@@ -106,8 +106,9 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper
                         .Property("cacheKey", cacheKey)
                         .Property("cacheTags", cacheTags)
                         .Property("expiry", expiry)
+                        .Property("unitOfWorkId", UnitOfWork.Id)
                         .Log();
-                    return connection.Query<DictionaryItemPersistentData>(query, transaction).ToList();
+                    return UnitOfWork.Connection.Query<DictionaryItemPersistentData>(query, transaction).ToList();
                 });
         }
     }

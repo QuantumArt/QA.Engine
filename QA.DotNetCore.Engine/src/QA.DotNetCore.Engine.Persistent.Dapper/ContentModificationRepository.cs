@@ -33,7 +33,8 @@ INNER JOIN CONTENT c on c.CONTENT_ID = cm.CONTENT_ID";
                 {
                     _unitOfWork = _serviceProvider.GetRequiredService<IUnitOfWork>();
                     _logger.ForTraceEvent()
-                        .Message("Received UnitOfWork {unitOfWorkId} from ServiceProvider", _unitOfWork.Id)
+                        .Message("Received UnitOfWork from ServiceProvider")
+                        .Property("unitOfWorkId", _unitOfWork.Id)
                         .Log();
                 }
                 return _unitOfWork;
@@ -44,7 +45,10 @@ INNER JOIN CONTENT c on c.CONTENT_ID = cm.CONTENT_ID";
 
         public IEnumerable<QpContentModificationPersistentData> GetAll(IDbTransaction transaction = null)
         {
-            _logger.Trace("Received content modifications");
+            _logger.ForTraceEvent().Message("Received content modifications")
+                .Property("unitOfWorkId", UnitOfWork.Id)
+                .Log();
+
             return UnitOfWork.Connection.Query<QpContentModificationPersistentData>(CmdGetAll, transaction);
         }
     }

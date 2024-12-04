@@ -42,7 +42,8 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             {
                 var uow = _serviceProvider.GetRequiredService<IUnitOfWork>();
                 _logger.ForTraceEvent()
-                    .Message("Received UnitOfWork {unitOfWorkId} from ServiceProvider", uow.Id)
+                    .Message("Received UnitOfWork from ServiceProvider")
+                    .Property("unitOfWorkId", uow.Id)
                     .Log();
                 return uow;
             }
@@ -67,7 +68,6 @@ FROM |QPDiscriminator|
 
         public IEnumerable<ItemDefinitionPersistentData> GetAllItemDefinitions(int siteId, bool isStage, IDbTransaction transaction = null)
         {
-            var connection = UnitOfWork.Connection;
             var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAll, siteId, isStage, potentiallyMissingColumns: _potentiallyMissingColumns);
 
             var cacheKey = query;
@@ -92,8 +92,9 @@ FROM |QPDiscriminator|
                         .Property("cacheKey", cacheKey)
                         .Property("cacheTags", cacheTags)
                         .Property("expiry", expiry)
+                        .Property("unitOfWorkId", UnitOfWork.Id)
                         .Log();
-                    return connection.Query<ItemDefinitionPersistentData>(query, transaction).ToList();
+                    return UnitOfWork.Connection.Query<ItemDefinitionPersistentData>(query, transaction).ToList();
                 });
         }
     }

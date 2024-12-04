@@ -30,7 +30,8 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper
                 {
                     _unitOfWork = _serviceProvider.GetRequiredService<IUnitOfWork>();
                     _logger.ForTraceEvent()
-                        .Message("Received UnitOfWork {unitOfWorkId} from ServiceProvider", _unitOfWork.Id)
+                        .Message("Received UnitOfWork from ServiceProvider")
+                        .Property("unitOfWorkId", _unitOfWork.Id)
                         .Log();
                 }
                 return _unitOfWork;
@@ -131,6 +132,7 @@ JOIN |AbTestClientRedirectContainer| rcont on rcont.content_item_id = r.|AbTestC
             _logger.ForTraceEvent().Message("Get test containers")
                 .Property("siteId", siteId)
                 .Property("isStage", isStage)
+                .Property("unitOfWorkId", UnitOfWork.Id)
                 .Log();
             var containerType = "AbTestScriptContainer";
             var scriptContainersDict = UnitOfWork.Connection.Query<AbTestScriptContainerPersistentData>(scriptContainersQuery, new { currentDate, onlyActive = onlyActive ? 1 : 0, containerType }, transaction).ToDictionary(_ => _.Id);
@@ -142,6 +144,7 @@ JOIN |AbTestClientRedirectContainer| rcont on rcont.content_item_id = r.|AbTestC
                 .Property("currentDate", currentDate)
                 .Property("onlyActive", onlyActive)
                 .Property("containerType", containerType)
+                .Property("unitOfWorkId", UnitOfWork.Id)
                 .Log();
             var scripts = UnitOfWork.Connection.Query<AbTestScriptPersistentData>(scriptQuery, transaction: transaction);
 
@@ -157,6 +160,7 @@ JOIN |AbTestClientRedirectContainer| rcont on rcont.content_item_id = r.|AbTestC
             _logger.ForTraceEvent().Message("Get redirect containers")
                 .Property("siteId", siteId)
                 .Property("isStage", isStage)
+                .Property("unitOfWorkId", UnitOfWork.Id)
                 .Log();
             var redirectContainersDict = UnitOfWork.Connection.Query<AbTestClientRedirectContainerPersistentData>(redirectContainersQuery, new { currentDate, onlyActive = (onlyActive ? 1 : 0), containerType = "AbTestClientRedirectContainer" }, transaction).ToDictionary(_ => _.Id);
 
@@ -164,6 +168,7 @@ JOIN |AbTestClientRedirectContainer| rcont on rcont.content_item_id = r.|AbTestC
             _logger.ForTraceEvent().Message("Get redirects")
                 .Property("siteId", siteId)
                 .Property("isStage", isStage)
+                .Property("unitOfWorkId", UnitOfWork.Id)
                 .Log();
             var redirects = UnitOfWork.Connection.Query<AbTestClientRedirectPersistentData>(redirectQuery, transaction: transaction);
 
@@ -185,6 +190,7 @@ JOIN |AbTestClientRedirectContainer| rcont on rcont.content_item_id = r.|AbTestC
             _logger.ForTraceEvent().Message("Get tests")
                 .Property("siteId", siteId)
                 .Property("isStage", isStage)
+                .Property("unitOfWorkId", UnitOfWork.Id)
                 .Log();
             return UnitOfWork.Connection.Query<AbTestPersistentData>(query, new { currentDate = DateTime.Now, onlyActive = (onlyActive ? 1 : 0) }, transaction);
         }

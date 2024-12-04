@@ -48,7 +48,8 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
                 {
                     _unitOfWork = _serviceProvider.GetRequiredService<IUnitOfWork>();
                     _logger.ForTraceEvent()
-                        .Message("Received UnitOfWork {unitOfWorkId} from ServiceProvider", _unitOfWork.Id)
+                        .Message("Received UnitOfWork from ServiceProvider")
+                        .Property("unitOfWorkId", _unitOfWork.Id)
                         .Log();
                 }
                 return _unitOfWork;
@@ -100,6 +101,7 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
                         .Property("cacheKey", cacheKey)
                         .Property("cacheTags", cacheTags)
                         .Property("expiry", expiry)
+                        .Property("unitOfWorkId", UnitOfWork.Id)
                         .Log();
 
                     return UnitOfWork.Connection.Query<AbstractItemPersistentData>(query, transaction: transaction);
@@ -132,6 +134,7 @@ JOIN {idListTableName} on Id = ext.CONTENT_ID";
 
             _logger.ForTraceEvent().Message("Get abstract items extension ids")
                 .Property("extensionContentIds", extensionContentIds)
+                .Property("unitOfWorkId", UnitOfWork.Id)
                 .Log();
 
             using var command = UnitOfWork.Connection.CreateCommand();
@@ -171,6 +174,7 @@ JOIN {baseContent.GetTableName(isStage)} ai {withNoLock} on ai.content_item_id =
                 .Property("extensionContentId", extensionContentId)
                 .Property("loadAbstractItemFields", loadAbstractItemFields)
                 .Property("isStage", isStage)
+                .Property("unitOfWorkId", UnitOfWork.Id)
                 .Log();
 
             using var command = UnitOfWork.Connection.CreateCommand();
@@ -195,6 +199,7 @@ JOIN {idListTable} on Id = ai.Content_item_id";
             _logger.ForTraceEvent().Message("Get abstract items extensionless data")
                 .Property("ids", ids)
                 .Property("isStage", isStage)
+                .Property("unitOfWorkId", UnitOfWork.Id)
                 .Log();
 
             using var command = UnitOfWork.Connection.CreateCommand();
@@ -254,6 +259,7 @@ WHERE ci.archive = 0";
             _logger.ForTraceEvent().Message("Get M2M data for articles")
                 .Property("ids", itemIds)
                 .Property("isStage", isStage)
+                .Property("unitOfWorkId", UnitOfWork.Id)
                 .Log();
 
             using var command = UnitOfWork.Connection.CreateCommand();
@@ -284,6 +290,7 @@ JOIN {idListTableName} on Id = e.CONTENT_ID";
             _logger.ForTraceEvent().Message("Get M2M data for contents")
                 .Property("contentIds", contentIds)
                 .Property("isStage", isStage)
+                .Property("unitOfWorkId", UnitOfWork.Id)
                 .Log();
 
             using var command = UnitOfWork.Connection.CreateCommand();

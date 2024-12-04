@@ -29,7 +29,8 @@ namespace QA.DotNetCore.Engine.CacheTags
         {
             var unitOfWork = provider.GetRequiredService<IUnitOfWork>();
             _logger.ForTraceEvent()
-                .Message("Received UnitOfWork {unitOfWorkId} from ServiceProvider", unitOfWork.Id)
+                .Message("Received UnitOfWork from ServiceProvider")
+                .Property("unitOfWorkId", unitOfWork.Id)
                 .Log();
             _contentModificationRepository.SetUnitOfWork(unitOfWork);
             _qpContentCacheTagNamingProvider.SetUnitOfWork(unitOfWork);

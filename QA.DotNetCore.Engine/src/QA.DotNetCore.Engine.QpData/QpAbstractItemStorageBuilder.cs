@@ -325,7 +325,7 @@ namespace QA.DotNetCore.Engine.QpData
             IDictionary<int, AbstractItemPersistentData[]> extensions,
             string[] tags)
         {
-            var cacheKey = $"{nameof(Init)}.{nameof(GetExtensionsManyToManyRelations)}"
+            var cacheKey = $"{nameof(Init)}.{nameof(GetExtensionsManyToManyRelations)}";
             return _cacheProvider.GetOrAdd(
                 cacheKey,
                 tags,

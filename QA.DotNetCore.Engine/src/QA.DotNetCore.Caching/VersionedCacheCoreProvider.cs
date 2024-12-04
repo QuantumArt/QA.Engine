@@ -260,9 +260,16 @@ namespace QA.DotNetCore.Caching
                     {
                         if (deprecatedResult == null)
                         {
+                            _logger.ForTraceEvent().Message("Value in cache have not appeared in specified timeout")
+                                .Property("cacheKey", cacheKey)
+                                .Property("waitTimeout", waitForCalculateTimeout)
+                                .Log();
                             throw new DeprecateCacheIsExpiredOrMissingException();
                         }
-
+                        _logger.ForTraceEvent().Message("Return deprecated result")
+                            .Property("cacheKey", cacheKey)
+                            .Property("waitTimeout", waitForCalculateTimeout)
+                            .Log();
                         result = deprecatedResult;
                     }
                 }
@@ -354,10 +361,17 @@ namespace QA.DotNetCore.Caching
                     {
                         if (deprecatedResult == null)
                         {
+                            _logger.ForTraceEvent().Message("Value in cache have not appeared in specified timeout")
+                                .Property("cacheKey", cacheKey)
+                                .Property("waitTimeout", waitForCalculateTimeout)
+                                .Log();
                             throw new DeprecateCacheIsExpiredOrMissingException();
                         }
 
-                        _logger.Trace("Return deprecated result for key: {key}", cacheKey);
+                        _logger.ForTraceEvent().Message("Return deprecated result")
+                            .Property("cacheKey", cacheKey)
+                            .Property("waitTimeout", waitForCalculateTimeout)
+                            .Log();
                         result = deprecatedResult;
                     }
                 }

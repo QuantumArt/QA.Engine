@@ -18,11 +18,14 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper
         private readonly INetNameQueryAnalyzer _netNameQueryAnalyzer;
         private IUnitOfWork _unitOfWork;
 
-        public AbTestRepository(IServiceProvider serviceProvider, INetNameQueryAnalyzer netNameQueryAnalyzer)
+        public AbTestRepository(
+            IServiceProvider serviceProvider,
+            INetNameQueryAnalyzer netNameQueryAnalyzer,
+            ILogger<AbTestRepository> logger)
         {
             _serviceProvider = serviceProvider;
             _netNameQueryAnalyzer = netNameQueryAnalyzer;
-            _logger = _serviceProvider.GetService<ILogger<AbTestRepository>>();
+            _logger = logger;
         }
 
         protected IUnitOfWork UnitOfWork {

@@ -22,10 +22,10 @@ SELECT c.CONTENT_ID as ContentId, c.CONTENT_NAME as ContentName, c.SITE_ID as Si
 FROM CONTENT_MODIFICATION cm
 INNER JOIN CONTENT c on c.CONTENT_ID = cm.CONTENT_ID";
 
-        public ContentModificationRepository(IServiceProvider serviceProvider)
+        public ContentModificationRepository(IServiceProvider serviceProvider, ILogger<ContentModificationRepository> logger)
         {
             _serviceProvider = serviceProvider;
-            _logger = serviceProvider.GetService<ILogger<ContentModificationRepository>>();
+            _logger = logger;
         }
 
         protected IUnitOfWork UnitOfWork {

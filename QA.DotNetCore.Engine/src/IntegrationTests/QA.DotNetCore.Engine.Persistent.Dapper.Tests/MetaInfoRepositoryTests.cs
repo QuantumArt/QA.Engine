@@ -25,7 +25,7 @@ public class MetaInfoRepositoryTests
             new MemoryLockFactory(new LoggerFactory()),
             new LoggerFactory());
 
-        _repository = new MetaInfoRepository(serviceProvider, cacheProvider, settings);
+        _repository = new MetaInfoRepository(serviceProvider, cacheProvider, settings, NullLogger<MetaInfoRepository>.Instance);
     }
 
     [Test]

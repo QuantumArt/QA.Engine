@@ -25,9 +25,11 @@ public class AbTestRepositoryTests
             new MemoryLockFactory(new LoggerFactory()),
             new LoggerFactory()
             );
-        var metaRepository = new MetaInfoRepository(serviceProvider, cacheProvider, settings);
+        var metaRepository = new MetaInfoRepository(
+            serviceProvider, cacheProvider, settings, NullLogger<MetaInfoRepository>.Instance
+            );
         var sqlAnalyzer = new NetNameQueryAnalyzer(metaRepository);
-        _repository = new AbTestRepository(serviceProvider, sqlAnalyzer);
+        _repository = new AbTestRepository(serviceProvider, sqlAnalyzer, NullLogger<AbTestRepository>.Instance);
     }
 
     [Test]

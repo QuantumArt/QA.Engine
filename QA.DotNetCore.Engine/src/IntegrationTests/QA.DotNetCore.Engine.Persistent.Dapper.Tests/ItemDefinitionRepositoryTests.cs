@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NUnit.Framework;
 using QA.DotNetCore.Caching;
@@ -24,7 +25,7 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests
                 new CacheKeyFactoryBase(),
                 new MemoryLockFactory(new LoggerFactory()),
                 new LoggerFactory());
-            var metaRepository = new MetaInfoRepository(serviceProvider, cacheProvider, settings);
+            var metaRepository = new MetaInfoRepository(serviceProvider, cacheProvider, settings, NullLogger<MetaInfoRepository>.Instance);
             var sqlAnalyzer = new NetNameQueryAnalyzer(metaRepository);
             _repository = new ItemDefinitionRepository(serviceProvider, sqlAnalyzer, new StubNamingProvider(),
                 cacheProvider, settings);

@@ -26,12 +26,13 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
         public MetaInfoRepository(
             IServiceProvider serviceProvider,
             IMemoryCacheProvider memoryCacheProvider,
-            QpSiteStructureCacheSettings cacheSettings)
+            QpSiteStructureCacheSettings cacheSettings,
+            ILogger<MetaInfoRepository> logger)
         {
             _serviceProvider = serviceProvider;
             _memoryCacheProvider = memoryCacheProvider;
             _cacheSettings = cacheSettings;
-            _logger = serviceProvider.GetService<ILogger<MetaInfoRepository>>();
+            _logger = logger;
         }
 
         protected IUnitOfWork UnitOfWork {

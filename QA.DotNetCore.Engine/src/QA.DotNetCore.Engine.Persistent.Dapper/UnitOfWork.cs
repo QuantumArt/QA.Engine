@@ -1,16 +1,17 @@
-using QA.DotNetCore.Engine.Persistent.Interfaces;
 using System;
 using System.Data;
 using System.Data.SqlClient;
-using NLog;
+using Microsoft.Extensions.Logging;
 using Npgsql;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Logging;
 
 namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private bool _disposed;
+        private readonly ILogger _logger;
 
         public IDbConnection Connection { get; private set; }
 
@@ -20,8 +21,9 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 
         public string Id { get; } = Guid.NewGuid().ToString();
 
-        public UnitOfWork(string connectionString, string dbType, string customerCode = "current")
+        public UnitOfWork(string connectionString, string dbType, ILogger logger, string customerCode = "current")
         {
+            _logger = logger;
             switch (dbType.ToUpperInvariant())
             {
                 case "POSTGRESQL":
@@ -37,10 +39,8 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             }
 
             CustomerCode = customerCode;
-            _logger.ForTraceEvent()
-                .Message("Creating connection for UnitOfWork")
-                .Property("unitOfWorkId", Id)
-                .Log();
+            _logger.BeginScopeWith(("unitOfWorkId", Id));
+            _logger.LogTrace("Creating connection for UnitOfWork");
             Connection.Open();
         }
 
@@ -64,10 +64,8 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
                     // Free other state (managed objects).
                     if (Connection.State != ConnectionState.Closed)
                     {
-                        _logger.ForTraceEvent()
-                            .Message("Closing connection for UnitOfWork")
-                            .Property("unitOfWorkId", Id)
-                            .Log();
+                        _logger.BeginScopeWith(("unitOfWorkId", Id));
+                        _logger.LogTrace("Closing connection for UnitOfWork");
                         Connection.Close();
                     }
                 }

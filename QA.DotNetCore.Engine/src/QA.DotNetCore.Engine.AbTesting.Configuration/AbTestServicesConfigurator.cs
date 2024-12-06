@@ -45,10 +45,10 @@ namespace QA.DotNetCore.Engine.AbTesting.Configuration
                 if (String.IsNullOrWhiteSpace(options.QpDatabaseType))
                     throw new Exception("QpDatabaseType is not configured.");
 
-                services.AddScoped<IUnitOfWork>(sp =>
-                {
-                    return new UnitOfWork(options.QpConnectionString, options.QpDatabaseType);
-                });
+                services.AddScoped<IUnitOfWork>(sp => new UnitOfWork(
+                    options.QpConnectionString,
+                    options.QpDatabaseType,
+                    sp.GetRequiredService<ILogger<UnitOfWork>>()));
             }
 
             services.TryAddSiteStructureRepositories();

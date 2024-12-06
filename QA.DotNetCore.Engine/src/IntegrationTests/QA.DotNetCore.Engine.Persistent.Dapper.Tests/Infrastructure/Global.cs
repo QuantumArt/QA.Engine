@@ -31,7 +31,7 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure
 
         public static string DbType => !String.IsNullOrEmpty(EnvHelpers.PgDbLoginToRunTests) ? "pg" : "mssql";
 
-        public static UnitOfWork CreateConnection => new(ConnectionString, DbType);
+        public static UnitOfWork CreateConnection => new(ConnectionString, DbType, NullLogger.Instance);
 
         public static IServiceProvider CreateMockServiceProviderWithConnection()
         {

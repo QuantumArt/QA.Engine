@@ -32,7 +32,7 @@ namespace QA.DotNetCore.Caching
         public void TrackChanges()
         {
             var checkId = Guid.NewGuid().ToString();
-            using var _ = _logger.BeginScopeWith(("invalidationId", checkId));
+            _logger.BeginScopeWith(("invalidationId", checkId));
             _logger.LogInformation("Invalidation started");
             _modificationStateStorage.Update(previousModifications =>
             {
@@ -63,7 +63,7 @@ namespace QA.DotNetCore.Caching
             var modifications = changedModifications
                 .Select(n => n.ToString())
                 .ToArray();
-            using var logScope = _logger.BeginScopeWith(("modifications", modifications));
+            _logger.BeginScopeWith(("modifications", modifications));
             _logger.LogTrace("Changed modifications");
 
             if (changedModifications.Length <= 0)

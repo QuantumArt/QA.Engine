@@ -1,15 +1,16 @@
-using Dapper;
-using Microsoft.Extensions.DependencyInjection;
-using QA.DotNetCore.Caching.Interfaces;
-using QA.DotNetCore.Engine.Persistent.Dapper;
-using QA.DotNetCore.Engine.Persistent.Interfaces;
-using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
-using QA.DotNetCore.Engine.QpData.Settings;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using NLog;
+using Dapper;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using QA.DotNetCore.Caching.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Dapper;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Logging;
+using QA.DotNetCore.Engine.QpData.Settings;
 
 namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
@@ -18,7 +19,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
         private static readonly IReadOnlyDictionary<int, M2MRelations> _emptyResult =
             new Dictionary<int, M2MRelations>();
 
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly ILogger _logger;
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         private readonly ICacheProvider _cacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
@@ -38,6 +39,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
             _cacheProvider = cacheProvider;
             _cacheSettings = cacheSettings;
+            _logger = _serviceProvider.GetService<ILogger<AbstractItemRepository>>();
         }
 
         protected IUnitOfWork UnitOfWork
@@ -47,10 +49,8 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
                 if (_unitOfWork == null)
                 {
                     _unitOfWork = _serviceProvider.GetRequiredService<IUnitOfWork>();
-                    _logger.ForTraceEvent()
-                        .Message("Received UnitOfWork from ServiceProvider")
-                        .Property("unitOfWorkId", _unitOfWork.Id)
-                        .Log();
+                    _logger.BeginScopeWith(("unitOfWorkId", _unitOfWork.Id));
+                    _logger.LogTrace("Received UnitOfWork from ServiceProvider");
                 }
                 return _unitOfWork;
             }
@@ -95,15 +95,14 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
                 expiry,
                 () =>
                 {
-                    _logger.ForTraceEvent().Message("Get all abstract items")
-                        .Property("siteId", siteId)
-                        .Property("isStage", isStage)
-                        .Property("cacheKey", cacheKey)
-                        .Property("cacheTags", cacheTags)
-                        .Property("expiry", expiry)
-                        .Property("unitOfWorkId", UnitOfWork.Id)
-                        .Log();
-
+                    _logger.BeginScopeWith(
+                        ("unitOfWorkId", UnitOfWork.Id),
+                        ("siteId", siteId),
+                        ("isStage", isStage),
+                        ("cacheKey", cacheKey),
+                        ("cacheTags", cacheTags),
+                        ("expiry", expiry));
+                    _logger.LogTrace("Get all abstract items");
                     return UnitOfWork.Connection.Query<AbstractItemPersistentData>(query, transaction: transaction);
                 });
         }
@@ -132,10 +131,10 @@ JOIN {idListTableName} on Id = ext.CONTENT_ID";
                 extensionContentIds.Where(id => id != 0),
                 UnitOfWork.DatabaseType);
 
-            _logger.ForTraceEvent().Message("Get abstract items extension ids")
-                .Property("extensionContentIds", extensionContentIds)
-                .Property("unitOfWorkId", UnitOfWork.Id)
-                .Log();
+            _logger.BeginScopeWith(
+                ("unitOfWorkId", UnitOfWork.Id),
+                ("extensionContentIds", extensionContentIds));
+            _logger.LogTrace("Get abstract items extension ids");
 
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = extensionItemsQuery;
@@ -170,12 +169,12 @@ SELECT cast(ai.content_item_id as numeric) as Id{extFields}, ai.*
 FROM {extTableName} ext {withNoLock}
 JOIN {baseContent.GetTableName(isStage)} ai {withNoLock} on ai.content_item_id = ext.itemid";
 
-            _logger.ForTraceEvent().Message("Get abstract items extension data")
-                .Property("extensionContentId", extensionContentId)
-                .Property("loadAbstractItemFields", loadAbstractItemFields)
-                .Property("isStage", isStage)
-                .Property("unitOfWorkId", UnitOfWork.Id)
-                .Log();
+            _logger.BeginScopeWith(
+                ("unitOfWorkId", UnitOfWork.Id),
+                ("extensionContentId", extensionContentId),
+                ("loadAbstractItemFields", loadAbstractItemFields),
+                ("isStage", isStage));
+            _logger.LogTrace("Get abstract items extension data");
 
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = query;
@@ -196,11 +195,11 @@ JOIN {baseContent.GetTableName(isStage)} ai {withNoLock} on ai.content_item_id =
 SELECT * FROM {baseContent.GetTableName(isStage)} ai {withNoLock}
 JOIN {idListTable} on Id = ai.Content_item_id";
 
-            _logger.ForTraceEvent().Message("Get abstract items extensionless data")
-                .Property("ids", ids)
-                .Property("isStage", isStage)
-                .Property("unitOfWorkId", UnitOfWork.Id)
-                .Log();
+            _logger.BeginScopeWith(
+                ("unitOfWorkId", UnitOfWork.Id),
+                ("ids", ids),
+                ("isStage", isStage));
+            _logger.LogTrace("Get abstract items extensionless data");
 
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = extFieldsQuery;
@@ -256,11 +255,11 @@ JOIN {idListTable} on Id = link.item_id
 JOIN content_item ci {withNoLock} on ci.content_item_id = link.linked_item_id
 WHERE ci.archive = 0";
 
-            _logger.ForTraceEvent().Message("Get M2M data for articles")
-                .Property("ids", itemIds)
-                .Property("isStage", isStage)
-                .Property("unitOfWorkId", UnitOfWork.Id)
-                .Log();
+            _logger.BeginScopeWith(
+                ("unitOfWorkId", UnitOfWork.Id),
+                ("ids", itemIds),
+                ("isStage", isStage));
+            _logger.LogTrace("Get M2M data for articles");
 
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = query;
@@ -287,11 +286,11 @@ FROM {m2MTableName} link {withNoLock}
 JOIN CONTENT_ITEM e {withNoLock} ON e.CONTENT_ITEM_ID = link.item_id
 JOIN {idListTableName} on Id = e.CONTENT_ID";
 
-            _logger.ForTraceEvent().Message("Get M2M data for contents")
-                .Property("contentIds", contentIds)
-                .Property("isStage", isStage)
-                .Property("unitOfWorkId", UnitOfWork.Id)
-                .Log();
+            _logger.BeginScopeWith(
+                ("unitOfWorkId", UnitOfWork.Id),
+                ("contentIds", contentIds),
+                ("isStage", isStage));
+            _logger.LogTrace("Get M2M data for contents");
 
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = query;

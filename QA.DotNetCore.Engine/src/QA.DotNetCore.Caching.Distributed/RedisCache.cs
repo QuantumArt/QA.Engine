@@ -1,6 +1,3 @@
-using Microsoft.Extensions.Options;
-using QA.DotNetCore.Caching.Interfaces;
-using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,9 +7,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.GZip;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using NLog;
 using QA.DotNetCore.Caching.Distributed.Internals;
+using StackExchange.Redis;
 
 namespace QA.DotNetCore.Caching.Distributed
 {
@@ -65,7 +64,7 @@ namespace QA.DotNetCore.Caching.Distributed
             ";
 
         private static readonly Version _leastSupportedServerVersion = new(4, 0, 0);
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly ILogger _logger;
 
         private readonly RedisCacheSettings _options;
         private readonly SemaphoreSlim _connectionLock = new(initialCount: 1, maxCount: 1);
@@ -87,8 +86,10 @@ namespace QA.DotNetCore.Caching.Distributed
         /// Initializes a new instance of <see cref="RedisCache"/>.
         /// </summary>
         /// <param name="optionsAccessor">The configuration options.</param>
+        /// <param name="logger"></param>
         public RedisCache(
-            IOptions<RedisCacheSettings> optionsAccessor)
+            IOptions<RedisCacheSettings> optionsAccessor,
+            ILogger<RedisCache> logger)
         {
             if (optionsAccessor is null)
             {
@@ -96,6 +97,7 @@ namespace QA.DotNetCore.Caching.Distributed
             }
 
             _options = optionsAccessor.Value;
+            _logger = logger;
         }
 
 
@@ -111,7 +113,7 @@ namespace QA.DotNetCore.Caching.Distributed
             }
             catch (CacheDataSerializationException<object> ex)
             {
-                _logger.Info(ex, "Unable to cache value with the key {CacheKey}.", key);
+                _logger.LogInformation(ex, "Unable to cache value with the key {CacheKey}.", key);
                 result = false;
             }
 
@@ -150,7 +152,7 @@ namespace QA.DotNetCore.Caching.Distributed
                 .Select(key => _cache.KeyExists(key))
                 .ToList();
 
-            _logger.Trace(
+            _logger.LogTrace(
                 "Keys {Keys} exist {ExistFlags} (Elapsed: {Elapsed})",
                 keys,
                 existFlags,
@@ -195,7 +197,7 @@ namespace QA.DotNetCore.Caching.Distributed
                 .Select(result => result.State == KeyState.Exist ? result.Value : null)
                 .ToList();
 
-            _logger.Trace("Obtained cached data (Elapsed: {Elapsed})", watch.ElapsedMilliseconds);
+            _logger.LogTrace("Obtained cached data (Elapsed: {Elapsed})", watch.ElapsedMilliseconds);
 
             return cachedData;
         }
@@ -257,7 +259,7 @@ namespace QA.DotNetCore.Caching.Distributed
 
                 Exception[] exceptions = transactionOperations
                     .Where(operation => operation.IsFaulted)
-                    .Select(operation => operation.Exception)
+                    .Select(Exception (operation) => operation.Exception)
                     .ToArray();
 
                 if (exceptions.Any())
@@ -265,7 +267,7 @@ namespace QA.DotNetCore.Caching.Distributed
                     throw new AggregateException(exceptions);
                 }
 
-                _logger.Info(
+                _logger.LogInformation(
                     "Set cache operation is finished " +
                     "(isSet: {SetTransactionStatus}, expiry: {Expiration}, key: {CacheKey}, elapsed: {Elapsed}).",
                     isExecuted,
@@ -277,7 +279,7 @@ namespace QA.DotNetCore.Caching.Distributed
             }
             catch (Exception ex)
             {
-                _logger.Error(
+                _logger.LogError(
                     ex,
                     "Unable to set cache with the key {CacheKey} (Elapsed: {Elapsed})",
                     key,
@@ -341,12 +343,12 @@ namespace QA.DotNetCore.Caching.Distributed
                         value.HasValue ? new CachedValue(KeyState.Exist, (byte[]) value) : CachedValue.Empty)
                     .ToArray();
 
-                _logger.Trace("Keys ({CacheKeys}) have values: {CacheValues}", redisKeys, cachedValues);
+                _logger.LogTrace("Keys ({CacheKeys}) have values: {CacheValues}", redisKeys, cachedValues);
                 return cachedValues;
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Unable to get multiple caches ({CacheKeys}).", redisKeys);
+                _logger.LogError(ex, "Unable to get multiple caches ({CacheKeys}).", redisKeys);
                 return Enumerable.Repeat(CachedValue.Empty, redisKeys.Length);
             }
         }
@@ -467,7 +469,7 @@ namespace QA.DotNetCore.Caching.Distributed
             }
             catch (Exception ex)
             {
-                _logger.Error(
+                _logger.LogError(
                     ex,
                     "Unable to deserialize cached data associated with the key {CacheKey} to type {Type}. " +
                     "Try to erase inconsistent data from cache.",

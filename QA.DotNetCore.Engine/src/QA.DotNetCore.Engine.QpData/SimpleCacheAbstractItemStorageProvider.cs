@@ -1,12 +1,13 @@
+using System;
+using System.Linq;
+using Microsoft.Extensions.Logging;
+using QA.DotNetCore.Caching;
 using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Logging;
 using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Settings;
-using System;
-using System.Linq;
-using NLog;
-using QA.DotNetCore.Caching;
 
 namespace QA.DotNetCore.Engine.QpData
 {
@@ -15,7 +16,7 @@ namespace QA.DotNetCore.Engine.QpData
     /// </summary>
     public class SimpleCacheAbstractItemStorageProvider : IAbstractItemStorageProvider
     {
-        private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        private readonly ILogger _logger;
         private readonly IAbstractItemStorageBuilder _builder;
         private readonly VersionedCacheCoreProvider _memoryCacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
@@ -27,20 +28,22 @@ namespace QA.DotNetCore.Engine.QpData
             IAbstractItemStorageBuilder builder,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
             QpSiteStructureBuildSettings buildSettings,
-            QpSiteStructureCacheSettings cacheSettings)
+            QpSiteStructureCacheSettings cacheSettings,
+            ILogger<SimpleCacheAbstractItemStorageProvider> logger)
         {
             _builder = builder;
             _memoryCacheProvider = memoryCacheProvider;
             _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
             _cacheSettings = cacheSettings;
             _buildSettings = buildSettings;
+            _logger = logger;
         }
 
         public AbstractItemStorage Get()
         {
             if (_cacheSettings.SiteStructureCachePeriod <= TimeSpan.Zero)
             {
-                _logger.Info("Building storage");
+                _logger.LogInformation("Building storage");
                 return _builder.Build();
             }
 
@@ -60,11 +63,11 @@ namespace QA.DotNetCore.Engine.QpData
                 _cacheSettings.SiteStructureCachePeriod,
                 () =>
                 {
-                    _logger.ForInfoEvent().Message("Building storage")
-                        .Property("cacheKey", cacheKey)
-                        .Property("cacheTags", cacheTags)
-                        .Property("expiry", _cacheSettings.SiteStructureCachePeriod)
-                        .Log();
+                    _logger.BeginScopeWith(("cacheKey", cacheKey),
+                        ("cacheTags", cacheTags),
+                        ("expiry", _cacheSettings.SiteStructureCachePeriod));
+                    _logger.LogInformation("Building storage");
+
                     return _builder.Build();
                 },
                 _buildSettings.CacheFetchTimeoutAbstractItemStorage);

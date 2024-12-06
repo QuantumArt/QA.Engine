@@ -1,16 +1,17 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Logging;
 using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Models;
 using QA.DotNetCore.Engine.QpData.Replacements;
 using QA.DotNetCore.Engine.QpData.Settings;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using NLog;
 
 namespace QA.DotNetCore.Engine.QpData
 {
@@ -19,7 +20,7 @@ namespace QA.DotNetCore.Engine.QpData
     /// </summary>
     public class QpAbstractItemStorageBuilder : IAbstractItemStorageBuilder, IAbstractItemContextStorageBuilder
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly ILogger _logger;
         private AbstractItemStorageBuilderContext _context;
 
         private readonly IAbstractItemFactory _itemFactory;
@@ -52,16 +53,16 @@ namespace QA.DotNetCore.Engine.QpData
             _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
             _cacheProvider = cacheProvider;
             _cacheSettings = cacheSettings;
+            _logger = _serviceProvider.GetService<ILogger<QpAbstractItemStorageBuilder>>();
         }
 
         public AbstractItemStorage BuildStorage(AbstractItem[] abstractItems)
         {
-            _logger.ForTraceEvent()
-                .Message("AbstractItemStorage build (from AbstractItem array) started")
-                .Property("buildId", _context.Id)
-                .Property("siteId", _buildSettings.SiteId)
-                .Property("isStage", _buildSettings.IsStage)
-                .Log();
+            _logger.BeginScopeWith(("buildId", _context.Id),
+                ("siteId", _buildSettings.SiteId),
+                ("isStage", _buildSettings.IsStage));
+
+            _logger.LogTrace("AbstractItemStorage build (from AbstractItem array) started");
 
             var root = abstractItems.First(x => x.Discriminator == _buildSettings.RootPageDiscriminator);
             return new AbstractItemStorage(root, abstractItems);
@@ -82,14 +83,16 @@ namespace QA.DotNetCore.Engine.QpData
                 throw new ArgumentNullException(nameof(_context));
             }
 
-            _logger.ForTraceEvent()
-                .Message("AbstractItemStorage build (from AbstractItemPersistentData array) started")
-                .Property("buildId", _context.Id)
-                .Property("siteId", _buildSettings.SiteId)
-                .Property("isStage", _buildSettings.IsStage)
-                .Property("contentId", extensionContentId)
-                .Property("lazyLoad", lazyLoad)
-                .Log();
+            _logger.BeginScopeWith(("buildId", _context.Id));
+
+            using (_logger.BeginScopeWith(
+                       ("siteId", _buildSettings.SiteId),
+                       ("isStage", _buildSettings.IsStage),
+                       ("contentId", extensionContentId),
+                       ("lazyLoad", lazyLoad)))
+            {
+                _logger.LogTrace("AbstractItemStorage build (from AbstractItemPersistentData array) started");
+            }
 
             var activatedAbstractItems = new Dictionary<int, AbstractItem>();
             //первый проход списка - активируем, т.е. создаём AbstractItem-ы с правильным типом и набором заполненных полей, запоминаем root
@@ -105,10 +108,7 @@ namespace QA.DotNetCore.Engine.QpData
                 activatedAbstractItems.Add(persistentItem.Id, activatedItem);
             }
 
-            _logger.ForTraceEvent()
-                .Message("Activated abstract items: {count}", activatedAbstractItems.Count)
-                .Property("buildId", _context.Id)
-                .Log();
+            _logger.LogTrace("Activated abstract items: {count}", activatedAbstractItems.Count);
 
             if (extensionContentId > 0 || _buildSettings.LoadAbstractItemFieldsToDetailsCollection)
             {
@@ -123,10 +123,7 @@ namespace QA.DotNetCore.Engine.QpData
             }
             else
             {
-                _logger.ForTraceEvent()
-                    .Message("Skip load data for extensionless elements")
-                    .Property("buildId", _context.Id)
-                    .Log();
+                _logger.LogTrace("Skip load data for extensionless elements");
             }
 
             //догрузим связи m2m в основном контенте, если это нужно
@@ -304,13 +301,12 @@ namespace QA.DotNetCore.Engine.QpData
                 _cacheSettings.SiteStructureCachePeriod,
                 () =>
                 {
-                    _logger.ForInfoEvent()
-                        .Message("Load M2M data for abstract items")
-                        .Property("cacheKey", cacheKey)
-                        .Property("cacheTags", abstractItemTags)
-                        .Property("expiry", _cacheSettings.SiteStructureCachePeriod)
-                        .Property("buildId", _context.Id)
-                        .Log();
+                    _logger.BeginScopeWith(
+                        ("cacheKey", cacheKey),
+                        ("cacheTags", abstractItemTags),
+                        ("expiry", _cacheSettings.SiteStructureCachePeriod),
+                        ("buildId", _context.Id));
+                    _logger.LogInformation("Load M2M data for abstract items");
 
                     return _abstractItemRepository.GetManyToManyData(
                         extensions.Values
@@ -333,14 +329,14 @@ namespace QA.DotNetCore.Engine.QpData
                 () =>
                 {
                     var extensionKeys = extensions.Keys.Where(k => k != 0).ToArray();
-                    _logger.ForInfoEvent()
-                        .Message("Load M2M data for extension tables")
-                        .Property("extensionIds", extensions.Keys)
-                        .Property("cacheKey", cacheKey)
-                        .Property("cacheTags", tags)
-                        .Property("expiry", _cacheSettings.SiteStructureCachePeriod)
-                        .Property("buildId", _context.Id)
-                        .Log();
+                    _logger.BeginScopeWith(
+                        ("cacheKey", cacheKey),
+                        ("cacheTags", tags),
+                        ("extensionIds", extensionKeys),
+                        ("expiry", _cacheSettings.SiteStructureCachePeriod),
+                        ("buildId", _context.Id));
+                    _logger.LogInformation("Load M2M data for extension tables");
+
                     return _abstractItemRepository.GetManyToManyDataByContents(extensionKeys, _buildSettings.IsStage);
                 },
                 _buildSettings.CacheFetchTimeoutAbstractItemStorage);
@@ -387,13 +383,13 @@ namespace QA.DotNetCore.Engine.QpData
                     _cacheSettings.SiteStructureCachePeriod,
                     () =>
                     {
-                        _logger.ForInfoEvent()
-                            .Message("Load data from base abstract item table in {scope} scope", scopeString)
-                            .Property("cacheKey", cacheKey)
-                            .Property("cacheTags", tags)
-                            .Property("expiry", _cacheSettings.SiteStructureCachePeriod)
-                            .Property("buildId", _context.Id)
-                            .Log();
+                        _logger.BeginScopeWith(
+                            ("cacheKey", cacheKey),
+                            ("cacheTags", tags),
+                            ("scope", scopeString),
+                            ("expiry", _cacheSettings.SiteStructureCachePeriod),
+                            ("buildId", _context.Id));
+                        _logger.LogInformation("Load data from base abstract item table");
 
                         return abstractItemRepository.GetAbstractItemExtensionlessData(
                             abstractItemIds,
@@ -412,13 +408,13 @@ namespace QA.DotNetCore.Engine.QpData
                     _cacheSettings.SiteStructureCachePeriod,
                     () =>
                     {
-                        _logger.ForInfoEvent()
-                            .Message("Load data from extension table {extensionId} in {scope} scope", extensionId, scopeString)
-                            .Property("cacheKey", cacheKey)
-                            .Property("cacheTags", tags)
-                            .Property("expiry", _cacheSettings.SiteStructureCachePeriod)
-                            .Property("buildId", _context.Id)
-                            .Log();
+                        _logger.BeginScopeWith(
+                            ("cacheKey", cacheKey),
+                            ("cacheTags", tags),
+                            ("scope", scopeString),
+                            ("expiry", _cacheSettings.SiteStructureCachePeriod),
+                            ("buildId", _context.Id));
+                        _logger.LogInformation("Load data from extension table {extensionId}", extensionId);
 
                         return abstractItemRepository.GetAbstractItemExtensionData(
                             extensionId,
@@ -462,13 +458,13 @@ namespace QA.DotNetCore.Engine.QpData
             {
                 try
                 {
-                    _logger.Trace("Trying to receive UnitOfWork from current service provider");
+                    _logger.LogTrace("Trying to receive UnitOfWork from current service provider");
                     _serviceProvider.GetRequiredService<IUnitOfWork>();
-                    _logger.Trace("Done");
+                    _logger.LogTrace("Done");
                 }
                 catch (ObjectDisposedException)
                 {
-                    _logger.Trace("Failed. Creating new scope instead");
+                    _logger.LogTrace("Failed. Creating new scope instead");
                     currentProviderFailed = true;
                 }
             }
@@ -494,10 +490,8 @@ namespace QA.DotNetCore.Engine.QpData
 
             if (!extensionData.TryGetValue(item.Id, out var details))
             {
-                _logger.ForTraceEvent()
-                    .Message("Not found data for extension {id}", extensionContentId)
-                    .Property("buildId", _context.Id)
-                    .Log();
+                _logger.BeginScopeWith(("buildId", _context.Id));
+                _logger.LogTrace("Not found data for extension {id}", extensionContentId);
 
                 return null;
             }

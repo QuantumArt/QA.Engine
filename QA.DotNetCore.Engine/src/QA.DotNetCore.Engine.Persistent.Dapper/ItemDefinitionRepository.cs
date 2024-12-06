@@ -8,13 +8,14 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using NLog;
+using Microsoft.Extensions.Logging;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Logging;
 
 namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
     public class ItemDefinitionRepository : IItemDefinitionRepository
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly ILogger _logger;
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         private readonly ICacheProvider _cacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
@@ -34,6 +35,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             _cacheSettings = cacheSettings;
             _cacheProvider = cacheProvider;
             _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
+            _logger = _serviceProvider.GetService<ILogger<ItemDefinitionRepository>>();
         }
 
         protected IUnitOfWork UnitOfWork
@@ -41,10 +43,8 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             get
             {
                 var uow = _serviceProvider.GetRequiredService<IUnitOfWork>();
-                _logger.ForTraceEvent()
-                    .Message("Received UnitOfWork from ServiceProvider")
-                    .Property("unitOfWorkId", uow.Id)
-                    .Log();
+                _logger.BeginScopeWith(("unitOfWorkId", uow.Id));
+                _logger.LogTrace("Received UnitOfWork from ServiceProvider");
                 return uow;
             }
         }
@@ -86,14 +86,14 @@ FROM |QPDiscriminator|
                 expiry,
                 () =>
                 {
-                    _logger.ForTraceEvent().Message("Get all item definitions")
-                        .Property("siteId", siteId)
-                        .Property("isStage", isStage)
-                        .Property("cacheKey", cacheKey)
-                        .Property("cacheTags", cacheTags)
-                        .Property("expiry", expiry)
-                        .Property("unitOfWorkId", UnitOfWork.Id)
-                        .Log();
+                    _logger.BeginScopeWith(
+                        ("unitOfWorkId", UnitOfWork.Id),
+                        ("siteId", siteId),
+                        ("isStage", isStage),
+                        ("cacheKey", cacheKey),
+                        ("cacheTags", cacheTags),
+                        ("expiry", expiry));
+                    _logger.LogTrace("Get all item definitions");
                     return UnitOfWork.Connection.Query<ItemDefinitionPersistentData>(query, transaction).ToList();
                 });
         }

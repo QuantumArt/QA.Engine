@@ -1,21 +1,22 @@
-using Dapper;
-using Microsoft.Extensions.DependencyInjection;
-using QA.DotNetCore.Caching.Interfaces;
-using QA.DotNetCore.Engine.Persistent.Interfaces;
-using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
-using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
-using QA.DotNetCore.Engine.QpData.Settings;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using NLog;
+using Dapper;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using QA.DotNetCore.Caching.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Logging;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Settings;
+using QA.DotNetCore.Engine.QpData.Settings;
 
 namespace QA.DotNetCore.Engine.Persistent.Dapper
 {
     public class DictionaryItemRepository : IDictionaryItemRepository
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly ILogger _logger;
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         private readonly ICacheProvider _cacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
@@ -26,10 +27,8 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper
             get
             {
                 var uow = _serviceProvider.GetRequiredService<IUnitOfWork>();
-                _logger.ForTraceEvent()
-                    .Message("Received UnitOfWork from ServiceProvider")
-                    .Property("unitOfWorkId", uow.Id)
-                    .Log();
+                _logger.BeginScopeWith(("unitOfWorkId", uow.Id));
+                _logger.LogTrace("Received UnitOfWork from ServiceProvider");
                 return uow;
             }
         }
@@ -46,6 +45,7 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper
             _cacheSettings = cacheSettings;
             _cacheProvider = cacheProvider;
             _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
+            _logger = serviceProvider.GetService<ILogger<DictionaryItemRepository>>();
         }
 
         private string GetCmdGetAll(DictionarySettings settings) => @$"
@@ -100,14 +100,14 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper
                 expiry,
                 () =>
                 {
-                    _logger.ForTraceEvent().Message("Get all dictionary items")
-                        .Property("siteId", siteId)
-                        .Property("isStage", isStage)
-                        .Property("cacheKey", cacheKey)
-                        .Property("cacheTags", cacheTags)
-                        .Property("expiry", expiry)
-                        .Property("unitOfWorkId", UnitOfWork.Id)
-                        .Log();
+                    _logger.BeginScopeWith(
+                        ("unitOfWorkId", UnitOfWork.Id),
+                        ("siteId", siteId),
+                        ("isStage", isStage),
+                        ("cacheKey", cacheKey),
+                        ("cacheTags", cacheTags),
+                        ("expiry", expiry));
+                    _logger.LogTrace("Get all dictionary items");
                     return UnitOfWork.Connection.Query<DictionaryItemPersistentData>(query, transaction).ToList();
                 });
         }

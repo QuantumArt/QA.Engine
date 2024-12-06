@@ -35,7 +35,7 @@ namespace QA.DotNetCore.Caching.Distributed
             var existFlagsTasks = dataKeys.Select(key => _cache.KeyExistsAsync(key));
             var existFlags = await Task.WhenAll(existFlagsTasks);
 
-            _logger.Trace(
+            _logger.LogTrace(
                 "Keys {Keys} exist {ExistFlags} (Elapsed: {Elapsed})",
                 keys,
                 existFlags,
@@ -70,7 +70,7 @@ namespace QA.DotNetCore.Caching.Distributed
                 .Select(result => result.State == KeyState.Exist ? result.Value : null)
                 .ToList();
 
-            _logger.Trace("Obtained cached data (Elapsed: {Elapsed})", watch.ElapsedMilliseconds);
+            _logger.LogTrace("Obtained cached data (Elapsed: {Elapsed})", watch.ElapsedMilliseconds);
 
             return cachedData;
         }
@@ -85,12 +85,12 @@ namespace QA.DotNetCore.Caching.Distributed
                         value.HasValue ? new CachedValue(KeyState.Exist, (byte[]) value) : CachedValue.Empty)
                     .ToArray();
 
-                _logger.Trace("Keys ({CacheKeys}) have values: {CacheValues}", redisKeys, cachedValues);
+                _logger.LogTrace("Keys ({CacheKeys}) have values: {CacheValues}", redisKeys, cachedValues);
                 return cachedValues;
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Unable to get multiple caches ({CacheKeys}).", redisKeys);
+                _logger.LogError(ex, "Unable to get multiple caches ({CacheKeys}).", redisKeys);
                 return Enumerable.Repeat(CachedValue.Empty, redisKeys.Length);
             }
         }
@@ -155,7 +155,7 @@ namespace QA.DotNetCore.Caching.Distributed
                     throw new AggregateException(exceptions);
                 }
 
-                _logger.Info(
+                _logger.LogInformation(
                     "Set cache operation is finished " +
                     "(isSet: {SetTransactionStatus}, expiry: {Expiration}, key: {CacheKey}, elapsed: {Elapsed})).",
                     isExecuted,
@@ -167,7 +167,7 @@ namespace QA.DotNetCore.Caching.Distributed
             }
             catch (Exception ex)
             {
-                _logger.Error(
+                _logger.LogError(
                     ex,
                     "Unable to set cache with the key {CacheKey} (Elapsed: {Elapsed})",
                     key,

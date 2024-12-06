@@ -1,15 +1,16 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Extensions.Logging;
+using QA.DotNetCore.Caching;
 using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Logging;
 using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Models;
 using QA.DotNetCore.Engine.QpData.Settings;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using NLog;
-using QA.DotNetCore.Caching;
 
 namespace QA.DotNetCore.Engine.QpData
 {
@@ -18,7 +19,7 @@ namespace QA.DotNetCore.Engine.QpData
     /// </summary>
     public class GranularCacheAbstractItemStorageProvider : IAbstractItemStorageProvider
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly ILogger _logger;
         private readonly IAbstractItemContextStorageBuilder _builder;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly IAbstractItemRepository _abstractItemRepository;
@@ -34,7 +35,8 @@ namespace QA.DotNetCore.Engine.QpData
             QpSiteStructureCacheSettings cacheSettings,
             IAbstractItemRepository abstractItemRepository,
             ICacheProvider cacheProvider,
-            VersionedCacheCoreProvider memoryCacheProvider)
+            VersionedCacheCoreProvider memoryCacheProvider,
+            ILogger<GranularCacheAbstractItemStorageProvider> logger)
         {
             _builder = builder;
             _abstractItemRepository = abstractItemRepository;
@@ -43,6 +45,7 @@ namespace QA.DotNetCore.Engine.QpData
             _cacheSettings = cacheSettings;
             _cacheProvider = cacheProvider;
             _memoryCacheProvider = memoryCacheProvider;
+            _logger = logger;
         }
 
         public AbstractItemStorage Get()
@@ -73,12 +76,11 @@ namespace QA.DotNetCore.Engine.QpData
                 expiry,
                 () =>
                 {
-                    _logger.ForInfoEvent().Message("Building storage")
-                        .Property("cacheKey", cacheKey)
-                        .Property("cacheTags", tags.AllTags)
-                        .Property("expiry", expiry)
-                        .Property("waitTimeout", waitTimeout)
-                        .Log();
+                    _logger.BeginScopeWith(("cacheKey", cacheKey),
+                        ("cacheTags", tags.AllTags),
+                        ("expiry", expiry),
+                        ("waitTimeout", waitTimeout));
+                    _logger.LogInformation("Building storage");
 
                     return BuildStorageWithCache(extensionsWithAbsItems, tags);
                 },

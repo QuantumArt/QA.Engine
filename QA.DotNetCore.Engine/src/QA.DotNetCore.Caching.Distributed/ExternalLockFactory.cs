@@ -1,5 +1,5 @@
 using System;
-using NLog;
+using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Caching.Interfaces;
 using RedLockNet;
 
@@ -9,17 +9,21 @@ public class ExternalLockFactory : ILockFactory
 {
     private readonly IDistributedLockFactory _lockFactory;
     private readonly ExternalCacheSettings _settings;
-    private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+    private readonly ILogger _logger;
 
-    public ExternalLockFactory(IDistributedLockFactory lockFactory, ExternalCacheSettings settings)
+    public ExternalLockFactory(
+        IDistributedLockFactory lockFactory,
+        ExternalCacheSettings settings,
+        ILogger<ExternalLockFactory> logger)
     {
         _lockFactory = lockFactory;
         _settings = settings;
+        _logger = logger;
     }
 
     public ILock CreateLock(string key) => new ExternalLock(key, _lockFactory, _settings);
 
     public IAsyncLock CreateAsyncLock(string key) => new ExternalLock(key, _lockFactory, _settings);
 
-    public void DeleteLocksOlderThan(DateTime dateTime) => _logger.Info("Deleting keys for external locks is not supported.");
+    public void DeleteLocksOlderThan(DateTime dateTime) => _logger.LogInformation("Deleting keys for external locks is not supported.");
 }

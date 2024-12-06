@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
-using NLog;
+using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Caching.Interfaces;
 
 namespace QA.DotNetCore.Caching
@@ -14,13 +14,15 @@ namespace QA.DotNetCore.Caching
         private readonly TimeSpan _cleanInterval;
 
         private readonly Timer _timer;
-        private readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly ILogger _logger;
 
         public CleanCacheLockerService(
             ILockFactory lockFactory,
-            CleanCacheLockerServiceSettings settings
+            CleanCacheLockerServiceSettings settings,
+            ILogger<CleanCacheLockerService> logger
             )
         {
+            _logger = logger;
             _lockFactory = lockFactory;
             _runInterval = settings.RunInterval;
             _cleanInterval = settings.CleanInterval;
@@ -53,9 +55,9 @@ namespace QA.DotNetCore.Caching
             if (_cleanInterval != default)
             {
                 var timeToDelete = DateTime.Now - _cleanInterval;
-                _logger.Trace($"Cache locker cleaning older than {timeToDelete} started.");
+                _logger.LogTrace($"Cache locker cleaning older than {timeToDelete} started.");
                 _lockFactory.DeleteLocksOlderThan(timeToDelete);
-                _logger.Trace("Cache locker cleaning completed.");
+                _logger.LogTrace("Cache locker cleaning completed.");
             }
         }
     }

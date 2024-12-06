@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.GZip;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
 using QA.DotNetCore.Caching.Distributed.Internals;
 using QA.DotNetCore.Caching.Distributed.Keys;
@@ -564,7 +565,7 @@ public class DistributedMemoryCacheProviderTests
     {
         var options = CreateDefaultRedisCacheOptions();
 
-        return new RedisCache(Options.Create(options));
+        return new RedisCache(Options.Create(options), NullLogger<RedisCache>.Instance);
     }
 
     private RedisCache CreateRedisCacheWithoutOffsets()
@@ -576,7 +577,7 @@ public class DistributedMemoryCacheProviderTests
             AppName = _instanceName,
         });
 
-        return new RedisCache(optionsAccessor);
+        return new RedisCache(optionsAccessor, NullLogger<RedisCache>.Instance);
     }
 
     private DistributedMemoryCacheProvider CreateProvider(

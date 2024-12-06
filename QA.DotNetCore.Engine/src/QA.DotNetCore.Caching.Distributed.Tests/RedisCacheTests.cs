@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using QA.DotNetCore.Caching.Distributed.Keys;
 using QA.DotNetCore.Engine.QpData;
@@ -335,7 +336,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
         {
             var options = CreateDefaultRedisCacheOptions();
 
-            return new RedisCache(Options.Create(options));
+            return new RedisCache(Options.Create(options), NullLogger<RedisCache>.Instance);
         }
 
         private RedisCache CreateRedisCacheWithoutOffsets()
@@ -347,7 +348,7 @@ namespace QA.DotNetCore.Caching.Distributed.Tests
                 AppName = _instanceName,
             });
 
-            return new RedisCache(optionsAccessor);
+            return new RedisCache(optionsAccessor, NullLogger<RedisCache>.Instance);
         }
 
         private static ConnectionMultiplexer CreateConnection() =>

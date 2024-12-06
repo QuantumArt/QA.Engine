@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.GZip;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using QA.DotNetCore.Caching.Distributed.Internals;
 using QA.DotNetCore.Caching.Distributed.Keys;
@@ -235,7 +236,7 @@ public class DistributedMemoryCacheProviderTests
             _ = await db.StringSetAsync(key2, deprecatedData, _existingCacheTtl);
         }
 
-        var lockFactory = new MemoryLockFactory();
+        var lockFactory = new MemoryLockFactory(new LoggerFactory());
         var lockCacheTask = Task.Factory.StartNew(
             () =>
             {
@@ -290,7 +291,7 @@ public class DistributedMemoryCacheProviderTests
             _ = await connection.GetDatabase().KeyDeleteAsync(GetKey(sharedKey));
         }
 
-        var lockFactory = new MemoryLockFactory();
+        var lockFactory = new MemoryLockFactory(new LoggerFactory());
 
         var lockCacheKeyTask = Task.Factory.StartNew(
             () =>
@@ -588,7 +589,8 @@ public class DistributedMemoryCacheProviderTests
             memoryCache,
             cache,
             new ExternalCacheKeyFactory(new ExternalCacheSettings() {AppName = _appName, InstanceName = _instanceName}),
-            lockFactory ?? new MemoryLockFactory());
+            lockFactory ?? new MemoryLockFactory(new LoggerFactory()),
+            new LoggerFactory());
     }
 
     private static ConnectionMultiplexer CreateConnection() =>

@@ -1,13 +1,14 @@
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Primitives;
-using QA.DotNetCore.Caching.Exceptions;
-using QA.DotNetCore.Caching.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using NLog;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
+using QA.DotNetCore.Caching.Exceptions;
+using QA.DotNetCore.Caching.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Logging;
 
 namespace QA.DotNetCore.Caching
 {
@@ -16,7 +17,7 @@ namespace QA.DotNetCore.Caching
     /// </summary>
     public class VersionedCacheCoreProvider : ICacheProvider, IMemoryCacheProvider
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly ILogger _logger;
         protected readonly IMemoryCache _cache;
         protected readonly ICacheKeyFactory _keyFactory;
         protected readonly ILockFactory _lockFactory;
@@ -27,12 +28,14 @@ namespace QA.DotNetCore.Caching
         public VersionedCacheCoreProvider(
             IMemoryCache cache,
             ICacheKeyFactory keyFactory,
-            ILockFactory lockFactory
+            ILockFactory lockFactory,
+            ILoggerFactory loggerFactory
         )
         {
             _cache = cache;
             _lockFactory = lockFactory;
             _keyFactory = keyFactory;
+            _logger = loggerFactory.CreateLogger<VersionedCacheCoreProvider>();
         }
 
         /// <summary>
@@ -90,7 +93,7 @@ namespace QA.DotNetCore.Caching
         /// <param name="key">Ключ</param>
         public virtual void Invalidate(string key)
         {
-            _logger.Trace("Invalidate by key: {key}", key);
+            _logger.LogTrace("Invalidate by key: {key}", key);
             if (string.IsNullOrEmpty(key))
             {
                 return;
@@ -146,7 +149,7 @@ namespace QA.DotNetCore.Caching
         /// <param name="tags">Теги</param>
         public virtual void InvalidateByTags(params string[] tags)
         {
-            _logger.Trace("Invalidate by tags: {tags}", tags);
+            _logger.LogTrace("Invalidate by tags: {tags}", tags);
             foreach (var tag in tags)
             {
                 _cache.Remove(GetTag(tag));
@@ -258,18 +261,18 @@ namespace QA.DotNetCore.Caching
                     }
                     else
                     {
+                        using var _ = _logger.BeginScopeWith(
+                            ("cacheKey", cacheKey),
+                            ("waitTimeout", waitForCalculateTimeout)
+                        );
+
                         if (deprecatedResult == null)
                         {
-                            _logger.ForTraceEvent().Message("Value in cache have not appeared in specified timeout")
-                                .Property("cacheKey", cacheKey)
-                                .Property("waitTimeout", waitForCalculateTimeout)
-                                .Log();
+                            _logger.LogTrace("Value in cache have not appeared in specified timeout");
                             throw new DeprecateCacheIsExpiredOrMissingException();
                         }
-                        _logger.ForTraceEvent().Message("Return deprecated result")
-                            .Property("cacheKey", cacheKey)
-                            .Property("waitTimeout", waitForCalculateTimeout)
-                            .Log();
+
+                        _logger.LogTrace("Return deprecated result");
                         result = deprecatedResult;
                     }
                 }
@@ -359,19 +362,17 @@ namespace QA.DotNetCore.Caching
                     }
                     else
                     {
+                        using var _ = _logger.BeginScopeWith(
+                            ("cacheKey", cacheKey),
+                            ("waitTimeout", waitForCalculateTimeout)
+                        );
                         if (deprecatedResult == null)
                         {
-                            _logger.ForTraceEvent().Message("Value in cache have not appeared in specified timeout")
-                                .Property("cacheKey", cacheKey)
-                                .Property("waitTimeout", waitForCalculateTimeout)
-                                .Log();
+                            _logger.LogTrace("Value in cache have not appeared in specified timeout");
                             throw new DeprecateCacheIsExpiredOrMissingException();
                         }
 
-                        _logger.ForTraceEvent().Message("Return deprecated result")
-                            .Property("cacheKey", cacheKey)
-                            .Property("waitTimeout", waitForCalculateTimeout)
-                            .Log();
+                        _logger.LogTrace("Return deprecated result");
                         result = deprecatedResult;
                     }
                 }

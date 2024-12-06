@@ -236,7 +236,8 @@ namespace QA.DotNetCore.Engine.Routing.Tests
             var cacheProvider = new VersionedCacheCoreProvider(
                 new MemoryCache(new MemoryCacheOptions()),
                 new CacheKeyFactoryBase(),
-                new MemoryLockFactory());
+                new MemoryLockFactory(new LoggerFactory()),
+                new LoggerFactory());
             var cacheSettings = new QpSiteStructureCacheSettings
             {
                 ItemDefinitionCachePeriod = TimeSpan.FromSeconds(30),

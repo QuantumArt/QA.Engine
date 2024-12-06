@@ -1,6 +1,6 @@
-using QA.DotNetCore.Caching.Interfaces;
 using System;
 using System.Threading;
+using QA.DotNetCore.Caching.Interfaces;
 
 namespace QA.DotNetCore.Caching
 {

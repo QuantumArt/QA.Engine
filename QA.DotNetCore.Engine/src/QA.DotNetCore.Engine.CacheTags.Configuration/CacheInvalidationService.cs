@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NLog;
+using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Caching.Interfaces;
 
 namespace QA.DotNetCore.Engine.CacheTags.Configuration
@@ -10,7 +10,7 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
     /// </summary>
     public class CacheInvalidationService : IHostedService, IDisposable
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly ILogger _logger;
         private static readonly object _locker = new();
         private static bool _busy;
         private readonly TimeSpan _interval;
@@ -19,8 +19,10 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
 
         public CacheInvalidationService(
             CacheTagsRegistrationConfigurator cfg,
-            IServiceScopeFactory factory)
+            IServiceScopeFactory factory,
+            ILogger<CacheInvalidationService> logger)
         {
+            _logger = logger;
             _factory = factory;
             _interval = cfg.TimerInterval;
             _timer = new Timer(
@@ -34,14 +36,14 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
         {
             if (_busy)
             {
-                _logger.Info("A previous invalidation is in progress now. Proceeding exit");
+                _logger.LogInformation("A previous invalidation is in progress now. Proceeding exit");
                 return;
             }
 
             lock (_locker)
             {
                 _busy = true;
-                _logger.Info("Creating new scope");
+                _logger.LogInformation("Creating new scope");
                 using var scope = _factory.CreateScope();
                 var provider = scope.ServiceProvider;
                 var watcher = provider.GetRequiredService<ICacheTagWatcher>();

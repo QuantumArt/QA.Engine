@@ -2,6 +2,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using QA.DotNetCore.Caching.Interfaces;
 
 namespace QA.DotNetCore.Caching.Configuration
@@ -15,7 +16,8 @@ namespace QA.DotNetCore.Caching.Configuration
                 new VersionedCacheCoreProvider(
                     svc.GetRequiredService<IMemoryCache>(),
                     svc.GetRequiredService<ICacheKeyFactory>(),
-                    svc.GetRequiredService<MemoryLockFactory>()
+                    svc.GetRequiredService<MemoryLockFactory>(),
+                    svc.GetRequiredService<ILoggerFactory>()
                 )
             );
             services.TryAddScoped<ICacheProvider>(svc => svc.GetRequiredService<VersionedCacheCoreProvider>());

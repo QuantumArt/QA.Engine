@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using NLog;
+using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Caching.Distributed;
 
 namespace QA.DotNetCore.Caching
@@ -12,7 +12,7 @@ namespace QA.DotNetCore.Caching
     public class DistributedMemoryCacheProvider : VersionedCacheCoreProvider
     {
         private static readonly TimeSpan _getUniqueIdTimout = TimeSpan.FromMinutes(1);
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private ILogger _logger;
         private IExternalCache _externalCache;
         private readonly HashSet<string> _localKeys = new();
 
@@ -20,11 +20,12 @@ namespace QA.DotNetCore.Caching
             IMemoryCache cache,
             IExternalCache externalCache,
             ICacheKeyFactory keyFactory,
-            ILockFactory lockFactory)
-            : base(cache, keyFactory, lockFactory)
+            ILockFactory lockFactory,
+            ILoggerFactory loggerFactory)
+            : base(cache, keyFactory, lockFactory, loggerFactory)
         {
             using var timeoutTokenSource = new CancellationTokenSource(_getUniqueIdTimout);
-
+            _logger = loggerFactory.CreateLogger<DistributedMemoryCacheProvider>();
             _externalCache = externalCache;
         }
 
@@ -79,12 +80,12 @@ namespace QA.DotNetCore.Caching
             {
                 if (!result.HasExternal)
                 {
-                    _logger.Trace("Cannot receive value from external cache by key: {key}, returning default", result.Key);
+                    _logger.LogTrace("Cannot receive value from external cache by key: {key}, returning default", result.Key);
                     yield return default;
                 }
                 else if (result.HasLocal)
                 {
-                    _logger.Trace("Receiving value from local cache by key: {key}", result.Key);
+                    _logger.LogTrace("Receiving value from local cache by key: {key}", result.Key);
                     yield return _cache.Get<TResult>(result.Key);
                 }
                 else
@@ -95,7 +96,7 @@ namespace QA.DotNetCore.Caching
                         Size = 1,
                         AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
                     });
-                    _logger.Trace("Receiving value from external cache by key: {key}, saving it in local cache", result.Key);
+                    _logger.LogTrace("Receiving value from external cache by key: {key}, saving it in local cache", result.Key);
                     yield return externalResult;
                 }
             }

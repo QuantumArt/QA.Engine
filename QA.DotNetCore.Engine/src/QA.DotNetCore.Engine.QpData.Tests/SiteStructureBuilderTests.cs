@@ -65,7 +65,8 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             _cacheProvider = new VersionedCacheCoreProvider(
                 new MemoryCache(new MemoryCacheOptions()),
                 new CacheKeyFactoryBase(),
-                new MemoryLockFactory());
+                new MemoryLockFactory(new LoggerFactory()),
+                new LoggerFactory());
         }
 
         [Fact]

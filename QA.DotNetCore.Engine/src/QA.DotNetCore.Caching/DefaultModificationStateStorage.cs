@@ -1,6 +1,6 @@
 using System;
-using QA.DotNetCore.Caching.Interfaces;
 using System.Collections.Generic;
+using QA.DotNetCore.Caching.Interfaces;
 
 namespace QA.DotNetCore.Caching;
 

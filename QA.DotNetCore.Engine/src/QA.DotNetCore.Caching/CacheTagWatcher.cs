@@ -1,14 +1,15 @@
-using QA.DotNetCore.Caching.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NLog;
+using Microsoft.Extensions.Logging;
+using QA.DotNetCore.Caching.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Logging;
 
 namespace QA.DotNetCore.Caching
 {
     public class CacheTagWatcher : ICacheTagWatcher
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly ILogger _logger;
         private readonly ICacheTrackersAccessor _trackersAccessor;
         private readonly ICacheInvalidator _cacheInvalidator;
         private readonly IModificationStateStorage _modificationStateStorage;
@@ -18,21 +19,21 @@ namespace QA.DotNetCore.Caching
             ICacheTrackersAccessor trackersAccessor,
             ICacheInvalidator cacheInvalidator,
             IModificationStateStorage modificationStateStorage,
-            IServiceProvider provider)
+            IServiceProvider provider,
+            ILogger<CacheTagWatcher> logger)
         {
             _trackersAccessor = trackersAccessor;
             _cacheInvalidator = cacheInvalidator;
             _modificationStateStorage = modificationStateStorage;
             _provider = provider;
+            _logger = logger;
         }
 
         public void TrackChanges()
         {
             var checkId = Guid.NewGuid().ToString();
-            _logger.ForInfoEvent().Message("Invalidation started")
-                .Property("invalidationId", checkId)
-                .Log();
-
+            using var _ = _logger.BeginScopeWith(("invalidationId", checkId));
+            _logger.LogInformation("Invalidation started");
             _modificationStateStorage.Update(previousModifications =>
             {
                 try
@@ -40,18 +41,12 @@ namespace QA.DotNetCore.Caching
                     var currentModifications = GetCurrentCacheTagModifications();
                     var cacheTagsToInvalidate = GetCacheTagsToInvalidate(previousModifications, currentModifications);
                     InvalidateTags(cacheTagsToInvalidate, checkId);
-                    _logger.ForInfoEvent().Message("Invalidation completed")
-                        .Property("invalidationId", checkId)
-                        .Log();
-
+                    _logger.LogInformation("Invalidation completed");
                     return currentModifications;
                 }
                 catch (Exception e)
                 {
-                    _logger.ForErrorEvent().Message("Invalidation failed")
-                        .Exception(e)
-                        .Property("invalidationId", checkId)
-                        .Log();
+                    _logger.LogError(e, "Invalidation failed");
                     return previousModifications;
                 }
             });
@@ -68,11 +63,8 @@ namespace QA.DotNetCore.Caching
             var modifications = changedModifications
                 .Select(n => n.ToString())
                 .ToArray();
-
-            _logger.ForTraceEvent()
-                .Message($"Changed modifications")
-                .Property("modifications", modifications)
-                .Log();
+            using var logScope = _logger.BeginScopeWith(("modifications", modifications));
+            _logger.LogTrace("Changed modifications");
 
             if (changedModifications.Length <= 0)
             {
@@ -98,19 +90,18 @@ namespace QA.DotNetCore.Caching
 
         private void InvalidateTags(string[] cacheTagsToInvalidate, string checkId)
         {
+            var scopeData = new Dictionary<string, object> { { "invalidationId", checkId } };
+            using var logScope = _logger.BeginScope(scopeData);
             if (cacheTagsToInvalidate.Length > 0)
             {
-                _logger.ForInfoEvent().Message("Invalidate tags")
-                    .Property("tags", cacheTagsToInvalidate)
-                    .Property("invalidationId", checkId)
-                    .Log();
+                var scopeData2 = new Dictionary<string, object> { { "tags", cacheTagsToInvalidate } };
+                using var logScope2 = _logger.BeginScope(scopeData2);
+                _logger.LogInformation("Invalidate tags");
                 _cacheInvalidator.InvalidateByTags(cacheTagsToInvalidate.ToArray());
             }
             else
             {
-                _logger.ForInfoEvent().Message("No tags are invalidated")
-                    .Property("invalidationId", checkId)
-                    .Log();
+                _logger.LogInformation("No tags are invalidated");
             }
         }
 

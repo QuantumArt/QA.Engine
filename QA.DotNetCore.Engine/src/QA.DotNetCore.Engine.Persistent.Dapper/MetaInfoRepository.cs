@@ -115,7 +115,7 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
 
         public QpSitePersistentData GetSite(int siteId, IDbTransaction transaction = null)
         {
-            _logger.BeginScopeWith(("unitOfWorkId", _unitOfWork.Id), ("siteId", siteId));
+            _logger.BeginScopeWith(("unitOfWorkId", UnitOfWork.Id), ("siteId", siteId));
             _logger.LogTrace("Get site info from DB");
             return UnitOfWork.Connection.QueryFirst<QpSitePersistentData>(string.Format(CmdGetSite, siteId), transaction: transaction);
         }
@@ -128,7 +128,7 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
         public ContentAttributePersistentData GetContentAttribute(int contentId, string fieldName, IDbTransaction transaction = null)
         {
             _logger.BeginScopeWith(
-                ("unitOfWorkId", _unitOfWork.Id),
+                ("unitOfWorkId", UnitOfWork.Id),
                 ("fieldName", fieldName),
                 ("contentId", contentId));
             _logger.LogTrace("Get content field by name from DB");
@@ -139,7 +139,7 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
         public ContentAttributePersistentData GetContentAttributeByNetName(int contentId, string fieldNetName, IDbTransaction transaction = null)
         {
             _logger.BeginScopeWith(
-                ("unitOfWorkId", _unitOfWork.Id),
+                ("unitOfWorkId", UnitOfWork.Id),
                 ("fieldNetName", fieldNetName),
                 ("contentId", contentId));
             _logger.LogTrace("Get content field by .NET name from DB");
@@ -204,7 +204,7 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
                 () =>
                 {
                     _logger.BeginScopeWith(
-                        ("unitOfWorkId", _unitOfWork.Id),
+                        ("unitOfWorkId", UnitOfWork.Id),
                         ("templateId", templateId),
                         ("parameters", parameterValues),
                         ("siteId", siteId),

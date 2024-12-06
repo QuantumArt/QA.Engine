@@ -31,19 +31,21 @@ namespace QA.DotNetCore.Engine.Routing.Tests
         private readonly RequestDelegate _next = (HttpContext hc) => { return Task.CompletedTask; };
 
         private const int
-            siteID = 1,
-            abstractItemContentID = 666;
+            siteId = 1,
+            abstractItemContentId = 666,
+            itemDefinitionContentId = 555;
 
         private const bool isStage = false;
 
         private readonly static string
             stubHost = StubStartPage.DnsRegistered,
             abstractItemNetName = KnownNetNames.AbstractItem,
+            itemDefinitionNetName = KnownNetNames.ItemDefinition,
             uploadUrlPlaceholder = "<%upload_url%>";
 
         private readonly QpSiteStructureBuildSettings buildSettings = new QpSiteStructureBuildSettings
         {
-            SiteId = siteID,
+            SiteId = siteId,
             IsStage = isStage,
             RootPageDiscriminator = typeof(RootPage).Name,
             UploadUrlPlaceholder = uploadUrlPlaceholder,
@@ -183,19 +185,32 @@ namespace QA.DotNetCore.Engine.Routing.Tests
 
             Mock<IAbstractItemRepository> aiRepositoryMoq = new Mock<IAbstractItemRepository>();
 
-            aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteID, isStage, null))
+            aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteId, isStage, null))
                 .Returns(abstractItemPersistentDatas);
 
             aiRepositoryMoq
                 .Setup(x => x.GetAbstractItemExtensionIds(It.IsAny<int[]>(), null))
                 .Returns(new int[0]);
 
+            var namingMoq = new Mock<IQpContentCacheTagNamingProvider>();
+            namingMoq.Setup(x => x.GetByContentNetNames(new[] {abstractItemNetName, itemDefinitionNetName}, siteId, false)).Returns(
+                new Dictionary<string, string>() {
+                    [abstractItemNetName] = "1",
+                    [itemDefinitionNetName] = "2"
+                });
+
             Mock<IMetaInfoRepository> metaInfoMoq = new Mock<IMetaInfoRepository>();
-            metaInfoMoq.Setup(x => x.GetContent(abstractItemNetName, siteID, null)).Returns(new ContentPersistentData
+            metaInfoMoq.Setup(x => x.GetContents(new[] {abstractItemNetName, itemDefinitionNetName}, siteId, null)).Returns(new ContentPersistentData[] {
+                new() { ContentId = abstractItemContentId, ContentAttributes = new List<ContentAttributePersistentData>()},
+                new() { ContentId = itemDefinitionContentId, ContentAttributes = new List<ContentAttributePersistentData>()},
+            });
+            metaInfoMoq.Setup(x => x.GetContent(abstractItemNetName, siteId, null)).Returns(new ContentPersistentData
             {
-                ContentId = abstractItemContentID,
+                ContentId = abstractItemContentId,
                 ContentAttributes = new List<ContentAttributePersistentData>()
             });
+
+
 
             Mock<IAbstractItemFactory> aiFactoryMoq = new Mock<IAbstractItemFactory>();
 
@@ -252,7 +267,7 @@ namespace QA.DotNetCore.Engine.Routing.Tests
                 buildSettings,
                 serviceScopeFactory.Object,
                 serviceProvider.Object,
-                Mock.Of<IQpContentCacheTagNamingProvider>(),
+                namingMoq.Object,
                 cacheProvider,
                 cacheSettings);
 

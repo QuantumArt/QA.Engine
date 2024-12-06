@@ -30,7 +30,9 @@ namespace QA.DotNetCore.Engine.QpData.Tests
         private const int siteId = 1;
         private const bool isStage = false;
         private static string abstractItemNetName = KnownNetNames.AbstractItem;
+        private static string itemDefinitionNetName = KnownNetNames.ItemDefinition;
         private const int abstractItemContentId = 666;
+        private const int itemDefinitionContentId = 555;
         private const string uploadUrlPlaceholder = "<%upload_url%>";
 
         private readonly QpSiteStructureBuildSettings buildSettings = new QpSiteStructureBuildSettings
@@ -120,6 +122,13 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 ContentAttributes = new List<ContentAttributePersistentData>()
             });
 
+            var namingMoq = new Mock<IQpContentCacheTagNamingProvider>();
+            namingMoq.Setup(x => x.GetByContentNetNames(new[] {abstractItemNetName, itemDefinitionNetName}, siteId, false)).Returns(
+                new Dictionary<string, string>() {
+               [abstractItemNetName] = "1",
+               [itemDefinitionNetName] = "2"
+            });
+
             //фабрика элементов структуры сайта
             var aiFactoryMoq = new Mock<IAbstractItemFactory>();
             aiFactoryMoq.Setup(x => x.Create(It.IsAny<string>())).Returns((string d) =>
@@ -157,6 +166,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 aiFactoryMoq.Object,
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
+                namingMoq.Object,
                 serviceScopeFactory.Object,
                 serviceProvider.Object
             );
@@ -230,6 +240,19 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 ContentId = abstractItemContentId,
                 ContentAttributes = new List<ContentAttributePersistentData>()
             });
+
+            var namingMoq = new Mock<IQpContentCacheTagNamingProvider>();
+            namingMoq.Setup(x => x.GetByContentNetNames(new[] {abstractItemNetName, itemDefinitionNetName}, siteId, false)).Returns(
+                new Dictionary<string, string>()
+                {
+                    [abstractItemNetName] = "1",
+                    [itemDefinitionNetName] = "2"
+                });
+            namingMoq.Setup(x => x.GetByContentIds(new[] { extensionId }, false)).Returns(
+                new Dictionary<int, string>()
+                {
+                    [extensionId] = "3"
+                });
 
             //корневая и 2 стартовых страницы, тип стартовой страницы подразумевает extension поля
             var aiArray = new[]
@@ -310,6 +333,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 aiFactoryMoq.Object,
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
+                namingMoq.Object,
                 serviceScopeFactory.Object,
                 serviceProvider.Object
             );
@@ -346,6 +370,18 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 SubFolder = "subfolder",
                 TypeName = "Image"
             };
+
+            var namingMoq = new Mock<IQpContentCacheTagNamingProvider>();
+            namingMoq.Setup(x => x.GetByContentNetNames(new[] {abstractItemNetName, itemDefinitionNetName}, siteId, false)).Returns(
+                new Dictionary<string, string>() {
+                    [abstractItemNetName] = "1",
+                    [itemDefinitionNetName] = "2"
+                });
+            namingMoq.Setup(x => x.GetByContentIds(new[] { extensionId }, false)).Returns(
+                new Dictionary<int, string>()
+                {
+                    [extensionId] = "3"
+                });
 
             var metaInfoMoq = new Mock<IMetaInfoRepository>();
             metaInfoMoq.Setup(x => x.GetSite(siteId, null)).Returns(siteData);
@@ -451,6 +487,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 aiFactoryMoq.Object,
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
+                namingMoq.Object,
                 serviceScopeFactory.Object,
                 serviceProvider.Object
             );
@@ -490,6 +527,23 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 M2MLinkId = 435,
                 TypeName = "Relation"
             };
+
+            var namingMoq = new Mock<IQpContentCacheTagNamingProvider>();
+            namingMoq.Setup(x => x.GetByContentNetNames(new[] {abstractItemNetName, itemDefinitionNetName}, siteId, false)).Returns(
+                new Dictionary<string, string>() {
+                    [abstractItemNetName] = "1",
+                    [itemDefinitionNetName] = "2"
+                });
+            namingMoq.Setup(x => x.GetByContentIds(new[] { extensionId }, false)).Returns(
+                new Dictionary<int, string>()
+                {
+                    [extensionId] = "3"
+                });
+            namingMoq.Setup(x => x.GetByContentIds(new[] { extensionId }, false)).Returns(
+                new Dictionary<int, string>()
+                {
+                    [extensionId] = "3"
+                });
 
             var metaInfoMoq = new Mock<IMetaInfoRepository>();
             metaInfoMoq.Setup(x => x.GetContent(abstractItemNetName, siteId, null)).Returns(new ContentPersistentData
@@ -633,6 +687,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 aiFactoryMoq.Object,
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
+                namingMoq.Object,
                 serviceScopeFactory.Object,
                 serviceProvider.Object
             );
@@ -679,6 +734,12 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             };
             aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteId, isStage, null)).Returns(aiArray);
 
+            var namingMoq = new Mock<IQpContentCacheTagNamingProvider>();
+            namingMoq.Setup(x => x.GetByContentNetNames(new[] {abstractItemNetName, itemDefinitionNetName}, siteId, false)).Returns(
+                new Dictionary<string, string>() {
+                    [abstractItemNetName] = "1",
+                    [itemDefinitionNetName] = "2"
+                });
             Mock<IMetaInfoRepository> metaInfoMoq = new Mock<IMetaInfoRepository>();
             metaInfoMoq.Setup(x => x.GetContent(abstractItemNetName, siteId, null)).Returns(new ContentPersistentData
             {
@@ -728,6 +789,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 aiFactoryMoq.Object,
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
+                namingMoq.Object,
                 serviceScopeFactory.Object,
                 serviceProvider.Object
             );
@@ -770,6 +832,12 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             };
             aiRepositoryMoq.Setup(x => x.GetPlainAllAbstractItems(siteId, isStage, null)).Returns(aiArray);
 
+            var namingMoq = new Mock<IQpContentCacheTagNamingProvider>();
+            namingMoq.Setup(x => x.GetByContentNetNames(new[] {abstractItemNetName, itemDefinitionNetName}, siteId, false)).Returns(
+                new Dictionary<string, string>() {
+                    [abstractItemNetName] = "1",
+                    [itemDefinitionNetName] = "2"
+                });
             var metaInfoMoq = new Mock<IMetaInfoRepository>();
             metaInfoMoq.Setup(x => x.GetContent(abstractItemNetName, siteId, null)).Returns(new ContentPersistentData
             {
@@ -826,6 +894,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 aiFactoryMoq.Object,
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
+                namingMoq.Object,
                 serviceScopeFactory.Object,
                 serviceProvider.Object
             );
@@ -842,6 +911,18 @@ namespace QA.DotNetCore.Engine.QpData.Tests
         {
             var extensionId = 777;
             var aiRepositoryMoq = new Mock<IAbstractItemRepository>();
+
+            var namingMoq = new Mock<IQpContentCacheTagNamingProvider>();
+            namingMoq.Setup(x => x.GetByContentNetNames(new[] {abstractItemNetName, itemDefinitionNetName}, siteId, false)).Returns(
+                new Dictionary<string, string>() {
+                    [abstractItemNetName] = "1",
+                    [itemDefinitionNetName] = "2"
+                });
+            namingMoq.Setup(x => x.GetByContentIds(new[] { extensionId }, false)).Returns(
+                new Dictionary<int, string>()
+                {
+                    [extensionId] = "3"
+                });
 
             var metaInfoMoq = new Mock<IMetaInfoRepository>();
             metaInfoMoq.Setup(x => x.GetContent(abstractItemNetName, siteId, null)).Returns(new ContentPersistentData
@@ -932,6 +1013,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 aiFactoryMoq.Object,
                 aiRepositoryMoq.Object,
                 metaInfoMoq.Object,
+                namingMoq.Object,
                 serviceScopeFactory.Object,
                 serviceProvider.Object
             );
@@ -960,14 +1042,12 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             IAbstractItemFactory itemFactory,
             IAbstractItemRepository abstractItemRepository,
             IMetaInfoRepository metaInfoRepository,
+            IQpContentCacheTagNamingProvider namingProvider,
             IServiceScopeFactory scopeFactory,
             IServiceProvider serviceProvider
         )
         {
-            var mockQpContentCacheTagNamingProvider = new Mock<IQpContentCacheTagNamingProvider>();
-            _ = mockQpContentCacheTagNamingProvider
-                .Setup(provider => provider.GetByContentIds(It.IsAny<int[]>(), It.IsAny<bool>()))
-                .Returns<int[], bool>((ids, _) => ids.ToDictionary(id => id, id => id.ToString()));
+
 
             return new QpAbstractItemStorageBuilder(
                 itemFactory,
@@ -976,7 +1056,7 @@ namespace QA.DotNetCore.Engine.QpData.Tests
                 buildSettings,
                 scopeFactory,
                 serviceProvider,
-                mockQpContentCacheTagNamingProvider.Object,
+                namingProvider,
                 _cacheProvider,
                 cacheSettings);
         }

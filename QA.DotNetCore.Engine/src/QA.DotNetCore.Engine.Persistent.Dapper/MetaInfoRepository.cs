@@ -147,7 +147,7 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
                 string.Format(CmdGetContentAttributeByNetName, contentId, fieldNetName), transaction: transaction);
         }
 
-        public ContentPersistentData[] GetContents(ICollection<string> contentNetNames, int siteId, IDbTransaction transaction = null)
+        public ContentPersistentData[] GetContents(string[] contentNetNames, int siteId, IDbTransaction transaction = null)
         {
             string[] normalizedNames = contentNetNames.Select(name => name.ToLower()).ToArray();
             return GetContentsCore(

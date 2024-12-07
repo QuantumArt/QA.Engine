@@ -28,7 +28,7 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests
             var metaRepository = new MetaInfoRepository(serviceProvider, cacheProvider, settings, NullLogger<MetaInfoRepository>.Instance);
             var sqlAnalyzer = new NetNameQueryAnalyzer(metaRepository);
             _repository = new ItemDefinitionRepository(serviceProvider, sqlAnalyzer, new StubNamingProvider(),
-                cacheProvider, settings);
+                cacheProvider, settings, NullLogger<ItemDefinitionRepository>.Instance);
         }
 
         [Test]

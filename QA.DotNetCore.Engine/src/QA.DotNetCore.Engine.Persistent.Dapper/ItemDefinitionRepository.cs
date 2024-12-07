@@ -28,14 +28,15 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             INetNameQueryAnalyzer netNameQueryAnalyzer,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
             ICacheProvider cacheProvider,
-            QpSiteStructureCacheSettings cacheSettings)
+            QpSiteStructureCacheSettings cacheSettings,
+            ILogger<ItemDefinitionRepository> logger)
         {
             _serviceProvider = serviceProvider;
             _netNameQueryAnalyzer = netNameQueryAnalyzer;
             _cacheSettings = cacheSettings;
             _cacheProvider = cacheProvider;
             _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
-            _logger = _serviceProvider.GetService<ILogger<ItemDefinitionRepository>>();
+            _logger = logger;
         }
 
         protected IUnitOfWork UnitOfWork

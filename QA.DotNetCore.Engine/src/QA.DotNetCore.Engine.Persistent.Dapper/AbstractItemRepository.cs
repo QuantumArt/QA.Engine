@@ -50,7 +50,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
                 if (_unitOfWork == null)
                 {
                     _unitOfWork = _serviceProvider.GetRequiredService<IUnitOfWork>();
-                    _logger.BeginScopeWith(("unitOfWorkId", _unitOfWork.Id));
+                    using var _ = _logger.BeginScopeWith(("unitOfWorkId", _unitOfWork.Id));
                     _logger.LogTrace("Received UnitOfWork from ServiceProvider");
                 }
                 return _unitOfWork;
@@ -96,7 +96,7 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
                 expiry,
                 () =>
                 {
-                    _logger.BeginScopeWith(
+                    using var _ = _logger.BeginScopeWith(
                         ("unitOfWorkId", UnitOfWork.Id),
                         ("siteId", siteId),
                         ("isStage", isStage),
@@ -112,7 +112,6 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
         /// Получить Content_item_id расширений
         /// </summary>
         /// <param name="extensionContentIds">Словарь ID контента расширений и использующия их коллекция AbstractItems</param>
-        /// <param name="isStage"></param>
         /// <param name="transaction"></param>
         /// <returns></returns>
         public IEnumerable<int> GetAbstractItemExtensionIds(IReadOnlyCollection<int> extensionContentIds,
@@ -132,7 +131,7 @@ JOIN {idListTableName} on Id = ext.CONTENT_ID";
                 extensionContentIds.Where(id => id != 0),
                 UnitOfWork.DatabaseType);
 
-            _logger.BeginScopeWith(
+            using var _ = _logger.BeginScopeWith(
                 ("unitOfWorkId", UnitOfWork.Id),
                 ("extensionContentIds", extensionContentIds));
             _logger.LogTrace("Get abstract items extension ids");
@@ -140,7 +139,7 @@ JOIN {idListTableName} on Id = ext.CONTENT_ID";
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = extensionItemsQuery;
             command.Transaction = transaction;
-            _ = command.Parameters.Add(parameter);
+            command.Parameters.Add(parameter);
 
             using var reader = command.ExecuteReader();
 
@@ -170,7 +169,7 @@ SELECT cast(ai.content_item_id as numeric) as Id{extFields}, ai.*
 FROM {extTableName} ext {withNoLock}
 JOIN {baseContent.GetTableName(isStage)} ai {withNoLock} on ai.content_item_id = ext.itemid";
 
-            _logger.BeginScopeWith(
+            using var _ = _logger.BeginScopeWith(
                 ("unitOfWorkId", UnitOfWork.Id),
                 ("extensionContentId", extensionContentId),
                 ("loadAbstractItemFields", loadAbstractItemFields),
@@ -196,7 +195,7 @@ JOIN {baseContent.GetTableName(isStage)} ai {withNoLock} on ai.content_item_id =
 SELECT * FROM {baseContent.GetTableName(isStage)} ai {withNoLock}
 JOIN {idListTable} on Id = ai.Content_item_id";
 
-            _logger.BeginScopeWith(
+            using var _ = _logger.BeginScopeWith(
                 ("unitOfWorkId", UnitOfWork.Id),
                 ("ids", ids),
                 ("isStage", isStage));
@@ -256,7 +255,7 @@ JOIN {idListTable} on Id = link.item_id
 JOIN content_item ci {withNoLock} on ci.content_item_id = link.linked_item_id
 WHERE ci.archive = 0";
 
-            _logger.BeginScopeWith(
+            using var _ = _logger.BeginScopeWith(
                 ("unitOfWorkId", UnitOfWork.Id),
                 ("ids", itemIds),
                 ("isStage", isStage));
@@ -287,7 +286,7 @@ FROM {m2MTableName} link {withNoLock}
 JOIN CONTENT_ITEM e {withNoLock} ON e.CONTENT_ITEM_ID = link.item_id
 JOIN {idListTableName} on Id = e.CONTENT_ID";
 
-            _logger.BeginScopeWith(
+            using var _ = _logger.BeginScopeWith(
                 ("unitOfWorkId", UnitOfWork.Id),
                 ("contentIds", contentIds),
                 ("isStage", isStage));

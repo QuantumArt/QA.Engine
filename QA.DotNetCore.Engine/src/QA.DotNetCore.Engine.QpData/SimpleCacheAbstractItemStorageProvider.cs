@@ -63,7 +63,7 @@ namespace QA.DotNetCore.Engine.QpData
                 _cacheSettings.SiteStructureCachePeriod,
                 () =>
                 {
-                    _logger.BeginScopeWith(("cacheKey", cacheKey),
+                    using var _ = _logger.BeginScopeWith(("cacheKey", cacheKey),
                         ("cacheTags", cacheTags),
                         ("expiry", _cacheSettings.SiteStructureCachePeriod));
                     _logger.LogInformation("Building storage");

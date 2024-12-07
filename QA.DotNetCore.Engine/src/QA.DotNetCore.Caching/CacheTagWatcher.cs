@@ -32,7 +32,7 @@ namespace QA.DotNetCore.Caching
         public void TrackChanges()
         {
             var checkId = Guid.NewGuid().ToString();
-            _logger.BeginScopeWith(("invalidationId", checkId));
+            using var _ = _logger.BeginScopeWith(("invalidationId", checkId));
             _logger.LogInformation("Invalidation started");
             _modificationStateStorage.Update(previousModifications =>
             {
@@ -40,7 +40,7 @@ namespace QA.DotNetCore.Caching
                 {
                     var currentModifications = GetCurrentCacheTagModifications();
                     var cacheTagsToInvalidate = GetCacheTagsToInvalidate(previousModifications, currentModifications);
-                    InvalidateTags(cacheTagsToInvalidate, checkId);
+                    InvalidateTags(cacheTagsToInvalidate);
                     _logger.LogInformation("Invalidation completed");
                     return currentModifications;
                 }
@@ -63,7 +63,7 @@ namespace QA.DotNetCore.Caching
             var modifications = changedModifications
                 .Select(n => n.ToString())
                 .ToArray();
-            _logger.BeginScopeWith(("modifications", modifications));
+            using var _ = _logger.BeginScopeWith(("modifications", modifications));
             _logger.LogTrace("Changed modifications");
 
             if (changedModifications.Length <= 0)
@@ -88,14 +88,11 @@ namespace QA.DotNetCore.Caching
             return cacheTagsToInvalidate.ToArray();
         }
 
-        private void InvalidateTags(string[] cacheTagsToInvalidate, string checkId)
+        private void InvalidateTags(string[] cacheTagsToInvalidate)
         {
-            var scopeData = new Dictionary<string, object> { { "invalidationId", checkId } };
-            using var logScope = _logger.BeginScope(scopeData);
             if (cacheTagsToInvalidate.Length > 0)
             {
-                var scopeData2 = new Dictionary<string, object> { { "tags", cacheTagsToInvalidate } };
-                using var logScope2 = _logger.BeginScope(scopeData2);
+                using var _ = _logger.BeginScopeWith(("tags", cacheTagsToInvalidate));
                 _logger.LogInformation("Invalidate tags");
                 _cacheInvalidator.InvalidateByTags(cacheTagsToInvalidate.ToArray());
             }

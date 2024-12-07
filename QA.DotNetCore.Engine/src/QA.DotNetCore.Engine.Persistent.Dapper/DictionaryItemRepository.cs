@@ -27,7 +27,7 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper
             get
             {
                 var uow = _serviceProvider.GetRequiredService<IUnitOfWork>();
-                _logger.BeginScopeWith(("unitOfWorkId", uow.Id));
+                using var _ = _logger.BeginScopeWith(("unitOfWorkId", uow.Id));
                 _logger.LogTrace("Received UnitOfWork from ServiceProvider");
                 return uow;
             }
@@ -100,7 +100,7 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper
                 expiry,
                 () =>
                 {
-                    _logger.BeginScopeWith(
+                    using var _ = _logger.BeginScopeWith(
                         ("unitOfWorkId", UnitOfWork.Id),
                         ("siteId", siteId),
                         ("isStage", isStage),

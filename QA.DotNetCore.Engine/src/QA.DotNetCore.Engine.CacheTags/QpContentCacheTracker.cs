@@ -31,7 +31,7 @@ namespace QA.DotNetCore.Engine.CacheTags
         public IEnumerable<CacheTagModification> TrackChanges(IServiceProvider provider)
         {
             var unitOfWork = provider.GetRequiredService<IUnitOfWork>();
-            _logger.BeginScopeWith(("unitOfWorkId", unitOfWork.Id));
+            using var _ = _logger.BeginScopeWith(("unitOfWorkId", unitOfWork.Id));
             _logger.LogTrace("Received UnitOfWork from ServiceProvider");
             _contentModificationRepository.SetUnitOfWork(unitOfWork);
             _qpContentCacheTagNamingProvider.SetUnitOfWork(unitOfWork);

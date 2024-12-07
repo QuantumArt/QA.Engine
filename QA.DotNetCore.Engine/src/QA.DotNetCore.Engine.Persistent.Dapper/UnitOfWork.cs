@@ -39,7 +39,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             }
 
             CustomerCode = customerCode;
-            _logger.BeginScopeWith(("unitOfWorkId", Id));
+            using var _ = _logger.BeginScopeWith(("unitOfWorkId", Id));
             _logger.LogTrace("Creating connection for UnitOfWork");
             Connection.Open();
         }
@@ -64,7 +64,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
                     // Free other state (managed objects).
                     if (Connection.State != ConnectionState.Closed)
                     {
-                        _logger.BeginScopeWith(("unitOfWorkId", Id));
+                        using var _ = _logger.BeginScopeWith(("unitOfWorkId", Id));
                         _logger.LogTrace("Closing connection for UnitOfWork");
                         Connection.Close();
                     }

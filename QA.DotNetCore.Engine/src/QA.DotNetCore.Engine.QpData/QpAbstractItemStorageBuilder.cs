@@ -58,7 +58,7 @@ namespace QA.DotNetCore.Engine.QpData
 
         public AbstractItemStorage BuildStorage(AbstractItem[] abstractItems)
         {
-            _logger.BeginScopeWith(("buildId", _context.Id),
+            using var _ = _logger.BeginScopeWith(("buildId", _context.Id),
                 ("siteId", _buildSettings.SiteId),
                 ("isStage", _buildSettings.IsStage));
 
@@ -83,7 +83,7 @@ namespace QA.DotNetCore.Engine.QpData
                 throw new ArgumentNullException(nameof(_context));
             }
 
-            _logger.BeginScopeWith(("buildId", _context.Id));
+            using var _ = _logger.BeginScopeWith(("buildId", _context.Id));
 
             using (_logger.BeginScopeWith(
                        ("siteId", _buildSettings.SiteId),
@@ -301,7 +301,7 @@ namespace QA.DotNetCore.Engine.QpData
                 _cacheSettings.SiteStructureCachePeriod,
                 () =>
                 {
-                    _logger.BeginScopeWith(
+                    using var _ = _logger.BeginScopeWith(
                         ("cacheKey", cacheKey),
                         ("cacheTags", abstractItemTags),
                         ("expiry", _cacheSettings.SiteStructureCachePeriod),
@@ -329,7 +329,7 @@ namespace QA.DotNetCore.Engine.QpData
                 () =>
                 {
                     var extensionKeys = extensions.Keys.Where(k => k != 0).ToArray();
-                    _logger.BeginScopeWith(
+                    using var _ = _logger.BeginScopeWith(
                         ("cacheKey", cacheKey),
                         ("cacheTags", tags),
                         ("extensionIds", extensionKeys),
@@ -383,7 +383,7 @@ namespace QA.DotNetCore.Engine.QpData
                     _cacheSettings.SiteStructureCachePeriod,
                     () =>
                     {
-                        _logger.BeginScopeWith(
+                        using var _ = _logger.BeginScopeWith(
                             ("cacheKey", cacheKey),
                             ("cacheTags", tags),
                             ("scope", scopeString),
@@ -408,7 +408,7 @@ namespace QA.DotNetCore.Engine.QpData
                     _cacheSettings.SiteStructureCachePeriod,
                     () =>
                     {
-                        _logger.BeginScopeWith(
+                        using var _ = _logger.BeginScopeWith(
                             ("cacheKey", cacheKey),
                             ("cacheTags", tags),
                             ("scope", scopeString),
@@ -490,7 +490,7 @@ namespace QA.DotNetCore.Engine.QpData
 
             if (!extensionData.TryGetValue(item.Id, out var details))
             {
-                _logger.BeginScopeWith(("buildId", _context.Id));
+                using var _ = _logger.BeginScopeWith(("buildId", _context.Id));
                 _logger.LogTrace("Not found data for extension {id}", extensionContentId);
 
                 return null;

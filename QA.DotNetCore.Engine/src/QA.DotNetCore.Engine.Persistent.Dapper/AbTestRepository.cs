@@ -34,7 +34,7 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper
                 if (_unitOfWork == null)
                 {
                     _unitOfWork = _serviceProvider.GetRequiredService<IUnitOfWork>();
-                    _logger.BeginScopeWith(("unitOfWorkId", _unitOfWork.Id));
+                    using var _ = _logger.BeginScopeWith(("unitOfWorkId", _unitOfWork.Id));
                     _logger.LogTrace("Received UnitOfWork from ServiceProvider");
                 }
                 return _unitOfWork;
@@ -132,7 +132,7 @@ JOIN |AbTestClientRedirectContainer| rcont on rcont.content_item_id = r.|AbTestC
         {
             var currentDate = DateTime.Now;
             var scriptContainersQuery = _netNameQueryAnalyzer.PrepareQuery(CmdGetTestsContainers, siteId, isStage);
-            _logger.BeginScopeWith(("unitOfWorkId", UnitOfWork.Id),
+            using var _ = _logger.BeginScopeWith(("unitOfWorkId", UnitOfWork.Id),
                 ("isStage", isStage),
                 ("siteId", siteId));
             _logger.LogTrace("Get test containers");
@@ -141,7 +141,7 @@ JOIN |AbTestClientRedirectContainer| rcont on rcont.content_item_id = r.|AbTestC
             var scriptContainersDict = UnitOfWork.Connection.Query<AbTestScriptContainerPersistentData>(scriptContainersQuery, new { currentDate, onlyActive = onlyActive ? 1 : 0, containerType }, transaction).ToDictionary(_ => _.Id);
 
             var scriptQuery = _netNameQueryAnalyzer.PrepareQuery(CmdGetAbTestScripts, siteId, isStage);
-            using (_ = _logger.BeginScopeWith(("currentDate", currentDate),
+            using (_logger.BeginScopeWith(("currentDate", currentDate),
                        ("onlyActive", onlyActive),
                        ("containerType", containerType)))
             {
@@ -182,7 +182,7 @@ JOIN |AbTestClientRedirectContainer| rcont on rcont.content_item_id = r.|AbTestC
         private IEnumerable<AbTestPersistentData> GetTests(int siteId, bool isStage, bool onlyActive, IDbTransaction transaction)
         {
             var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetTests, siteId, isStage);
-            _logger.BeginScopeWith(("unitOfWorkId", UnitOfWork.Id),
+            using var _ = _logger.BeginScopeWith(("unitOfWorkId", UnitOfWork.Id),
                 ("isStage", isStage),
                 ("siteId", siteId));
             _logger.LogTrace("Get tests");

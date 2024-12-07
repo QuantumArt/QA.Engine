@@ -41,7 +41,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
                 if (_unitOfWork == null)
                 {
                     _unitOfWork = _serviceProvider.GetRequiredService<IUnitOfWork>();
-                    _logger.BeginScopeWith(("unitOfWorkId", _unitOfWork.Id));
+                    using var _ = _logger.BeginScopeWith(("unitOfWorkId", _unitOfWork.Id));
                     _logger.LogTrace("Received UnitOfWork from ServiceProvider");
                 }
                 return _unitOfWork;
@@ -116,7 +116,7 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
 
         public QpSitePersistentData GetSite(int siteId, IDbTransaction transaction = null)
         {
-            _logger.BeginScopeWith(("unitOfWorkId", UnitOfWork.Id), ("siteId", siteId));
+            using var _ = _logger.BeginScopeWith(("unitOfWorkId", UnitOfWork.Id), ("siteId", siteId));
             _logger.LogTrace("Get site info from DB");
             return UnitOfWork.Connection.QueryFirst<QpSitePersistentData>(string.Format(CmdGetSite, siteId), transaction: transaction);
         }
@@ -128,7 +128,7 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
 
         public ContentAttributePersistentData GetContentAttribute(int contentId, string fieldName, IDbTransaction transaction = null)
         {
-            _logger.BeginScopeWith(
+            using var _ = _logger.BeginScopeWith(
                 ("unitOfWorkId", UnitOfWork.Id),
                 ("fieldName", fieldName),
                 ("contentId", contentId));
@@ -139,7 +139,7 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
 
         public ContentAttributePersistentData GetContentAttributeByNetName(int contentId, string fieldNetName, IDbTransaction transaction = null)
         {
-            _logger.BeginScopeWith(
+            using var _ = _logger.BeginScopeWith(
                 ("unitOfWorkId", UnitOfWork.Id),
                 ("fieldNetName", fieldNetName),
                 ("contentId", contentId));
@@ -204,7 +204,7 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
                 expiry,
                 () =>
                 {
-                    _logger.BeginScopeWith(
+                    using var _ = _logger.BeginScopeWith(
                         ("unitOfWorkId", UnitOfWork.Id),
                         ("templateId", templateId),
                         ("parameters", parameterValues),

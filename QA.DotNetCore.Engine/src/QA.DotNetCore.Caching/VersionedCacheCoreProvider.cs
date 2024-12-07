@@ -149,7 +149,7 @@ namespace QA.DotNetCore.Caching
         /// <param name="tags">Теги</param>
         public virtual void InvalidateByTags(params string[] tags)
         {
-            _logger.BeginScopeWith(("tags", tags));
+            using var _ = _logger.BeginScopeWith(("tags", tags));
             _logger.LogTrace("Invalidate by tags");
             foreach (var tag in tags)
             {
@@ -262,7 +262,7 @@ namespace QA.DotNetCore.Caching
                     }
                     else
                     {
-                        _logger.BeginScopeWith(
+                        using var _ = _logger.BeginScopeWith(
                             ("cacheKey", cacheKey),
                             ("waitTimeout", waitForCalculateTimeout)
                         );
@@ -363,7 +363,7 @@ namespace QA.DotNetCore.Caching
                     }
                     else
                     {
-                        _logger.BeginScopeWith(
+                        using var _ = _logger.BeginScopeWith(
                             ("cacheKey", cacheKey),
                             ("waitTimeout", waitForCalculateTimeout)
                         );

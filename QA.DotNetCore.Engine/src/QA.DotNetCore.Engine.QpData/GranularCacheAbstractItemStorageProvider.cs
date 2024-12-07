@@ -76,7 +76,7 @@ namespace QA.DotNetCore.Engine.QpData
                 expiry,
                 () =>
                 {
-                    _logger.BeginScopeWith(("cacheKey", cacheKey),
+                    using var _ = _logger.BeginScopeWith(("cacheKey", cacheKey),
                         ("cacheTags", tags.AllTags),
                         ("expiry", expiry),
                         ("waitTimeout", waitTimeout));

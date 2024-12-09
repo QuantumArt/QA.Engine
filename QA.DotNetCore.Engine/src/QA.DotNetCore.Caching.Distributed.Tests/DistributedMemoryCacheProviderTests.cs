@@ -369,11 +369,11 @@ public class DistributedMemoryCacheProviderTests
     {
         // Arrange
         _mockDistributedTaggedCache
-            .Setup(cache => cache.Get<string>(It.IsAny<string[]>()))
+            .Setup(cache => cache.Get<string>(It.IsAny<IEnumerable<string>>()))
             .Returns(GetValues);
 
         _mockDistributedTaggedCache
-            .Setup(cache => cache.Exist(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
+            .Setup(cache => cache.Exist(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .Returns(GetFlags);
 
         var provider = CreateProvider(_mockDistributedTaggedCache.Object);
@@ -413,9 +413,9 @@ public class DistributedMemoryCacheProviderTests
     public void Get_MissingKeys_NullValues(string[] keys)
     {
         _mockDistributedTaggedCache
-            .Setup(cache => cache.Get<string>(It.IsAny<string[]>())).Returns(GetValues);
+            .Setup(cache => cache.Get<string>(It.IsAny<IEnumerable<string>>())).Returns(GetValues);
         _mockDistributedTaggedCache
-            .Setup(cache => cache.Exist(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
+            .Setup(cache => cache.Exist(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .Returns(GetFlags);
         // Arrange
         var provider = CreateProvider(_mockDistributedTaggedCache.Object);
@@ -443,7 +443,7 @@ public class DistributedMemoryCacheProviderTests
     public void IsSet_ExistingKey_IsExist(string[] keys)
     {
         _mockDistributedTaggedCache
-            .Setup(cache => cache.Exist(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
+            .Setup(cache => cache.Exist(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .Returns(Enumerable.Repeat(true, keys.Length));
         // Arrange
         var provider = CreateProvider(_mockDistributedTaggedCache.Object);
@@ -464,7 +464,7 @@ public class DistributedMemoryCacheProviderTests
     {
         // Arrange
         _ = _mockDistributedTaggedCache
-            .Setup(cache => cache.Exist(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
+            .Setup(cache => cache.Exist(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .Returns(Enumerable.Repeat(false, keys.Length));
 
         var provider = CreateProvider(_mockDistributedTaggedCache.Object);
@@ -486,7 +486,7 @@ public class DistributedMemoryCacheProviderTests
 
         _mockDistributedTaggedCache
             .Setup(cache => cache.Exist(
-                It.IsAny<string[]>(),
+                It.IsAny<IEnumerable<string>>(),
                 It.IsAny<CancellationToken>())
             ).Returns(new[] {false});
 
@@ -509,12 +509,12 @@ public class DistributedMemoryCacheProviderTests
         DateTime value = DateTime.UtcNow;
         _mockDistributedTaggedCache
             .Setup(cache => cache.Exist(
-                It.IsAny<string[]>(),
+                It.IsAny<IEnumerable<string>>(),
                 It.IsAny<CancellationToken>())
             ).Returns(new[] {true});
 
         _ = _mockDistributedTaggedCache
-            .Setup(cache => cache.Get<DateTime>(It.IsAny<string[]>()))
+            .Setup(cache => cache.Get<DateTime>(It.IsAny<IEnumerable<string>>()))
             .Returns(new[] {value});
 
         var provider = CreateProvider(_mockDistributedTaggedCache.Object);

@@ -13,19 +13,21 @@ namespace QA.DotNetCore.Caching.Distributed
 {
     public partial class RedisCache
     {
-        public async Task<IEnumerable<bool>> ExistAsync(string[] keys, CancellationToken token = default)
+        public async Task<IEnumerable<bool>> ExistAsync(IEnumerable<string> keys, CancellationToken token = default)
         {
             if (keys is null)
             {
                 throw new ArgumentNullException(nameof(keys));
             }
 
-            if (!keys.Any())
+            var keysArr = keys.ToArray();
+
+            if (!keysArr.Any())
             {
                 return Enumerable.Empty<bool>();
             }
 
-            RedisKey[] dataKeys = keys
+            RedisKey[] dataKeys = keysArr
                 .Select(key => new RedisKey(key))
                 .ToArray();
 
@@ -44,19 +46,21 @@ namespace QA.DotNetCore.Caching.Distributed
             return existFlags;
         }
 
-        public async Task<IEnumerable<byte[]>> GetAsync(string[] keys, CancellationToken token = default)
+        public async Task<IEnumerable<byte[]>> GetAsync(IEnumerable<string> keys, CancellationToken token = default)
         {
             if (keys is null)
             {
                 throw new ArgumentNullException(nameof(keys));
             }
 
-            if (!keys.Any())
+            var keysArr = keys.ToArray();
+
+            if (!keysArr.Any())
             {
                 return Enumerable.Empty<byte[]>();
             }
 
-            var dataKeys = keys
+            var dataKeys = keysArr
                 .Select(k => new RedisKey(k))
                 .ToArray();
 
@@ -110,7 +114,7 @@ namespace QA.DotNetCore.Caching.Distributed
         }
 
         public async Task SetAsync(string key,
-            string[] tags,
+            IEnumerable<string> tags,
             TimeSpan expiry,
             MemoryStream dataStream,
             string deprecatedKey,
@@ -147,7 +151,7 @@ namespace QA.DotNetCore.Caching.Distributed
 
                 Exception[] exceptions = transactionOperations
                     .Where(operation => operation.IsFaulted)
-                    .Select(operation => operation.Exception)
+                    .Select(Exception (operation) => operation.Exception)
                     .ToArray();
 
                 if (exceptions.Any())

@@ -129,19 +129,21 @@ namespace QA.DotNetCore.Caching.Distributed
         }
 
 
-        public IEnumerable<bool> Exist(string[] keys, CancellationToken token = default)
+        public IEnumerable<bool> Exist(IEnumerable<string> keys, CancellationToken token = default)
         {
             if (keys is null)
             {
                 throw new ArgumentNullException(nameof(keys));
             }
 
-            if (!keys.Any())
+            var keysArr = keys.ToArray();
+
+            if (!keysArr.Any())
             {
                 return Enumerable.Empty<bool>();
             }
 
-            RedisKey[] dataKeys = keys
+            RedisKey[] dataKeys = keysArr
                 .Select(key => new RedisKey(key))
                 .ToArray();
 
@@ -161,11 +163,12 @@ namespace QA.DotNetCore.Caching.Distributed
             return existFlags;
         }
 
-        public IEnumerable<TResult> Get<TResult>(string[] keys)
+        public IEnumerable<TResult> Get<TResult>(IEnumerable<string> keys)
         {
-            var dataValues = Get(keys);
+            var keysArr = keys.ToArray();
+            var dataValues = Get(keysArr);
 
-            foreach ((string key, byte[] data) in keys.Zip(dataValues))
+            foreach ((string key, byte[] data) in keysArr.Zip(dataValues))
             {
                 yield return TryDeserializeData(key, data, out TResult value)
                     ? value
@@ -218,7 +221,7 @@ namespace QA.DotNetCore.Caching.Distributed
 
         public void Set(
             string key,
-            string[] tags,
+            IEnumerable<string> tags,
             TimeSpan expiry,
             MemoryStream dataStream,
             string deprecatedKey = null,

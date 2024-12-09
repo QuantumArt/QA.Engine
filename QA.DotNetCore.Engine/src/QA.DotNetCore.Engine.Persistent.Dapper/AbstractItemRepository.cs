@@ -16,9 +16,6 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
     public class AbstractItemRepository : IAbstractItemRepository
     {
-        private static readonly IReadOnlyDictionary<int, M2MRelations> _emptyResult =
-            new Dictionary<int, M2MRelations>();
-
         private readonly ILogger _logger;
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         private readonly ICacheProvider _cacheProvider;
@@ -183,7 +180,7 @@ JOIN {baseContent.GetTableName(isStage)} ai {withNoLock} on ai.content_item_id =
         }
 
         public IDictionary<int, AbstractItemExtensionCollection> GetAbstractItemExtensionlessData(
-            int[] ids,
+            IEnumerable<int> ids,
             ContentPersistentData baseContent,
             bool isStage,
             IDbTransaction transaction = null)
@@ -242,7 +239,7 @@ JOIN {idListTable} on Id = ai.Content_item_id";
             return result;
         }
 
-        public IDictionary<int, M2MRelations> GetManyToManyData(int[] itemIds, bool isStage, IDbTransaction transaction = null)
+        public IDictionary<int, M2MRelations> GetManyToManyData(IEnumerable<int> itemIds, bool isStage, IDbTransaction transaction = null)
         {
             var m2MTableName = QpTableNameHelper.GetM2MTableName(isStage);
             var idListTable = SqlQuerySyntaxHelper.IdList(UnitOfWork.DatabaseType, "@ids", "ids");
@@ -270,7 +267,7 @@ WHERE ci.archive = 0";
         }
 
         public IDictionary<int, M2MRelations> GetManyToManyDataByContents(
-            int[] contentIds,
+            IEnumerable<int> contentIds,
             bool isStage,
             IDbTransaction transaction = null)
         {

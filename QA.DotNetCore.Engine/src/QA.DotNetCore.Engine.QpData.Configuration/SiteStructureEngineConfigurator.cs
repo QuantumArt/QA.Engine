@@ -200,15 +200,11 @@ namespace QA.DotNetCore.Engine.QpData.Configuration
                     throw new Exception("QpDatabaseType is not configured.");
                 }
 
-                Services.AddScoped<IUnitOfWork, UnitOfWork>(sp => new UnitOfWork(
+                Services.AddScoped<IUnitOfWork>(sp => new UnitOfWork(
                     options.QpConnectionString,
                     options.QpDatabaseType,
-                    sp.GetRequiredService<ILoggerFactory>().CreateLogger<UnitOfWork>())
+                    sp.GetRequiredService<ILogger<UnitOfWork>>())
                 );
-
-                Services.AddScoped<Func<IUnitOfWork>>(sp => sp.GetRequiredService<IUnitOfWork>);
-                Services.AddScoped<Func<IServiceProvider, IUnitOfWork>>(_ => (provider) => provider.GetRequiredService<IUnitOfWork>());
-
             }
         }
     }

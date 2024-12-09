@@ -1,44 +1,47 @@
-using Microsoft.Extensions.Logging;
-using QA.DotNetCore.Caching.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
+using QA.DotNetCore.Caching.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Logging;
 
 namespace QA.DotNetCore.Caching
 {
     public class CacheTagWatcher : ICacheTagWatcher
     {
+        private readonly ILogger _logger;
         private readonly ICacheTrackersAccessor _trackersAccessor;
         private readonly ICacheInvalidator _cacheInvalidator;
-        private readonly ILogger<CacheTagWatcher> _logger;
         private readonly IModificationStateStorage _modificationStateStorage;
+        private readonly IServiceProvider _provider;
 
         public CacheTagWatcher(
             ICacheTrackersAccessor trackersAccessor,
             ICacheInvalidator cacheInvalidator,
-            ILogger<CacheTagWatcher> logger,
-            IModificationStateStorage modificationStateStorage)
+            IModificationStateStorage modificationStateStorage,
+            IServiceProvider provider,
+            ILogger<CacheTagWatcher> logger)
         {
             _trackersAccessor = trackersAccessor;
             _cacheInvalidator = cacheInvalidator;
-            _logger = logger;
             _modificationStateStorage = modificationStateStorage;
+            _provider = provider;
+            _logger = logger;
         }
 
-        public void TrackChanges(IServiceProvider provider)
+        public void TrackChanges()
         {
-            var checkId = Guid.NewGuid();
-            using var invalidationScope = _logger.BeginScope("InvalidationId", checkId);
-
-            _logger.LogTrace("Invalidation started");
-
-            _modificationStateStorage.Update((previousModifications) =>
+            var checkId = Guid.NewGuid().ToString();
+            using var _ = _logger.BeginScopeWith(("invalidationId", checkId));
+            _logger.LogInformation("Invalidation started");
+            _modificationStateStorage.Update(previousModifications =>
             {
                 try
                 {
-                    var currentModifications = GetCurrentCacheTagModifications(provider);
+                    var currentModifications = GetCurrentCacheTagModifications();
                     var cacheTagsToInvalidate = GetCacheTagsToInvalidate(previousModifications, currentModifications);
                     InvalidateTags(cacheTagsToInvalidate);
+                    _logger.LogInformation("Invalidation completed");
                     return currentModifications;
                 }
                 catch (Exception e)
@@ -57,10 +60,11 @@ namespace QA.DotNetCore.Caching
                 ? currentModifications.Except(previousModifications).ToArray()
                 : Array.Empty<CacheTagModification>();
 
-            var changedModificationsString = String.Join(", ", changedModifications.Select(
-                n => n.Name + " - " + n.Modified.ToLongTimeString()
-            ));
-            _logger.LogDebug($"Changed modifications: ({changedModificationsString})");
+            var modifications = changedModifications
+                .Select(n => n.ToString())
+                .ToArray();
+            using var _ = _logger.BeginScopeWith(("modifications", modifications));
+            _logger.LogTrace("Changed modifications");
 
             if (changedModifications.Length <= 0)
             {
@@ -88,10 +92,8 @@ namespace QA.DotNetCore.Caching
         {
             if (cacheTagsToInvalidate.Length > 0)
             {
-                _logger.LogInformation(
-                    "Invalidate tags: {InvalidTags}",
-                    String.Join(", ", cacheTagsToInvalidate)
-                );
+                using var _ = _logger.BeginScopeWith(("tags", cacheTagsToInvalidate));
+                _logger.LogInformation("Invalidate tags");
                 _cacheInvalidator.InvalidateByTags(cacheTagsToInvalidate.ToArray());
             }
             else
@@ -100,10 +102,10 @@ namespace QA.DotNetCore.Caching
             }
         }
 
-        private HashSet<CacheTagModification> GetCurrentCacheTagModifications(IServiceProvider provider)
+        private HashSet<CacheTagModification> GetCurrentCacheTagModifications()
         {
-            var modifications = _trackersAccessor.Get(provider)
-                .Select(tracker => tracker.TrackChanges())
+            var modifications = _trackersAccessor.Get(_provider)
+                .Select(tracker => tracker.TrackChanges(_provider))
                 .SelectMany(modifications => modifications)
                 .Reverse()
                 .ToArray();

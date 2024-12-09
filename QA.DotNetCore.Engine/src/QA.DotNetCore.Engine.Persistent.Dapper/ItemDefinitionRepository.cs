@@ -8,11 +8,14 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Microsoft.Extensions.Logging;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Logging;
 
 namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
     public class ItemDefinitionRepository : IItemDefinitionRepository
     {
+        private readonly ILogger _logger;
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         private readonly ICacheProvider _cacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
@@ -25,16 +28,27 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             INetNameQueryAnalyzer netNameQueryAnalyzer,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
             ICacheProvider cacheProvider,
-            QpSiteStructureCacheSettings cacheSettings)
+            QpSiteStructureCacheSettings cacheSettings,
+            ILogger<ItemDefinitionRepository> logger)
         {
             _serviceProvider = serviceProvider;
             _netNameQueryAnalyzer = netNameQueryAnalyzer;
             _cacheSettings = cacheSettings;
             _cacheProvider = cacheProvider;
             _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
+            _logger = logger;
         }
 
-        protected IUnitOfWork UnitOfWork { get { return _serviceProvider.GetRequiredService<IUnitOfWork>(); } }
+        protected IUnitOfWork UnitOfWork
+        {
+            get
+            {
+                var uow = _serviceProvider.GetRequiredService<IUnitOfWork>();
+                using var _ = _logger.BeginScopeWith(("unitOfWorkId", uow.Id));
+                _logger.LogTrace("Received UnitOfWork from ServiceProvider");
+                return uow;
+            }
+        }
 
         private const string CmdGetAll = @"
 SELECT
@@ -55,12 +69,15 @@ FROM |QPDiscriminator|
 
         public IEnumerable<ItemDefinitionPersistentData> GetAllItemDefinitions(int siteId, bool isStage, IDbTransaction transaction = null)
         {
-            var connection = UnitOfWork.Connection;
             var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAll, siteId, isStage, potentiallyMissingColumns: _potentiallyMissingColumns);
 
             var cacheKey = query;
-            var cacheTags = _netNameQueryAnalyzer.GetContentNetNames(CmdGetAll, siteId, isStage)
-                .Select(name => _qpContentCacheTagNamingProvider.GetByNetName(name, siteId, isStage))
+            var contentNetNames = _netNameQueryAnalyzer
+                .GetContentNetNames(CmdGetAll, siteId, isStage)
+                .ToArray();
+            var cacheTags = _qpContentCacheTagNamingProvider
+                .GetByContentNetNames(contentNetNames, siteId, isStage)
+                .Select(n => n.Value)
                 .ToArray();
             var expiry = _cacheSettings.ItemDefinitionCachePeriod;
 
@@ -68,7 +85,18 @@ FROM |QPDiscriminator|
                 cacheKey,
                 cacheTags,
                 expiry,
-                () => connection.Query<ItemDefinitionPersistentData>(query, transaction).ToList());
+                () =>
+                {
+                    using var _ = _logger.BeginScopeWith(
+                        ("unitOfWorkId", UnitOfWork.Id),
+                        ("siteId", siteId),
+                        ("isStage", isStage),
+                        ("cacheKey", cacheKey),
+                        ("cacheTags", cacheTags),
+                        ("expiry", expiry));
+                    _logger.LogTrace("Get all item definitions");
+                    return UnitOfWork.Connection.Query<ItemDefinitionPersistentData>(query, transaction).ToList();
+                });
         }
     }
 }

@@ -1,20 +1,25 @@
-using QA.DotNetCore.Engine.Persistent.Interfaces;
 using System;
 using System.Data;
 using System.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using Npgsql;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Logging;
 
 namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private ILogger _logger;
-        private bool disposed = false;
+        private bool _disposed;
+        private readonly ILogger _logger;
+
         public IDbConnection Connection { get; private set; }
+
         public DatabaseType DatabaseType { get; }
 
         public string CustomerCode { get; }
+
+        public string Id { get; } = Guid.NewGuid().ToString();
 
         public UnitOfWork(string connectionString, string dbType, ILogger logger, string customerCode = "current")
         {
@@ -34,14 +39,10 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             }
 
             CustomerCode = customerCode;
-            using (_logger.BeginScope(new { Environment.StackTrace }))
-            {
-                _logger.LogInformation($"Creating connection");
-            }
+            using var _ = _logger.BeginScopeWith(("unitOfWorkId", Id));
+            _logger.LogTrace("Creating connection for UnitOfWork");
             Connection.Open();
         }
-
-
 
         public void Dispose()
         {
@@ -56,22 +57,20 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (!_disposed)
             {
                 if (disposing)
                 {
                     // Free other state (managed objects).
                     if (Connection.State != ConnectionState.Closed)
                     {
-                        using (_logger.BeginScope(new { Environment.StackTrace }))
-                        {
-                            _logger.LogInformation($"Closing connection.");
-                        }
+                        using var _ = _logger.BeginScopeWith(("unitOfWorkId", Id));
+                        _logger.LogTrace("Closing connection for UnitOfWork");
                         Connection.Close();
                     }
                 }
 
-                disposed = true;
+                _disposed = true;
             }
         }
     }

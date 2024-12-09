@@ -1,13 +1,14 @@
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
-using QA.DotNetCore.Caching.Exceptions;
-using QA.DotNetCore.Caching.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
+using QA.DotNetCore.Caching.Exceptions;
+using QA.DotNetCore.Caching.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Logging;
 
 namespace QA.DotNetCore.Caching
 {
@@ -16,30 +17,25 @@ namespace QA.DotNetCore.Caching
     /// </summary>
     public class VersionedCacheCoreProvider : ICacheProvider, IMemoryCacheProvider
     {
+        private readonly ILogger _logger;
         protected readonly IMemoryCache _cache;
         protected readonly ICacheKeyFactory _keyFactory;
         protected readonly ILockFactory _lockFactory;
         protected readonly TimeSpan _defaultWaitForCalculateTimeout = TimeSpan.FromSeconds(5);
         protected readonly int _defaultDeprecatedCoef = 2;
-        private readonly ILogger _logger;
+
 
         public VersionedCacheCoreProvider(
             IMemoryCache cache,
             ICacheKeyFactory keyFactory,
             ILockFactory lockFactory,
-            ILogger logger
+            ILoggerFactory loggerFactory
         )
         {
             _cache = cache;
-            _logger = logger;
             _lockFactory = lockFactory;
             _keyFactory = keyFactory;
-        }
-
-        public VersionedCacheCoreProvider(IMemoryCache cache, ICacheKeyFactory keyFactory, ILockFactory lockFactory,
-            ILogger<VersionedCacheCoreProvider> genericLogger)
-            : this(cache, keyFactory, lockFactory, logger: genericLogger)
-        {
+            _logger = loggerFactory.CreateLogger<VersionedCacheCoreProvider>();
         }
 
         /// <summary>
@@ -97,6 +93,7 @@ namespace QA.DotNetCore.Caching
         /// <param name="key">Ключ</param>
         public virtual void Invalidate(string key)
         {
+            _logger.LogTrace("Invalidate by key: {key}", key);
             if (string.IsNullOrEmpty(key))
             {
                 return;
@@ -152,6 +149,8 @@ namespace QA.DotNetCore.Caching
         /// <param name="tags">Теги</param>
         public virtual void InvalidateByTags(params string[] tags)
         {
+            using var _ = _logger.BeginScopeWith(("tags", tags));
+            _logger.LogTrace("Invalidate by tags");
             foreach (var tag in tags)
             {
                 _cache.Remove(GetTag(tag));
@@ -263,11 +262,18 @@ namespace QA.DotNetCore.Caching
                     }
                     else
                     {
+                        using var _ = _logger.BeginScopeWith(
+                            ("cacheKey", cacheKey),
+                            ("waitTimeout", waitForCalculateTimeout)
+                        );
+
                         if (deprecatedResult == null)
                         {
+                            _logger.LogTrace("Value in cache have not appeared in specified timeout");
                             throw new DeprecateCacheIsExpiredOrMissingException();
                         }
 
+                        _logger.LogTrace("Return deprecated result");
                         result = deprecatedResult;
                     }
                 }
@@ -357,11 +363,17 @@ namespace QA.DotNetCore.Caching
                     }
                     else
                     {
+                        using var _ = _logger.BeginScopeWith(
+                            ("cacheKey", cacheKey),
+                            ("waitTimeout", waitForCalculateTimeout)
+                        );
                         if (deprecatedResult == null)
                         {
+                            _logger.LogTrace("Value in cache have not appeared in specified timeout");
                             throw new DeprecateCacheIsExpiredOrMissingException();
                         }
 
+                        _logger.LogTrace("Return deprecated result");
                         result = deprecatedResult;
                     }
                 }

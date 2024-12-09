@@ -9,5 +9,7 @@ namespace  QA.DotNetCore.Engine.Persistent.Interfaces
         DatabaseType DatabaseType { get; }
 
         string CustomerCode { get; }
+
+        string Id { get; }
     }
 }

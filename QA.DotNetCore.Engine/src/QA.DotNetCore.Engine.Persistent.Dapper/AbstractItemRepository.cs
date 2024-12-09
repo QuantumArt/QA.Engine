@@ -1,45 +1,57 @@
-using Dapper;
-using Microsoft.Extensions.DependencyInjection;
-using QA.DotNetCore.Caching.Interfaces;
-using QA.DotNetCore.Engine.Persistent.Dapper;
-using QA.DotNetCore.Engine.Persistent.Interfaces;
-using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
-using QA.DotNetCore.Engine.QpData.Settings;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Dapper;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using QA.DotNetCore.Caching.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Dapper;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Logging;
+using QA.DotNetCore.Engine.QpData.Settings;
 
 namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
     public class AbstractItemRepository : IAbstractItemRepository
     {
-        private static readonly IReadOnlyDictionary<int, M2MRelations> _emptyResult =
-            new Dictionary<int, M2MRelations>();
-
+        private readonly ILogger _logger;
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         private readonly ICacheProvider _cacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly IServiceProvider _serviceProvider;
         private readonly INetNameQueryAnalyzer _netNameQueryAnalyzer;
+        private IUnitOfWork _unitOfWork;
 
         public AbstractItemRepository(
             IServiceProvider serviceProvider,
             INetNameQueryAnalyzer netNameQueryAnalyzer,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
             ICacheProvider cacheProvider,
-            QpSiteStructureCacheSettings cacheSettings)
+            QpSiteStructureCacheSettings cacheSettings,
+            ILogger<AbstractItemRepository> logger)
         {
             _serviceProvider = serviceProvider;
             _netNameQueryAnalyzer = netNameQueryAnalyzer;
             _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
             _cacheProvider = cacheProvider;
             _cacheSettings = cacheSettings;
+            _logger = logger;
         }
 
         protected IUnitOfWork UnitOfWork
         {
-            get { return _serviceProvider.GetRequiredService<IUnitOfWork>(); }
+            get
+            {
+                if (_unitOfWork == null)
+                {
+                    _unitOfWork = _serviceProvider.GetRequiredService<IUnitOfWork>();
+                    using var _ = _logger.BeginScopeWith(("unitOfWorkId", _unitOfWork.Id));
+                    _logger.LogTrace("Received UnitOfWork from ServiceProvider");
+                }
+                return _unitOfWork;
+            }
         }
 
         //запрос с использованием NetName таблиц и столбцов
@@ -65,25 +77,38 @@ INNER JOIN |QPDiscriminator| def on ai.|QPAbstractItem.Discriminator| = def.cont
             IDbTransaction transaction = null)
         {
             var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetAbstractItem, siteId, isStage);
-
             var cacheKey = $"{nameof(AbstractItemRepository)}.{nameof(GetPlainAllAbstractItems)}({siteId},{isStage})";
-            var cacheTags = _netNameQueryAnalyzer.GetContentNetNames(CmdGetAbstractItem, siteId, isStage)
-                .Select(name => _qpContentCacheTagNamingProvider.GetByNetName(name, siteId, isStage))
+            var contentNetNames = _netNameQueryAnalyzer
+                .GetContentNetNames(CmdGetAbstractItem, siteId, isStage)
                 .ToArray();
+            var cacheTags = _qpContentCacheTagNamingProvider
+                    .GetByContentNetNames(contentNetNames, siteId, isStage)
+                    .Select(n => n.Value)
+                    .ToArray();
             var expiry = _cacheSettings.SiteStructureCachePeriod;
 
             return _cacheProvider.GetOrAdd(
                 cacheKey,
                 cacheTags,
                 expiry,
-                () => UnitOfWork.Connection.Query<AbstractItemPersistentData>(query, transaction: transaction));
+                () =>
+                {
+                    using var _ = _logger.BeginScopeWith(
+                        ("unitOfWorkId", UnitOfWork.Id),
+                        ("siteId", siteId),
+                        ("isStage", isStage),
+                        ("cacheKey", cacheKey),
+                        ("cacheTags", cacheTags),
+                        ("expiry", expiry));
+                    _logger.LogTrace("Get all abstract items");
+                    return UnitOfWork.Connection.Query<AbstractItemPersistentData>(query, transaction: transaction);
+                });
         }
 
         /// <summary>
         /// Получить Content_item_id расширений
         /// </summary>
         /// <param name="extensionContentIds">Словарь ID контента расширений и использующия их коллекция AbstractItems</param>
-        /// <param name="isStage"></param>
         /// <param name="transaction"></param>
         /// <returns></returns>
         public IEnumerable<int> GetAbstractItemExtensionIds(IReadOnlyCollection<int> extensionContentIds,
@@ -103,10 +128,15 @@ JOIN {idListTableName} on Id = ext.CONTENT_ID";
                 extensionContentIds.Where(id => id != 0),
                 UnitOfWork.DatabaseType);
 
+            using var _ = _logger.BeginScopeWith(
+                ("unitOfWorkId", UnitOfWork.Id),
+                ("extensionContentIds", extensionContentIds));
+            _logger.LogTrace("Get abstract items extension ids");
+
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = extensionItemsQuery;
             command.Transaction = transaction;
-            _ = command.Parameters.Add(parameter);
+            command.Parameters.Add(parameter);
 
             using var reader = command.ExecuteReader();
 
@@ -136,10 +166,16 @@ SELECT cast(ai.content_item_id as numeric) as Id{extFields}, ai.*
 FROM {extTableName} ext {withNoLock}
 JOIN {baseContent.GetTableName(isStage)} ai {withNoLock} on ai.content_item_id = ext.itemid";
 
+            using var _ = _logger.BeginScopeWith(
+                ("unitOfWorkId", UnitOfWork.Id),
+                ("extensionContentId", extensionContentId),
+                ("loadAbstractItemFields", loadAbstractItemFields),
+                ("isStage", isStage));
+            _logger.LogTrace("Get abstract items extension data");
+
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = query;
             command.Transaction = transaction;
-
             return LoadAbstractItemExtension(command);
         }
 
@@ -155,6 +191,12 @@ JOIN {baseContent.GetTableName(isStage)} ai {withNoLock} on ai.content_item_id =
             string extFieldsQuery = $@"
 SELECT * FROM {baseContent.GetTableName(isStage)} ai {withNoLock}
 JOIN {idListTable} on Id = ai.Content_item_id";
+
+            using var _ = _logger.BeginScopeWith(
+                ("unitOfWorkId", UnitOfWork.Id),
+                ("ids", ids),
+                ("isStage", isStage));
+            _logger.LogTrace("Get abstract items extensionless data");
 
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = extFieldsQuery;
@@ -197,8 +239,7 @@ JOIN {idListTable} on Id = ai.Content_item_id";
             return result;
         }
 
-        public IDictionary<int, M2MRelations> GetManyToManyData(IEnumerable<int> itemIds, bool isStage,
-            IDbTransaction transaction = null)
+        public IDictionary<int, M2MRelations> GetManyToManyData(IEnumerable<int> itemIds, bool isStage, IDbTransaction transaction = null)
         {
             var m2MTableName = QpTableNameHelper.GetM2MTableName(isStage);
             var idListTable = SqlQuerySyntaxHelper.IdList(UnitOfWork.DatabaseType, "@ids", "ids");
@@ -210,6 +251,12 @@ FROM {m2MTableName} link {withNoLock}
 JOIN {idListTable} on Id = link.item_id
 JOIN content_item ci {withNoLock} on ci.content_item_id = link.linked_item_id
 WHERE ci.archive = 0";
+
+            using var _ = _logger.BeginScopeWith(
+                ("unitOfWorkId", UnitOfWork.Id),
+                ("ids", itemIds),
+                ("isStage", isStage));
+            _logger.LogTrace("Get M2M data for articles");
 
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = query;
@@ -235,6 +282,12 @@ SELECT e.content_id, link_id, item_id, linked_item_id
 FROM {m2MTableName} link {withNoLock}
 JOIN CONTENT_ITEM e {withNoLock} ON e.CONTENT_ITEM_ID = link.item_id
 JOIN {idListTableName} on Id = e.CONTENT_ID";
+
+            using var _ = _logger.BeginScopeWith(
+                ("unitOfWorkId", UnitOfWork.Id),
+                ("contentIds", contentIds),
+                ("isStage", isStage));
+            _logger.LogTrace("Get M2M data for contents");
 
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = query;

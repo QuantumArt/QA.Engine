@@ -1,14 +1,16 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Extensions.Logging;
+using QA.DotNetCore.Caching;
 using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
 using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Logging;
 using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Models;
 using QA.DotNetCore.Engine.QpData.Settings;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using QA.DotNetCore.Caching;
 
 namespace QA.DotNetCore.Engine.QpData
 {
@@ -17,6 +19,7 @@ namespace QA.DotNetCore.Engine.QpData
     /// </summary>
     public class GranularCacheAbstractItemStorageProvider : IAbstractItemStorageProvider
     {
+        private readonly ILogger _logger;
         private readonly IAbstractItemContextStorageBuilder _builder;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly IAbstractItemRepository _abstractItemRepository;
@@ -32,7 +35,8 @@ namespace QA.DotNetCore.Engine.QpData
             QpSiteStructureCacheSettings cacheSettings,
             IAbstractItemRepository abstractItemRepository,
             ICacheProvider cacheProvider,
-            VersionedCacheCoreProvider memoryCacheProvider)
+            VersionedCacheCoreProvider memoryCacheProvider,
+            ILogger<GranularCacheAbstractItemStorageProvider> logger)
         {
             _builder = builder;
             _abstractItemRepository = abstractItemRepository;
@@ -41,6 +45,7 @@ namespace QA.DotNetCore.Engine.QpData
             _cacheSettings = cacheSettings;
             _cacheProvider = cacheProvider;
             _memoryCacheProvider = memoryCacheProvider;
+            _logger = logger;
         }
 
         public AbstractItemStorage Get()
@@ -50,25 +55,36 @@ namespace QA.DotNetCore.Engine.QpData
             int siteId = _buildSettings.SiteId;
             bool isStage = _buildSettings.IsStage;
 
+            var cacheTags = _qpContentCacheTagNamingProvider.GetByContentNetNames(
+                new[] { KnownNetNames.AbstractItem, KnownNetNames.ItemDefinition }, siteId, isStage);
+
             var tags = new WidgetsAndPagesCacheTags
             {
-                AbstractItemTag = _qpContentCacheTagNamingProvider.GetByNetName(
-                    KnownNetNames.AbstractItem, siteId, isStage),
-                ItemDefinitionTag = _qpContentCacheTagNamingProvider.GetByNetName(
-                    KnownNetNames.ItemDefinition, siteId, isStage),
+                AbstractItemTag = cacheTags[KnownNetNames.AbstractItem],
+                ItemDefinitionTag = cacheTags[KnownNetNames.ItemDefinition],
                 ExtensionsTags = _qpContentCacheTagNamingProvider.GetByContentIds(
-                    extensionsWithAbsItems.Keys.ToArray(), isStage)
+                    extensionsWithAbsItems.Keys.Where(n => n > 0).ToArray(), isStage)
             };
 
             TimeSpan expiry = _cacheSettings.SiteStructureCachePeriod;
+            TimeSpan waitTimeout = _buildSettings.CacheFetchTimeoutAbstractItemStorage;
             const string cacheKey = nameof(GranularCacheAbstractItemStorageProvider) + "." + nameof(Get);
 
             return _memoryCacheProvider.GetOrAdd(
                 cacheKey,
                 tags.AllTags,
                 expiry,
-                () => BuildStorageWithCache(extensionsWithAbsItems, tags),
-                _buildSettings.CacheFetchTimeoutAbstractItemStorage,
+                () =>
+                {
+                    using var _ = _logger.BeginScopeWith(("cacheKey", cacheKey),
+                        ("cacheTags", tags.AllTags),
+                        ("expiry", expiry),
+                        ("waitTimeout", waitTimeout));
+                    _logger.LogInformation("Building storage");
+
+                    return BuildStorageWithCache(extensionsWithAbsItems, tags);
+                },
+                waitTimeout,
                 true);
         }
 

@@ -1,26 +1,45 @@
-using Dapper;
-using Microsoft.Extensions.DependencyInjection;
-using QA.DotNetCore.Engine.Persistent.Interfaces;
-using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Dapper;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Logging;
 
 namespace QA.DotNetCore.Engine.Persistent.Dapper
 {
     public class AbTestRepository : IAbTestRepository
     {
+        private readonly ILogger _logger;
         private readonly IServiceProvider _serviceProvider;
         private readonly INetNameQueryAnalyzer _netNameQueryAnalyzer;
+        private IUnitOfWork _unitOfWork;
 
-        public AbTestRepository(IServiceProvider serviceProvider, INetNameQueryAnalyzer netNameQueryAnalyzer)
+        public AbTestRepository(
+            IServiceProvider serviceProvider,
+            INetNameQueryAnalyzer netNameQueryAnalyzer,
+            ILogger<AbTestRepository> logger)
         {
             _serviceProvider = serviceProvider;
             _netNameQueryAnalyzer = netNameQueryAnalyzer;
+            _logger = logger;
         }
 
-        protected IUnitOfWork UnitOfWork { get { return _serviceProvider.GetRequiredService<IUnitOfWork>(); } }
+        protected IUnitOfWork UnitOfWork {
+            get
+            {
+                if (_unitOfWork == null)
+                {
+                    _unitOfWork = _serviceProvider.GetRequiredService<IUnitOfWork>();
+                    using var _ = _logger.BeginScopeWith(("unitOfWorkId", _unitOfWork.Id));
+                    _logger.LogTrace("Received UnitOfWork from ServiceProvider");
+                }
+                return _unitOfWork;
+            }
+        }
 
         //запросы с использованием NetName таблиц и столбцов
         private const string CmdGetTests = @"
@@ -113,9 +132,21 @@ JOIN |AbTestClientRedirectContainer| rcont on rcont.content_item_id = r.|AbTestC
         {
             var currentDate = DateTime.Now;
             var scriptContainersQuery = _netNameQueryAnalyzer.PrepareQuery(CmdGetTestsContainers, siteId, isStage);
-            var scriptContainersDict = UnitOfWork.Connection.Query<AbTestScriptContainerPersistentData>(scriptContainersQuery, new { currentDate, onlyActive = (onlyActive ? 1 : 0), containerType = "AbTestScriptContainer" }, transaction).ToDictionary(_ => _.Id);
+            using var _ = _logger.BeginScopeWith(("unitOfWorkId", UnitOfWork.Id),
+                ("isStage", isStage),
+                ("siteId", siteId));
+            _logger.LogTrace("Get test containers");
+
+            var containerType = "AbTestScriptContainer";
+            var scriptContainersDict = UnitOfWork.Connection.Query<AbTestScriptContainerPersistentData>(scriptContainersQuery, new { currentDate, onlyActive = onlyActive ? 1 : 0, containerType }, transaction).ToDictionary(_ => _.Id);
 
             var scriptQuery = _netNameQueryAnalyzer.PrepareQuery(CmdGetAbTestScripts, siteId, isStage);
+            using (_logger.BeginScopeWith(("currentDate", currentDate),
+                       ("onlyActive", onlyActive),
+                       ("containerType", containerType)))
+            {
+                _logger.LogTrace("Get test scripts");
+            }
             var scripts = UnitOfWork.Connection.Query<AbTestScriptPersistentData>(scriptQuery, transaction: transaction);
 
             foreach (var s in scripts)
@@ -127,9 +158,13 @@ JOIN |AbTestClientRedirectContainer| rcont on rcont.content_item_id = r.|AbTestC
             }
 
             var redirectContainersQuery = _netNameQueryAnalyzer.PrepareQuery(CmdGetTestsContainers, siteId, isStage);
+
+            _logger.LogTrace("Get redirect containers");
             var redirectContainersDict = UnitOfWork.Connection.Query<AbTestClientRedirectContainerPersistentData>(redirectContainersQuery, new { currentDate, onlyActive = (onlyActive ? 1 : 0), containerType = "AbTestClientRedirectContainer" }, transaction).ToDictionary(_ => _.Id);
 
             var redirectQuery = _netNameQueryAnalyzer.PrepareQuery(CmdGetAbTestClientRedirects, siteId, isStage);
+            _logger.LogTrace("Get redirects");
+
             var redirects = UnitOfWork.Connection.Query<AbTestClientRedirectPersistentData>(redirectQuery, transaction: transaction);
 
             foreach (var r in redirects)
@@ -147,6 +182,10 @@ JOIN |AbTestClientRedirectContainer| rcont on rcont.content_item_id = r.|AbTestC
         private IEnumerable<AbTestPersistentData> GetTests(int siteId, bool isStage, bool onlyActive, IDbTransaction transaction)
         {
             var query = _netNameQueryAnalyzer.PrepareQuery(CmdGetTests, siteId, isStage);
+            using var _ = _logger.BeginScopeWith(("unitOfWorkId", UnitOfWork.Id),
+                ("isStage", isStage),
+                ("siteId", siteId));
+            _logger.LogTrace("Get tests");
             return UnitOfWork.Connection.Query<AbTestPersistentData>(query, new { currentDate = DateTime.Now, onlyActive = (onlyActive ? 1 : 0) }, transaction);
         }
     }

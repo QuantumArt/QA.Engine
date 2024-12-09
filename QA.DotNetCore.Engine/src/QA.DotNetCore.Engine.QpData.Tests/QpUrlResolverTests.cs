@@ -127,8 +127,8 @@ namespace QA.DotNetCore.Engine.QpData.Tests
             var cacheProvider = new VersionedCacheCoreProvider(
                 cache,
                 new CacheKeyFactoryBase(),
-                new MemoryLockFactory(LoggerUtils.GetLogger<MemoryLockFactory>(_output)),
-                Mock.Of<ILogger>()
+                new MemoryLockFactory(new LoggerFactory()),
+                new LoggerFactory()
             );
 
             var urlResolver = new QpUrlResolver(cacheProvider, metaInfoRepository, cacheSettings);

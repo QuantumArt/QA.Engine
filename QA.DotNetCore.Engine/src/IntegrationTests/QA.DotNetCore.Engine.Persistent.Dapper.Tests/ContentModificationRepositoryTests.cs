@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure;
 using System.Linq;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests;
 
@@ -12,7 +13,7 @@ public class ContentModificationRepositoryTests
     public void Setup()
     {
         var serviceProvider = Global.CreateMockServiceProviderWithConnection();
-        _repository = new ContentModificationRepository(serviceProvider);
+        _repository = new ContentModificationRepository(serviceProvider, NullLogger<ContentModificationRepository>.Instance);
     }
 
     [Test]

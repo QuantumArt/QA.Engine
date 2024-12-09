@@ -20,12 +20,14 @@ namespace QA.DotNetCore.Caching.Distributed
                 throw new ArgumentNullException(nameof(keys));
             }
 
-            if (!keys.Any())
+            var keysArr = keys.ToArray();
+
+            if (!keysArr.Any())
             {
                 return Enumerable.Empty<bool>();
             }
 
-            RedisKey[] dataKeys = keys
+            RedisKey[] dataKeys = keysArr
                 .Select(key => new RedisKey(key))
                 .ToArray();
 
@@ -51,12 +53,14 @@ namespace QA.DotNetCore.Caching.Distributed
                 throw new ArgumentNullException(nameof(keys));
             }
 
-            if (!keys.Any())
+            var keysArr = keys.ToArray();
+
+            if (!keysArr.Any())
             {
                 return Enumerable.Empty<byte[]>();
             }
 
-            var dataKeys = keys
+            var dataKeys = keysArr
                 .Select(k => new RedisKey(k))
                 .ToArray();
 
@@ -82,7 +86,8 @@ namespace QA.DotNetCore.Caching.Distributed
                 var cachedValues = (await _cache
                         .StringGetAsync(redisKeys))
                     .Select(value =>
-                        value.HasValue ? new CachedValue(KeyState.Exist, (byte[]) value) : CachedValue.Empty);
+                        value.HasValue ? new CachedValue(KeyState.Exist, (byte[]) value) : CachedValue.Empty)
+                    .ToArray();
 
                 _logger.LogTrace("Keys ({CacheKeys}) have values: {CacheValues}", redisKeys, cachedValues);
                 return cachedValues;
@@ -144,9 +149,10 @@ namespace QA.DotNetCore.Caching.Distributed
                     data, conditions, out var transactionOperations);
                 bool isExecuted = await transaction.ExecuteAsync();
 
-                var exceptions = transactionOperations
+                Exception[] exceptions = transactionOperations
                     .Where(operation => operation.IsFaulted)
-                    .Select(operation => operation.Exception);
+                    .Select(Exception (operation) => operation.Exception)
+                    .ToArray();
 
                 if (exceptions.Any())
                 {
@@ -200,24 +206,6 @@ namespace QA.DotNetCore.Caching.Distributed
             finally
             {
                 _ = _connectionLock.Release();
-            }
-        }
-
-
-        private async IAsyncEnumerable<CachedValue> GetCachedValuesByKeysAsync(IEnumerable<RedisKey> keysEnumerable)
-        {
-            if (keysEnumerable is not RedisKey[] keys)
-            {
-                keys = keysEnumerable.ToArray();
-            }
-
-            var cachedValues = await _cache.StringGetAsync(keys);
-
-            foreach (var value in cachedValues)
-            {
-                yield return value.HasValue
-                    ? new CachedValue(KeyState.Exist, (byte[]) value)
-                    : CachedValue.Empty;
             }
         }
     }

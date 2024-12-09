@@ -31,13 +31,13 @@ public class AbstractItemRepositoryTests
         var memoryCacheProvider = new VersionedCacheCoreProvider(
             memoryCache,
             new CacheKeyFactoryBase(),
-            new MemoryLockFactory(NullLoggerFactory.Instance.CreateLogger<MemoryLockFactory>()),
-            Mock.Of<ILogger>()
+            new MemoryLockFactory(new LoggerFactory()),
+            new LoggerFactory()
         );
-        _metaRepo = new MetaInfoRepository(serviceProvider, memoryCacheProvider, settings);
+        _metaRepo = new MetaInfoRepository(serviceProvider, memoryCacheProvider, settings, NullLogger<MetaInfoRepository>.Instance);
         var sqlAnalyzer = new NetNameQueryAnalyzer(_metaRepo);
         _repository = new AbstractItemRepository(serviceProvider, sqlAnalyzer, new StubNamingProvider(),
-            memoryCacheProvider, settings);
+            memoryCacheProvider, settings, NullLogger<AbstractItemRepository>.Instance);
     }
 
     [Fact]

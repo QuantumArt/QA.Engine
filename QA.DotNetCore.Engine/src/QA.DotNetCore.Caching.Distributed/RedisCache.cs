@@ -1,7 +1,3 @@
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using QA.DotNetCore.Caching.Interfaces;
-using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,8 +7,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.GZip;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using QA.DotNetCore.Caching.Distributed.Internals;
+using StackExchange.Redis;
 
 namespace QA.DotNetCore.Caching.Distributed
 {
@@ -29,7 +28,7 @@ namespace QA.DotNetCore.Caching.Distributed
         ///     <item>ARGV[1] - New tag expiry in milliseconds</item>
         /// </list>
         /// </summary>
-        /// 
+        ///
         /// <remarks>
         /// Tags can be linked to multiple keys. That is why
         /// a key should be allowed only to increase tag expiry
@@ -65,9 +64,9 @@ namespace QA.DotNetCore.Caching.Distributed
             ";
 
         private static readonly Version _leastSupportedServerVersion = new(4, 0, 0);
+        private readonly ILogger _logger;
 
         private readonly RedisCacheSettings _options;
-        private readonly ILogger<RedisCache> _logger;
         private readonly SemaphoreSlim _connectionLock = new(initialCount: 1, maxCount: 1);
 
         private volatile IConnectionMultiplexer _connection;
@@ -87,6 +86,7 @@ namespace QA.DotNetCore.Caching.Distributed
         /// Initializes a new instance of <see cref="RedisCache"/>.
         /// </summary>
         /// <param name="optionsAccessor">The configuration options.</param>
+        /// <param name="logger"></param>
         public RedisCache(
             IOptions<RedisCacheSettings> optionsAccessor,
             ILogger<RedisCache> logger)
@@ -136,12 +136,14 @@ namespace QA.DotNetCore.Caching.Distributed
                 throw new ArgumentNullException(nameof(keys));
             }
 
-            if (!keys.Any())
+            var keysArr = keys.ToArray();
+
+            if (!keysArr.Any())
             {
                 return Enumerable.Empty<bool>();
             }
 
-            RedisKey[] dataKeys = keys
+            RedisKey[] dataKeys = keysArr
                 .Select(key => new RedisKey(key))
                 .ToArray();
 
@@ -163,9 +165,10 @@ namespace QA.DotNetCore.Caching.Distributed
 
         public IEnumerable<TResult> Get<TResult>(IEnumerable<string> keys)
         {
-            var dataValues = Get(keys);
+            var keysArr = keys.ToArray();
+            var dataValues = Get(keysArr);
 
-            foreach ((string key, byte[] data) in keys.Zip(dataValues))
+            foreach ((string key, byte[] data) in keysArr.Zip(dataValues))
             {
                 yield return TryDeserializeData(key, data, out TResult value)
                     ? value
@@ -173,7 +176,7 @@ namespace QA.DotNetCore.Caching.Distributed
             }
         }
 
-        public IEnumerable<byte[]> Get(IEnumerable<string> keys, CancellationToken token = default)
+        public IEnumerable<byte[]> Get(string[] keys, CancellationToken token = default)
         {
             if (keys is null)
             {
@@ -257,9 +260,10 @@ namespace QA.DotNetCore.Caching.Distributed
                     data, conditions, out var transactionOperations);
                 bool isExecuted = transaction.Execute();
 
-                var exceptions = transactionOperations
+                Exception[] exceptions = transactionOperations
                     .Where(operation => operation.IsFaulted)
-                    .Select(operation => operation.Exception);
+                    .Select(Exception (operation) => operation.Exception)
+                    .ToArray();
 
                 if (exceptions.Any())
                 {
@@ -339,7 +343,8 @@ namespace QA.DotNetCore.Caching.Distributed
                 var cachedValues = _cache
                     .StringGet(redisKeys)
                     .Select(value =>
-                        value.HasValue ? new CachedValue(KeyState.Exist, (byte[]) value) : CachedValue.Empty);
+                        value.HasValue ? new CachedValue(KeyState.Exist, (byte[]) value) : CachedValue.Empty)
+                    .ToArray();
 
                 _logger.LogTrace("Keys ({CacheKeys}) have values: {CacheValues}", redisKeys, cachedValues);
                 return cachedValues;

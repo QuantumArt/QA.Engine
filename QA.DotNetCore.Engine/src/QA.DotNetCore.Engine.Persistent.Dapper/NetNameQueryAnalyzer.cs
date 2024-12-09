@@ -43,7 +43,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
                 .GroupBy(parts => parts.Table, parts => parts.Column, StringComparer.OrdinalIgnoreCase)
                 .ToDictionary(group => group.Key, group => group.Where(column => column != null));
 
-            var contentsMetadata = GetContentsMetadata(tableToColumnsDict.Keys, siteId)
+            var contentsMetadata = GetContentsMetadata(tableToColumnsDict.Keys.ToArray(), siteId)
                 .ToDictionary(metadata => metadata.ContentNetName, StringComparer.OrdinalIgnoreCase);
 
             if (tableToColumnsDict.Count != contentsMetadata.Count)
@@ -82,7 +82,7 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
             return ReplaceTokens(netNameQuery, replacements);
         }
 
-        private ContentPersistentData[] GetContentsMetadata(ICollection<string> contentNetNames, int siteId) =>
+        private ContentPersistentData[] GetContentsMetadata(string[] contentNetNames, int siteId) =>
             _metaInfoRepository.GetContents(contentNetNames, siteId);
 
         /// <summary>
@@ -93,10 +93,11 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
         private IEnumerable<(string Table, string Column)> GetTableColumnPairs(string netNameQuery)
         {
             if (netNameQuery is null)
+            {
                 throw new ArgumentNullException(nameof(netNameQuery));
+            }
 
             var tokens = _tokenRegex.Matches(netNameQuery)
-                   .Cast<Match>()
                    .Select(match => match.Value.Trim('|'))
                    .Distinct(StringComparer.OrdinalIgnoreCase);
 

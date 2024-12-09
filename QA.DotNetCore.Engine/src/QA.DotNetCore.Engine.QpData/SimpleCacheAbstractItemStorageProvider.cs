@@ -1,11 +1,13 @@
+using System;
+using System.Linq;
+using Microsoft.Extensions.Logging;
+using QA.DotNetCore.Caching;
 using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Engine.Abstractions;
 using QA.DotNetCore.Engine.Persistent.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Logging;
 using QA.DotNetCore.Engine.QpData.Interfaces;
 using QA.DotNetCore.Engine.QpData.Settings;
-using System;
-using System.Linq;
-using QA.DotNetCore.Caching;
 
 namespace QA.DotNetCore.Engine.QpData
 {
@@ -14,6 +16,7 @@ namespace QA.DotNetCore.Engine.QpData
     /// </summary>
     public class SimpleCacheAbstractItemStorageProvider : IAbstractItemStorageProvider
     {
+        private readonly ILogger _logger;
         private readonly IAbstractItemStorageBuilder _builder;
         private readonly VersionedCacheCoreProvider _memoryCacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
@@ -25,25 +28,32 @@ namespace QA.DotNetCore.Engine.QpData
             IAbstractItemStorageBuilder builder,
             IQpContentCacheTagNamingProvider qpContentCacheTagNamingProvider,
             QpSiteStructureBuildSettings buildSettings,
-            QpSiteStructureCacheSettings cacheSettings)
+            QpSiteStructureCacheSettings cacheSettings,
+            ILogger<SimpleCacheAbstractItemStorageProvider> logger)
         {
             _builder = builder;
             _memoryCacheProvider = memoryCacheProvider;
             _qpContentCacheTagNamingProvider = qpContentCacheTagNamingProvider;
             _cacheSettings = cacheSettings;
             _buildSettings = buildSettings;
+            _logger = logger;
         }
 
         public AbstractItemStorage Get()
         {
             if (_cacheSettings.SiteStructureCachePeriod <= TimeSpan.Zero)
             {
-                return BuildStorage();
+                _logger.LogInformation("Building storage");
+                return _builder.Build();
             }
 
             string cacheKey = $"{nameof(SimpleCacheAbstractItemStorageProvider)}.{nameof(Get)}";
-            var cacheTags = new[] { KnownNetNames.AbstractItem, KnownNetNames.ItemDefinition }
-                .Select(c => _qpContentCacheTagNamingProvider.GetByNetName(c, _buildSettings.SiteId, _buildSettings.IsStage))
+            var cacheTags = _qpContentCacheTagNamingProvider
+                .GetByContentNetNames(
+                    new[] { KnownNetNames.AbstractItem, KnownNetNames.ItemDefinition },
+                    _buildSettings.SiteId,
+                    _buildSettings.IsStage)
+                .Select(n => n.Value)
                 .Where(t => t != null)
                 .ToArray();
 
@@ -51,13 +61,17 @@ namespace QA.DotNetCore.Engine.QpData
                 cacheKey,
                 cacheTags,
                 _cacheSettings.SiteStructureCachePeriod,
-                BuildStorage,
+                () =>
+                {
+                    using var _ = _logger.BeginScopeWith(("cacheKey", cacheKey),
+                        ("cacheTags", cacheTags),
+                        ("expiry", _cacheSettings.SiteStructureCachePeriod));
+                    _logger.LogInformation("Building storage");
+
+                    return _builder.Build();
+                },
                 _buildSettings.CacheFetchTimeoutAbstractItemStorage);
         }
 
-        private AbstractItemStorage BuildStorage()
-        {
-            return _builder.Build();
-        }
     }
 }

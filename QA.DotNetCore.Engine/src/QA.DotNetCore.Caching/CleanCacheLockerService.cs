@@ -18,12 +18,12 @@ namespace QA.DotNetCore.Caching
 
         public CleanCacheLockerService(
             ILockFactory lockFactory,
-            ILogger<CleanCacheLockerService> logger,
-            CleanCacheLockerServiceSettings settings
+            CleanCacheLockerServiceSettings settings,
+            ILogger<CleanCacheLockerService> logger
             )
         {
-            _lockFactory = lockFactory;
             _logger = logger;
+            _lockFactory = lockFactory;
             _runInterval = settings.RunInterval;
             _cleanInterval = settings.CleanInterval;
             _timer = new Timer(
@@ -48,19 +48,16 @@ namespace QA.DotNetCore.Caching
             return Task.CompletedTask;
         }
 
-        public void Dispose()
-        {
-            _timer?.Dispose();
-        }
+        public void Dispose() => _timer?.Dispose();
 
         private void OnTick(object _)
         {
             if (_cleanInterval != default)
             {
                 var timeToDelete = DateTime.Now - _cleanInterval;
-                _logger.LogDebug($"Cache locker cleaning older than {timeToDelete} started.");
+                _logger.LogTrace($"Cache locker cleaning older than {timeToDelete} started.");
                 _lockFactory.DeleteLocksOlderThan(timeToDelete);
-                _logger.LogDebug("Cache locker cleaning completed.");
+                _logger.LogTrace("Cache locker cleaning completed.");
             }
         }
     }

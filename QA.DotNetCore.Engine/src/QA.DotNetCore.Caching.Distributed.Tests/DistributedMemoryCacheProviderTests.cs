@@ -13,6 +13,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.GZip;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
 using QA.DotNetCore.Caching.Distributed.Internals;
 using QA.DotNetCore.Caching.Distributed.Keys;
@@ -235,7 +237,7 @@ public class DistributedMemoryCacheProviderTests
             _ = await db.StringSetAsync(key2, deprecatedData, _existingCacheTtl);
         }
 
-        var lockFactory = new MemoryLockFactory(LoggerUtils.GetLogger<MemoryLockFactory>(_output));
+        var lockFactory = new MemoryLockFactory(new LoggerFactory());
         var lockCacheTask = Task.Factory.StartNew(
             () =>
             {
@@ -290,7 +292,7 @@ public class DistributedMemoryCacheProviderTests
             _ = await connection.GetDatabase().KeyDeleteAsync(GetKey(sharedKey));
         }
 
-        var lockFactory = new MemoryLockFactory(LoggerUtils.GetLogger<MemoryLockFactory>(_output));
+        var lockFactory = new MemoryLockFactory(new LoggerFactory());
 
         var lockCacheKeyTask = Task.Factory.StartNew(
             () =>
@@ -563,9 +565,7 @@ public class DistributedMemoryCacheProviderTests
     {
         var options = CreateDefaultRedisCacheOptions();
 
-        return new RedisCache(
-            Options.Create(options),
-            LoggerUtils.GetLogger<RedisCache>(_output));
+        return new RedisCache(Options.Create(options), NullLogger<RedisCache>.Instance);
     }
 
     private RedisCache CreateRedisCacheWithoutOffsets()
@@ -577,9 +577,7 @@ public class DistributedMemoryCacheProviderTests
             AppName = _instanceName,
         });
 
-        return new RedisCache(
-            optionsAccessor,
-            LoggerUtils.GetLogger<RedisCache>(_output));
+        return new RedisCache(optionsAccessor, NullLogger<RedisCache>.Instance);
     }
 
     private DistributedMemoryCacheProvider CreateProvider(
@@ -592,8 +590,8 @@ public class DistributedMemoryCacheProviderTests
             memoryCache,
             cache,
             new ExternalCacheKeyFactory(new ExternalCacheSettings() {AppName = _appName, InstanceName = _instanceName}),
-            lockFactory ?? new MemoryLockFactory(LoggerUtils.GetLogger<MemoryLockFactory>(_output)),
-            LoggerUtils.GetLogger<DistributedMemoryCacheProvider>(_output));
+            lockFactory ?? new MemoryLockFactory(new LoggerFactory()),
+            new LoggerFactory());
     }
 
     private static ConnectionMultiplexer CreateConnection() =>

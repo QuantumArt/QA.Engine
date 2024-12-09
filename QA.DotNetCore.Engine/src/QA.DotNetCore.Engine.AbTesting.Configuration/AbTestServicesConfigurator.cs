@@ -7,6 +7,7 @@ using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
 using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Engine.Abstractions.Targeting;
 using QA.DotNetCore.Engine.Persistent.Configuration;
 using QA.DotNetCore.Engine.CacheTags.Configuration;
@@ -44,12 +45,10 @@ namespace QA.DotNetCore.Engine.AbTesting.Configuration
                 if (String.IsNullOrWhiteSpace(options.QpDatabaseType))
                     throw new Exception("QpDatabaseType is not configured.");
 
-                services.AddScoped<IUnitOfWork, UnitOfWork>(sp =>
-                {
-                    return new UnitOfWork(options.QpConnectionString, options.QpDatabaseType);
-                });
-                services.AddScoped<Func<IUnitOfWork>>(sp => () => sp.GetRequiredService<IUnitOfWork>());
-                services.AddScoped<Func<IServiceProvider, IUnitOfWork>>(_ => (provider) => provider.GetRequiredService<IUnitOfWork>());
+                services.AddScoped<IUnitOfWork>(sp => new UnitOfWork(
+                    options.QpConnectionString,
+                    options.QpDatabaseType,
+                    sp.GetRequiredService<ILogger<UnitOfWork>>()));
             }
 
             services.TryAddSiteStructureRepositories();

@@ -44,6 +44,14 @@ namespace QA.DotNetCore.Engine.CacheTags
             return Get(contentInfo.ContentName, siteId, isStage);
         }
 
+        public Dictionary<string, string> GetByContentNetNames(string[] contentNetName, int siteId, bool isStage)
+        {
+            var contentsInfo = _metaInfoRepository.GetContents(contentNetName, siteId);
+            return contentsInfo.ToDictionary(
+                x => x.ContentNetName,
+                x => Get(x.ContentName, x.SiteId, isStage));
+        }
+
         public Dictionary<int, string> GetByContentIds(int[] contentIds, bool isStage)
         {
             var contentsInfo = _metaInfoRepository.GetContentsById(contentIds);

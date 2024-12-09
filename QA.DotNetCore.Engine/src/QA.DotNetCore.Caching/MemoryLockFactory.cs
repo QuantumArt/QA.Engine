@@ -14,17 +14,13 @@ namespace QA.DotNetCore.Caching;
 /// </summary>
 public class MemoryLockFactory : ILockFactory
 {
+    private readonly ILogger _logger;
     private readonly ConcurrentDictionary<string, MonitorLock> _lockers = new();
     private readonly ConcurrentDictionary<string, SemaphoreAsyncLock> _semaphores = new();
-    private readonly ILogger _logger;
 
-    public MemoryLockFactory(ILogger logger)
+    public MemoryLockFactory(ILoggerFactory loggerFactory)
     {
-        _logger = logger;
-    }
-
-    public MemoryLockFactory(ILogger<MemoryLockFactory> genericLogger) : this(logger: genericLogger)
-    {
+        _logger = loggerFactory.CreateLogger<MemoryLockFactory>();
     }
 
     public ILock CreateLock(string key) => _lockers.GetOrAdd(key, _ => new MonitorLock());
@@ -37,16 +33,16 @@ public class MemoryLockFactory : ILockFactory
         var lockerKeys = _lockers.Where(n => n.Value.LastUsed < dateTime)
             .Select(n => n.Key).ToList();
 
-        _logger.LogInformation($"Deleting {lockerKeys.Count} lockers from {_lockers.Count}");
+        _logger.LogInformation("Deleting {toDelete} lockers from {total}", lockerKeys.Count, _lockers.Count);
         lockerKeys.ForEach(key => _lockers.Remove(key, out _));
 
         var semaphoreKeys = _semaphores.Where(n => n.Value.LastUsed < dateTime)
             .Select(n => n.Key).ToList();
-        _logger.LogInformation($"Deleting {semaphoreKeys.Count} semaphores from {_semaphores.Count}");
+        _logger.LogInformation("Deleting {toDelete} semaphores from {total}", semaphoreKeys.Count, _semaphores.Count);
         semaphoreKeys.ForEach(key =>
         {
             _semaphores.Remove(key, out SemaphoreAsyncLock semaphoreAsyncLock);
-            if (semaphoreAsyncLock != null && !semaphoreAsyncLock.InUse)
+            if (semaphoreAsyncLock is { InUse: false })
             {
                 semaphoreAsyncLock.Dispose();
             }

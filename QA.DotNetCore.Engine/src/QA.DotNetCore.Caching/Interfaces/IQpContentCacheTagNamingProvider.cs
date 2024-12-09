@@ -11,6 +11,7 @@ namespace QA.DotNetCore.Caching.Interfaces
         string Get(string contentName, int siteId, bool isStage);
         string GetByNetName(string contentNetName, int siteId, bool isStage);
         Dictionary<int, string> GetByContentIds(int[] contentIds, bool isStage);
+        Dictionary<string, string> GetByContentNetNames(string[] contentNetNames, int siteId, bool isStage);
         void SetUnitOfWork(IUnitOfWork unitOfWork);
     }
 }

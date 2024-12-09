@@ -1,14 +1,13 @@
+using System;
+using System.Linq;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using Moq;
 using NUnit.Framework;
 using QA.DotNetCore.Caching;
 using QA.DotNetCore.Engine.Persistent.Dapper.Tests.Infrastructure;
 using QA.DotNetCore.Engine.QpData.Persistent.Dapper;
-using System;
-using System.Linq;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests
 {
@@ -24,12 +23,12 @@ namespace QA.DotNetCore.Engine.Persistent.Dapper.Tests
             var cacheProvider = new VersionedCacheCoreProvider(
                 new MemoryCache(Options.Create(new MemoryCacheOptions())),
                 new CacheKeyFactoryBase(),
-                new MemoryLockFactory(NullLoggerFactory.Instance.CreateLogger<MemoryLockFactory>()),
-                Mock.Of<ILogger>());
-            var metaRepository = new MetaInfoRepository(serviceProvider, cacheProvider, settings);
+                new MemoryLockFactory(new LoggerFactory()),
+                new LoggerFactory());
+            var metaRepository = new MetaInfoRepository(serviceProvider, cacheProvider, settings, NullLogger<MetaInfoRepository>.Instance);
             var sqlAnalyzer = new NetNameQueryAnalyzer(metaRepository);
             _repository = new ItemDefinitionRepository(serviceProvider, sqlAnalyzer, new StubNamingProvider(),
-                cacheProvider, settings);
+                cacheProvider, settings, NullLogger<ItemDefinitionRepository>.Instance);
         }
 
         [Test]

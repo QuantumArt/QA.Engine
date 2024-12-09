@@ -11,16 +11,14 @@ public class ExternalLockFactory : ILockFactory
     private readonly ExternalCacheSettings _settings;
     private readonly ILogger _logger;
 
-    public ExternalLockFactory(IDistributedLockFactory lockFactory, ExternalCacheSettings settings, ILogger logger)
+    public ExternalLockFactory(
+        IDistributedLockFactory lockFactory,
+        ExternalCacheSettings settings,
+        ILogger<ExternalLockFactory> logger)
     {
         _lockFactory = lockFactory;
         _settings = settings;
         _logger = logger;
-    }
-
-    public ExternalLockFactory(IDistributedLockFactory lockFactory, ExternalCacheSettings settings, ILogger<ExternalLockFactory> genericLogger)
-        : this(lockFactory, settings, logger: genericLogger)
-    {
     }
 
     public ILock CreateLock(string key) => new ExternalLock(key, _lockFactory, _settings);

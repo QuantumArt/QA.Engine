@@ -22,8 +22,7 @@ namespace QA.DotNetCore.Engine.Persistent.Interfaces
             bool isStage,
             IDbTransaction transaction = null);
 
-        IDictionary<int, M2MRelations> GetManyToManyData(IEnumerable<int> itemIds, bool isStage,
-            IDbTransaction transaction = null);
+        IDictionary<int, M2MRelations> GetManyToManyData(IEnumerable<int> itemIds, bool isStage, IDbTransaction transaction = null);
 
         IDictionary<int, M2MRelations> GetManyToManyDataByContents(
             IEnumerable<int> contentIds,

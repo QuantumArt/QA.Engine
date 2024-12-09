@@ -8,10 +8,11 @@ namespace QA.DotNetCore.Engine.Routing.Configuration
         /// Добавляем работу со структурой сайта в pipeline. Должно вызываться до UseMvc.
         /// </summary>
         /// <param name="app"></param>
+        /// <param name="checker"></param>
         /// <returns></returns>
-        public static IApplicationBuilder UseSiteStructure(this IApplicationBuilder app)
+        public static IApplicationBuilder UseSiteStructure(this IApplicationBuilder app, ExcludePathChecker checker = null)
         {
-            app.UseMiddleware<RoutingMiddleware>();
+            app.UseMiddleware<RoutingMiddleware>(checker ?? new ExcludePathChecker());
             return app;
         }
     }

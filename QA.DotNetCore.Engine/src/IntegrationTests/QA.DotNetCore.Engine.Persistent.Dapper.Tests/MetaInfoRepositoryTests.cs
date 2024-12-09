@@ -22,10 +22,10 @@ public class MetaInfoRepositoryTests
         var cacheProvider = new VersionedCacheCoreProvider(
             new MemoryCache(Options.Create(new MemoryCacheOptions())),
             new CacheKeyFactoryBase(),
-            new MemoryLockFactory(NullLoggerFactory.Instance.CreateLogger<MemoryLockFactory>()),
-            Mock.Of<ILogger>());
+            new MemoryLockFactory(new LoggerFactory()),
+            new LoggerFactory());
 
-        _repository = new MetaInfoRepository(serviceProvider, cacheProvider, settings);
+        _repository = new MetaInfoRepository(serviceProvider, cacheProvider, settings, NullLogger<MetaInfoRepository>.Instance);
     }
 
     [Test]

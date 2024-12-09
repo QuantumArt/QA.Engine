@@ -2,30 +2,27 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QA.DotNetCore.Caching.Interfaces;
-using QA.DotNetCore.Engine.CacheTags.Configuration;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace QA.DotNetCore.Engine.CacheTags
+namespace QA.DotNetCore.Engine.CacheTags.Configuration
 {
     /// <summary>
     /// Фоновый процесс, отслеживающий изменения кештегов
     /// </summary>
     public class CacheInvalidationService : IHostedService, IDisposable
     {
-        private readonly ILogger<CacheInvalidationService> _logger;
+        private static readonly object _locker = new();
+        private readonly ILogger _logger;
         private readonly TimeSpan _interval;
         private readonly Timer _timer;
-        private readonly IServiceProvider _provider;
+        private readonly IServiceScopeFactory _factory;
 
         public CacheInvalidationService(
-            ILogger<CacheInvalidationService> logger,
             CacheTagsRegistrationConfigurator cfg,
-            IServiceScopeFactory factory)
+            IServiceScopeFactory factory,
+            ILogger<CacheInvalidationService> logger)
         {
             _logger = logger;
-            _provider = factory.CreateScope().ServiceProvider;
+            _factory = factory;
             _interval = cfg.TimerInterval;
             _timer = new Timer(
                 OnTick,
@@ -36,15 +33,23 @@ namespace QA.DotNetCore.Engine.CacheTags
 
         private void OnTick(object? state)
         {
-            _logger.LogDebug("Cache invalidation started");
-            var watcher = _provider.GetRequiredService<ICacheTagWatcher>();
-            watcher.TrackChanges(_provider);
-            _logger.LogDebug("Cache invalidation completed");
+            if (!Monitor.TryEnter(_locker))
+            {
+                _logger.LogInformation("A previous invalidation is in progress now. Proceeding exit");
+            }
+            else
+            {
+                _logger.LogInformation("Creating new scope");
+                using var scope = _factory.CreateScope();
+                var provider = scope.ServiceProvider;
+                var watcher = provider.GetRequiredService<ICacheTagWatcher>();
+                watcher.TrackChanges();
+            }
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _ = _timer.Change(TimeSpan.Zero, _interval);
+            _ = _timer.Change(_interval, _interval);
             return Task.CompletedTask;
         }
 
@@ -54,9 +59,6 @@ namespace QA.DotNetCore.Engine.CacheTags
             return Task.CompletedTask;
         }
 
-        public void Dispose()
-        {
-            _timer?.Dispose();
-        }
+        public void Dispose() => _timer.Dispose();
     }
 }

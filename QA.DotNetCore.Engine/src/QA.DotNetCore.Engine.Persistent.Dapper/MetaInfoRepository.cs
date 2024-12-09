@@ -1,20 +1,23 @@
-using Dapper;
-using Microsoft.Extensions.DependencyInjection;
-using QA.DotNetCore.Caching.Interfaces;
-using QA.DotNetCore.Engine.Persistent.Interfaces;
-using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
-using QA.DotNetCore.Engine.QpData.Settings;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using Dapper;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using QA.DotNetCore.Caching.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Data;
+using QA.DotNetCore.Engine.Persistent.Interfaces.Logging;
+using QA.DotNetCore.Engine.QpData.Settings;
 
 namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
 {
     public class MetaInfoRepository : IMetaInfoRepository
     {
+        private ILogger _logger;
         private readonly IMemoryCacheProvider _memoryCacheProvider;
         private readonly QpSiteStructureCacheSettings _cacheSettings;
         private readonly IServiceProvider _serviceProvider;
@@ -23,14 +26,27 @@ namespace QA.DotNetCore.Engine.QpData.Persistent.Dapper
         public MetaInfoRepository(
             IServiceProvider serviceProvider,
             IMemoryCacheProvider memoryCacheProvider,
-            QpSiteStructureCacheSettings cacheSettings)
+            QpSiteStructureCacheSettings cacheSettings,
+            ILogger<MetaInfoRepository> logger)
         {
             _serviceProvider = serviceProvider;
             _memoryCacheProvider = memoryCacheProvider;
             _cacheSettings = cacheSettings;
+            _logger = logger;
         }
 
-        protected IUnitOfWork UnitOfWork => _unitOfWork ?? _serviceProvider.GetRequiredService<IUnitOfWork>();
+        protected IUnitOfWork UnitOfWork {
+            get
+            {
+                if (_unitOfWork == null)
+                {
+                    _unitOfWork = _serviceProvider.GetRequiredService<IUnitOfWork>();
+                    using var _ = _logger.BeginScopeWith(("unitOfWorkId", _unitOfWork.Id));
+                    _logger.LogTrace("Received UnitOfWork from ServiceProvider");
+                }
+                return _unitOfWork;
+            }
+        }
 
         private const string CmdGetSite = @"
 SELECT
@@ -100,6 +116,8 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
 
         public QpSitePersistentData GetSite(int siteId, IDbTransaction transaction = null)
         {
+            using var _ = _logger.BeginScopeWith(("unitOfWorkId", UnitOfWork.Id), ("siteId", siteId));
+            _logger.LogTrace("Get site info from DB");
             return UnitOfWork.Connection.QueryFirst<QpSitePersistentData>(string.Format(CmdGetSite, siteId), transaction: transaction);
         }
 
@@ -110,17 +128,27 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
 
         public ContentAttributePersistentData GetContentAttribute(int contentId, string fieldName, IDbTransaction transaction = null)
         {
+            using var _ = _logger.BeginScopeWith(
+                ("unitOfWorkId", UnitOfWork.Id),
+                ("fieldName", fieldName),
+                ("contentId", contentId));
+            _logger.LogTrace("Get content field by name from DB");
             return UnitOfWork.Connection.QueryFirstOrDefault<ContentAttributePersistentData>(
                 string.Format(CmdGetContentAttributeByName, contentId, fieldName), transaction: transaction);
         }
 
         public ContentAttributePersistentData GetContentAttributeByNetName(int contentId, string fieldNetName, IDbTransaction transaction = null)
         {
+            using var _ = _logger.BeginScopeWith(
+                ("unitOfWorkId", UnitOfWork.Id),
+                ("fieldNetName", fieldNetName),
+                ("contentId", contentId));
+            _logger.LogTrace("Get content field by .NET name from DB");
             return UnitOfWork.Connection.QueryFirstOrDefault<ContentAttributePersistentData>(
                 string.Format(CmdGetContentAttributeByNetName, contentId, fieldNetName), transaction: transaction);
         }
 
-        public ContentPersistentData[] GetContents(ICollection<string> contentNetNames, int siteId, IDbTransaction transaction = null)
+        public ContentPersistentData[] GetContents(string[] contentNetNames, int siteId, IDbTransaction transaction = null)
         {
             string[] normalizedNames = contentNetNames.Select(name => name.ToLower()).ToArray();
             return GetContentsCore(
@@ -174,7 +202,19 @@ INNER JOIN ATTRIBUTE_TYPE at ON at.ATTRIBUTE_TYPE_ID = ca.ATTRIBUTE_TYPE_ID
             var attributes = _memoryCacheProvider.GetOrAdd(
                 cacheKey,
                 expiry,
-                () => UnitOfWork.Connection.Query<ContentAttributePersistentData>(query, parameters, transaction));
+                () =>
+                {
+                    using var _ = _logger.BeginScopeWith(
+                        ("unitOfWorkId", UnitOfWork.Id),
+                        ("templateId", templateId),
+                        ("parameters", parameterValues),
+                        ("siteId", siteId),
+                        ("cacheKey", cacheKey),
+                        ("expiry", expiry)
+                        );
+                    _logger.LogTrace("Get contents and fields from DB");
+                    return UnitOfWork.Connection.Query<ContentAttributePersistentData>(query, parameters, transaction);
+                });
 
             return GroupAttributesIntoContents(attributes).ToArray();
         }

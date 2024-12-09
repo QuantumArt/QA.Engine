@@ -22,11 +22,14 @@ public class AbTestRepositoryTests
         var cacheProvider = new VersionedCacheCoreProvider(
             new MemoryCache(Options.Create(new MemoryCacheOptions())),
             new CacheKeyFactoryBase(),
-            new MemoryLockFactory(NullLoggerFactory.Instance.CreateLogger<MemoryLockFactory>()),
-            Mock.Of<ILogger>());
-        var metaRepository = new MetaInfoRepository(serviceProvider, cacheProvider, settings);
+            new MemoryLockFactory(new LoggerFactory()),
+            new LoggerFactory()
+            );
+        var metaRepository = new MetaInfoRepository(
+            serviceProvider, cacheProvider, settings, NullLogger<MetaInfoRepository>.Instance
+            );
         var sqlAnalyzer = new NetNameQueryAnalyzer(metaRepository);
-        _repository = new AbTestRepository(serviceProvider, sqlAnalyzer);
+        _repository = new AbTestRepository(serviceProvider, sqlAnalyzer, NullLogger<AbTestRepository>.Instance);
     }
 
     [Test]

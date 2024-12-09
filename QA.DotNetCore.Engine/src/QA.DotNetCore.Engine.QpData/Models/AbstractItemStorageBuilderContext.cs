@@ -6,10 +6,7 @@ namespace QA.DotNetCore.Engine.QpData.Models
 {
     public class AbstractItemStorageBuilderContext
     {
-        public AbstractItemStorageBuilderContext()
-        {
-            LogId = Guid.NewGuid().ToString();
-        }
+        public string Id { get; } = Guid.NewGuid().ToString();
 
         public IDictionary<int, AbstractItemExtensionCollection> GetExtensionData(int key)
         {
@@ -21,11 +18,11 @@ namespace QA.DotNetCore.Engine.QpData.Models
         /// Словарь, где ключ - это Content Id расширения, в значение - это статьи расширения, где поля раскиданы по ключам
         /// </summary>
         public IDictionary<int, Lazy<IDictionary<int, AbstractItemExtensionCollection>>> LazyExtensionData { get; set; }
-        
+
         /// <summary>
         /// Словарь, где ключ - это Content Id расширения, в значение - это статьи расширения, где поля раскиданы по ключам
         /// </summary>
-        
+
         public IDictionary<int, IDictionary<int, AbstractItemExtensionCollection>> ExtensionData { get; set; }
 
         /// <summary>
@@ -52,9 +49,8 @@ namespace QA.DotNetCore.Engine.QpData.Models
         /// M2M у AbstractItems по content_item_id
         /// </summary>
         public IDictionary<int, M2MRelations> AbstractItemsM2MData { get; set; }
-        
+
         public IDictionary<int, Dictionary<string, int>> M2MFields { get; set; }
 
-        public string LogId { get; }
     }
 }

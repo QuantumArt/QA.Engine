@@ -11,6 +11,7 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
     public class CacheInvalidationService : IHostedService, IDisposable
     {
         private static readonly object _locker = new();
+        private bool _lockTaken;
         private readonly ILogger _logger;
         private readonly TimeSpan _interval;
         private readonly Timer _timer;
@@ -33,17 +34,27 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
 
         private void OnTick(object? state)
         {
-            if (!Monitor.TryEnter(_locker))
+            try
             {
-                _logger.LogInformation("A previous invalidation is in progress now. Proceeding exit");
+                Monitor.TryEnter(_locker, 0, ref _lockTaken);
+                if (!_lockTaken)
+                {
+                    _logger.LogInformation("A previous invalidation is in progress now. Proceeding exit");
+                }
+                else
+                {
+                    _logger.LogInformation("Creating new scope");
+                    using var scope = _factory.CreateScope();
+                    var provider = scope.ServiceProvider;
+                    var watcher = provider.GetRequiredService<ICacheTagWatcher>();
+                    watcher.TrackChanges();
+                }
             }
-            else
+            finally
             {
-                _logger.LogInformation("Creating new scope");
-                using var scope = _factory.CreateScope();
-                var provider = scope.ServiceProvider;
-                var watcher = provider.GetRequiredService<ICacheTagWatcher>();
-                watcher.TrackChanges();
+                if (_lockTaken) {
+                    Monitor.Exit(_locker);
+                }
             }
         }
 

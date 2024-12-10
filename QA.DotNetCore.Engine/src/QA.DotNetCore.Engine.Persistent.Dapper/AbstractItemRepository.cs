@@ -168,10 +168,9 @@ JOIN {baseContent.GetTableName(isStage)} ai {withNoLock} on ai.content_item_id =
 
             using var _ = _logger.BeginScopeWith(
                 ("unitOfWorkId", UnitOfWork.Id),
-                ("extensionContentId", extensionContentId),
                 ("loadAbstractItemFields", loadAbstractItemFields),
                 ("isStage", isStage));
-            _logger.LogTrace("Get abstract items extension data");
+            _logger.LogTrace("Get abstract items extension data for content {extensionContentId}", extensionContentId);
 
             using var command = UnitOfWork.Connection.CreateCommand();
             command.CommandText = query;

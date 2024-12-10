@@ -63,13 +63,14 @@ namespace QA.DotNetCore.Caching
             var modifications = changedModifications
                 .Select(n => n.ToString())
                 .ToArray();
-            using var _ = _logger.BeginScopeWith(("modifications", modifications));
-            _logger.LogTrace("Changed modifications");
 
             if (changedModifications.Length <= 0)
             {
                 return Array.Empty<string>();
             }
+
+            using var _ = _logger.BeginScopeWith(("modifications", modifications));
+            _logger.LogTrace("Changed modifications");
 
             Dictionary<string, CacheTagModification> previousModificationMappings = previousModifications
                 .ToDictionary(modification => modification.Name);

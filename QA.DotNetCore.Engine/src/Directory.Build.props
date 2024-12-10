@@ -24,4 +24,3 @@
     <SourceLinkAzureDevOpsServerGitHost Include="tfs.dev.qsupport.ru" VirtualDirectory="tfs" />
   </ItemGroup>
 </Project>
-F

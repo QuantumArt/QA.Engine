@@ -33,17 +33,24 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
 
         private void OnTick(object? state)
         {
-            if (!Monitor.TryEnter(_locker))
+            if (!Monitor.TryEnter(_locker, 0))
             {
                 _logger.LogInformation("A previous invalidation is in progress now. Proceeding exit");
             }
             else
             {
-                _logger.LogInformation("Creating new scope");
-                using var scope = _factory.CreateScope();
-                var provider = scope.ServiceProvider;
-                var watcher = provider.GetRequiredService<ICacheTagWatcher>();
-                watcher.TrackChanges();
+                try
+                {
+                    _logger.LogInformation("Creating new scope");
+                    using var scope = _factory.CreateScope();
+                    var provider = scope.ServiceProvider;
+                    var watcher = provider.GetRequiredService<ICacheTagWatcher>();
+                    watcher.TrackChanges();
+                }
+                finally
+                {
+                    Monitor.Exit(_locker);
+                }
             }
         }
 

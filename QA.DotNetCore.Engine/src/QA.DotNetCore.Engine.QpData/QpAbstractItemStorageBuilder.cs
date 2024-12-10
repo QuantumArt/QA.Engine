@@ -60,9 +60,11 @@ namespace QA.DotNetCore.Engine.QpData
         {
             using var _ = _logger.BeginScopeWith(("buildId", _context.Id),
                 ("siteId", _buildSettings.SiteId),
-                ("isStage", _buildSettings.IsStage));
+                ("isStage", _buildSettings.IsStage),
+                ("from", "AbstractItem array")
+                );
 
-            _logger.LogTrace("AbstractItemStorage build (from AbstractItem array) started");
+            _logger.LogTrace("AbstractItemStorage build started");
 
             var root = abstractItems.First(x => x.Discriminator == _buildSettings.RootPageDiscriminator);
             return new AbstractItemStorage(root, abstractItems);
@@ -88,10 +90,10 @@ namespace QA.DotNetCore.Engine.QpData
             using (_logger.BeginScopeWith(
                        ("siteId", _buildSettings.SiteId),
                        ("isStage", _buildSettings.IsStage),
-                       ("contentId", extensionContentId),
+                       ("from", "AbstractItemPersistentData array" ),
                        ("lazyLoad", lazyLoad)))
             {
-                _logger.LogTrace("AbstractItemStorage build (from AbstractItemPersistentData array) started");
+                _logger.LogTrace("AbstractItemStorage build for content {contentId} started", extensionContentId);
             }
 
             var activatedAbstractItems = new Dictionary<int, AbstractItem>();

@@ -33,15 +33,13 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
 
         private void OnTick(object? state)
         {
-            bool lockTaken = false;
-            try
+            if (!Monitor.TryEnter(_locker, 0))
             {
-                Monitor.TryEnter(_locker, 0, ref lockTaken);
-                if (!lockTaken)
-                {
-                    _logger.LogInformation("A previous invalidation is in progress now. Proceeding exit");
-                }
-                else
+                _logger.LogInformation("A previous invalidation is in progress now. Proceeding exit");
+            }
+            else
+            {
+                try
                 {
                     _logger.LogInformation("Creating new scope");
                     using var scope = _factory.CreateScope();
@@ -49,10 +47,8 @@ namespace QA.DotNetCore.Engine.CacheTags.Configuration
                     var watcher = provider.GetRequiredService<ICacheTagWatcher>();
                     watcher.TrackChanges();
                 }
-            }
-            finally
-            {
-                if (lockTaken) {
+                finally
+                {
                     Monitor.Exit(_locker);
                 }
             }

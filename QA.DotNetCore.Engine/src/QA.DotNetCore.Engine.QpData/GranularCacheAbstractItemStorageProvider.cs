@@ -27,6 +27,7 @@ namespace QA.DotNetCore.Engine.QpData
         private readonly IQpContentCacheTagNamingProvider _qpContentCacheTagNamingProvider;
         private readonly ICacheProvider _cacheProvider;
         private readonly VersionedCacheCoreProvider _memoryCacheProvider;
+        private readonly IServiceProvider _serviceProvider;
 
         public GranularCacheAbstractItemStorageProvider(
             IAbstractItemContextStorageBuilder builder,
@@ -36,6 +37,7 @@ namespace QA.DotNetCore.Engine.QpData
             IAbstractItemRepository abstractItemRepository,
             ICacheProvider cacheProvider,
             VersionedCacheCoreProvider memoryCacheProvider,
+            IServiceProvider serviceProvider,
             ILogger<GranularCacheAbstractItemStorageProvider> logger)
         {
             _builder = builder;
@@ -46,6 +48,7 @@ namespace QA.DotNetCore.Engine.QpData
             _cacheProvider = cacheProvider;
             _memoryCacheProvider = memoryCacheProvider;
             _logger = logger;
+            _serviceProvider = serviceProvider;
         }
 
         public AbstractItemStorage Get()
@@ -70,7 +73,7 @@ namespace QA.DotNetCore.Engine.QpData
             TimeSpan waitTimeout = _buildSettings.CacheFetchTimeoutAbstractItemStorage;
             const string cacheKey = nameof(GranularCacheAbstractItemStorageProvider) + "." + nameof(Get);
 
-            return _memoryCacheProvider.GetOrAdd(
+            var storage = _memoryCacheProvider.GetOrAdd(
                 cacheKey,
                 tags.AllTags,
                 expiry,
@@ -86,6 +89,8 @@ namespace QA.DotNetCore.Engine.QpData
                 },
                 waitTimeout,
                 true);
+            storage.Builder.SetServiceProvider(_serviceProvider);
+            return storage;
         }
 
         /// <summary>

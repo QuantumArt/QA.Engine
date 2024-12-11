@@ -67,7 +67,8 @@ namespace QA.DotNetCore.Engine.QpData
             _logger.LogTrace("AbstractItemStorage build started");
 
             var root = abstractItems.First(x => x.Discriminator == _buildSettings.RootPageDiscriminator);
-            return new AbstractItemStorage(root, abstractItems);
+            var storage = new AbstractItemStorage(root, this, abstractItems);
+            return storage;
         }
 
         /// <summary>
@@ -93,7 +94,7 @@ namespace QA.DotNetCore.Engine.QpData
                        ("from", "AbstractItemPersistentData array" ),
                        ("lazyLoad", lazyLoad)))
             {
-                _logger.LogTrace("AbstractItemStorage build for content {contentId} started", extensionContentId);
+                _logger.LogTrace("AbstractItem array build for content {contentId} started", extensionContentId);
             }
 
             var activatedAbstractItems = new Dictionary<int, AbstractItem>();
@@ -220,6 +221,8 @@ namespace QA.DotNetCore.Engine.QpData
             SetRelationsBetweenAbstractItems(abstractItems);
             return BuildStorage(abstractItems);
         }
+
+        public void SetServiceProvider(IServiceProvider serviceProvider) => _serviceProvider = serviceProvider;
 
         /// <summary>
         /// Формирование контекста

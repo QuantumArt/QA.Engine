@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Authors>Grigorenko Paul, Karlov Nickolay</Authors>
     <Description>Provides integration features with OnScreen component.</Description>
   </PropertyGroup>
@@ -8,9 +8,9 @@
     <EmbeddedResource Include="Views\Shared\Components\OnScreen\Default.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.12" />
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="6.0.12" />
-    <PackageReference Include="Quantumart.AspNetCore" Version="6.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.11" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="8.0.11" />
+    <PackageReference Include="Quantumart.AspNetCore" Version="6.2.1" />
   </ItemGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

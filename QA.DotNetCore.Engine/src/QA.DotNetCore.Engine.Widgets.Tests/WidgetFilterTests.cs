@@ -10,7 +10,7 @@ namespace QA.DotNetCore.Engine.Widgets.Tests
         {
             var filter = new WidgetFilter("SomeZone", "/");
             var page = new StubPage();
-            Assert.False(filter.Match(page));
+            Assert.That(filter.Match(page), Is.False);
         }
 
         [Test]
@@ -19,10 +19,10 @@ namespace QA.DotNetCore.Engine.Widgets.Tests
             var filter = new WidgetFilter("SomeZone", "/");
 
             var widget1 = new StubWidget("SomeZone", null, null);
-            Assert.True(filter.Match(widget1));
+            Assert.That(filter.Match(widget1), Is.True);
 
             var widget2 = new StubWidget("AnotherZone", null, null);
-            Assert.False(filter.Match(widget2));
+            Assert.That(filter.Match(widget2), Is.False);
         }
 
         [Test]
@@ -30,72 +30,72 @@ namespace QA.DotNetCore.Engine.Widgets.Tests
         {
             const string zone = "SomeZone";
             var widget = new StubWidget(zone, null,
-                new string[] { "/", "page1/*", "page2*", "page3", "/page11/*", "/page12*", "/page13" });
+                new[] { "/", "page1/*", "page2*", "page3", "/page11/*", "/page12*", "/page13" });
 
             var filter = new WidgetFilter(zone, "/");
-            Assert.False(filter.Match(widget));
+            Assert.That(filter.Match(widget), Is.False);
 
             filter = new WidgetFilter(zone, "/foo/bar");
-            Assert.True(filter.Match(widget));
+            Assert.That(filter.Match(widget), Is.True);
 
             filter = new WidgetFilter(zone, "/page1");
-            Assert.True(filter.Match(widget));
+            Assert.That(filter.Match(widget), Is.True);
 
             filter = new WidgetFilter(zone, "/page1/page2");
-            Assert.False(filter.Match(widget));
+            Assert.That(filter.Match(widget), Is.False);
 
             filter = new WidgetFilter(zone, "/page11");
-            Assert.True(filter.Match(widget));
+            Assert.That(filter.Match(widget), Is.True);
 
             filter = new WidgetFilter(zone, "/page11/page2");
-            Assert.False(filter.Match(widget));
+            Assert.That(filter.Match(widget), Is.False);
 
             filter = new WidgetFilter(zone, "/page2");
-            Assert.False(filter.Match(widget));
+            Assert.That(filter.Match(widget), Is.False);
 
             filter = new WidgetFilter(zone, "/page2/page3");
-            Assert.False(filter.Match(widget));
+            Assert.That(filter.Match(widget), Is.False);
 
             filter = new WidgetFilter(zone, "/page12");
-            Assert.False(filter.Match(widget));
+            Assert.That(filter.Match(widget), Is.False);
 
             filter = new WidgetFilter(zone, "/page12/page3");
-            Assert.False(filter.Match(widget));
+            Assert.That(filter.Match(widget), Is.False);
 
             filter = new WidgetFilter(zone, "/page3");
-            Assert.False(filter.Match(widget));
+            Assert.That(filter.Match(widget), Is.False);
 
             filter = new WidgetFilter(zone, "/page3/page4");
-            Assert.True(filter.Match(widget));
+            Assert.That(filter.Match(widget), Is.True);
 
             filter = new WidgetFilter(zone, "/page13");
-            Assert.False(filter.Match(widget));
+            Assert.That(filter.Match(widget), Is.False);
 
             filter = new WidgetFilter(zone, "/page13/page4");
-            Assert.True(filter.Match(widget));
+            Assert.That(filter.Match(widget), Is.True);
         }
 
         [Test]
         public void Test_AllowedPatternsMustWork()
         {
             const string zone = "SomeZone";
-            var widget = new StubWidget(zone, new string[] { "/page1*" },
-                new string[] { "*/details/*" });
+            var widget = new StubWidget(zone, new[] { "/page1*" },
+                new[] { "*/details/*" });
 
             var filter = new WidgetFilter(zone, "/foo/bar");
-            Assert.False(filter.Match(widget));
+            Assert.That(filter.Match(widget), Is.False);
 
             filter = new WidgetFilter(zone, "/page1");
-            Assert.True(filter.Match(widget));
+            Assert.That(filter.Match(widget), Is.True);
 
             filter = new WidgetFilter(zone, "/page1/a/b/c");
-            Assert.True(filter.Match(widget));
+            Assert.That(filter.Match(widget), Is.True);
 
             filter = new WidgetFilter(zone, "/page1/details/c");
-            Assert.False(filter.Match(widget));
+            Assert.That(filter.Match(widget), Is.False);
 
             filter = new WidgetFilter(zone, "/page1/a/b/details/c");
-            Assert.False(filter.Match(widget));
+            Assert.That(filter.Match(widget), Is.False);
         }
     }
 }

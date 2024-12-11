@@ -8,10 +8,12 @@ namespace QA.DotNetCore.Engine.Abstractions
 {
     public sealed class AbstractItemStorage
     {
-        private readonly Dictionary<int, IAbstractItem> _items = new Dictionary<int, IAbstractItem>();
+        private readonly Dictionary<int, IAbstractItem> _items = new();
 
         private readonly Dictionary<string, IStartPage> _startPageByDnsPatternMappings =
             new Dictionary<string, IStartPage>();
+
+        public IAbstractItemStorageBuilder Builder { get; }
 
         public IAbstractItem Root { get; }
 
@@ -22,9 +24,13 @@ namespace QA.DotNetCore.Engine.Abstractions
             SetStartPages();
         }
 
-        public AbstractItemStorage(IAbstractItem root, IEnumerable<IAbstractItem> abstractItems)
+        public AbstractItemStorage(
+            IAbstractItem root,
+            IAbstractItemStorageBuilder builder,
+            IEnumerable<IAbstractItem> abstractItems)
         {
             Root = root;
+            Builder = builder;
             AddItems(abstractItems);
             SetStartPages();
         }

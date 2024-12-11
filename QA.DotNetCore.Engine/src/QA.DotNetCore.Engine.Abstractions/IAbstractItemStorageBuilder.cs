@@ -1,6 +1,6 @@
-using QA.DotNetCore.Engine.Abstractions;
+using System;
 
-namespace QA.DotNetCore.Engine.QpData.Interfaces
+namespace QA.DotNetCore.Engine.Abstractions
 {
     /// <summary>
     /// Интерфейс строителя структуры сайта
@@ -8,5 +8,7 @@ namespace QA.DotNetCore.Engine.QpData.Interfaces
     public interface IAbstractItemStorageBuilder
     {
         AbstractItemStorage Build();
+
+        void SetServiceProvider(IServiceProvider serviceProvider);
     }
 }

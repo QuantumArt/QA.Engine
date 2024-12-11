@@ -22,11 +22,11 @@ public class ContentModificationRepositoryTests
         Assert.DoesNotThrow(() =>
         {
             var allContentMods = _repository.GetAll();
-            Assert.Positive(allContentMods.Count());
-            Assert.True(allContentMods.All(cm => cm.StageModified >= cm.LiveModified));
+            Assert.That(allContentMods.Count(), Is.Positive);
+            Assert.That(allContentMods.All(cm => cm.StageModified >= cm.LiveModified), Is.True);
 
             var abstractItemChanged = allContentMods.FirstOrDefault(m => m.ContentName == "AbstractItem");
-            Assert.NotNull(abstractItemChanged);
+            Assert.That(abstractItemChanged, Is.Not.Null);
         });
     }
 }

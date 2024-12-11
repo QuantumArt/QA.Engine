@@ -12,10 +12,4 @@
     <ProjectReference Include="..\QA.DotNetCore.Engine.QpData\QA.DotNetCore.Engine.QpData.csproj" />
     <ProjectReference Include="..\QA.DotNetCore.Engine.Routing\QA.DotNetCore.Engine.Routing.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Update="Microsoft.SourceLink.AzureDevOpsServer.Git" Version="8.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
 </Project>

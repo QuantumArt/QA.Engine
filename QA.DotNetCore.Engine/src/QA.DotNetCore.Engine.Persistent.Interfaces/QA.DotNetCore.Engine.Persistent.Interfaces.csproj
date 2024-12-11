@@ -5,10 +5,6 @@
     <Description>Provides interface for persistent layer of .Net Core site structure.</Description>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Update="Microsoft.SourceLink.AzureDevOpsServer.Git" Version="8.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
   </ItemGroup>
 </Project>
